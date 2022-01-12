@@ -1,0 +1,361 @@
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Sid" : "ssm0",
+      "Effect" : "Allow",
+      "Action" : [
+        "ssm:DescribeAssociation",
+        "ssm:GetDeployablePatchSnapshotForInstance",
+        "ssm:GetDocument",
+        "ssm:DescribeDocument",
+        "ssm:GetManifest",
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:ListAssociations",
+        "ssm:ListInstanceAssociations",
+        "ssm:PutInventory",
+        "ssm:PutComplianceItems",
+        "ssm:PutConfigurePackageResult",
+        "ssm:UpdateAssociationStatus",
+        "ssm:UpdateInstanceAssociationStatus",
+        "ssm:UpdateInstanceInformation"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "ssm1",
+      "Effect" : "Allow",
+      "Action" : [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid":"logging",
+      "Effect": "Allow",
+      "Action": [
+        "tag:getResources",
+        "tag:getTagKeys",
+        "tag:getTagValues",
+        "resource-groups:Get*",
+        "resource-groups:List*",
+        "resource-groups:Search*",
+        "cloudformation:DescribeStacks",
+        "cloudformation:ListStackResources"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ec2:Describe*",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticloadbalancing:Describe*",
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:ListMetrics",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:Describe*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid":"EC2ReadOnlyforLogging",
+      "Effect": "Allow",
+      "Action": "autoscaling:Describe*",
+      "Resource": "*"
+    },
+    {
+      "Effect":"Allow",
+      "Action":[
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:PutLogEvents"
+      ],
+      "Resource":"*"
+    },
+    {
+      "Effect":"Allow",
+      "Action": [
+        "s3:Get*",
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+        "s3:ListBucket",
+        "s3:CreateBucket",
+        "s3:DeleteObject"
+      ],
+      "Resource" : "*" 
+    },		
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "ec2messages:AcknowledgeMessage",
+        "ec2messages:DeleteMessage",
+        "ec2messages:FailMessage",
+        "ec2messages:GetEndpoint",
+        "ec2messages:GetMessages",
+        "ec2messages:SendReply"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "devfimnwmsKMS",
+      "Effect" : "Allow",
+      "Action" : [
+        "kms:GetPublicKey",
+        "kms:Decrypt",
+        "kms:UntagResource",
+        "kms:ListKeyPolicies",
+        "kms:ListRetirableGrants",
+        "kms:GetKeyPolicy",
+        "kms:ListResourceTags",
+        "kms:ListGrants",
+        "kms:GetParametersForImport",
+        "kms:TagResource",
+        "kms:GetKeyRotationStatus",
+        "kms:DescribeKey"
+      ],
+      "Resource" : [
+        "arn:aws:iam::${account_id}:role/*",
+        "arn:aws:kms:${region}:${account_id}:key/*"
+      ]
+    },
+    {
+      "Sid" : "SeeAllS3KMS",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:*",
+        "kms:DescribeCustomKeyStores",
+        "kms:ListKeys",
+        "kms:ListAliases"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "PortalContent",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:Get*",
+        "s3:PutObject",
+        "s3:ListBucket",
+        "s3:CreateBucket",
+        "s3:DeleteObject",
+        "kms:Decrypt"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-ptl-content/*",
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-ptl-content",
+        "arn:aws:kms:${region}:${account_id}:key/*"
+      ]
+    },
+    {
+      "Sid" : "GISServerCache",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketAcl",
+        "s3:GetObjectVersion",
+        "kms:Decrypt"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-gis-server-cache/*",
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-gis-server-cache",
+        "arn:aws:kms:${region}:${account_id}:key/*"
+      ]
+    },
+    {
+      "Sid" : "ImageServerCache",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketAcl",
+        "s3:GetObjectVersion",
+        "kms:Decrypt"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-img-server-cache/*",
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-img-server-cache",
+        "arn:aws:kms:${region}:${account_id}:key/*"
+      ]
+    },
+    {
+      "Sid" : "GPServerCache",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketAcl",
+        "s3:GetObjectVersion",
+        "kms:Decrypt"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-gp-server-cache/*",
+        "arn:aws:s3:::hydrovis-${environment}-egis-${region}-gp-server-cache",
+        "arn:aws:kms:${region}:${account_id}:key/*"
+      ]
+    },
+    {
+      "Sid" : "sessionManagerLogging0",
+      "Effect" : "Allow",
+      "Action" : [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "ssm:DescribeSessions",
+        "ssm:UpdateInstanceInformation",
+        "ec2:describeInstances",
+        "ssm:DescribeInstanceProperties",
+        "ssm:TerminateSession",
+        "ssm:GetConnectionStatus",
+        "ssm:StartSession"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "kms:GenerateDataKey",
+        "kms:Decrypt"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "sessionManagerLogging1",
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:PutObject",
+        "s3:GetEncryptionConfiguration"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-session-manager-logging",
+        "arn:aws:s3:::hydrovis-${environment}-session-manager-logging/*"
+      ]
+    },
+    {
+      "Sid" : "AutoScaling",
+      "Effect" : "Allow",
+      "Action" : [
+        "ec2:AttachClassicLinkVpc",
+        "ec2:CancelSpotInstanceRequests",
+        "ec2:CreateFleet",
+        "ec2:CreateTags",
+        "ec2:DeleteTags",
+        "ec2:Describe*",
+        "ec2:DetachClassicLinkVpc",
+        "ec2:ModifyInstanceAttribute",
+        "ec2:RequestSpotInstances",
+        "ec2:RunInstances",
+        "ec2:TerminateInstances",
+        "elasticloadbalancing:Register*",
+        "elasticloadbalancing:Deregister*",
+        "elasticloadbalancing:Describe*",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:PutMetricAlarm",
+        "sns:Publish"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "PackerIAMPassRole",
+      "Effect" : "Allow",
+      "Action" : [
+        "iam:PassRole",
+        "iam:GetInstanceProfile"
+      ],
+      "Resource" : [
+        "*"
+      ]
+    },
+    {
+      "Sid" : "PackerDeploy",
+      "Effect" : "Allow",
+      "Action" : [
+        "ec2:AttachVolume",
+        "ec2:AuthorizeSecurityGroupIngress",
+        "ec2:CopyImage",
+        "ec2:CreateImage",
+        "ec2:CreateKeypair",
+        "ec2:CreateSecurityGroup",
+        "ec2:CreateSnapshot",
+        "ec2:CreateTags",
+        "ec2:CreateVolume",
+        "ec2:DeleteKeyPair",
+        "ec2:DeleteSecurityGroup",
+        "ec2:DeleteSnapshot",
+        "ec2:DeleteVolume",
+        "ec2:DeregisterImage",
+        "ec2:DescribeImageAttribute",
+        "ec2:DescribeImages",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceStatus",
+        "ec2:DescribeRegions",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSnapshots",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeTags",
+        "ec2:DescribeVolumes",
+        "ec2:DetachVolume",
+        "ec2:GetPasswordData",
+        "ec2:ModifyImageAttribute",
+        "ec2:ModifyInstanceAttribute",
+        "ec2:ModifySnapshotAttribute",
+        "ec2:RegisterImage",
+        "ec2:RunInstances",
+        "ec2:StopInstances",
+        "ec2:TerminateInstances"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:GetEncryptionConfiguration"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": "kms:GenerateDataKey",
+        "Resource": "*"
+    }
+  ]
+}

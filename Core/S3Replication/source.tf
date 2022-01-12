@@ -1,0 +1,636 @@
+variable "uat_account_id" {
+  type = string
+}
+
+variable "ti_account_id" {
+  type = string
+}
+
+resource "aws_kms_key" "hydrovis-hml-incoming-s3" {
+  count               = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  description         = "Symmetric CMK for KMS-KEY-ARN for HML Incoming Bucket"
+  enable_key_rotation = true
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Id      = "key-hydrovis-prod-hml-incoming-kms-cmk-policy"
+      Statement = [
+        {
+          Action = "kms:*"
+          Effect = "Allow"
+          Principal = {
+            AWS = [
+              "arn:aws:iam::${var.prod_account_id}:root",
+            ]
+          }
+          Resource = "*"
+          Sid      = "Enable IAM User Permissions"
+        },
+        {
+          Action = [
+            "kms:Create*",
+            "kms:Describe*",
+            "kms:Enable*",
+            "kms:List*",
+            "kms:Put*",
+            "kms:Update*",
+            "kms:Revoke*",
+            "kms:Disable*",
+            "kms:Get*",
+            "kms:Delete*",
+            "kms:ScheduleKeyDeletion",
+            "kms:CancelKeyDeletion",
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = "arn:aws:iam::${var.prod_account_id}:user/noel.perkins@noaa.gov"
+          }
+          Resource = "*"
+          Sid      = "Allow administration of the key"
+        },
+        {
+          Action = [
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey",
+            "kms:GenerateDataKeyWithoutPlaintext",
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = [
+              "arn:aws:iam::${var.prod_account_id}:user/zachary.wills@noaa.gov",
+              "arn:aws:iam::${var.prod_account_id}:user/hydrovis-data-prod-ingest-service-user",
+              "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE",
+            ]
+          }
+          Resource = "*"
+          Sid      = "Allow use of the key"
+        },
+      ]
+    }
+  )
+}
+
+resource "aws_iam_role" "hml-replication" {
+  count = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  name  = "hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE"
+  assume_role_policy = jsonencode(
+    {
+      Version = "2008-10-17"
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "s3.amazonaws.com"
+          }
+        },
+      ]
+
+    }
+  )
+
+  inline_policy {
+    name   = "HMLBucketReplicationPolicy"
+    policy = jsonencode(
+      {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = "iam:PassRole"
+            Effect   = "Allow"
+            Resource = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE"
+            Sid      = "VisualEditor4"
+          },
+          {
+            Action = [
+              "s3:GetObjectVersionTagging",
+              "s3:GetObjectVersionAcl",
+              "s3:GetObjectVersion",
+              "s3:GetObjectVersionForReplication",
+              "s3:ListBucket",
+              "s3:GetBucketVersioning",
+              "s3:GetReplicationConfiguration",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "arn:aws:s3:::hydrovis-prod-hml-incoming-us-east-1/*",
+              "arn:aws:s3:::hydrovis-prod-hml-incoming-us-east-1",
+            ]
+            Sid = "VisualEditor8"
+          },
+          {
+            Action = "kms:Decrypt"
+            Condition = {
+              StringLike = {
+                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+              }
+            }
+            Effect   = "Allow"
+            Resource = aws_kms_key.hydrovis-hml-incoming-s3[0].arn
+            Sid      = "VisualEditor0"
+          },
+          {
+            Action = "kms:Encrypt"
+            Condition = {
+              "ForAnyValue:StringLike" = {
+                "kms:ResourceAliases" = "alias/hydrovis-*-hml-*"
+              }
+              StringLike = {
+                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+              }
+            }
+            Effect   = "Allow"
+            Resource = "*"
+            Sid      = "VisualEditor3"
+          },
+          {
+            Action = [
+              "s3:ObjectOwnerOverrideToBucketOwner",
+              "s3:ReplicateObject",
+              "s3:ReplicateTags",
+              "s3:ReplicateDelete",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "arn:aws:s3:::hydrovis-*-hml-*",
+              "arn:aws:s3:::hydrovis-*-hml-*/*",
+            ]
+            Sid = "VisualEditor5"
+          },
+        ]
+      }
+    )
+  }
+}
+
+resource "aws_s3_bucket" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = "hydrovis-prod-hml-incoming-us-east-1"
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 0
+    enabled                                = true
+
+    expiration {
+      days = 30
+    }
+
+    noncurrent_version_expiration {
+      days = 1
+    }
+  }
+
+  replication_configuration {
+    role = aws_iam_role.hml-replication[0].arn
+
+    rules {
+      id       = "HMLReplicationRoleToProdHML"
+      priority = 0
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        bucket             = "arn:aws:s3:::hydrovis-prod-hml-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-hml-us-east-1-s3"
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+
+    rules {
+      id       = "HMLReplicationRoleToUatHML"
+      priority = 1
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        account_id         = "${var.uat_account_id}"
+        bucket             = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-hml-us-east-1-s3"
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+
+    rules {
+      id       = "HMLReplicationRoleToTiHML"
+      priority = 2
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        account_id         = "${var.ti_account_id}"
+        bucket             = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-hml-us-east-1-s3"
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      bucket_key_enabled = true
+
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.hydrovis-hml-incoming-s3[0].arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+}
+
+resource "aws_s3_bucket_policy" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-hml-incoming[0].bucket
+
+  policy = jsonencode(
+    {
+      Version = "2008-10-17"
+      Statement = [
+        {
+          Action = "s3:PutObject"
+          Condition = {
+            StringNotEquals = {
+              "s3:x-amz-server-side-encryption" = "aws:kms"
+            }
+          }
+          Effect    = "Deny"
+          Principal = "*"
+          Resource  = "${aws_s3_bucket.hydrovis-hml-incoming[0].arn}/*"
+          Sid       = "DenyUnEncryptedObjectUploads"
+        },
+      ]
+    }
+  )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+resource "aws_kms_key" "hydrovis-nwm-incoming-s3" {
+  count               = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  description         = "Symmetric CMK for KMS-KEY-ARN for NWM Incoming Bucket"
+  enable_key_rotation = true
+  policy = jsonencode(
+    {
+      Version = "2012-10-17"
+      Id      = "key-hydrovis-prod-nwm-incoming-kms-cmk-policy"
+      Statement = [
+        {
+          Action = "kms:*"
+          Effect = "Allow"
+          Principal = {
+            AWS = [
+              "arn:aws:iam::${var.prod_account_id}:root",
+            ]
+          }
+          Resource = "*"
+          Sid      = "Enable IAM User Permissions"
+        },
+        {
+          Action = [
+            "kms:Create*",
+            "kms:Describe*",
+            "kms:Enable*",
+            "kms:List*",
+            "kms:Put*",
+            "kms:Update*",
+            "kms:Revoke*",
+            "kms:Disable*",
+            "kms:Get*",
+            "kms:Delete*",
+            "kms:ScheduleKeyDeletion",
+            "kms:CancelKeyDeletion",
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = "arn:aws:iam::${var.prod_account_id}:user/noel.perkins@noaa.gov"
+          }
+          Resource = "*"
+          Sid      = "Allow administration of the key"
+        },
+        {
+          Action = [
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey",
+            "kms:GenerateDataKeyWithoutPlaintext",
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = [
+              "arn:aws:iam::${var.prod_account_id}:user/zachary.wills@noaa.gov",
+              "arn:aws:iam::${var.prod_account_id}:user/hydrovis-data-prod-ingest-service-user",
+              "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC",
+            ]
+          }
+          Resource = "*"
+          Sid      = "Allow use of the key"
+        },
+      ]
+    }
+  )
+}
+
+resource "aws_iam_role" "nwm-replication" {
+  count = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  name  = "hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
+  assume_role_policy = jsonencode(
+    {
+      Version = "2008-10-17"
+      Statement = [
+        {
+          Action = "sts:AssumeRole"
+          Effect = "Allow"
+          Principal = {
+            Service = "s3.amazonaws.com"
+          }
+        },
+      ]
+
+    }
+  )
+
+  inline_policy {
+    name   = "HMLBucketReplicationPolicy"
+    policy = jsonencode(
+      {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Action   = "iam:PassRole"
+            Effect   = "Allow"
+            Resource = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
+            Sid      = "VisualEditor4"
+          },
+          {
+            Action = [
+              "s3:GetObjectVersionTagging",
+              "s3:GetObjectVersionAcl",
+              "s3:GetObjectVersion",
+              "s3:GetObjectVersionForReplication",
+              "s3:ListBucket",
+              "s3:GetBucketVersioning",
+              "s3:GetReplicationConfiguration",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "arn:aws:s3:::hydrovis-prod-nwm-incoming-us-east-1/*",
+              "arn:aws:s3:::hydrovis-prod-nwm-incoming-us-east-1",
+            ]
+            Sid = "VisualEditor8"
+          },
+          {
+            Action = "kms:Decrypt"
+            Condition = {
+              StringLike = {
+                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+              }
+            }
+            Effect   = "Allow"
+            Resource = aws_kms_key.hydrovis-nwm-incoming-s3[0].arn
+            Sid      = "VisualEditor0"
+          },
+          {
+            Action = "kms:Encrypt"
+            Condition = {
+              "ForAnyValue:StringLike" = {
+                "kms:ResourceAliases" = "alias/hydrovis-*-nwm-*"
+              }
+              StringLike = {
+                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+              }
+            }
+            Effect   = "Allow"
+            Resource = "*"
+            Sid      = "VisualEditor3"
+          },
+          {
+            Action = [
+              "s3:ObjectOwnerOverrideToBucketOwner",
+              "s3:ReplicateObject",
+              "s3:ReplicateTags",
+              "s3:ReplicateDelete",
+            ]
+            Effect = "Allow"
+            Resource = [
+              "arn:aws:s3:::hydrovis-*-nwm-*",
+              "arn:aws:s3:::hydrovis-*-nwm-*/*",
+            ]
+            Sid = "VisualEditor5"
+          },
+        ]
+      }
+    )
+  }
+}
+
+resource "aws_s3_bucket" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = "hydrovis-prod-nwm-incoming-us-east-1"
+
+  lifecycle_rule {
+    abort_incomplete_multipart_upload_days = 0
+    enabled                                = true
+
+    expiration {
+      days = 30
+    }
+
+    noncurrent_version_expiration {
+      days = 1
+    }
+  }
+
+  replication_configuration {
+    role = aws_iam_role.nwm-replication[0].arn
+
+    rules {
+      id       = "HMLReplicationRoleToProdHML"
+      priority = 0
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        bucket             = "arn:aws:s3:::hydrovis-prod-nwm-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-nwm-us-east-1-s3"
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+
+    rules {
+      id       = "HMLReplicationRoleToUatHML"
+      priority = 1
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        account_id         = "${var.uat_account_id}"
+        bucket             = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-nwm-us-east-1-s3"
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+
+    rules {
+      id       = "HMLReplicationRoleToTiHML"
+      priority = 2
+      status   = "Enabled"
+      filter {}
+
+      destination {
+        account_id         = "${var.ti_account_id}"
+        bucket             = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-nwm-us-east-1-s3"
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          enabled = true
+        }
+      }
+    }
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      bucket_key_enabled = true
+
+      apply_server_side_encryption_by_default {
+        kms_master_key_id = aws_kms_key.hydrovis-nwm-incoming-s3[0].arn
+        sse_algorithm     = "aws:kms"
+      }
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+}
+
+resource "aws_s3_bucket_policy" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].bucket
+
+  policy = jsonencode(
+    {
+      Version = "2008-10-17"
+      Statement = [
+        {
+          Action = "s3:PutObject"
+          Condition = {
+            StringNotEquals = {
+              "s3:x-amz-server-side-encryption" = "aws:kms"
+            }
+          }
+          Effect    = "Deny"
+          Principal = "*"
+          Resource  = "${aws_s3_bucket.hydrovis-nwm-incoming[0].arn}/*"
+          Sid       = "DenyUnEncryptedObjectUploads"
+        },
+      ]
+    }
+  )
+}
+

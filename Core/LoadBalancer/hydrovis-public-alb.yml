@@ -1,0 +1,353 @@
+  
+#########################################################################################################################
+### ArcGIS Enterprise Existing Items From Other Processes
+#########################################################################################################################
+
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: NOAA NWC HydroVis ArcGIS Enterprise Public ALB
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "Network Parameters"
+        Parameters:
+          - VPCParameter        
+          - PublicSubnetsParameter
+          - CreatePublicALB
+          - PublicALBType
+          - PublicDNS
+          - ALBAccessLogsEnabled
+          - LoadBalancerCertificateArn         
+        
+    ParameterLabels: 
+        VPCParameter: 
+          default: "Which VPC should this be deployed to?"    
+        PublicSubnetsParameter: 
+          default: "Which Public Subnets will Public ALB be deployed to?"
+        LoadBalancerCertificateArn:
+          default: "What is the Certificate that will be assigned to the ALB (should be valid for the Public DNS)?"
+
+Mappings:
+  # ELB Account Mappings
+  Region2ELBAccountId:
+    us-east-1:
+      AccountId: "127311923021"
+    us-west-1:
+      AccountId: "027434742980"
+    us-west-2:
+      AccountId: "797873946194"
+    eu-west-1:
+      AccountId: "156460612806"
+    ap-northeast-1:
+      AccountId: "582318560864"
+    ap-northeast-2:
+      AccountId: "600734575887"
+    ap-southeast-1:
+      AccountId: "114774131450"
+    ap-southeast-2:
+      AccountId: "783225319266"
+    ap-south-1:
+      AccountId: "718504428378"
+    us-east-2:
+      AccountId: "033677994240"
+    sa-east-1:
+      AccountId: "507241528517"
+    cn-north-1:
+      AccountId: "638102146993"
+    eu-central-1:
+      AccountId: "054676820928"
+
+# Parameters:
+Parameters:
+
+  # Deployment VPC
+  VPCParameter:
+    Type: AWS::EC2::VPC::Id
+
+  # Enable ALB Access Logging
+  ALBAccessLogsEnabled:
+    Type: String
+    Description: Enable ALB Access Logs
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false" 
+
+  # ACM Certificate ARN
+  LoadBalancerCertificateArn:
+    Type: String
+    Description: Load Balancer Certificate ARN
+
+  # Create Public ALB
+  CreatePublicALB:
+    Type: String
+    Description: Create Public ALB
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  PublicALBType:
+    Type: String
+    Description: ALB Type
+    Default: "internal"
+    AllowedValues:
+      - "internal"
+      - "internet-facing"
+
+    # Public DNS
+  PublicDNS:
+    Type: String
+    Description: Public Facing DNSName
+    Default: "maps-staging.water.noaa.gov"
+    AllowedValues:
+      - "maps-testing.water.noaa.gov"
+      - "maps-staging.water.noaa.gov"
+      - "maps.water.noaa.gov" 
+
+  # Public Subnets
+  PublicSubnetsParameter:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Public Subnets (Public ALB Will Be Created Here)
+
+Conditions:
+
+  EnableALBLogging:  !Equals [true, !Ref ALBAccessLogsEnabled]
+
+  MakePublicALB: !Equals [true, !Ref CreatePublicALB]
+
+  MakePublicALBAndLog: !And
+  - !Condition EnableALBLogging
+  - !Condition MakePublicALB
+
+Resources:
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Shared Public Application Load Balancer and Security Group
+  #########################################################################################################################
+
+  ## PUBLIC ACCESS ##
+
+  # Bucket to capture Public ALB Access Logs
+  PublicALBLoggingBucket:
+    Type: AWS::S3::Bucket
+    Condition: MakePublicALBAndLog
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-pub-age-alb-log-bucket"
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+
+  # Policy to allow Public ALB Access Logs to be written to bucket
+  PublicLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: MakePublicALBAndLog
+    Properties:
+      Bucket: !Ref PublicALBLoggingBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ALBAccessLogs20130930
+            Effect: Allow
+            Resource: !Sub "${PublicALBLoggingBucket.Arn}/arcgisenterprise/AWSLogs/${AWS::AccountId}/*"
+            Principal:
+              AWS:
+                !FindInMap [Region2ELBAccountId, !Ref "AWS::Region", AccountId]
+            Action: ["s3:PutObject"]
+
+  # Public ALB Security Group (Allow 443 traffic from anywhere)
+  PublicALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Condition: MakePublicALB
+    Properties:
+      GroupDescription: !Ref "AWS::StackName"
+      GroupName: !Sub "${AWS::StackName}-pub-age-alb-sg"
+      VpcId: !Ref VPCParameter
+      SecurityGroupIngress:
+        - Description: ArcGIS Enterprise Public Access
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+ 
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-pub-age-alb-sg"
+
+  # Public ALB for ArcGIS Enterprise
+  PublicALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: MakePublicALB
+    Properties:
+      Type: "application"
+      Name: !Sub "${AWS::StackName}-pub-age-alb"
+      LoadBalancerAttributes:
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.bucket
+            Value: !Ref PublicALBLoggingBucket
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.prefix
+            Value: "arcgisenterprise"
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: access_logs.s3.enabled
+            Value: !Ref ALBAccessLogsEnabled
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: deletion_protection.enabled
+            Value: "false"
+          - !Ref AWS::NoValue 
+      Scheme: !Ref PublicALBType
+      SecurityGroups:
+        - !Ref PublicALBSecurityGroup
+      Subnets: !Ref PublicSubnetsParameter          
+
+  # Add Redirection for HTTP -> HTTPS
+  PublicALBHTTPRedirectListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: MakePublicALB
+    Properties:
+      DefaultActions:
+        - RedirectConfig:
+            Host: "#{host}"
+            Path: "/#{path}"
+            Port: "443"
+            Protocol: "HTTPS"
+            Query: "#{query}"
+            StatusCode: HTTP_301
+          Type: redirect
+      LoadBalancerArn: !Ref PublicALB
+      Port: 80
+      Protocol: HTTP
+
+  # ALB Listener -- 443 -> Default TargetGroup
+  ALB443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Condition: MakePublicALB
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !Ref PublicALB
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            MessageBody: "You've reached the public ArcGIS Enterprise ALB"
+            StatusCode: "503"
+
+  PortalListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: MakePublicALB
+    Properties:
+      Actions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            MessageBody: "You've reached the ALB, assign the Base Deployment Esri Web Target Group as a target"
+            StatusCode: "503"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /portal
+              - /portal/*
+              - /hosting
+              - /hosting/*
+      ListenerArn: !Ref ALB443Listener
+      Priority: 1
+
+  ServerListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: MakePublicALB
+    Properties:
+      Actions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            MessageBody: "You've reached the ALB, assign the Base Deployment Esri GIS Server Target Group as a target"
+            StatusCode: "503"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /server
+              - /server/*
+      ListenerArn: !Ref ALB443Listener
+      Priority: 2
+
+  ImageListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: MakePublicALB
+    Properties:
+      Actions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            MessageBody: "You've reached the ALB, assign the Base Deployment Esri Image Server Target Group as a target"
+            StatusCode: "503"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /image
+              - /image/*
+      ListenerArn: !Ref ALB443Listener
+      Priority: 3
+
+  GPListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: MakePublicALB
+    Properties:
+      Actions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            MessageBody: "You've reached the ALB, assign the Base Deployment Esri Geoprocessing Target Group as a target"
+            StatusCode: "503"
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /gp
+              - /gp/*
+      ListenerArn: !Ref ALB443Listener
+      Priority: 4        
+
+Outputs:
+
+  OutputPublicPortal:
+    Description: Public Portal
+    Value: !Sub "https://${PublicDNS}/portal"
+
+  OutputPublicHostingServer:
+    Description: Public Hosting Server
+    Value: !Sub "https://${PublicDNS}/hosting"
+
+  OutputPublicGISServer:
+    Description: Public GIS Server
+    Value: !Sub "https://${PublicDNS}/server"
+
+  OutputPublicImageServer:
+    Description: Public Image Server
+    Value: !Sub "https://${PublicDNS}/image"
+
+  OutputPublicGPServer:
+    Description: Public GP Server
+    Value: !Sub "https://${PublicDNS}/gp"       
+
+

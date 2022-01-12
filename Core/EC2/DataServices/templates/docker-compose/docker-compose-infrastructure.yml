@@ -1,0 +1,26 @@
+version: "3.5"
+services:
+  wrds_infrastructure:
+    build:
+      context: .
+      dockerfile: Dockerfile.aws
+    container_name: wrds_infrastructure
+    restart: always
+    volumes:
+      - wrds_apis:/var/www/
+    networks:
+      - wrds_nginx
+    ports:
+      - "80:80"
+    environment:
+      - ENV=aws
+    external_links:
+      - wrds_location_api_v3.0
+      - wrds_rfc_forecast_api_v2.0
+      - wrds_rfc_forecast_api_v1.1
+volumes:
+  wrds_apis:
+    name: wrds_apis
+networks:
+  wrds_nginx:
+    name: wrds_nginx

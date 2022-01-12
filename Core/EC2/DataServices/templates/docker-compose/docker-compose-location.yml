@@ -1,0 +1,33 @@
+version: '3.5'
+services:
+  wrds_location_api_v3.0:
+    build:
+      context: .
+      dockerfile: Dockerfile.aws
+      args:
+        API_HOST: localhost
+    cpus: "4.0"
+    mem_limit: 4.5g
+    container_name: wrds_location_api_v3.0
+    restart: always
+    entrypoint:
+      - /opt/wrds_location_api/location_api/entrypoint.sh
+    env_file: env.aws
+    expose:
+      - "4000"
+    networks:
+      wrds_nginx:
+        aliases:
+          - wrdslocationapiv3.0
+    volumes:
+      - type: volume
+        source: wrds_apis
+        target: /var/www/
+volumes:
+  wrds_apis:
+    external:
+      name: wrds_apis
+networks:
+  wrds_nginx:
+    external:
+      name: wrds_nginx

@@ -1,0 +1,1030 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: NOAA NWC HydroVis ArcGIS Enterprise Base Deployment Environment
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "Network Parameters"
+        Parameters:
+          - VPCParameter        
+          - PrivateSubnetsParameter
+          - PublicSubnetsParameter
+          - CreatePublicALB
+          - PublicALBType
+          - ALBAccessLogsEnabled
+          - PublicDNS
+          - LoadBalancerCertificateArn
+      - Label:
+          default: "ArcGIS Enterprise Parameters"
+        Parameters:
+          - EC2KeyPairParameter
+          - PublicIPsEnabled
+          - KmsKey          
+          - PortalIAMRole
+          - PatchLevel      
+          - PortalServerInstanceTypeParameter
+          - PortalHA
+          # - PortalContentBucket
+          # - WebgisDRBucket
+          - FileServerInstanceTypeParameter              
+        
+    ParameterLabels: 
+        VPCParameter: 
+          default: "Which VPC should this be deployed to?"    
+        PrivateSubnetsParameter: 
+          default: "Which Private Subnets will EC2s be deployed to?"      
+        PublicSubnetsParameter: 
+          default: "Which Public Subnets will Public ALB be deployed to?"
+        PublicDNS:
+          default: "What is the Public DNS users will access this environment?"
+        LoadBalancerCertificateArn:
+          default: "What is the Certificate that will be assigned to the ALB (should be valid for the Public DNS)?"
+        EC2KeyPairParameter: 
+          default: "Which EC2 Key Pair will be used for this deployment?"                                                    
+
+Mappings:
+  # AMI Mappings
+  RegionAMIMap:
+    us-west-2:
+      #esri ami + patch -- no stig
+      AMI: "ami-0c684dfed70f36780"
+    us-east-1:
+      #esri ami + patch -- no stig
+      #AMI: "ami-08f226d637ba58406"
+      #esri ami + patch -- no stig -- no kms
+      AMI: "ami-0b9722c99a293f818"
+
+  # Patch Mappings
+  PatchMap:
+    "None":
+      PatchLvl: "none"
+    "Security":
+      PatchLvl: "sec"
+    "All":
+      PatchLvl: "all"
+
+  # ELB Account Mappings
+  Region2ELBAccountId:
+    us-east-1:
+      AccountId: "127311923021"
+    us-west-1:
+      AccountId: "027434742980"
+    us-west-2:
+      AccountId: "797873946194"
+    eu-west-1:
+      AccountId: "156460612806"
+    ap-northeast-1:
+      AccountId: "582318560864"
+    ap-northeast-2:
+      AccountId: "600734575887"
+    ap-southeast-1:
+      AccountId: "114774131450"
+    ap-southeast-2:
+      AccountId: "783225319266"
+    ap-south-1:
+      AccountId: "718504428378"
+    us-east-2:
+      AccountId: "033677994240"
+    sa-east-1:
+      AccountId: "507241528517"
+    cn-north-1:
+      AccountId: "638102146993"
+    eu-central-1:
+      AccountId: "054676820928"
+
+Parameters:
+
+  ScriptPackage:
+    Type: String
+    Description: ScriptPackage
+    Default: "s3://hydrovis-uat-egis-us-east-1/deployment_configuration_UAT_R20210920.zip"
+    AllowedValues:
+      - "s3://hydrovis-uat-egis-us-east-1/deployment_configuration_UAT_R20210920.zip"
+
+  # Deployment VPC
+  VPCParameter:
+    Type: AWS::EC2::VPC::Id
+
+  # Enable ALB Access Logging
+  ALBAccessLogsEnabled:
+    Type: String
+    Description: Enable ALB Access Logs
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false" 
+
+  # ACM Certificate ARN
+  LoadBalancerCertificateArn:
+    Type: String
+    Description: Load Balancer Certificate ARN
+
+  # Create Public ALB
+  CreatePublicALB:
+    Type: String
+    Description: Create Public ALB
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  PublicALBType:
+    Type: String
+    Description: ALB Type
+    Default: "internal"
+    AllowedValues:
+      - "internal"
+      - "internet-facing"
+
+  # Public DNS
+  PublicDNS:
+    Type: String
+    Description: Public Facing DNSName
+    Default: "maps-staging.water.noaa.gov"
+
+  # Public Subnets
+  PublicSubnetsParameter:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Public Subnets (Public ALB Will Be Created Here)
+
+  # Private Subnets
+  PrivateSubnetsParameter:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private Subnets (EC2 Instances Will Be Created Here)
+
+  # KeyPair Parameter
+  EC2KeyPairParameter:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Key Pair To Use When Creating EC2 Instances
+
+  # Enable Public IP Addresses
+  PublicIPsEnabled:
+    Type: String
+    Description: Enable Public IP Addresses
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"    
+
+  KmsKey:
+     Type: String
+     Description: "KMS Key for Drive Encryption"
+     Default: ""
+
+  PatchLevel:
+    Type: String
+    Description: "Level to Patch ArcGIS Enterprise"
+    Default: "Security"
+    AllowedValues:
+      - "None"
+      - "Security"
+      - "All"
+
+  # Instance Type Parameters
+  PortalServerInstanceTypeParameter:
+    Type: String
+    Description: Portal Server Instance Size.
+    Default: m5.xlarge
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+
+  # High Availability Options
+  PortalHA:
+    Type: String
+    Description: Create Portal HA Servers
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  # Instance Type Parameters
+  FileServerInstanceTypeParameter:
+    Type: String
+    Description: File Server Instance Size.
+    Default: m5.large
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+
+  PortalIAMRole:
+    Type: String
+    Description: Portal IAM Role Name
+
+  # PortalContentBucket:
+  #   Type: String
+  #   Description: Portal Content Bucket
+
+  # WebgisDRBucket:
+  #   Type: String
+  #   Description: WebgisDR Bucket    
+
+Conditions:
+  MakePortalHA: !Equals [true, !Ref PortalHA]
+
+  EnableALBLogging:  !Equals [true, !Ref ALBAccessLogsEnabled]
+
+  MakePublicALB: !Equals [true, !Ref CreatePublicALB]
+
+  MakePublicALBAndLog: !And
+  - !Condition EnableALBLogging
+  - !Condition MakePublicALB
+
+  HasLoadBalancerCertificateArn:
+    !Not [!Equals [!Ref LoadBalancerCertificateArn, ""]]
+
+  HasKmsKey: !Not [!Equals [!Ref KmsKey, ""]]
+
+Resources:
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Shared Application Load Balancers and Security Groups
+  #########################################################################################################################
+
+  ## PUBLIC ACCESS ##
+
+  # Bucket to capture Public ALB Access Logs
+  PublicALBLoggingBucket:
+    Type: AWS::S3::Bucket
+    Condition: MakePublicALBAndLog
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-pub-prtl-alb-log-bucket"
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+
+  # Policy to allow Public ALB Access Logs to be written to bucket
+  PublicLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: MakePublicALBAndLog
+    Properties:
+      Bucket: !Ref PublicALBLoggingBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ALBAccessLogs20130930
+            Effect: Allow
+            Resource: !Sub "${PublicALBLoggingBucket.Arn}/arcgisenterprise/AWSLogs/${AWS::AccountId}/*"
+            Principal:
+              AWS:
+                !FindInMap [Region2ELBAccountId, !Ref "AWS::Region", AccountId]
+            Action: ["s3:PutObject"]
+
+  # Public ALB Security Group (Allow 443 traffic from anywhere)
+  PublicALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Condition: MakePublicALB
+    Properties:
+      GroupDescription: !Ref "AWS::StackName"
+      GroupName: !Sub "${AWS::StackName}-pub-prtl-alb-sg"
+      VpcId: !Ref VPCParameter
+      SecurityGroupIngress:
+        - Description: ArcGIS Enterprise Public Access
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+ 
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-pub-prtl-alb-sg"
+
+  # Public ALB for ArcGIS Enterprise
+  PublicALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: MakePublicALB
+    Properties:
+      Type: "application"
+      Name: !Sub "${AWS::StackName}-pub-prtl-alb"
+      LoadBalancerAttributes:
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.bucket
+            Value: !Ref PublicALBLoggingBucket
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.prefix
+            Value: "arcgisenterprise"
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: access_logs.s3.enabled
+            Value: !Ref ALBAccessLogsEnabled
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: deletion_protection.enabled
+            Value: "false"
+          - !Ref AWS::NoValue 
+      Scheme: !Ref PublicALBType
+      SecurityGroups:
+        - !Ref PublicALBSecurityGroup
+      Subnets: !Ref PublicSubnetsParameter          
+
+  # Add Redirection for HTTP -> HTTPS
+  PublicALBHTTPRedirectListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: MakePublicALB
+    Properties:
+      DefaultActions:
+        - RedirectConfig:
+            Host: "#{host}"
+            Path: "/#{path}"
+            Port: "443"
+            Protocol: "HTTPS"
+            Query: "#{query}"
+            StatusCode: HTTP_301
+          Type: redirect
+      LoadBalancerArn: !Ref PublicALB
+      Port: 80
+      Protocol: HTTP
+
+  ## PRIVATE ACCESS ##
+
+  # Bucket to capture Private ALB Access Logs
+  PrivateALBLoggingBucket:
+    Type: AWS::S3::Bucket
+    Condition: EnableALBLogging
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-prv-prtl-alb-log-bucket"
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true 
+
+  # Policy to allow Private ALB Access Logs to be written to bucket
+  PrivateLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: EnableALBLogging
+    Properties:
+      Bucket: !Ref PrivateALBLoggingBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ALBAccessLogs20130930
+            Effect: Allow
+            Resource: !Sub "${PrivateALBLoggingBucket.Arn}/arcgisenterprise/AWSLogs/${AWS::AccountId}/*"
+            Principal:
+              AWS:
+                !FindInMap [Region2ELBAccountId, !Ref "AWS::Region", AccountId]
+            Action: ["s3:PutObject"]            
+
+  # Private ALB Security Group
+  PrivateALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: !Ref "AWS::StackName"
+      GroupName: !Sub "${AWS::StackName}-prv-prtl-alb-sg"
+      VpcId: !Ref VPCParameter
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          Description: "ArcGIS Portal Private Access"
+          FromPort: 7443
+          ToPort: 7443
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          Description: "ArcGIS Server Private Access"
+          FromPort: 6443
+          ToPort: 6443  
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          Description: "ArcGIS Enterprise Web Private Access"
+          FromPort: 443
+          ToPort: 443            
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-prv-prtl-alb-sg"
+
+  # Private ALB for ArcGIS Enterprise
+  PrivateALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: "application"
+      Name: !Sub "${AWS::StackName}-prv-prtl-alb"
+      LoadBalancerAttributes:
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.bucket
+            Value: !Ref PrivateALBLoggingBucket
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.prefix
+            Value: "arcgisenterprise"
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: access_logs.s3.enabled
+            Value: !Ref ALBAccessLogsEnabled
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: deletion_protection.enabled
+            Value: "false"
+          - !Ref AWS::NoValue 
+      Scheme: "internal"
+      SecurityGroups:
+        - !Ref PrivateALBSecurityGroup
+      Subnets: !Ref PrivateSubnetsParameter
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Base Deployment
+  #########################################################################################################################
+
+  # ArcGIS Enterprise Security Group
+  BaseDeploymentSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: !Sub "ArcGIS Enterprise Secuirty Group for ${AWS::StackName}-${AWS::Region}"
+      GroupName: !Sub "${AWS::StackName}-base-ec2-sg"
+      SecurityGroupIngress:
+        # Allow Web Tier ALB Access 
+        - !If
+          - MakePublicALB
+          - IpProtocol: tcp
+            SourceSecurityGroupId: !Ref PublicALBSecurityGroup
+            Description: "ArcGIS Enterprise Web Tier Access"
+            FromPort: 443
+            ToPort: 443
+          - !Ref AWS::NoValue  
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PrivateALBSecurityGroup
+          Description: "ArcGIS Enterprise Private Web Tier Access"
+          FromPort: 443
+          ToPort: 443          
+        # Allow Private ALB Access 
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PrivateALBSecurityGroup
+          Description: "ArcGIS Portal Private Access"
+          FromPort: 7443
+          ToPort: 7443
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PrivateALBSecurityGroup
+          Description: "ArcGIS Server Private Access"
+          FromPort: 6443
+          ToPort: 6443   
+      VpcId: !Ref VPCParameter
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-prtl-ec2-sg"
+
+  # Base Deployment Security Group Machine 2 Machine Rule
+  BaseDeploymentSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId: !Ref BaseDeploymentSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref BaseDeploymentSecurityGroup
+      Description: "ArcGIS Enterprise Base Deployment Internal Machine to Machine Access"
+
+  BaseDeploymentALBSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId: !Ref PrivateALBSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref BaseDeploymentSecurityGroup
+      Description: "ArcGIS Enterprise Base Deployment Internal Machine to Machine Access"     
+
+  PublicALBSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: MakePublicALB
+    Properties: 
+      GroupId: !Ref PublicALBSecurityGroup
+      IpProtocol: "tcp"
+      FromPort: 443
+      ToPort: 443         
+      SourceSecurityGroupId: !Ref BaseDeploymentSecurityGroup
+      Description: "ArcGIS Enterprise Base Deployment Internal Machine Access"     
+
+  # Portal Instance Profile
+  PortalIAMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-${AWS::Region}-prtl-instanceprofile"
+      Path: /
+      Roles:
+        - !Ref PortalIAMRole
+
+  # FileServer Instance Profile
+  FileServerIAMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-${AWS::Region}-prtl-fileserver-instanceprofile"
+      Path: /
+      Roles:
+        - !Ref PortalIAMRole
+
+  # Shared File Server Instance
+  FileServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionAMIMap, !Ref "AWS::Region", AMI]
+      InstanceType: !Ref FileServerInstanceTypeParameter
+      IamInstanceProfile: !Ref FileServerIAMInstanceProfile
+      KeyName: !Ref EC2KeyPairParameter
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: !Ref PublicIPsEnabled
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref BaseDeploymentSecurityGroup
+          SubnetId: !Select [0, !Ref PrivateSubnetsParameter]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]     
+        - DeviceName: /dev/xvdf
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 500
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]                 
+      UserData:
+        Fn::Base64: !Sub |
+          <powershell>
+            $LASTEXITCODE=0
+
+            $localPath = "C:\software"
+
+            # download scripts
+            & "$localPath\download_config_scripts.ps1" -S3Uri "${ScriptPackage}"
+
+            # run prep
+            & "$localPath\esri_ami_prep.ps1"
+
+            # run the fileserver setup
+            & "$localPath\base_configure_fileserver.ps1" -PrivateDNS "${PrivateALB.DNSName}"
+
+            # signal completion
+            cfn-signal.exe -e $LASTEXITCODE "${FileServerWaitConditionHandle}"
+          </powershell>
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${AWS::StackName}-prtl-fileserver"
+        - Key: "esri:age:function"
+          Value: "webgisdr" #will allow webgisdr command to run
+
+  # Auto Recovery Alarm for File Server Instance
+  FileServerInstanceAutorecoverAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Sub arn:aws:automate:${AWS::Region}:ec2:recover
+      AlarmDescription: Trigger a recovery when instance status check fails for 5 consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref FileServerInstance
+      EvaluationPeriods: 5
+      Period: 60
+      Statistic: Minimum
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0
+
+  # Wait Condition Handle for File Server Instance
+  # File Server UserData Signals this Handle When Finished
+  FileServerWaitConditionHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  # Wait Condition for File Server
+  # When the File Server Signal Is Complete (or Timeout occurs)
+  # This evaluates to true|false for success
+  FileServerWaitCondition:
+    DependsOn: FileServerInstance
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: !Ref FileServerWaitConditionHandle
+      Timeout: '7200'
+      Count: 1
+
+  # ArcGIS for Portal 1
+  Portal1ServerInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: FileServerWaitCondition
+    Properties:
+      ImageId: !FindInMap [RegionAMIMap, !Ref "AWS::Region", AMI]
+      InstanceType: !Ref PortalServerInstanceTypeParameter
+      KeyName: !Ref EC2KeyPairParameter   
+      IamInstanceProfile: !Ref PortalIAMInstanceProfile
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: !Ref PublicIPsEnabled
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref BaseDeploymentSecurityGroup
+          SubnetId: !Select [0, !Ref PrivateSubnetsParameter]      
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]                 
+        - DeviceName: /dev/xvdf
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]                 
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            <powershell>
+              $LASTEXITCODE=0
+
+              $localPath = "C:\software"
+
+              # download scripts
+              & "$localPath\download_config_scripts.ps1" -S3Uri "${ScriptPackage}"
+
+              # run prep
+              & "$localPath\esri_ami_prep.ps1"
+
+              # run the primary portal setup
+              & "$localPath\base_configure_primary.ps1" -FileServerIPAddress "${FileServerInstance.PrivateIp}" -PublicDNS "${PublicDNS}" -IsHA "${PortalHA}" -PatchLevel "${PatchLvl}" -StackName "${AWS::StackName}"
+
+              # signal completion
+              cfn-signal.exe -e $LASTEXITCODE "${Portal1ServerWaitConditionHandle}"            
+            </powershell>
+          - PatchLvl: !FindInMap [PatchMap, !Ref PatchLevel, PatchLvl]
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${AWS::StackName}-prtl1"
+
+
+  # Wait Condition Handle for Primary Portal Instance
+  # Primary Portal UserData Signals this Handle When Finished
+  Portal1ServerWaitConditionHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  # Wait Condition for Portal 1 Server
+  # When the Portal 1 Server Signal Is Complete (or Timeout occurs)
+  # This evaluates to true|false for success
+  Portal1ServerWaitCondition:
+    DependsOn: Portal1ServerInstance
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: !Ref Portal1ServerWaitConditionHandle
+      Timeout: '21600' #'7200'
+      Count: 1
+
+  # ArcGIS for Portal 2
+  Portal2ServerInstance:
+    Type: AWS::EC2::Instance
+    Condition: MakePortalHA
+    DependsOn: Portal1ServerWaitCondition
+    Properties:
+      ImageId: !FindInMap [RegionAMIMap, !Ref "AWS::Region", AMI]
+      InstanceType: !Ref PortalServerInstanceTypeParameter
+      KeyName: !Ref EC2KeyPairParameter
+      IamInstanceProfile: !Ref PortalIAMInstanceProfile
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: !Ref PublicIPsEnabled
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref BaseDeploymentSecurityGroup
+          SubnetId: !Select [1, !Ref PrivateSubnetsParameter]      
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]                 
+        - DeviceName: /dev/xvdf
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]                 
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            <powershell>
+              $LASTEXITCODE=0
+
+              $localPath = "C:\software"
+
+              # download scripts
+              & "$localPath\download_config_scripts.ps1" -S3Uri "${ScriptPackage}"
+
+              # run prep
+              & "$localPath\esri_ami_prep.ps1"
+
+              # run the standby portal setup
+              & "$localPath\base_configure_standby.ps1" -FileServerIPAddress "${FileServerInstance.PrivateIp}" -primaryPortalIP "${Portal1ServerInstance.PrivateIp}" -PrivateDNS "${PrivateALB.DNSName}" -PublicDNS "${PublicDNS}" -PatchLevel "${PatchLvl}"
+
+              # signal join basedeployment complete
+              cfn-signal.exe -e $LASTEXITCODE "${Portal2ServerWaitConditionHandle}"                
+            </powershell>
+          - PatchLvl: !FindInMap [PatchMap, !Ref PatchLevel, PatchLvl]       
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${AWS::StackName}-prtl2"
+
+  # Wait Condition Handle for Primary Portal Instance
+  # Primary Portal UserData Signals this Handle When Finished
+  Portal2ServerWaitConditionHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+    Condition: MakePortalHA
+
+  # Wait Condition for Portal 2 Server
+  # When the Portal 2 Server Signal Is Complete (or Timeout occurs)
+  # This evaluates to true|false for success
+  Portal2ServerWaitCondition:
+    Type: AWS::CloudFormation::WaitCondition
+    Condition: MakePortalHA
+    DependsOn: Portal2ServerInstance
+    Properties:
+      Handle: !Ref Portal2ServerWaitConditionHandle
+      Timeout: '21600' #'7200'
+      Count: 1
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Base Deployment Target Groups
+  #########################################################################################################################
+
+  # Route 443 from ALB to Portal Server
+  WebTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-prtl-web-albtg"
+      Port: 443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/"
+      HealthCheckPort: "443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Targets:
+        - Id: !Ref Portal1ServerInstance
+          Port: 443
+        - !If
+          - MakePortalHA
+          - Id: !Ref Portal2ServerInstance
+            Port: 443
+          - !Ref AWS::NoValue          
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  PrivateWebTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-web-prv-albtg"
+      Port: 443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/"
+      HealthCheckPort: "443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Targets:
+        - Id: !Ref Portal1ServerInstance
+          Port: 443
+        - !If
+          - MakePortalHA
+          - Id: !Ref Portal2ServerInstance
+            Port: 443
+          - !Ref AWS::NoValue          
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  # Route 7443 from ALB to Portal Server
+  PrivatePortalTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-prtl-prv-tg"
+      Port: 7443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/arcgis/portaladmin/healthCheck"
+      HealthCheckPort: "7443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Targets:
+        - Id: !Ref Portal1ServerInstance
+          Port: 7443
+        - !If
+          - MakePortalHA
+          - Id: !Ref Portal2ServerInstance
+            Port: 7443
+          - !Ref AWS::NoValue          
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  # Route 6443 from ALB to Hosting Server
+  PrivateHostingServerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-hstng-prv-tg"
+      Port: 6443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/arcgis/rest/info/healthcheck"
+      HealthCheckPort: "6443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Targets:
+        - Id: !Ref Portal1ServerInstance
+          Port: 6443
+        - !If
+          - MakePortalHA
+          - Id: !Ref Portal2ServerInstance
+            Port: 6443
+          - !Ref AWS::NoValue          
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Base Deployment Listeners
+  #########################################################################################################################
+
+  # ALB Listener -- 443 -> Default TargetGroup
+  ALB443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Condition: MakePublicALB
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !If [MakePublicALB, !Ref PublicALB, !Ref PrivateALB]
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref WebTargetGroup
+
+  PortalListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: MakePublicALB
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref WebTargetGroup
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /portal
+              - /portal/*
+              - /hosting
+              - /hosting/*
+      ListenerArn: !Ref ALB443Listener
+      Priority: 1
+  
+  PrivateALB443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Condition: HasLoadBalancerCertificateArn
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref PrivateWebTargetGroup
+
+  PrivatePortalListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Condition: HasLoadBalancerCertificateArn
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref PrivateWebTargetGroup
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - /portal
+              - /portal/*
+              - /hosting
+              - /hosting/*
+      ListenerArn: !Ref PrivateALB443Listener
+      Priority: 1              
+
+  # ALB Listener -- 7443 -> Default TargetGroup
+  PrivateALB7443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Condition: HasLoadBalancerCertificateArn
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 7443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref PrivatePortalTargetGroup
+
+  # ALB Listener -- 6443 -> Default TargetGroup
+  PrivateALB6443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Condition: HasLoadBalancerCertificateArn
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 6443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref PrivateHostingServerTargetGroup
+
+Outputs:
+
+  # OutPortalContentBucket:
+  #   Description: Portal Content Bucket
+  #   Value: !Ref PortalContentBucket    
+
+  # OutWebgisDRBucket:
+  #   Description: WebgisDR Bucket
+  #   Value: !Ref WebgisDRBucket
+
+  OutputPublicALBSecurityGroup:
+    Condition: MakePublicALB
+    Description: Public ALB Security Group
+    Value: !Sub ${PublicALBSecurityGroup.GroupId}
+
+  OutputPrivatePortalHome:
+    Description: Private Portal Home
+    Value: !Sub "https://${PrivateALB.DNSName}:7443/arcgis/home"
+
+  OutputPrivatePortalAdmin:
+    Description: Private Portal Admin
+    Value: !Sub "https://${PrivateALB.DNSName}:7443/arcgis/portaladmin"
+
+  OutputPrivatePortalSharingAPI:
+    Description: Private Portal Sharing API
+    Value: !Sub "https://${PrivateALB.DNSName}:7443/arcgis/sharing/rest"    
+
+  OutputPublicPortalHome:
+    Description: Public Portal Home
+    Value: !Sub "https://${PublicDNS}/portal/home"
+
+  OutputPublicPortalAdmin:
+    Description: Public Portal Admin
+    Value: !Sub "https://${PublicDNS}/portal/portaladmin"
+
+  OutputPublicPortalSharingAPI:
+    Description: Public Portal Sharing API
+    Value: !Sub "https://${PublicDNS}/portal/sharing/rest"    
+
+  OutputPublicHostingServer:
+    Description: Public Hosting Manager
+    Value: !Sub "https://${PublicDNS}/hosting/manager"
+
+  OutputPublicHostingAdmin:
+    Description: Public Hosting Admin
+    Value: !Sub "https://${PublicDNS}/hosting/admin"
+
+  OutputPublicHostingAdminRestAPI:
+    Description: Public Hosting Services Rest API
+    Value: !Sub "https://${PublicDNS}/hosting/rest/services"    
+

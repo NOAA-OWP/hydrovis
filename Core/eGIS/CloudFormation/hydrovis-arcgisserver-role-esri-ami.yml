@@ -1,0 +1,1016 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: NOAA NWC HydroVis ArcGIS Enterprise Server Role Deployment Environment
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "Network Parameters"
+        Parameters:
+          - VPCParameter
+          - PrivateSubnetsParameter
+          - PublicDNS
+          - PublicALBSecurityGroup
+          - ExternalSecurityGroup
+          - ALBAccessLogsEnabled
+          - LoadBalancerCertificateArn
+      - Label:
+          default: "ArcGIS Enterprise ArcGIS Server Role Parameters"
+        Parameters:
+          - EC2KeyPairParameter
+          - PublicIPsEnabled
+          - KmsKey
+          - ArcGISServerIAMRole
+          - ServiceLinkedRoleArn                    
+          - ArcGISServerRoleParameter          
+          - ArcGISServerInstanceTypeParameter
+          - ArcGISServerMinNumberOfInstances
+          - ArcGISServerMaxNumberOfInstances
+          - FileServerInstanceTypeParameter
+          - FileServerStorageParameter
+          - AlertEmail
+    ParameterLabels: 
+        VPCParameter: 
+          default: "Which VPC should this be deployed to?"
+        PrivateSubnetsParameter: 
+          default: "Which Private Subnets will EC2s be deployed to?"
+        EC2KeyPairParameter: 
+          default: "Which EC2 Key Pair will be used for this deployment?"
+        ArcGISServerMinNumberOfInstances:
+          default: "What are the minimum number of arcgis server instances to run?"
+        ArcGISServerMaxNumberOfInstances:
+          default: "What are the maxmium number of arcgis server instances to run?"
+        ServiceLinkedRoleArn:
+          default: "Service Linked Role Arn"
+        KmsKey:
+          default: "KMS Key for Drive Encryption"          
+
+Mappings:
+  # AMI Mappings
+  RegionAMIMap:
+    us-west-2:
+      #esri ami + patch -- no stig
+      AMI: "ami-0ee602e163b28fd9e"
+    us-east-1:
+      #esri ami + patch + stig -- no kms
+      AMI: "ami-0b9722c99a293f818"
+
+
+  # Patch Mappings
+  PatchMap:
+    "None":
+      PatchLvl: "none"
+    "Security":
+      PatchLvl: "sec"
+    "All":
+      PatchLvl: "all"
+
+  # ELB Account Mappings
+  Region2ELBAccountId:
+    us-east-1:
+      AccountId: "127311923021"
+    us-west-1:
+      AccountId: "027434742980"
+    us-west-2:
+      AccountId: "797873946194"
+    eu-west-1:
+      AccountId: "156460612806"
+    ap-northeast-1:
+      AccountId: "582318560864"
+    ap-northeast-2:
+      AccountId: "600734575887"
+    ap-southeast-1:
+      AccountId: "114774131450"
+    ap-southeast-2:
+      AccountId: "783225319266"
+    ap-south-1:
+      AccountId: "718504428378"
+    us-east-2:
+      AccountId: "033677994240"
+    sa-east-1:
+      AccountId: "507241528517"
+    cn-north-1:
+      AccountId: "638102146993"
+    eu-central-1:
+      AccountId: "054676820928"
+
+  # Web Adaptor Mapping
+  WAContextMap:
+    "GISServer":
+      CONTEXT: "server"
+    "ImageServer":
+      CONTEXT: "image"
+    "GeoprocessingServer":
+      CONTEXT: "gp"
+
+Parameters:
+
+  ScriptPackage:
+    Type: String
+    Description: ScriptPackage
+    Default: "s3://hydrovis-uat-egis-us-east-1/deployment_configuration_UAT_R20210920.zip"
+    AllowedValues:
+      - "s3://hydrovis-uat-egis-us-east-1/deployment_configuration_UAT_R20210920.zip"
+
+  # Deployment VPC
+  VPCParameter:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC To Deploy Environment
+
+  # Enable ALB Access Logging
+  ALBAccessLogsEnabled:
+    Type: String
+    Description: Enable ALB Access Logs
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false" 
+
+  # ACM Certificate ARN
+  LoadBalancerCertificateArn:
+    Type: String
+    Description: Load Balancer Certificate ARN 
+
+  PublicDNS:
+    Type: String
+    Description: Public Facing DNSName
+    Default: "maps-staging.water.noaa.gov"
+
+
+  # Service Linked Role for ASG Access
+  # to encrypted drives
+  # AWSServiceRoleForAutoScaling_<suffix>
+  # See: https://docs.aws.amazon.com/autoscaling/ec2/userguide/autoscaling-service-linked-role.html
+  # See: https://docs.aws.amazon.com/autoscaling/ec2/userguide/key-policy-requirements-EBS-encryption.html
+  ServiceLinkedRoleArn:
+    Type: String
+    Description: Service Linked Role ARN  
+
+  PublicALBSecurityGroup:
+    Type: String
+    Description: Public ALB Security Group
+    ConstraintDescription: "must be a security group id"
+    Default: ""
+
+  # Private Subnets
+  PrivateSubnetsParameter:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Private Subnets (EC2 Instances Will Be Created Here)
+    Default: ""
+
+  # KeyPair Parameter
+  EC2KeyPairParameter:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Key Pair To Use When Creating EC2 Instances
+
+  # Enable Public IP Addresses
+  PublicIPsEnabled:
+    Type: String
+    Description: Enable Public IP Addresses
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"    
+
+  ExternalSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Link External Security Group
+    Default: ""
+
+  KmsKey:
+     Type: String
+     Description: "KMS Key for Drive Encryption"
+     Default: ""
+
+  PatchLevel:
+    Type: String
+    Description: "Level to Patch ArcGIS Enterprise"
+    Default: "Security"
+    AllowedValues:
+      - "None"
+      - "Security"
+      - "All"
+
+    # Instance Type Parameters
+  ArcGISServerRoleParameter:
+    Type: String
+    Description: ArcGIS Server Role.
+    Default: "GISServer"
+    AllowedValues:
+      - "GISServer"
+      - "ImageServer"
+      - "GeoprocessingServer"
+
+  # Instance Type Parameters
+  ArcGISServerInstanceTypeParameter:
+    Type: String
+    Description: ArcGIS Server Instance Size.
+    Default: m5.xlarge
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+
+  ArcGISServerMinNumberOfInstances:
+      Type: Number
+      MinValue: 1
+      Default: 1
+
+  ArcGISServerMaxNumberOfInstances:
+      Type: Number
+      MinValue: 1
+      Default: 12
+   
+  # Instance Type Parameters
+  FileServerInstanceTypeParameter:
+    Type: String
+    Description: File Server Instance Size.
+    Default: m5.large
+    AllowedValues:
+      - m5.large
+      - m5.xlarge
+      - m5.2xlarge
+
+  FileServerStorageParameter:
+    Type: Number
+    MinValue: 100
+    Default: 500
+    Description: ArcGISServer Shared Storage Size in GB      
+
+  ArcGISServerIAMRole:
+    Type: String
+    Description: ArcGISServer IAM Role Name
+    Default: ""
+
+  # Optional Email for Alerts
+  AlertEmail:
+    Description: Email address for alert notifications
+    Type: String
+    Default: ""
+
+Conditions:
+
+  EnableALBLogging:  !Equals [true, !Ref ALBAccessLogsEnabled]
+
+  HasAlertEmail: !Not [!Equals [!Ref AlertEmail, ""]]
+
+  HasServiceLinkedRoleArn: !Not [!Equals [!Ref ServiceLinkedRoleArn, ""]]
+
+  HasExternalSecurityGroup: !Not [!Equals [!Ref ExternalSecurityGroup, ""]]
+
+  HasPublicALBSecurityGroup: !Not [!Equals [!Ref PublicALBSecurityGroup, ""]]
+
+  HasKmsKey: !Not [!Equals [!Ref KmsKey, ""]]
+
+Resources:
+
+  #########################################################################################################################
+  ### ArcGIS Enterprise Shared Application Load Balancers and Security Groups
+  #########################################################################################################################
+
+  ## PRIVATE ACCESS ##
+
+  # Bucket to capture Private ALB Access Logs
+  PrivateALBLoggingBucket:
+    Type: AWS::S3::Bucket
+    Condition: EnableALBLogging
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::Region}-prv-srvr-alb-log-bucket"
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true 
+
+  # Policy to allow Private ALB Access Logs to be written to bucket
+  PrivateLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: EnableALBLogging
+    Properties:
+      Bucket: !Ref PrivateALBLoggingBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ALBAccessLogs20130930
+            Effect: Allow
+            Resource: !Sub "${PrivateALBLoggingBucket.Arn}/arcgisenterprise/AWSLogs/${AWS::AccountId}/*"
+            Principal:
+              AWS:
+                !FindInMap [Region2ELBAccountId, !Ref "AWS::Region", AccountId]
+            Action: ["s3:PutObject"]            
+
+  # Private ALB Security Group
+  PrivateALBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: !Ref "AWS::StackName"
+      GroupName: !Sub "${AWS::StackName}-prv-srvr-alb-sg"
+      VpcId: !Ref VPCParameter
+      SecurityGroupIngress:
+        # - IpProtocol: tcp
+        #   CidrIp: 0.0.0.0/0
+        #   Description: "ArcGIS Server Private Access"
+        #   FromPort: 443
+        #   ToPort: 443
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          Description: "ArcGIS Server Private Access"
+          FromPort: 6443
+          ToPort: 6443         
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-prv-srvr-alb-sg"
+
+  # Private ALB for ArcGIS Enterprise
+  PrivateALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: "application"
+      Name: !Sub "${AWS::StackName}-prv-srvr-alb"
+      LoadBalancerAttributes:
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.bucket
+            Value: !Ref PrivateALBLoggingBucket
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging
+          - Key: access_logs.s3.prefix
+            Value: "arcgisenterprise"
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: access_logs.s3.enabled
+            Value: !Ref ALBAccessLogsEnabled
+          - !Ref AWS::NoValue 
+        - !If
+          - EnableALBLogging          
+          - Key: deletion_protection.enabled
+            Value: "false"
+          - !Ref AWS::NoValue 
+      Scheme: "internal"
+      SecurityGroups:
+        - !Ref PrivateALBSecurityGroup
+      Subnets: !Ref PrivateSubnetsParameter
+
+  #########################################################################################################################
+  ### ArcGIS Server Role Deployment
+  #########################################################################################################################
+
+  ArcGISServerAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub "${AWS::StackName} Alarm Topic"
+
+  ArcGISServerAlarmEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlertEmail
+    Properties:
+      Endpoint: test@email.com
+      Protocol: email
+      TopicArn: !Ref ArcGISServerAlarmTopic
+
+  # ArcGIS Enterprise Security Group
+  BaseDeploymentSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: !Sub "ArcGIS Enterprise Server Security Group for ${AWS::StackName}-${AWS::Region}"
+      GroupName: !Sub "${AWS::StackName}-srvr-ec2-sg"
+      SecurityGroupIngress:
+        - !If
+        # Allow Web Tier ALB Access
+          - HasPublicALBSecurityGroup
+          - IpProtocol: tcp
+            SourceSecurityGroupId: !Ref PublicALBSecurityGroup
+            Description: "ArcGIS Enterprise Web Tier Access"
+            FromPort: 443
+            ToPort: 443 
+          - !Ref AWS::NoValue 
+
+        # Allow Private ALB Access 
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref PrivateALBSecurityGroup
+          Description: "ArcGIS Server Private Access"
+          FromPort: 6443
+          ToPort: 6443               
+      VpcId: !Ref VPCParameter
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-srvr-ec2-sg"
+
+  # Base Deployment Security Group Machine 2 Machine Rule
+  BaseDeploymentSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId: !Ref BaseDeploymentSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref BaseDeploymentSecurityGroup
+      Description: "ArcGIS Server Deployment Internal Machine to Machine Access"
+
+  # External Security Group Access
+  External2BaseSecurityGroupGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasExternalSecurityGroup
+    Properties: 
+      GroupId: !Ref ExternalSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref BaseDeploymentSecurityGroup
+      Description: "ArcGIS Server External Machine Access"
+
+  # External Security Group Access
+  Base2ExternalSecurityGroupGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: HasExternalSecurityGroup
+    Properties: 
+      GroupId: !Ref BaseDeploymentSecurityGroup
+      IpProtocol: "-1"
+      SourceSecurityGroupId: !Ref ExternalSecurityGroup
+      Description: "ArcGIS Enterprise External Machine Access"      
+
+  # ArcGISServer Instance Profile
+  ArcGISServerIAMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-${AWS::Region}-srvr-instanceprofile"
+      Path: /
+      Roles:
+        - !Ref ArcGISServerIAMRole
+
+  # FileServer Instance Profile
+  FileServerIAMInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-${AWS::Region}-srvr-fileserver-instanceprofile"
+      Path: /
+      Roles:
+        - !Ref ArcGISServerIAMRole
+
+  # Shared File Server Instance
+  FileServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionAMIMap, !Ref "AWS::Region", AMI]
+      InstanceType: !Ref FileServerInstanceTypeParameter
+      IamInstanceProfile: !Ref FileServerIAMInstanceProfile
+      KeyName: !Ref EC2KeyPairParameter
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: !Ref PublicIPsEnabled
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref BaseDeploymentSecurityGroup
+          SubnetId: !Select [0, !Ref PrivateSubnetsParameter]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: 200
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]            
+        - DeviceName: /dev/xvdf
+          Ebs:
+            VolumeType: gp2
+            DeleteOnTermination: true
+            VolumeSize: !Ref FileServerStorageParameter
+            Encrypted: !If [HasKmsKey, true, false]
+            KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]            
+      UserData:
+        Fn::Base64: !Sub |
+          <powershell>
+            $LASTEXITCODE=0
+            $localPath = "C:\software"
+
+            # download scripts
+            & "$localPath\download_config_scripts.ps1" -S3Uri "${ScriptPackage}"
+            
+            # run prep
+            & "$localPath\esri_ami_prep.ps1"
+
+            # run the license and create site operation
+            & "$localPath\ags_configure_fileserver.ps1"
+
+            # signal completion
+            cfn-signal.exe -e $LASTEXITCODE "${FileServerWaitConditionHandle}"
+          </powershell>
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${AWS::StackName}-srvr-fileserver"
+
+  # Auto Recovery Alarm for File Server Instance
+  FileServerInstanceAutorecoverAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - !Sub arn:aws:automate:${AWS::Region}:ec2:recover
+      AlarmDescription: Trigger a recovery when instance status check fails for 5 consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref FileServerInstance
+      EvaluationPeriods: 5
+      Period: 60
+      Statistic: Minimum
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0
+
+  # Wait Condition Handle for File Server Instance
+  # File Server UserData Signals this Handle When Finished
+  FileServerWaitConditionHandle:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+  # Wait Condition for File Server
+  # When the File Server Signal Is Complete (or Timeout occurs)
+  # This evaluates to true|false for success
+  FileServerWaitCondition:
+    DependsOn: FileServerInstance
+    Type: AWS::CloudFormation::WaitCondition
+    Properties:
+      Handle: !Ref FileServerWaitConditionHandle
+      Timeout: '7200'
+      Count: 1
+
+  # Upon success of the FileServerWaitCondition
+  # The Launch Template gets created
+  # This defines the ami to launch and bootstrapping
+  ArcGISServerLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    DependsOn: FileServerWaitCondition
+    Properties:
+      LaunchTemplateData:
+        TagSpecifications:
+        - ResourceType: instance
+          Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-srvr-node"
+        - ResourceType: volume
+          Tags:
+          - Key: Name
+            Value: !Sub "${AWS::StackName}-srvr-node-vol"
+        InstanceInitiatedShutdownBehavior: terminate
+        KeyName: !Ref EC2KeyPairParameter
+        ImageId: !FindInMap [RegionAMIMap, !Ref "AWS::Region", AMI]
+        IamInstanceProfile: 
+          Arn: !GetAtt ArcGISServerIAMInstanceProfile.Arn
+        InstanceType: !Ref ArcGISServerInstanceTypeParameter
+        NetworkInterfaces: 
+          - AssociatePublicIpAddress: !Ref PublicIPsEnabled
+            DeviceIndex: 0
+            Groups:
+              - !Ref BaseDeploymentSecurityGroup
+        BlockDeviceMappings:
+          - DeviceName: /dev/sda1
+            Ebs:
+              VolumeType: gp2
+              DeleteOnTermination: true
+              VolumeSize: 200
+              Encrypted: !If [HasKmsKey, true, false]
+              KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]              
+          - DeviceName: /dev/xvdf
+            Ebs:
+              VolumeType: gp2
+              DeleteOnTermination: true
+              VolumeSize: 500
+              Encrypted: !If [HasKmsKey, true, false]
+              KmsKeyId: !If [HasKmsKey, !Ref KmsKey, !Ref AWS::NoValue]              
+        UserData:
+          Fn::Base64: !Sub
+            - |
+              <powershell>
+                $LASTEXITCODE=0
+                
+                $localPath = "C:\software"
+                
+                # download scripts
+                & "$localPath\download_config_scripts.ps1" -S3Uri "${ScriptPackage}"
+
+                # run prep
+                & "$localPath\esri_ami_prep.ps1"
+
+                # run join site script
+                & "$localPath\ags_join_site.ps1" -FileServerIPAddress "${FileServerInstance.PrivateIp}" -WAContext "${WAContext}"  -StackName "${AWS::StackName}" -Region "${AWS::Region}" -PatchLevel "${PatchLvl}"
+
+                # signal join site complete
+                cfn-signal.exe -e $LASTEXITCODE --stack ${AWS::StackId} --resource ArcGISServerASG --region ${AWS::Region}        
+              </powershell>
+            - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+              PatchLvl: !FindInMap [PatchMap, !Ref PatchLevel, PatchLvl]
+
+  # Route 6443 from ALB to ArcGIS Server
+  # This Target Group will contain a reference to all
+  # instances created by the autoscaling group
+  ArcGISServerPrivateTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-srvr-prv-albtg"
+      Port: 6443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: "/arcgis/rest/info/healthCheck"
+      HealthCheckPort: "6443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3      
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  # Route 443 from ALB to ArcGIS Server
+  # This Target Group will contain a reference to all
+  # instances created by the autoscaling group
+  ArcGISServerWebTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-srvr-web-albtg"
+      Port: 443
+      Protocol: "HTTPS"    
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: !Sub 
+        - "/${WAContext}/rest/info/healthCheck"
+        - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+      HealthCheckPort: "443"
+      HealthCheckProtocol: "HTTPS"
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3      
+      TargetType: "instance"
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPCParameter
+
+  # This Autoscaling group defines the min/max number of instances
+  # for the group. It specifies the target group for which to add/remove
+  # instances from when scaling.
+  ArcGISServerASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: FileServerInstance
+    CreationPolicy:
+      ResourceSignal:    
+        Count: !Ref ArcGISServerMinNumberOfInstances
+        Timeout: PT60M
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MaxBatchSize: 1
+        MinInstancesInService: 1
+        PauseTime: PT60M
+        SuspendProcesses:
+          - AlarmNotification
+        WaitOnResourceSignals: true    
+    Properties:
+      VPCZoneIdentifier: !Ref PrivateSubnetsParameter
+      #LaunchConfigurationName: !Ref ArcGISServerLaunchConfig
+      ServiceLinkedRoleARN: !If [HasServiceLinkedRoleArn, !Ref ServiceLinkedRoleArn, !Ref AWS::NoValue]
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ArcGISServerLaunchTemplate
+        Version: !GetAtt ArcGISServerLaunchTemplate.LatestVersionNumber
+      HealthCheckGracePeriod: 3600 #1 hr
+      HealthCheckType: EC2
+      DesiredCapacity: !Ref ArcGISServerMinNumberOfInstances
+      MinSize: !Ref ArcGISServerMinNumberOfInstances
+      MaxSize: !Ref ArcGISServerMaxNumberOfInstances
+      TargetGroupARNs:
+        - !Ref ArcGISServerPrivateTargetGroup
+        - !Ref ArcGISServerWebTargetGroup
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${AWS::StackName}-srvr-node"
+          PropagateAtLaunch: true
+
+  # An SSM Document to run a command
+  # This command will unregister a machine from the site
+  ArcGISServerUnregisterCommand: 
+    Type: AWS::SSM::Document 
+    Properties:
+      DocumentType: Command
+      Content:
+        schemaVersion: "2.2"
+        description: "Unregisters the machine from ArcGIS Server site."
+        mainSteps:
+        - action: "aws:runPowerShellScript"
+          name: "unregister_machine"
+          inputs:
+            runCommand:
+              - "& C:\\software\\ags_unregister_machine.ps1"
+            timeoutSeconds: '900'
+
+  # Unregister the fileserver once the nodes are build
+  UnregisterFileServer:
+    Type: AWS::SSM::Association
+    DependsOn: ArcGISServerASG #ArcGISServerASGWaitCondition
+    Properties:
+      Name: !Ref ArcGISServerUnregisterCommand
+      Targets:
+        - Key: "InstanceIds"
+          Values:
+            - !Ref FileServerInstance
+
+  # Scale up policy for autoscaling
+  ArcGISServerScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ArcGISServerASG
+      ScalingAdjustment: 1
+      Cooldown: "600" #10 mins
+
+  # Scale down policy for autoscaling
+  ArcGISServerScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ArcGISServerASG
+      ScalingAdjustment: -1
+
+  # CPU Alarm that triggers autoscaling to add additional nodes
+  ArcGISServerCPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-up if CPU > 70% for 5 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: 70
+      AlarmActions: [!Ref ArcGISServerScaleUpPolicy]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ArcGISServerASG
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  # CPU Alarm that triggers autoscaling to remove nodes not needed
+  ArcGISServerCPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Scale-down if CPU < 40% for 5 minutes
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 40
+      AlarmActions: [!Ref ArcGISServerScaleDownPolicy]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ArcGISServerASG
+      ComparisonOperator: LessThanOrEqualToThreshold
+
+  # CPU Alarm Critical Notification
+  ArcGISServerCPUCriticalNotification:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Alarm if CPU peaks at 100% for an extended period
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 600
+      EvaluationPeriods: 1
+      Threshold: 100
+      AlarmActions: 
+          - !Ref ArcGISServerAlarmTopic
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ArcGISServerASG
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  # Memory Alarm that triggers autoscaling to add additional nodes
+  ArcGISServerMemoryAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 1
+      Statistic: Average
+      Threshold: 80
+      AlarmDescription: Scale up when memory is higher than 80% for 5 minutes
+      Period: 300
+      AlarmActions:
+      - Ref: ArcGISServerScaleUpPolicy
+      Namespace: CWAgent
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ArcGISServerASG
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      MetricName: MemoryAvailable
+
+  # Memory Alarm Critical Notification
+  ArcGISServerMemoryCriticalNotification:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 1
+      Statistic: Average
+      Threshold: 90
+      AlarmDescription: Memory getting critically high.
+      Period: 600
+      AlarmActions:
+      - Ref: ArcGISServerAlarmTopic
+      Namespace: CWAgent
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      MetricName: MemoryAvailable      
+
+  # # ALB Listener -- 443 -> Default TargetGroup
+  # ALB443Listener:
+  #   Type: "AWS::ElasticLoadBalancingV2::Listener"
+  #   Condition: HasPublicA
+  #   Properties:
+  #     Certificates:
+  #       - CertificateArn: !Ref LoadBalancerCertificateArn
+  #     LoadBalancerArn:  !If [MakePublicALB, !Ref PublicALB, !Ref PrivateALB]
+  #     Port: 443
+  #     Protocol: HTTPS
+  #     SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+  #     DefaultActions:
+  #       - Type: forward
+  #         ForwardConfig:
+  #           TargetGroups:
+  #             - TargetGroupArn: !Ref ArcGISServerWebTargetGroup
+
+  # ALB Listener -- 6443 -> Default TargetGroup
+  PrivateALB6443Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref LoadBalancerCertificateArn
+      LoadBalancerArn: !Ref PrivateALB
+      Port: 6443
+      Protocol: HTTPS
+      SslPolicy: "ELBSecurityPolicy-FS-1-2-Res-2019-08"
+      DefaultActions:
+        - Type: forward
+          ForwardConfig:
+            TargetGroups:
+              - TargetGroupArn: !Ref ArcGISServerPrivateTargetGroup
+
+  # BEGIN: Unregister ArcGIS Server on Scale Down
+  ArcGISServerTerminationHook:
+    Type: AWS::AutoScaling::LifecycleHook
+    Properties:
+      AutoScalingGroupName: !Ref ArcGISServerASG
+      DefaultResult: CONTINUE
+      HeartbeatTimeout: 900
+      LifecycleTransition: autoscaling:EC2_INSTANCE_TERMINATING
+
+  ArcGISServerTerminationDocument:
+    Type: AWS::SSM::Document
+    Properties:
+      DocumentType: Automation
+      Content:
+        description: 'Run command before terminating instance'
+        schemaVersion: '0.3'
+        assumeRole: !GetAtt ArcGISServerTerminationDocumentRole.Arn
+        parameters:
+          instanceId:
+            type: String
+        mainSteps:
+          - name: RunCommand
+            action: aws:runCommand
+            inputs:
+              DocumentName: AWS-RunPowerShellScript
+              InstanceIds:
+                - '{{ instanceId }}'
+              TimeoutSeconds: 300
+              Parameters:
+                commands: 
+                  - "& C:\\software\\ags_unregister_machine.ps1"
+                executionTimeout: '900'
+          - name: TerminateInstance
+            action: aws:executeAwsApi
+            inputs:
+              Api: CompleteLifecycleAction
+              AutoScalingGroupName: !Ref ArcGISServerASG
+              InstanceId: '{{ instanceId }}'
+              LifecycleActionResult: CONTINUE
+              LifecycleHookName: !Ref ArcGISServerTerminationHook
+              Service: autoscaling
+
+  ArcGISServerTerminationRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+          - aws.autoscaling
+        detail-type:
+          - EC2 Instance-terminate Lifecycle Action
+        detail:
+          AutoScalingGroupName:
+            - !Ref ArcGISServerASG
+      Targets:
+        - Id: my-termination-document
+          Arn: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:automation-definition/${ArcGISServerTerminationDocument}:$DEFAULT'
+          RoleArn: !GetAtt ArcGISServerTerminationRuleRole.Arn
+          InputTransformer:
+            InputPathsMap:
+              instanceId: '$.detail.EC2InstanceId'
+            InputTemplate: '{"instanceId":[<instanceId>]}'
+
+  ArcGISServerTerminationRuleRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: start-automation
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:StartAutomationExecution
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:automation-definition/${ArcGISServerTerminationDocument}:$DEFAULT'
+
+  ArcGISServerTerminationDocumentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: run-command-and-complete-lifecycle
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - autoscaling:CompleteLifecycleAction
+                Resource: !Sub 'arn:aws:autoscaling:${AWS::Region}:${AWS::AccountId}:autoScalingGroup:*:autoScalingGroupName/${ArcGISServerASG}'
+              - Effect: Allow
+                Action:
+                  - ssm:DescribeInstanceInformation
+                  - ssm:ListCommands
+                  - ssm:ListCommandInvocations
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                Resource: 'arn:aws:ssm:*::document/AWS-RunPowerShellScript'
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                Resource: !Sub 'arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*'
+
+  # END: Unregister ArcGIS Server on Scale Down
+                
+Outputs:
+
+  OutputPrivateALBDNS:
+    Description: Private ALB DNSName
+    Value: !Sub "https://${PrivateALB.DNSName}"
+
+  OutputWebAdaptorContext:
+    Description: ArcGIS Server Web Adaptor Context (Public ALB Path Route)
+    Value: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+
+  OutputTargetGroup:
+    Description: ArcGIS Server Role Target Group (Connect to Public ALB Path Route)
+    Value: !Ref ArcGISServerWebTargetGroup   
+
+  OutputFederationServicesURL:
+    Description: Portal Federation Services URL
+    Value: !Sub
+      - "https://${PublicDNS}/${WAContext}"
+      - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+
+  OutputFederationAdminURL:
+    Description: Portal Federation Administration URL
+    Value: !Sub "https://${PrivateALB.DNSName}:6443/arcgis"
+      
+  OutputPrivateServerAdminURL:
+    Description: Private ArcGIS Server Admin URL
+    Value: !Sub "https://${PrivateALB.DNSName}:6443/arcgis/admin"
+
+  OutputPrivateServerManagerURL:
+    Description: Private ArcGIS Server Manager URL
+    Value: !Sub "https://${PrivateALB.DNSName}:6443/arcgis/manager"
+
+  OutputPrivateServerRestServcesURL:
+    Description: Private ArcGIS Server Rest Services URL
+    Value: !Sub "https://${PrivateALB.DNSName}:6443/arcgis/rest/services"
+
+  OutputPublicServerAdminURL:
+    Description: Public ArcGIS Server Admin URL
+    Value: !Sub
+      - "https://${PublicDNS}/${WAContext}/admin"
+      - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+
+  OutputPublicServerManagerURL:
+    Description: Public ArcGIS Server Manager URL
+    Value: !Sub
+      - "https://${PublicDNS}/${WAContext}/manager"
+      - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]
+
+  OutputPublicServerRestServcesURL:
+    Description: Public ArcGIS Server Rest Services URL
+    Value: !Sub
+      - "https://${PublicDNS}/${WAContext}/rest/services"
+      - WAContext: !FindInMap [WAContextMap, !Ref ArcGISServerRoleParameter, CONTEXT]

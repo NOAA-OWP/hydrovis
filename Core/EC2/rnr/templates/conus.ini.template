@@ -1,0 +1,241 @@
+[PATHS]
+# The list of URLs to use when looking for nwm data.  The list
+# assumes order based precendence.  The object store link should
+# be defined before the nomads link.  These are extended with:
+# nwm.YYYYMMDD/analysis_assim/nwm.tHHz.analysis_assim.type.tm00.conus.nc
+# or /YYYY/YYYYMMDDHHMM.type_DOMAIN1.comp
+
+URLS = ${DSTORE_URL}
+       ${NOMADS_URL}
+
+WRDS_API_HOST_URL = ${WRDS_HOST}
+
+WRDS_RFC_FORECAST_API = /api/rfc_forecast/v2.0/forecast
+WRDS_LOCATION_API = /api/location/v3.0
+
+FCST_API_BASE_URL = $${WRDS_API_HOST_URL}$${WRDS_RFC_FORECAST_API}
+
+#v2.0
+WRDS_RFC_FORECAST_STAGE_ACTION_URL = $${FCST_API_BASE_URL}/stage/nws_lid/all/?returnNewestForecast=true&minForecastStatus=action
+
+#v 2.0
+WRDS_RFC_FORECAST_STREAMFLOW_ACTION_URL = $${FCST_API_BASE_URL}/streamflow/nws_lid/all/?returnNewestForecast=true&minForecastStatus=action
+
+# v2.0
+WRDS_RFC_FORECAST_STREAMFLOW_BASE_URL = $${FCST_API_BASE_URL}/streamflow/nws_lid
+
+WRDS_LOCATION_BASE_URL = $${WRDS_API_HOST_URL}$${WRDS_LOCATION_API}
+
+WRDS_LOCATION_ACTION_FLOW_URL = $${WRDS_LOCATION_BASE_URL}/threshold/flow/action/all
+WRDS_LOCATION_RATING_BASE_URL = $${WRDS_LOCATION_BASE_URL}/rating_curve
+
+
+# Location and name of the Resource file.  If not prefaced with'/',
+# the path is relative to the current working directory
+RESOURCES_PATH = RESOURCES
+
+# the host root share directory
+SHARE_PATH = /rnr/share
+
+# Location to place the log file.  If not prefaced with '/', the path is
+# relative to the current working directory.  If specifying the file name,
+# end the name with .log
+LOG_PATH =  $${SHARE_PATH}/log/replace_and_route-dynamic-run-NWMv2.1.log
+
+# Run directory, where the watermodel will be run
+RUN_PATH = $${SHARE_PATH}/Run
+
+# Archive directory.  Base directory for archiving.  wrf_hydro run instances
+# will be archived at ARCHIVES/Run and processed output will be archived at
+# ARCHIVES/processed_output
+ARCHIVES_PATH = $${SHARE_PATH}/.archive
+
+# location of the timeslice generator config file.  It is unlikely it
+# will need to be changed.
+TIMESLICE_CONFIG = usgs_timeslice_generator/config.ini
+
+# Suffix for processed output files.  Processed output files are
+# named by:
+# $${SHARE_PATH}/nwc.YYYYMMDD/medium_range/wrf_hydro_tHH.medium_range.channel_rt.fXXX.$${OUTPUT_SET_ID}.nc
+# OUTPUT_SET_ID may be any combination of lower or uppercase letters, numbers,
+# underscores, or dashes
+OUTPUT_SET_ID = conus
+
+[DURATIONS]
+# How long to archive run instances in the directory specified by ARCHIVES.
+# This value is in days.
+ARCHIVE_INSTANCES_FOR = 1
+
+# How long to archive processed NWM data for  in the directory specified by
+# ARCHIVES.  This value is in days.
+ARCHIVE_OUTPUT_FOR = 0
+
+# How many hours to look back in time to find a reference time with the required
+# files.  This affects how execution instances are named and can cause a failure
+# if a reference time that has already been processed is used.  Value is in hours.
+REFERENCE_TIME_LOOKBACK = 1
+
+[OBJECT_STORE]
+# These settings are used to configure where the processed files should
+# be stored and accessible for distribution
+
+# host name with protocol 
+HOST=%(OSTORE_HOST)s
+
+# port number to connect to
+PORT=%(OSTORE_PORT)s
+
+# bucket where processed files should be uploaded and stored
+BUCKET=%(OSTORE_BUCKET)s
+
+# access and secret object store keys.  Should be set via environment variables
+ACCESS_KEY=%(OSTORE_ACCESSKEY)s
+SECRET_KEY=%(OSTORE_SECRETKEY)s
+
+[REPLACE_AND_ROUTE_RESOURCES]
+# Files in this section are expected to exist in the
+# RESOURCES/static/wrf_hydro_support directory
+
+# Name of the water body file.  The feature_id order is maintained.
+WATERBODY_FILE = domain_waterbodies.csv
+
+# Master Waterbody file.  This file is subsetted to generate a LAKEPARM.nc
+# wrf_hydro input file.
+# MASTER_WATERBODY_FILE = master_lakeparm.nc
+
+[WRF_HYDRO_RESOURCES]
+# The names of files required by wrf_hydro
+# The files here are found in RESOURCES/static/wrf_hydro
+
+# Name of the hydro.namelist file to use
+# should be placed in each execution directory
+HYDRO_NAMELIST_FILE = hydro.namelist
+
+# Name of the namelist.hrldas file to use
+# should be placed in each execution directory
+NAMELIST_HRLDAS_FILE = namelist.hrldas
+
+# Path to the pre-compiled wrf_hydro executable to use
+# This path should be fully specified.
+# WRF_HYDRO_EXE_PATH = /rnr/wrf_hydro/bin/wrf_hydro_NoahMP.exe
+
+WRF_HYDRO_EXE_PATH = /rnr/wrf_hydro_nwm_public/trunk/NDHMS/Run/wrf_hydro_NoahMP.exe
+
+# Tells how many days of FORCING files to create.  This must be an integer.
+DAYS_OF_FORCINGS = 5
+
+# Tell how often a HYDRO_RST file should be written by the wrf_hydro
+# executable.  This must be specified in hours as an integer
+RESTART_WRITE_FREQUENCY = 24
+
+[WRF_HYDRO_DOMAIN]
+# The files here are placed in the common Run/RESOURCES/DOMAIN directory
+
+# land surface model gridded input data file needed by wrf_hydro
+# should be placed in RESOURCES/static/wrf_hydro
+GEO_STATIC_FILE = geo_em_CONUS.nc
+
+# Name of the full domain file to use
+# the high-resolution routing terrain input data file
+# should be placed in RESOURCES/static/wrf_hydro
+GEO_FINEGRID_FILE = Fulldom_hires_netcdf_250m.nc
+
+# Name of the hydro table 2D file to use
+# the spatial hydro parameters file
+# should be placed in RESOURCES/static/wrf_hydro
+SPATIAL_HYDRO_TABLE_FILE = hydro2dtbl_CONUS_FullRouting.nc
+
+# Name of the soil properties file to use
+# spatial terrain properties file used in namelist.hrldas
+# should be placed in RESOURCES/static/wrf_hydro
+SPATIAL_PROPERTIES_FILE = soilproperties_CONUS_FullRouting.nc
+
+# Name of the spatial weights file to use
+# user defined mapping file to use
+# should be placed in RESOURCES/static/wrf_hydro
+USER_DEFINED_MAP_FILE = spatialweights_CONUS_FullRouting.nc
+
+# Name of the wrf input file to use
+# should be placed in RESOURCES/static/wrf_hydro
+HRLDAS_SETUP_FILE = wrfinput_CONUS.nc
+
+[WRF_HYDRO_TABLES]
+# The files here are placed in the common Run/RESOURCES/TABLES directory
+
+# CHANPARM.TBL file needed by each wrf_hydro execution
+# should be placed in RESOURCES/static/wrf_hydro
+CHANPARM_TABLE = CHANPARM.TBL
+
+# GENPARM.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+GENPARM_TABLE = GENPARM.TBL
+
+# HYDRO.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+HYDRO_TABLE = HYDRO.TBL
+
+# LAKEPARM.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+LAKEPARM_TABLE = LAKEPARM.TBL
+
+# MPTABLE.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+MPTABLE_TABLE = MPTABLE.TBL
+
+# SOILPARM.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+SOILPARM_TABLE = SOILPARM.TBL
+
+# URBPARM.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+URBPARM_TABLE = URBPARM.TBL
+
+# VEGPARM.TBL file needed by wrf_hydro model
+# should be placed in RESOURCES/static/wrf_hydro
+VEGPARM_TABLE = VEGPARM.TBL
+
+[DEFAULT]
+# Default values for configuration file parameters
+# Override parameters in the sections above.  Do not alter
+# the default values.
+URLS = http://localhost/nwm
+RESOURCES_PATH = RESOURCES
+LOG_PATH = LOGS
+SHARE_PATH = OUTPUT
+RUN_PATH = RUNS
+ARCHIVES_PATH = ARCHIVES
+TIMESLICE_CONFIG = usgs_timeslice_generator/config.ini
+THRESHOLD_CSV_FILEPATH = RESOURCES/static/wrf_hydro_support/nwm_ahps_thresholds.csv
+ARCHIVE_INSTANCES_FOR = 30
+ARCHIVE_OUTPUT_FOR = 60
+REFERENCE_TIME_LOOKBACK = 6
+OUTPUT_SET_ID = DRAFT
+DAYS_OF_FORCINGS = 5
+RESTART_WRITE_FREQUENCY = 24
+# How long to wait on the object store to respond before timing out.
+# Specified in seconds.
+CONNECTION_TIMEOUT = 60
+WATERBODY_FILE = conus2.0/waterbodies.csv
+MASTER_WATERBODY_FILE = master_lakeparm.nc
+#AHPS_POINTS_MAPPING_FILE = conus2.0/gages_map.csv
+HYDRO_NAMELIST_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/hydro.namelist
+NAMELIST_HRLDAS_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/namelist.hrldas
+WRF_HYDRO_EXE_PATH =
+LAKEPARM_FILE = $${RUN_WRF_HYDRO_RESOURCES:MASTER_WATERBODY_FILE}
+ROUTELINK_FILE =
+GEO_STATIC_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/geo_em.nc
+GWBUCKPARM_FILE =
+NUDGING_PARAMS_FILE =
+GEO_FINEGRID_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/Fulldom.nc
+SPATIAL_HYDRO_TABLE_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/HYDRO_TBL_2D.nc
+SPATIAL_PROPERTIES_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/soil_properties.nc
+USER_DEFINED_MAP_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/spatialweights.nc
+HRLDAS_SETUP_FILE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/wrfinput.nc
+CHANPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/CHANPARM.TBL
+GENPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/GENPARM.TBL
+HYDRO_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/HYDRO.TBL
+LAKEPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/LAKEPARM.TBL
+MPTABLE_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/MPTABLE.TBL
+SOILPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/SOILPARM.TBL
+URBPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/URBPARM.TBL
+VEGPARM_TABLE = $${PATHS:RESOURCES_PATH}/static/wrf_hydro/VEGPARM.TBL

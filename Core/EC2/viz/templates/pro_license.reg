@@ -1,0 +1,20 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_USERS\${PIPELINE_USER}\Software\ESRI\ArcGISPro\Licensing]
+"ARCPROWORKOFFLINE"="FALSE"
+"DESKTOP_CONFIG"="TRUE"
+"FlexNetService"="False"
+"LICENSE_FILE_PATH"=""
+"RENEWAL_CHECK"=""
+"SEAT_PREFERENCE"="Float"
+"SingleUse_Installed"="Professional"
+"SOFTWARE_CLASS"="Professional"
+"SOFTWARE_TYPE"="CLASSIC"
+"TIMEOUTWARNING"="TRUE"
+"LICENSE_SERVER_PRO_ON_PREMISE"="none"
+"ARCPRO_AUTH_TYPE"=""
+"LICENSE_SERVER"="@${LICENSE_SERVER}"
+"SOFTWARE_CLASS_FN"="Professional"
+
+[HKEY_USERS\${PIPELINE_USER}\\Software\ESRI\ArcGISPro\Licensing\Extensions]
+"Spatial Analyst Pro"=dword:00000001

@@ -1,0 +1,40 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "es:DescribeReservedElasticsearchInstanceOfferings",
+        "es:DeletePackage",
+        "es:ListElasticsearchInstanceTypeDetails",
+        "es:ListDomainsForPackage",
+        "es:CreateElasticsearchServiceRole",
+        "es:UpdatePackage",
+        "es:RejectInboundCrossClusterSearchConnection",
+        "es:GetPackageVersionHistory",
+        "es:PurchaseReservedElasticsearchInstanceOffering",
+        "es:DeleteElasticsearchServiceRole",
+        "es:AcceptInboundCrossClusterSearchConnection",
+        "es:DescribeInboundCrossClusterSearchConnections",
+        "es:DescribeReservedElasticsearchInstances",
+        "es:ListDomainNames",
+        "es:CreatePackage",
+        "es:DescribePackages",
+        "es:DeleteInboundCrossClusterSearchConnection",
+        "es:ListElasticsearchInstanceTypes",
+        "es:DescribeOutboundCrossClusterSearchConnections",
+        "es:ListElasticsearchVersions",
+        "es:DescribeElasticsearchInstanceTypeLimits",
+        "es:DeleteOutboundCrossClusterSearchConnection"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": "es:*",
+      "Resource": "arn:aws:es:${region}:${account_id}:domain/monitoring-hydrovis"
+    }
+  ]
+}

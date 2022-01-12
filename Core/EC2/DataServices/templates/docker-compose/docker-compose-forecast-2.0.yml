@@ -1,0 +1,33 @@
+version: '3.5'
+services:
+  wrds_rfc_forecast_api_v2.0:
+    build:
+      context: .
+      dockerfile: Dockerfile.aws
+      args:
+        API_HOST: localhost
+    cpus: "4.0"
+    mem_limit: 4.0g
+    container_name: wrds_rfc_forecast_api_v2.0
+    restart: always
+    entrypoint:
+      - /opt/wrds_rfc_forecast_api/rfc_forecast_api/entrypoint.sh
+    env_file: env.aws
+    expose:
+      - "8000"
+    networks:
+      wrds_nginx:
+        aliases:
+          - wrdsrfcforecastapiv2.0
+    volumes:
+      - type: volume
+        source: wrds_apis
+        target: /var/www/
+volumes:
+  wrds_apis:
+    external:
+      name: wrds_apis
+networks:
+  wrds_nginx:
+    external:
+      name: wrds_nginx

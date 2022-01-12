@@ -1,0 +1,188 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "kms:GetPublicKey",
+        "cloudwatch:PutDashboard",
+        "kms:Decrypt",
+        "iam:ListRoleTags",
+        "cloudwatch:DeleteAlarms",
+        "cloudtrail:GetTrailStatus",
+        "cloudwatch:DeleteInsightRules",
+        "kms:ListResourceTags",
+        "cloudwatch:StartMetricStreams",
+        "kms:GetParametersForImport",
+        "iam:PassRole",
+        "cloudwatch:DeleteDashboards",
+        "sns:Publish",
+        "cloudwatch:DescribeAlarmHistory",
+        "cloudwatch:UntagResource",
+        "cloudwatch:StopMetricStreams",
+        "kms:GetKeyRotationStatus",
+        "cloudwatch:DisableAlarmActions",
+        "cloudtrail:ListTags",
+        "cloudwatch:ListTagsForResource",
+        "kms:DescribeKey",
+        "ssm:GetParametersByPath",
+        "cloudwatch:DeleteMetricStream",
+        "cloudwatch:SetAlarmState",
+        "kms:ListKeyPolicies",
+        "cloudwatch:GetDashboard",
+        "kms:ListRetirableGrants",
+        "cloudwatch:GetInsightRuleReport",
+        "kms:GetKeyPolicy",
+        "cloudwatch:DisableInsightRules",
+        "cloudwatch:EnableInsightRules",
+        "cloudwatch:PutCompositeAlarm",
+        "kms:ListGrants",
+        "cloudwatch:PutMetricStream",
+        "cloudwatch:PutInsightRule",
+        "cloudwatch:TagResource",
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:EnableAlarmActions",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:GetMetricStream"
+      ],
+      "Resource": [
+        "arn:aws:ssm:${region}:${account_id}:parameter/*",
+        "arn:aws:iam::${account_id}:role/*",
+        "arn:aws:sns:${region}:${account_id}:*",
+        "arn:aws:cloudtrail:${region}:${account_id}:trail/*",
+        "arn:aws:cloudwatch::${account_id}:dashboard/*",
+        "arn:aws:cloudwatch:${region}:${account_id}:alarm:*",
+        "arn:aws:cloudwatch:${region}:${account_id}:metric-stream/*",
+        "arn:aws:cloudwatch:${region}:${account_id}:insight-rule/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": [
+        "logs:GetLogRecord",
+        "cloudwatch:PutMetricData",
+        "ec2:DescribeInstances",
+        "logs:DescribeSubscriptionFilters",
+        "logs:StartQuery",
+        "logs:DescribeMetricFilters",
+        "logs:ListLogDeliveries",
+        "logs:CreateLogStream",
+        "cloudwatch:DescribeAlarmsForMetric",
+        "cloudwatch:ListDashboards",
+        "ec2:DescribeVolumes",
+        "logs:GetLogEvents",
+        "cloudwatch:PutAnomalyDetector",
+        "logs:FilterLogEvents",
+        "s3:DeleteObject",
+        "logs:DescribeDestinations",
+        "cloudwatch:DescribeInsightRules",
+        "cloudtrail:GetTrail",
+        "ec2:CreateTags",
+        "s3:ListJobs",
+        "ec2:DeleteNetworkInterface",
+        "logs:StopQuery",
+        "cloudwatch:GetMetricStatistics",
+        "logs:CreateLogGroup",
+        "cloudtrail:DescribeTrails",
+        "ec2:CreateNetworkInterface",
+        "logs:DescribeExportTasks",
+        "logs:GetQueryResults",
+        "logs:ListTagsLogGroup",
+        "cloudwatch:GetMetricData",
+        "logs:DescribeLogStreams",
+        "s3:ListBucket",
+        "cloudwatch:DeleteAnomalyDetector",
+        "cloudwatch:ListMetrics",
+        "logs:GetLogDelivery",
+        "cloudwatch:DescribeAnomalyDetectors",
+        "s3:GetEncryptionConfiguration",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeNetworkInterfaceAttribute",
+        "cloudwatch:GetMetricWidgetImage",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeQueries",
+        "logs:DescribeLogGroups",
+        "logs:TestMetricFilter",
+        "logs:PutLogEvents",
+        "s3:ListStorageLensConfigurations",
+        "s3:ListAllMyBuckets",
+        "cloudwatch:ListMetricStreams",
+        "cloudtrail:ListPublicKeys",
+        "logs:GetLogGroupFields",
+        "logs:PutSubscriptionFilter"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetEncryptionConfiguration",
+        "s3:ListBucketMultipartUploads",
+        "s3:ListBucketVersions",
+        "s3:RestoreObject",
+        "s3:ListBucket",
+        "s3:DeleteObject",
+        "s3:GetBucketAcl",
+        "s3:ListMultipartUploadParts"
+      ],
+      "Resource": [
+        "arn:aws:s3:::hydrovis-*-hml-*",
+        "arn:aws:s3:::hydrovis-*-fim-*",
+        "arn:aws:s3:::hydrovis-*-nwm-*",
+        "arn:aws:s3:::hydrovis-*-hml-*/*",
+        "arn:aws:s3:::hydrovis-*-fim-*/*",
+        "arn:aws:s3:::hydrovis-*-nwm-*/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": "lambda:*",
+      "Resource": [
+        "arn:aws:lambda:${region}:${account_id}:event-source-mapping:*",
+        "arn:aws:lambda:${region}:${account_id}:codesigningconfig:*",
+        "arn:aws:lambda:${region}:${account_id}:function:*",
+        "arn:aws:lambda:${region}:${account_id}:layer:*",
+        "arn:aws:lambda:${region}:${account_id}:layer:*:*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:GetEncryptionConfiguration"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": "kms:GenerateDataKey",
+        "Resource": "*"
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: NOAA NWC HydroVis Postgres RDS Enterprise Geodatabase
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+    - Label:
+        default: "RDS Parameters"
+      Parameters:
+      - DBSnapshotIdentifier
+      - EngineVersion
+      - DBAllocatedStorage
+      - DBInstanceClass
+      - DBName
+      - DBBackupRetentionPeriod
+      - DBMasterUsername
+      - DBMasterUserPassword
+      - DBMultiAZ
+      - PreferredBackupWindow
+      - PreferredMaintenanceWindow
+
+Parameters:
+
+  # Deployment VPC
+  VPCParameter:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC To Deploy Environment
+
+  # Database Subnets
+  DbSubnet1:
+    Description: Database AZ Subnet 1
+    Type: AWS::EC2::Subnet::Id
+
+  DbSubnet2: 
+    Description: Database AZ Subnet 1
+    Type: AWS::EC2::Subnet::Id
+
+  # Option to recreate RDS from database snapshot
+  DBSnapshotIdentifier:
+    Description: "Optional name or Amazon Resource Name (ARN) of the DB snapshot from which you want to restore (leave blank to create an empty database)."
+    Type: String
+    Default: ""
+
+  # Database Allocated Storage
+  DBAllocatedStorage:
+    Description: "The allocated storage size, specified in GB (ignored when DBSnapshotIdentifier is set, value used from snapshot)."
+    Type: Number
+    Default: 500
+    MinValue: 5
+    MaxValue: 16384
+
+  # Datbase Instance Size
+  DBInstanceClass:
+    Description: "The instance size of database server."
+    Type: String
+    Default: db.r5.xlarge
+    AllowedValues:
+      - db.t2.micro
+      - db.r5.xlarge
+      - db.r5.2xlarge
+      - db.r5.4xlarge
+
+  # Database Name
+  DBName:
+    Description: "Name of the database (ignored when DBSnapshotIdentifier is set, value used from snapshot)."
+    Type: String
+    Default: "egdb"
+
+  # Database Backup Retention Period
+  DBBackupRetentionPeriod:
+    Description: "The number of days to keep snapshots of the database."
+    Type: Number
+    MinValue: 0
+    MaxValue: 35
+    Default: 30
+
+  # Database Master Username
+  DBMasterUsername:
+    Description: "The master user name for the DB instance (ignored when DBSnapshotIdentifier is set, value used from snapshot)."
+    Type: String
+    Default: master
+
+  # Database Master Password
+  DBMasterUserPassword:
+    Description: "The master password for the DB instance (ignored when DBSnapshotIdentifier is set, value used from snapshot)."
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    MaxLength: 41
+  
+  # Database Multi AZ Option
+  DBMultiAZ:
+    Description: "Specifies if the database instance is deployed to multiple Availability Zones for HA."
+    Type: String
+    Default: false
+    AllowedValues: [true, false]
+
+  # Database Backup Window
+  PreferredBackupWindow:
+    Description: "The daily time range in UTC during which you want to create automated backups."
+    Type: String
+    Default: "09:00-10:00"
+
+  # Database Maintenance Window
+  PreferredMaintenanceWindow:
+    Description: The weekly time range (in UTC) during which system maintenance can occur.
+    Type: String
+    Default: "sat:07:00-sat:07:30"
+
+  # RDS Engine to Deploy
+  EngineVersion:
+    Description: "PostgreSQL version."
+    Type: String
+    Default: "12.2"
+    AllowedValues: ["9.6.15", "9.6.17", "10.12", "11.7", "12.2"] 
+    # https://desktop.arcgis.com/en/system-requirements/latest/database-requirements-postgresql.htm
+
+  # Optional Email for Alerts
+  AlertEmail:
+    Description: Email address for alert notifications
+    Type: String
+    Default: ""
+
+Conditions:
+  HasDBSnapshotIdentifier: !Not [!Equals [!Ref DBSnapshotIdentifier, ""]]
+  HasAlertEmail: !Not [!Equals [!Ref AlertEmail, ""]]
+
+Resources:
+
+  EGDBSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: !Ref "AWS::StackName"
+      GroupName: !Sub "${AWS::StackName}-gdb-sg"
+      VpcId: !Ref VPCParameter
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 5432
+        ToPort: 5432
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-gdb-sg"
+
+  EGDBSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: !Ref "AWS::StackName"
+      DBSubnetGroupName: !Sub "${AWS::StackName}-gdb-subnetgroup"
+      SubnetIds: [!Ref DbSubnet1, !Ref  DbSubnet2]
+
+  EGDBInstance:
+    DeletionPolicy: Snapshot # default
+    UpdateReplacePolicy: Snapshot
+    Type: "AWS::RDS::DBInstance"
+    Properties:
+      DBInstanceIdentifier: !Sub "${AWS::StackName}-pg-egdb"
+      AllocatedStorage: !If [HasDBSnapshotIdentifier, !Ref "AWS::NoValue", !Ref DBAllocatedStorage]
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
+      CopyTagsToSnapshot: true
+      DBInstanceClass: !Ref DBInstanceClass
+      DBName: !If [HasDBSnapshotIdentifier, !Ref "AWS::NoValue", !Ref DBName]
+      DBSnapshotIdentifier: !If [HasDBSnapshotIdentifier, !Ref DBSnapshotIdentifier, !Ref "AWS::NoValue"]
+      DBSubnetGroupName: !Ref EGDBSubnetGroup
+      Engine: postgres
+      EngineVersion: !If [HasDBSnapshotIdentifier, !Ref "AWS::NoValue", !Ref EngineVersion]
+      MasterUsername: !If [HasDBSnapshotIdentifier, !Ref "AWS::NoValue", !Ref DBMasterUsername]
+      MasterUserPassword: !If [HasDBSnapshotIdentifier, !Ref "AWS::NoValue", !Ref DBMasterUserPassword]
+      MultiAZ: !Ref DBMultiAZ
+      PreferredBackupWindow: !Ref PreferredBackupWindow
+      PreferredMaintenanceWindow: !Ref PreferredMaintenanceWindow
+      StorageType: gp2
+      VPCSecurityGroups:
+        - !Ref EGDBSecurityGroup
+
+  EGDBAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: EGDB Alarm Topic
+
+  EGDBAlarmEmailSubscription:
+    Type: AWS::SNS::Subscription
+    Condition: HasAlertEmail
+    Properties:
+      Endpoint: test@email.com
+      Protocol: email
+      TopicArn: !Ref EGDBAlarmTopic
+
+  EGDBBurstBalanceTooLowAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database storage burst balance over last 10 minutes too low, expect a significant performance drop soon."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: BurstBalance
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 20
+
+  EGDBCPUUtilizationTooHighAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database CPU utilization over last 10 minutes too high."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: CPUUtilization
+      Namespace: "AWS/RDS"
+
+      Period: 600
+      Statistic: Average
+      Threshold: 80
+
+  EGDBCPUCreditBalanceTooLowAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database CPU credit balance over last 10 minutes too low, expect a significant performance drop soon."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: CPUCreditBalance
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 20
+
+  EGDBDiskQueueDepthTooHighAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database disk queue depth over last 10 minutes too high, performance may suffer."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: DiskQueueDepth
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 64
+
+  EGDBFreeableMemoryTooLowAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database freeable memory over last 10 minutes too low, performance may suffer."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: FreeableMemory
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 64000000 # 64 Megabyte in Byte
+
+  EGDBFreeStorageSpaceTooLowAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database free storage space over last 10 minutes too low."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: FreeStorageSpace
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 2000000000 # 2 Gigabyte in Byte
+
+  EGDBSwapUsageTooHighAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: "Average database swap usage over last 10 minutes too high, performance may suffer."
+      AlarmActions:
+        - !Ref EGDBAlarmTopic
+      OKActions:
+        - !Ref EGDBAlarmTopic
+      InsufficientDataActions:
+        - !Ref EGDBAlarmTopic  
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+      - Name: DBInstanceIdentifier
+        Value: !Ref EGDBInstance
+      EvaluationPeriods: 1
+      MetricName: SwapUsage
+      Namespace: "AWS/RDS"
+      Period: 600
+      Statistic: Average
+      Threshold: 256000000 # 256 Megabyte in Byte
+
+  EGDBEventSubscription:
+    Type: "AWS::RDS::EventSubscription"
+    Properties:
+      EventCategories:
+      - failover
+      - failure
+      - "low storage"
+      - maintenance
+      - "read replica"
+      - recovery
+      SnsTopicArn: !Ref EGDBAlarmTopic  
+      SourceIds: [!Ref EGDBInstance]
+      SourceType: "db-instance"
+
+Outputs:
+  DNSName:
+    Description: "The connection endpoint for the database."
+    Value: !GetAtt "EGDBInstance.Endpoint.Address"

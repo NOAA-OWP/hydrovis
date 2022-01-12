@@ -1,0 +1,166 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole",
+        "secretsmanager:GetSecretValue",
+        "rds:DescribeDBInstances"
+      ],
+      "Resource": [
+        "arn:aws:rds:*:${account_id}:db:*",
+        "arn:aws:iam::${account_id}:role/hydrovis-${environment}-hml-ingest-role",
+        "arn:aws:secretsmanager:${region}:${account_id}:secret:*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:CreateNetworkInterface",
+        "ec2:DeleteNetworkInterface",
+        "ec2:AttachNetworkInterface",
+        "ec2:DescribeNetworkInterfaces"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": "rds:DescribeDBInstances",
+      "Resource": "arn:aws:rds:${region}:${account_id}:db:*"
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAccessPointsForObjectLambda",
+        "s3:GetAccessPoint",
+        "rds:DeleteInstallationMedia",
+        "rds:CreateCustomAvailabilityZone",
+        "rds:DescribeDBEngineVersions",
+        "rds:CrossRegionCommunication",
+        "mq:ListBrokers",
+        "rds:DescribeExportTasks",
+        "rds:StartExportTask",
+        "s3:PutStorageLensConfiguration",
+        "rds:DescribeEngineDefaultParameters",
+        "rds:DescribeCustomAvailabilityZones",
+        "rds:DescribeReservedDBInstancesOfferings",
+        "rds:DeleteCustomAvailabilityZone",
+        "mq:CreateConfiguration",
+        "rds:ImportInstallationMedia",
+        "rds:DescribeEngineDefaultClusterParameters",
+        "rds:DescribeSourceRegions",
+        "rds:DescribeInstallationMedia",
+        "rds:CreateDBProxy",
+        "rds:DescribeEventCategories",
+        "mq:CreateBroker",
+        "rds:DescribeEvents",
+        "s3:PutAccountPublicAccessBlock",
+        "rds:CancelExportTask",
+        "s3:ListAccessPoints",
+        "s3:ListJobs",
+        "mq:DescribeBrokerEngineTypes",
+        "mq:DescribeBrokerInstanceOptions",
+        "s3:ListMultiRegionAccessPoints",
+        "mq:ListConfigurations",
+        "rds:DeleteDBInstanceAutomatedBackup",
+        "s3:ListStorageLensConfigurations",
+        "rds:ModifyCertificates",
+        "s3:GetAccountPublicAccessBlock",
+        "s3:ListAllMyBuckets",
+        "rds:DescribeOrderableDBInstanceOptions",
+        "rds:DescribeCertificates",
+        "s3:CreateJob",
+        "rds:DescribeAccountAttributes",
+        "secretsmanager:ListSecrets"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor3",
+      "Effect": "Allow",
+      "Action": "rds:*",
+      "Resource": [
+        "arn:aws:rds:*:${account_id}:cluster-endpoint:*",
+        "arn:aws:rds:${region}:${account_id}:db:hydrovis-${environment}-ingest",
+        "arn:aws:rds:*:${account_id}:og:*",
+        "arn:aws:rds:*:${account_id}:target-group:*",
+        "arn:aws:rds:*:${account_id}:pg:*",
+        "arn:aws:rds:*:${account_id}:es:*",
+        "arn:aws:rds:*:${account_id}:db-proxy:*",
+        "arn:aws:rds:*:${account_id}:ri:*",
+        "arn:aws:rds:*:${account_id}:snapshot:*",
+        "arn:aws:rds:*:${account_id}:cluster-pg:*",
+        "arn:aws:rds:*:${account_id}:cluster-snapshot:*",
+        "arn:aws:rds:*:${account_id}:db-proxy-endpoint:*",
+        "arn:aws:rds:${region}:${account_id}:cluster:*",
+        "arn:aws:rds:*:${account_id}:subgrp:*",
+        "arn:aws:rds:*:${account_id}:secgrp:*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor4",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3-object-lambda:*:${account_id}:accesspoint/*",
+        "arn:aws:s3:us-west-2:${account_id}:async-request/mrap/*/*",
+        "arn:aws:s3:*:${account_id}:accesspoint/*",
+        "arn:aws:s3:*:${account_id}:job/*",
+        "arn:aws:s3:*:${account_id}:storage-lens/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor5",
+      "Effect": "Allow",
+      "Action": "mq:*",
+      "Resource": [
+        "arn:aws:mq:${region}:${account_id}:configuration:*",
+        "arn:aws:mq:${region}:${account_id}:broker:*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor6",
+      "Effect": "Allow",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3::${account_id}:accesspoint/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:GetEncryptionConfiguration"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": "kms:GenerateDataKey",
+        "Resource": "*"
+    }
+  ]
+}

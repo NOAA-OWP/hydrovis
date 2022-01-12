@@ -1,0 +1,31 @@
+﻿<powershell>
+New-Item -Path "C:\" -Name "LicenseManager" -ItemType "directory"
+Copy-S3Object -Bucket 'hydrovis-${environment}-egis-${region}' -Key 'software/LicenseManager/LMDeploy.zip' -LocalFile 'C:\LicenseManager\LMDeploy.zip'
+Copy-S3Object -Bucket 'hydrovis-${environment}-egis-${region}' -Key 'software/LicenseManager/vc_redist.x86.exe' -LocalFile 'C:\LicenseManager\vc_redist.x86.exe'
+New-NetFirewallRule -DisplayName 'ArcGIS License Manager' -Profile 'Any' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 27000-27010, 1066
+cd C:\LicenseManager
+Expand-Archive -Path "C:\LicenseManager\LMDeploy.zip"  -DestinationPath "C:\LicenseManager"
+Install-Module -Name ArcGIS -Force
+Start-Sleep 180
+cd C:\LicenseManager
+$privateIPAddress = (Invoke-WebRequest -Uri http://169.254.169.254/latest/meta-data/local-ipv4 -UseBasicParsing).Content
+(Get-Content -path C:\LicenseManager\LicenseManager_config.json -Raw) -replace 'localhost', $privateIPAddress | Set-Content -Path C:\LicenseManager\LicenseManager_configip.json
+Start-Process -FilePath “vcredist_x86.exe” -ArgumentList “/Q” -Wait
+cd C:\LicenseManager
+start-process "cmd.exe" "/c C:\LicenseManager\setupLM.bat"
+Start-Sleep 300
+Invoke-ArcGISConfiguration -ConfigurationParametersFile C:\LicenseManager\LicenseManager_configip.json -Mode InstallLicense
+cd "C:\Program Files (x86)\Commen Files\ArcGIS\LicenseManager\bin"
+softwareauthorizationls.exe -s ver 10.8 -lif "C:\LicenseManager\ArcGISProAdvanced_ConcurrentUse_1055467.prvs"
+
+##############################################################################################
+#	THIS SECTION CAN BE ENABLED IF AN ADDIITONAL DRIVE IS REQUIRED			#
+#												#
+#  Initialize-Disk -Number 1 -PartitionStyle MBR 						#
+#  New-Partition -DiskNumber 1 -UseMaximumSize -IsActive -DriveLetter D			#
+#  Format-Volume -DriveLetter D -FileSystem NTFS						#	
+#  New-Item -Path "D:\" -Name "Temp" -ItemType "directory"					#
+#												#
+##############################################################################################
+
+</powershell>

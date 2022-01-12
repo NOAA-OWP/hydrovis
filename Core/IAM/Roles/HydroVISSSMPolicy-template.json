@@ -1,0 +1,119 @@
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Sid" : "AmazonSSMManagedInstanceCore",
+      "Effect" : "Allow",
+      "Action" : [
+        "ssm:DescribeAssociation",
+        "ssm:GetDeployablePatchSnapshotForInstance",
+        "ssm:GetDocument",
+        "ssm:DescribeDocument",
+        "ssm:GetManifest",
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:ListAssociations",
+        "ssm:ListInstanceAssociations",
+        "ssm:PutInventory",
+        "ssm:PutComplianceItems",
+        "ssm:PutConfigurePackageResult",
+        "ssm:UpdateAssociationStatus",
+        "ssm:UpdateInstanceAssociationStatus",
+        "ssm:UpdateInstanceInformation"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "ec2messages:AcknowledgeMessage",
+        "ec2messages:DeleteMessage",
+        "ec2messages:FailMessage",
+        "ec2messages:GetEndpoint",
+        "ec2messages:GetMessages",
+        "ec2messages:SendReply"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Sid" : "HydroVISSSMPolicy",
+      "Effect" : "Allow",
+      "Action" : [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "ssm:DescribeSessions",
+        "ssm:UpdateInstanceInformation",
+        "ec2:describeInstances",
+        "ssm:DescribeInstanceProperties",
+        "ssm:TerminateSession",
+        "ssm:GetConnectionStatus",
+        "ssm:StartSession"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "kms:GenerateDataKey",
+        "kms:Decrypt"
+      ],
+      "Resource" : "*"
+    },
+    {
+      "Effect" : "Allow",
+      "Action" : [
+        "s3:PutObject",
+        "s3:GetEncryptionConfiguration"
+      ],
+      "Resource" : [
+        "arn:aws:s3:::hydrovis-${environment}-session-manager-logging",
+        "arn:aws:s3:::hydrovis-${environment}-session-manager-logging/*"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+          "ssm:UpdateInstanceInformation"
+      ],
+      "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:DescribeLogGroups",
+            "logs:DescribeLogStreams"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:GetEncryptionConfiguration"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": "kms:GenerateDataKey",
+        "Resource": "*"
+    }
+  ]
+}

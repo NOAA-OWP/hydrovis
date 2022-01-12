@@ -1,0 +1,80 @@
+#!/bin/bash
+
+echo "Setting up Rsyslog Configuration"
+# Used for Rsyslog to send relevant logs to Logstash
+sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
+{ echo "[Service]"; 
+  echo "Environment=\"LOGSTASH_IP=${logstash_ip}\"";
+  echo "Environment=\"HYDROVIS_APPLICATION=data_services\"";
+} | sudo tee /etc/systemd/system/rsyslog.service.d/override.conf
+sudo systemctl daemon-reload
+sudo systemctl restart rsyslog
+
+echo "Disabling Vlab Hostkey Requirement"
+# Disable the need to require VLab's host key for the git clone commands
+# Couldn't seem to figure out how to properly add Vlab to the known_hosts file
+export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/${ssh_key_filename} -o IdentitiesOnly=yes"
+
+
+echo "Installing System Dependencies"
+sudo yum -y install git
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+echo "Setting up WRDS File Structure"
+sudo chmod 777 /wrds
+cd /wrds
+
+echo "Cloning WRDS Infrastructure"
+git clone ${vlab_repo_prefix}/wrds-infrastructure
+cd wrds-infrastructure
+git checkout ${infrastructure_commit}
+git pull
+
+echo "Building NGINX Docker"
+cd nginx
+mv ../../docker-compose-infrastructure.yml docker-compose.yml
+sudo docker-compose up --build -d
+cd ../..
+
+echo "Cloning Location API"
+git clone ${vlab_repo_prefix}/wrds-location-api
+cd wrds-location-api
+git checkout ${location_api_3_0_commit}
+
+echo "Building Location API Docker"
+cd wrds-location-api
+mv ../../location.env env.aws
+mv ../../docker-compose-location.yml docker-compose.yml
+sudo docker-compose up --build -d
+cd ../..
+
+echo "Cloning Forecast API V2.0"
+git clone ${vlab_repo_prefix}/rfc-forecast-api
+cd rfc-forecast-api
+git checkout ${forecast_api_2_0_commit}
+
+echo "Building Forecast API V2.0 Docker"
+cd wrds-rfc-forecast-api
+mv ../../forecast-2.0.env env.aws
+mv ../../docker-compose-forecast-2.0.yml docker-compose.yml
+sudo docker-compose up --build -d
+cd ../..
+
+echo "Cloning Forecast API V1.1"
+git clone ${vlab_repo_prefix}/rfc-forecast-api rfc-forecast-api-1.1
+cd rfc-forecast-api-1.1
+git checkout ${forecast_api_1_1_commit}
+
+echo "Building Forecast API V1.1 Docker"
+cd wrds-rfc-forecast-api
+mv ../../forecast-1.1.env env.aws
+mv ../../docker-compose-forecast-1.1.yml docker-compose.yml
+sudo docker-compose up --build -d
+cd ../..
+
+echo "Restarting NGINX Docker"
+sudo docker restart wrds_infrastructure
+
+echo "Finished Setup"
