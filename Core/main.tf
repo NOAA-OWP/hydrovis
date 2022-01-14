@@ -53,7 +53,11 @@ module "kms" {
     ]
     "rds-ingest" = [
       module.iam-roles.role_autoscaling.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn,
+      module.iam-roles.role_hydrovis-hml-ingest-role.arn
+    ]
+    "rds-viz" = [
+      module.iam-roles.role_autoscaling.arn,
+      module.iam-roles.role_HydrovisESRISSMDeploy.arn
     ]
   }
 }
@@ -68,7 +72,7 @@ module "secrets-manager" {
     "data-services-forecast-pg-rdssecret" = { "username" : "rfc_fcst_ro_user" }
     "data-services-location-pg-rdssecret" = { "username" : "location_ro_user" }
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
-    "viz_proc-user-rdssecret"             = { "username" : "viz_proc_admin_rw_user" }
+    "viz_proc_admin_rw_user"              = { "username" : "viz_proc_admin_rw_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc_fcst"                        = { "username" : "rfc_fcst" }
@@ -206,6 +210,17 @@ module "rds-ingest" {
   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
 }
 
+module "rds-viz" {
+  source = "./RDS/viz"
+
+  environment                       = local.env.environment
+  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+}
+
 # Lambda Layers
 module "lambda_layers" {
   source = "./LAMBDA/layers"
@@ -265,17 +280,22 @@ module "rds-bastion" {
   kms_key_arn            = module.kms.key_arns["encrypt-ec2"]
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
-  db_ingest_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  db_ingest_address              = module.rds-ingest.rds-ingest.address
-  db_ingest_port                 = module.rds-ingest.rds-ingest.port
+  ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  ingest_db_address              = module.rds-ingest.rds-ingest.address
+  ingest_db_port                 = module.rds-ingest.rds-ingest.port
   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
 
-  mq_ingest_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+
+  viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_address                  = module.rds-viz.rds-viz-processing.address
+  viz_db_port                     = module.rds-viz.rds-viz-processing.port
 }
 
 module "ingest_lambda_functions" {
