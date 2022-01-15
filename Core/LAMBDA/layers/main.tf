@@ -27,34 +27,6 @@ resource "aws_lambda_layer_version" "es_logging" {
   description         = "Custom logger that formats logs for AWS elasticsearch ingest"
 }
 
-###################################
-## Viz DB Shared Functions Layer ##
-###################################
-
-resource "aws_lambda_layer_version" "viz_db_shared_funcs" {
-  s3_bucket = var.lambda_data_bucket
-  s3_key    = "lambda_layers/viz_db_shared_funcs.zip"
-
-  layer_name = "viz_db_shared_funcs_${var.environment}"
-
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "Helper functions for accessing the viz DB"
-}
-
-#####################################
-## Viz EGIS Shared Functions Layer ##
-#####################################
-
-resource "aws_lambda_layer_version" "viz_egis_shared_funcs" {
-  s3_bucket = var.lambda_data_bucket
-  s3_key    = "lambda_layers/viz_egis_shared_funcs.zip"
-
-  layer_name = "viz_egis_shared_funcs_${var.environment}"
-
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "Helper functions for accessing the viz EGIS"
-}
-
 #######################################
 ## Viz Lambda Shared Functions Layer ##
 #######################################
@@ -67,20 +39,6 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 
   compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
   description         = "Helper functions for general viz lambda functionality"
-}
-
-#############################################
-## Viz Post Process Shared Functions Layer ##
-#############################################
-
-resource "aws_lambda_layer_version" "viz_postprocess_shared_funcs" {
-  s3_bucket = var.lambda_data_bucket
-  s3_key    = "lambda_layers/viz_postprocess_shared_funcs.zip"
-
-  layer_name = "viz_postprocess_shared_funcs_${var.environment}"
-
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "Helper functions for general viz postprocessing"
 }
 
 #############################
@@ -195,20 +153,6 @@ resource "aws_lambda_layer_version" "pika" {
   description         = "Python pika module"
 }
 
-######################
-## SQLAlchemy Layer ##
-######################
-
-resource "aws_lambda_layer_version" "sqlalchemy" {
-  s3_bucket = var.lambda_data_bucket
-  s3_key    = "ingest/lambda/layers/sqlalchemy.zip"
-
-  layer_name = "sqlalchemy_${var.environment}"
-
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "Python sqlalchemy module"
-}
-
 #############
 ## Outputs ##
 #############
@@ -217,20 +161,8 @@ output "es_logging" {
   value = resource.aws_lambda_layer_version.es_logging
 }
 
-output "viz_db_shared_funcs" {
-  value = resource.aws_lambda_layer_version.viz_db_shared_funcs
-}
-
-output "viz_egis_shared_funcs" {
-  value = resource.aws_lambda_layer_version.viz_egis_shared_funcs
-}
-
 output "viz_lambda_shared_funcs" {
   value = resource.aws_lambda_layer_version.viz_lambda_shared_funcs
-}
-
-output "viz_postprocess_shared_funcs" {
-  value = resource.aws_lambda_layer_version.viz_postprocess_shared_funcs
 }
 
 output "arcgis_python_api" {
@@ -263,8 +195,4 @@ output "xarray" {
 
 output "pika" {
   value = resource.aws_lambda_layer_version.pika
-}
-
-output "sqlalchemy" {
-  value = resource.aws_lambda_layer_version.sqlalchemy
 }

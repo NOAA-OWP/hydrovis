@@ -251,7 +251,19 @@ module "viz_lambda_functions" {
   pandas_layer                  = module.lambda_layers.pandas.arn
   rasterio_layer                = module.lambda_layers.rasterio.arn
   mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
+  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api_layer
+  psycopg2_layer                = module.lambda_layers.psycopg2_layer
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
+
+  db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_host                       = module.rds-viz.rds-viz-processing.address
+  db_user_secret_name           = "hydrovis-${local.env.environment}-viz_proc-user-rdssecret"
+  db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_secret_name           = "hydrovis-${local.env.environment}-egis-pg-rds-secret"
+  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_secret_name       = "Hydrovis-Proc-Portal"
+  egis_portal_secret_string     = ""
 }
 
 # MQ
