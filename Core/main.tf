@@ -358,7 +358,9 @@ module "monitoring" {
     module.viz_lambda_functions.inundation_parent.function_name,
     module.viz_lambda_functions.huc_processing.function_name,
     module.viz_lambda_functions.optimize_rasters.function_name,
-    module.ingest_lambda_functions.hml_reciever.function_name
+    module.ingest_lambda_functions.hml_reciever.function_name,
+    module.viz_lambda_functions.db_ingest.function_name,
+    module.viz_lambda_functions.db_postprocess.function_name
   ]
 }
 
