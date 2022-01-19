@@ -67,18 +67,8 @@ variable "db_host" {
   type        = string
 }
 
-variable "db_user_secret_name" {
-  description = "AWS secret name for the password of the viz processing RDS instance login."
-  type        = string
-}
-
 variable "db_user_secret_string" {
   description = "The secret string of the viz_processing data base user to write/read data as."
-  type        = string
-}
-
-variable "egis_db_secret_name" {
-  description = "The name fo the egis db secret."
   type        = string
 }
 
@@ -87,13 +77,8 @@ variable "egis_db_secret_string" {
   type        = string
 }
 
-variable "egis_portal_secret_name" {
-  description = "The name of the secret containing the password for the hydrovis.proc portal user."
-  type        = string
-}
-
-variable "egis_portal_secret_string" {
-  description = "The secret string for the egis portal user to publish as."
+variable "egis_portal_password" {
+  description = "The password for the egis portal user to publish as."
   type        = string
 }
 
@@ -138,7 +123,7 @@ data "aws_caller_identity" "current" {}
 # Import the EGIS RDS database data -- Not sure if this should be a variable.
 data "aws_db_instance" "egis_rds" {
   db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
-  }
+}
 
 locals {
   egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov" : "https://hydrovis-dev.nwc.nws.noaa.gov"
@@ -478,18 +463,18 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   }
   environment {
     variables = {
-      DB_DATABASE = "viz_processing"
+      DB_DATABASE = "vizprocessing"
       DB_HOST = var.db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
-      RDS_SECRET_NAME = var.db_user_secret_name
+      RDS_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
       EGIS_DB_HOST = data.aws_db_instance.egis_rds.address
       EGIS_DB_USERNAME = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD = jsondecode(var.egis_db_secret_string)["password"]
-      EGIS_DB_SECRET_NAME = var.egis_db_secret_name
-      EGIS_PASSWORD = jsondecode(var.egis_portal_secret_string)["hydrovis.proc"]
+      EGIS_DB_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
+      EGIS_PASSWORD = var.egis_portal_password
       GIS_HOST = local.egis_host
-      GIS_SECRET_NAME = var.egis_portal_secret_name
+      GIS_SECRET_NAME = "" # TODO: use secrets manager instead of passing username/password from ENV file
       GIS_USERNAME = "hydrovis.proc"
       S3_BUCKET = var.viz_authoritative_bucket
       SD_S3_PATH = "viz/db_pipeline/pro_project_data/sd_files/"

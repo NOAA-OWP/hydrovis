@@ -258,12 +258,9 @@ module "viz_lambda_functions" {
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
   db_host                       = module.rds-viz.rds-viz-processing.address
-  db_user_secret_name           = "hydrovis-${local.env.environment}-viz_proc-user-rdssecret"
   db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-  egis_db_secret_name           = "hydrovis-${local.env.environment}-egis-pg-rds-secret"
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_portal_secret_name       = "Hydrovis-Proc-Portal"
-  egis_portal_secret_string     = ""
+  egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 }
 
 # MQ
