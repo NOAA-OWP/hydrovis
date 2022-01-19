@@ -172,9 +172,12 @@ resource "aws_lambda_function" "viz_inundation_parent" {
       NWM_DATA_BUCKET             = var.nwm_data_bucket
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX     = "processing_outputs"
-      RECURRENCE_FILENAME         = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_17c_bankfull_flows_w_huc6.nc"
+      RECURRENCE_FILENAME         = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v20_recurrence_flows_slim.nc"
+      RECURRENCE_BANKFULL         = "1_5_year_recurrence_flow"
       RECURRENCE_HAWAII_FILENAME  = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v20_recurrence_flows_hawaii.nc"
+      RECURRENCE_HAWAII_BANKFULL  = "2_0_year_recurrence_flow"
       RECURRENCE_PRVI_FILENAME    = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows_prvi.nc"
+      RECURRENCE_PRVI_BANKFULL    = "2_0_year_recurrence_flow"
       FIM_VERSION                 = var.fim_version
       max_flows_function          = resource.aws_lambda_function.viz_max_flows.arn
       viz_huc_inundation_function = resource.aws_lambda_function.viz_huc_inundation_processing.arn
