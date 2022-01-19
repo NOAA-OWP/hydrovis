@@ -106,7 +106,7 @@ variable "mrf_rasterio_layer" {
   type = string
 }
 
-variable "psycopg2_layer" {
+variable "psycopg2_sqlalchemy_layer" {
   type = string
 }
 
@@ -376,7 +376,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
   handler = "lambda_function.lambda_handler"
   role = var.lambda_role
   layers = [
-    var.psycopg2_layer,
+    var.psycopg2_sqlalchemy_layer,
     var.es_logging_layer,
     var.viz_lambda_shared_funcs_layer
   ]
@@ -436,7 +436,7 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   role = var.lambda_role
   layers = [
     var.xarray_layer,
-    var.psycopg2_layer,
+    var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer
   ]
   
@@ -488,7 +488,7 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   role = var.lambda_role
   layers = [
     var.arcgis_python_api_layer,
-    var.psycopg2_layer,
+    var.psycopg2_sqlalchemy_layer,
     var.xarray_layer,
     var.es_logging_layer,
     var.viz_lambda_shared_funcs_layer

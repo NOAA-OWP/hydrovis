@@ -251,8 +251,8 @@ module "viz_lambda_functions" {
   pandas_layer                  = module.lambda_layers.pandas.arn
   rasterio_layer                = module.lambda_layers.rasterio.arn
   mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
-  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api_layer
-  psycopg2_layer                = module.lambda_layers.psycopg2_layer
+  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
+  psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
 
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
@@ -314,9 +314,8 @@ module "ingest_lambda_functions" {
   region                      = local.env.region
   deployment_bucket           = module.s3.buckets["deployment"].bucket
   lambda_role                 = module.iam-roles.role_hydrovis-hml-ingest-role.arn
-  psycopg2_layer              = module.lambda_layers.psycopg2.arn
+  psycopg2_sqlalchemy_layer   = module.lambda_layers.psycopg2_sqlalchemy.arn
   pika_layer                  = module.lambda_layers.pika.arn
-  sqlalchemy_layer            = module.lambda_layers.sqlalchemy.arn
   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   mq_ingest_id                = module.mq-ingest.mq-ingest.id
   db_ingest_name              = module.rds-bastion.forecast_db

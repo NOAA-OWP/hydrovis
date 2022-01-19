@@ -97,18 +97,18 @@ resource "aws_lambda_layer_version" "pandas" {
   description         = "pandas python package"
 }
 
-####################
-## Psycopg2 Layer ##
-####################
+##################################
+## Psycopg2 & SQL Alchemy Layer ##
+##################################
 
-resource "aws_lambda_layer_version" "psycopg2" {
+resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
   s3_bucket = var.lambda_data_bucket
-  s3_key    = "lambda_layers/psycopg2.zip"
+  s3_key    = "lambda_layers/psycopg2_sqlalchemy.zip"
 
-  layer_name = "psycopg2_${var.environment}"
+  layer_name = "psycopg2_sqlalchemy_${var.environment}"
 
   compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "psycopg2 python package"
+  description         = "psycopg2 and sql alchemy python packages"
 }
 
 ####################
@@ -181,8 +181,8 @@ output "pandas" {
   value = resource.aws_lambda_layer_version.pandas
 }
 
-output "psycopg2" {
-  value = resource.aws_lambda_layer_version.psycopg2
+output "psycopg2_sqlalchemy" {
+  value = resource.aws_lambda_layer_version.psycopg2_sqlalchemy
 }
 
 output "rasterio" {
