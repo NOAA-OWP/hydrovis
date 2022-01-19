@@ -126,7 +126,7 @@ data "aws_db_instance" "egis_rds" {
 }
 
 locals {
-  egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov" : "https://hydrovis-dev.nwc.nws.noaa.gov"
+  egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
   service_suffix         = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_beta" : "_alpha"
   
   max_flows_subscriptions = toset([
@@ -363,11 +363,10 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      DB_DATABASE = "viz_processing"
+      DB_DATABASE = "vizprocessing"
       DB_HOST = var.db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
-      RDS_SECRET_NAME = var.db_user_secret_name
       MAX_WORKERS = 500
       MRF_TIMESTEP = 3
       WORKER_LAMBDA_NAME = resource.aws_lambda_function.viz_db_ingest_worker.function_name
@@ -425,11 +424,10 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   }
   environment {
     variables = {
-      DB_DATABASE = "viz_processing"
+      DB_DATABASE = "vizprocessing"
       DB_HOST = var.db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
-      RDS_SECRET_NAME = var.db_user_secret_name
     }
   }
   s3_bucket = var.lambda_data_bucket

@@ -12,7 +12,7 @@ MQVHOST="${MQVHOST}"
 ### Get RabbitMQ Endpoint ###
 RSCHEME="$${MQINGESTENDPOINT/:*}"
 RPORT="$${MQINGESTENDPOINT##*:}"
-RHOST=$$(echo $${MQINGESTENDPOINT} | cut -d : -f 2 | tr -d "/")
+RHOST=$(echo $${MQINGESTENDPOINT} | cut -d : -f 2 | tr -d "/")
 
 echo "Adding $${MQVHOST} vhost to $${RHOST}"
 curl -u $${MQUSERNAME}:$${MQPASSWORD} -H "content-type:application/json" -X PUT \

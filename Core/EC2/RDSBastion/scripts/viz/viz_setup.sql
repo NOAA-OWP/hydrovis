@@ -10,7 +10,6 @@ CREATE SCHEMA derived;
 CREATE SCHEMA cache;
 CREATE SCHEMA publish;
 
-
 -- Create the ingest status table
 CREATE TABLE admin.ingest_status (
         target character varying(100) NOT NULL,
@@ -21,6 +20,7 @@ CREATE TABLE admin.ingest_status (
         records_imported bigint,
         insert_time_minutes double precision
 );
+ALTER TABLE admin.ingest_status OWNER TO viz_proc_admin_rw_user;
 
 -- Create the publish status table
 CREATE TABLE admin.publish_status (
@@ -29,6 +29,7 @@ CREATE TABLE admin.publish_status (
         pp_complete_time timestamp without time zone,
         publish_action character varying(100)
 );
+ALTER TABLE admin.publish_status OWNER TO viz_proc_admin_rw_user;
 
 -- Create the service table
 CREATE TABLE IF NOT EXISTS admin.services
@@ -47,6 +48,7 @@ CREATE TABLE IF NOT EXISTS admin.services
     run boolean,
     feature_service boolean
 );
+ALTER TABLE admin.services OWNER TO viz_proc_admin_rw_user;
 
 \copy admin.services from ${HOME}/services.csv delimiter ',' csv header;
 
@@ -58,18 +60,21 @@ CREATE TABLE ingest.nwm_channel_rt_ana (
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_ana OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE ingest.nwm_channel_rt_mrf_mem1 (
     feature_id integer,
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_mrf_mem1 OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE ingest.nwm_channel_rt_srf (
     feature_id integer,
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_srf OWNER TO viz_proc_admin_rw_user;
 
 -------- HI tables --------
 CREATE TABLE ingest.nwm_channel_rt_ana_hi (
@@ -77,12 +82,14 @@ CREATE TABLE ingest.nwm_channel_rt_ana_hi (
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_ana_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE ingest.nwm_channel_rt_srf_hi (
     feature_id integer,
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_srf_hi OWNER TO viz_proc_admin_rw_user;
 
 -------- PRVI tables --------
 CREATE TABLE ingest.nwm_channel_rt_ana_prvi (
@@ -90,12 +97,14 @@ CREATE TABLE ingest.nwm_channel_rt_ana_prvi (
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_ana_prvi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE ingest.nwm_channel_rt_srf_prvi (
     feature_id integer,
     forecast_hour integer,
     streamflow double precision
 );
+ALTER TABLE ingest.nwm_channel_rt_srf_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the recurrence flows tables
 CREATE TABLE derived.recurrence_flows_conus (
@@ -113,6 +122,7 @@ CREATE TABLE derived.recurrence_flows_conus (
     rf_50_0_17c double precision,
     rf_100_0_17c double precision
 );
+ALTER TABLE derived.recurrence_flows_conus OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_conus from ${HOME}/nwm_v21_recurrence_flows.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_featureid ON derived.recurrence_flows_conus (feature_id);
@@ -130,6 +140,7 @@ CREATE TABLE derived.recurrence_flows_hi (
     rf_500_0 double precision,
     huc6 text
 );
+ALTER TABLE derived.recurrence_flows_hi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_hi from ${HOME}/nwm_v20_recurrence_flows_hawaii.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_hi_featureid ON derived.recurrence_flows_hi (feature_id);
@@ -147,6 +158,7 @@ CREATE TABLE derived.recurrence_flows_prvi (
     rf_500_0 double precision,
     huc6 text
 );
+ALTER TABLE derived.recurrence_flows_prvi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_prvi from ${HOME}/nwm_v21_recurrence_flows_prvi.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_prvi_featureid ON derived.recurrence_flows_prvi USING btree (feature_id);
@@ -163,6 +175,7 @@ CREATE TABLE derived.channels_conus
     nwm_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.channels_conus OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_conus from ${HOME}/nwm_v21_web_mercator_channels.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_featureid ON derived.channels_conus USING btree (feature_id);
@@ -176,6 +189,7 @@ CREATE TABLE derived.channels_hi
     nwm_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.channels_hi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_hi from ${HOME}/nwm_v21_web_mercator_channels_hi.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_hi_featureid ON derived.channels_hi USING btree (feature_id);
@@ -189,6 +203,7 @@ CREATE TABLE derived.channels_prvi
     nwm_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_prvi from ${HOME}/nwm_v21_web_mercator_channels_prvi.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_prvi_featureid ON derived.channels_prvi USING btree (feature_id);
@@ -201,6 +216,7 @@ CREATE TABLE derived.fim_channels_conus
     fim_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.fim_channels_conus OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.fim_channels_hi
 (
@@ -209,6 +225,7 @@ CREATE TABLE derived.fim_channels_hi
     fim_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.fim_channels_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.fim_channels_prvi
 (
@@ -217,22 +234,26 @@ CREATE TABLE derived.fim_channels_prvi
     fim_vers double precision,
     geom geometry
 );
+ALTER TABLE derived.fim_channels_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the max flows tables.
 CREATE TABLE cache.max_flows_ana (
     feature_id integer,
     maxflow_1hour double precision
 );
+ALTER TABLE cache.max_flows_ana OWNER TO viz_proc_admin_rw_user;
     
 CREATE TABLE cache.max_flows_ana_hi (
     feature_id integer,
     maxflow_1hour double precision
 );
+ALTER TABLE cache.max_flows_ana_hi OWNER TO viz_proc_admin_rw_user;
     
 CREATE TABLE cache.max_flows_ana_prvi (
     feature_id integer,
     maxflow_1hour double precision
 );
+ALTER TABLE cache.max_flows_ana_prvi OWNER TO viz_proc_admin_rw_user;
     
 CREATE TABLE cache.max_flows_mrf (
     feature_id integer,
@@ -240,18 +261,30 @@ CREATE TABLE cache.max_flows_mrf (
     maxflow_5day double precision,
     maxflow_10day double precision
 );
+ALTER TABLE cache.max_flows_mrf OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE cache.max_flows_srf (
     feature_id integer,
     maxflow_18hour double precision
 );
+ALTER TABLE cache.max_flows_srf OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE cache.max_flows_srf_hi (
     feature_id integer,
     maxflow_48hour double precision
 );
+ALTER TABLE cache.max_flows_srf_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE cache.max_flows_srf_prvi(
     feature_id integer,
     maxflow_48hour double precision
 );
+ALTER TABLE cache.max_flows_srf_prvi OWNER TO viz_proc_admin_rw_user;
+
+-- Grant Schemas to User
+
+GRANT ALL ON ALL TABLES IN SCHEMA admin TO viz_proc_admin_rw_user;
+GRANT ALL ON ALL TABLES IN SCHEMA ingest TO viz_proc_admin_rw_user;
+GRANT ALL ON ALL TABLES IN SCHEMA derived TO viz_proc_admin_rw_user;
+GRANT ALL ON ALL TABLES IN SCHEMA cache TO viz_proc_admin_rw_user;
+GRANT ALL ON ALL TABLES IN SCHEMA publish TO viz_proc_admin_rw_user;

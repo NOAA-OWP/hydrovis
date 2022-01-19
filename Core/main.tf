@@ -79,7 +79,7 @@ module "secrets-manager" {
     "rds-rfc_fcst_user"                   = { "username" : "rfc_fcst_user" }
     "rds-nwm_viz_ro"                      = { "username" : "nwm_viz_ro" }
     "mq-aws-monitoring"                   = { "username" : "monitoring-AWS-OWNED-DO-NOT-DELETE" }
-    "egis-pg-rds-secret"                  = { "username" : "hydrovis" }
+    "egis-pg-rds-secret"                  = { "username" : "hydrovis", "password" : local.env.egis-pg-rds_password }
     "egis-service-account"                = { "username" : "arcgis", "password" : local.env.egis-service-account_password }
   }
 }
