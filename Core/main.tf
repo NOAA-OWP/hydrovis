@@ -193,10 +193,10 @@ module "vpces" {
 module "nginx_load_balancer" {
   source = "./LoadBalancer/nginx"
 
-  environment                    = local.env.environment
-  security_groups = [module.security_groups.hv-allow-NWC-access]
-  subnets = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  vpc = module.vpc.vpc_main.id
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-NWC-access]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
   certificate_arn = local.env.load_balancer_certificare_arn
 }
 
@@ -489,12 +489,12 @@ module "viz_ec2" {
 module "nginx_fargate" {
   source = "./ECS/NGINX"
 
-  environment                    = local.env.environment
-  region                         = local.env.region
-  availability_zone              = module.vpc.subnet_hydrovis-sn-prv-web1a.availability_zone
-  deployment_bucket              = module.s3.buckets["deployment"].bucket
-  kibana_endpoint                = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
-  load_balancer_tg               = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
-  subnets                        = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  security_groups                = [module.security_groups.hv-allow-NWC-access]
+  environment       = local.env.environment
+  region            = local.env.region
+  availability_zone = module.vpc.subnet_hydrovis-sn-prv-web1a.availability_zone
+  deployment_bucket = module.s3.buckets["deployment"].bucket
+  kibana_endpoint   = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
+  load_balancer_tg  = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
+  subnets           = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups   = [module.security-groups.hv-allow-NWC-access]
 }
