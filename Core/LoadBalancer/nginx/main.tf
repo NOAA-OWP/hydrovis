@@ -2,7 +2,7 @@ variable "environment" {
   type = string
 }
 
-varible "security_groups" {
+variable "security_groups" {
   type = list(string)
 }
 
