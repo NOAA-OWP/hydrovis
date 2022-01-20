@@ -2,8 +2,8 @@ variable "environment" {
   type = string
 }
 
-varible "security_groups" {
-    type = list(string)
+variable "security_groups" {
+  type = list(string)
 }
 
 variable "subnets" {
