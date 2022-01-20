@@ -3,19 +3,19 @@
 ###############
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "ec2_instance_subnet" {
-  type    = string
+  type = string
 }
 
 variable "ec2_instance_availability_zone" {
-  type    = string
+  type = string
 }
 
 variable "ec2_instance_sgs" {
-  type    = list(string)
+  type = list(string)
 }
 
 variable "ec2_instance_profile_name" {
@@ -208,17 +208,17 @@ data "cloudinit_config" "startup" {
     content = <<-END
       #cloud-config
       ${jsonencode({
-      write_files = [
-        {
-          path        = "/deploy_files/db_users.sql"
-          permissions = "0400"
-          owner       = "ec2-user:ec2-user"
-          content     = data.template_file.db_users.rendered
-        }
-      ]
-      })}
+    write_files = [
+      {
+        path        = "/deploy_files/db_users.sql"
+        permissions = "0400"
+        owner       = "ec2-user:ec2-user"
+        content     = data.template_file.db_users.rendered
+      }
+    ]
+})}
     END
-  }
+}
 }
 
 output "forecast_db" {

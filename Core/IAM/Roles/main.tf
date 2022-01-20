@@ -235,8 +235,8 @@ resource "aws_iam_instance_profile" "hydrovis-ecs-resource-access-profile" {
 }
 
 resource "aws_iam_role_policy" "hydrovis-ecs-resource-access-policy" {
-  name = "hydrovis-ecs-policy"
-  role = aws_iam_role.hydrovis-ecs-resource-access.id
+  name   = "hydrovis-ecs-policy"
+  role   = aws_iam_role.hydrovis-ecs-resource-access.id
   policy = data.template_file.hydrovis-ecs-task-resource-access-template.rendered
 }
 

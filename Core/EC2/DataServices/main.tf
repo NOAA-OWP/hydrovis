@@ -3,7 +3,7 @@ variable "environment" {
 }
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "ec2_instance_subnet" {
@@ -61,7 +61,7 @@ variable "data_services_versions" {
 # THIS TF CONFIG IS DEPENDANT ON A SSH KEY THAT CAN ACCESS THE WRDS VLAB REPOS
 
 locals {
-  ssh_key_filename        = "id_ed25519"
+  ssh_key_filename = "id_ed25519"
 }
 
 
@@ -163,65 +163,65 @@ data "cloudinit_config" "startup" {
     content = <<-END
       #cloud-config
       ${jsonencode({
-      write_files = [
-        {
-          path        = "/home/ec2-user/.ssh/${local.ssh_key_filename}"
-          permissions = "0400"
-          owner       = "ec2-user:ec2-user"
-          content     = file("${path.root}/sensitive/DataServices/${local.ssh_key_filename}")
-        },
-        {
-          path        = "/wrds/docker-compose-infrastructure.yml"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.docker_compose_infrastructure.rendered}"
-        },
-        {
-          path        = "/wrds/location.env"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.location_env.rendered}"
-        },
-        {
-          path        = "/wrds/docker-compose-location.yml"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.docker_compose_location.rendered}"
-        },
-        {
-          path        = "/wrds/forecast-2.0.env"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.forecast_2_0_env.rendered}"
-        },
-        {
-          path        = "/wrds/docker-compose-forecast-2.0.yml"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.docker_compose_forecast_2_0.rendered}"
-        },
-        {
-          path        = "/wrds/forecast-1.1.env"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.forecast_1_1_env.rendered}"
-        },
-        {
-          path        = "/wrds/docker-compose-forecast-1.1.yml"
-          permissions = "0777"
-          owner       = "ec2-user:ec2-user"
-          content     = "${data.template_file.docker_compose_forecast_1_1.rendered}"
-        },
-      ]
-    })}
+    write_files = [
+      {
+        path        = "/home/ec2-user/.ssh/${local.ssh_key_filename}"
+        permissions = "0400"
+        owner       = "ec2-user:ec2-user"
+        content     = file("${path.root}/sensitive/DataServices/${local.ssh_key_filename}")
+      },
+      {
+        path        = "/wrds/docker-compose-infrastructure.yml"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.docker_compose_infrastructure.rendered}"
+      },
+      {
+        path        = "/wrds/location.env"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.location_env.rendered}"
+      },
+      {
+        path        = "/wrds/docker-compose-location.yml"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.docker_compose_location.rendered}"
+      },
+      {
+        path        = "/wrds/forecast-2.0.env"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.forecast_2_0_env.rendered}"
+      },
+      {
+        path        = "/wrds/docker-compose-forecast-2.0.yml"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.docker_compose_forecast_2_0.rendered}"
+      },
+      {
+        path        = "/wrds/forecast-1.1.env"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.forecast_1_1_env.rendered}"
+      },
+      {
+        path        = "/wrds/docker-compose-forecast-1.1.yml"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = "${data.template_file.docker_compose_forecast_1_1.rendered}"
+      },
+    ]
+})}
   END
-  }
+}
 
-  part {
-    content_type = "text/x-shellscript"
-    filename     = "startup.sh"
-    content      = data.template_file.startup.rendered
-  }
+part {
+  content_type = "text/x-shellscript"
+  filename     = "startup.sh"
+  content      = data.template_file.startup.rendered
+}
 }
 
 # EC2 Related Resources

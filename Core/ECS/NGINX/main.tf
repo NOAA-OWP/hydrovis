@@ -110,21 +110,21 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
 }
 
 resource "aws_ecs_service" "kibana_nginx" {
-  name = "hydrovis-${var.environment}-kibana-nginx-ecs-service"
-  cluster = aws_ecs_cluster.hydrovis_fargate.id
-  task_definition = aws_ecs_task_definition.kibana_nginx_proxy.arn
-  desired_count = 2
-  launch_type = "FARGATE"
+  name                              = "hydrovis-${var.environment}-kibana-nginx-ecs-service"
+  cluster                           = aws_ecs_cluster.hydrovis_fargate.id
+  task_definition                   = aws_ecs_task_definition.kibana_nginx_proxy.arn
+  desired_count                     = 2
+  launch_type                       = "FARGATE"
   health_check_grace_period_seconds = 10
 
   load_balancer {
     target_group_arn = var.load_balancer_tg
-    container_name = "nginx"
-    container_port = 80
+    container_name   = "nginx"
+    container_port   = 80
   }
 
   network_configuration {
-    subnets = var.subnets
+    subnets         = var.subnets
     security_groups = var.security_groups
   }
 }

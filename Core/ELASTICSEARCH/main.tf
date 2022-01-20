@@ -3,7 +3,7 @@ variable "environment" {
 }
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "region" {

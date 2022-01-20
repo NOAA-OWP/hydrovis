@@ -20,7 +20,7 @@ variable "environment" {
 }
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "output_bucket" {
@@ -126,7 +126,7 @@ data "template_file" "env_devel" {
 data "template_file" "conus_ini_template" {
   template = file("${path.module}/templates/conus.ini.template")
   vars = {
-    WRDS_HOST = "http://${var.dataservices_ip}"
+    WRDS_HOST  = "http://${var.dataservices_ip}"
     DSTORE_URL = var.dstore_url
     NOMADS_URL = var.nomads_url
   }

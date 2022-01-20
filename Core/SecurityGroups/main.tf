@@ -355,7 +355,7 @@ resource "aws_security_group" "ssm-session-manager-sg" {
       ingress
     ]
   }
-  
+
   name = "ssm-session-manager-sg"
   tags = {
     "Name" = "ssm-session-manager-sg"
@@ -490,7 +490,7 @@ resource "aws_security_group" "egis-overlord" {
       ingress
     ]
   }
-  
+
   name = "hv-${var.environment == "prod" ? "prd" : var.environment}-egis-ptl-gis-img-gp"
   tags = {
     "Name" = "hv-${var.environment == "prod" ? "prd" : var.environment}-egis-ptl-gis-img-gp"
