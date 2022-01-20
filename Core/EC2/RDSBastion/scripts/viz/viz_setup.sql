@@ -1,7 +1,17 @@
 -- ROLES
 
 CREATE ROLE viz_proc_admin_rw_user;
-ALTER ROLE viz_proc_admin_rw_user WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 45 ENCRYPTED PASSWORD '${VIZ_PROC_ADMIN_RW_PASS}';
+ALTER ROLE viz_proc_admin_rw_user WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 500 ENCRYPTED PASSWORD '${VIZ_PROC_ADMIN_RW_PASS}';
+
+-- Wipe the database to make sure this is a clean load
+DROP SCHEMA IF EXISTS admin CASCADE;
+DROP SCHEMA IF EXISTS ingest CASCADE;
+DROP SCHEMA IF EXISTS derived CASCADE;
+DROP SCHEMA IF EXISTS fim CASCASDE;
+DROP SCHEMA IF EXISTS cache CASCADE;
+DROP SCHEMA IF EXISTS publish CASCADE;
+
+-- Maybe we should run a vacuum here?
 
 -- Create the schemas
 CREATE SCHEMA admin;
@@ -10,7 +20,6 @@ CREATE SCHEMA derived;
 CREATE SCHEMA fim;
 CREATE SCHEMA cache;
 CREATE SCHEMA publish;
-
 
 -- Create the ingest status table
 CREATE TABLE admin.ingest_status (
@@ -36,17 +45,17 @@ ALTER TABLE admin.publish_status OWNER TO viz_proc_admin_rw_user;
 -- Create the service table
 CREATE TABLE IF NOT EXISTS admin.services
 (
-    service text COLLATE pg_catalog."default",
-    folder text COLLATE pg_catalog."default",
-    configuration text COLLATE pg_catalog."default",
-    data_sources text COLLATE pg_catalog."default",
-    ingest_table text COLLATE pg_catalog."default",
-    postprocess_parents text COLLATE pg_catalog."default",
-    name text COLLATE pg_catalog."default",
-    summary text COLLATE pg_catalog."default",
-    description text COLLATE pg_catalog."default",
-    tags text COLLATE pg_catalog."default",
-    credits text COLLATE pg_catalog."default",
+    service text,
+    folder text,
+    configuration text,
+    data_sources text,
+    ingest_table text,
+    postprocess_parents text,
+    name text,
+    summary text,
+    description text,
+    tags text,
+    credits text,
     run boolean,
     feature_service boolean
 );
@@ -110,7 +119,7 @@ ALTER TABLE ingest.nwm_channel_rt_srf_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the recurrence flows tables
 CREATE TABLE derived.recurrence_flows_conus (
-    feature_id integer NOT NULL,
+    feature_id integer PRIMARY KEY,
     rf_1_5 double precision,
     rf_2_0 double precision,
     rf_3_0 double precision,
@@ -126,13 +135,12 @@ CREATE TABLE derived.recurrence_flows_conus (
 );
 
 \copy derived.recurrence_flows_conus from ${HOME}/nwm_v21_recurrence_flows.csv delimiter ',' csv header;
-CREATE INDEX idx_rf_featureid ON derived.recurrence_flows_conus (feature_id);
 ALTER TABLE derived.recurrence_flows_conus ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_conus SET bankfull = ${RECURR_FLOW_CONUS};
 ALTER TABLE derived.recurrence_flows_conus OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.recurrence_flows_hi (
-    feature_id integer NOT NULL,
+    feature_id integer PRIMARY KEY,
     rf_2_0 double precision,
     rf_5_0 double precision,
     rf_10_0 double precision,
@@ -144,13 +152,12 @@ CREATE TABLE derived.recurrence_flows_hi (
 );
 
 \copy derived.recurrence_flows_hi from ${HOME}/nwm_v20_recurrence_flows_hawaii.csv delimiter ',' csv header;
-CREATE INDEX idx_rf_hi_featureid ON derived.recurrence_flows_hi (feature_id);
 ALTER TABLE derived.recurrence_flows_hi ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_hi SET bankfull = ${RECURR_FLOW_HI};
 ALTER TABLE derived.recurrence_flows_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.recurrence_flows_prvi (
-    feature_id integer NOT NULL,
+    feature_id integer PRIMARY KEY,
     rf_2_0 double precision,
     rf_5_0 double precision,
     rf_10_0 double precision,
@@ -162,7 +169,6 @@ CREATE TABLE derived.recurrence_flows_prvi (
 );
 
 \copy derived.recurrence_flows_prvi from ${HOME}/nwm_v21_recurrence_flows_prvi.csv delimiter ',' csv header;
-CREATE INDEX idx_rf_prvi_featureid ON derived.recurrence_flows_prvi USING btree (feature_id);
 ALTER TABLE derived.recurrence_flows_prvi ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_prvi SET bankfull = ${RECURR_FLOW_PRVI};
 ALTER TABLE derived.recurrence_flows_prvi OWNER TO viz_proc_admin_rw_user;
@@ -179,8 +185,8 @@ CREATE TABLE derived.channels_conus
 );
 
 \copy derived.channels_conus from ${HOME}/nwm_v21_web_mercator_channels.csv delimiter ',' csv header;
-CREATE INDEX idx_ch_featureid ON derived.channels_conus USING btree (feature_id);
-select UpdateGeometrySRID('derived', 'channels_conus', 'geom', 3857);
+SELECT UpdateGeometrySRID('derived', 'channels_conus', 'geom', 3857);
+CREATE INDEX channels_conus_geom_idx ON derived.channels_conus USING GIST (geom);
 ALTER TABLE derived.channels_conus OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.channels_hi
@@ -194,8 +200,8 @@ CREATE TABLE derived.channels_hi
 );
 
 \copy derived.channels_hi from ${HOME}/nwm_v21_web_mercator_channels_hi.csv delimiter ',' csv header;
-CREATE INDEX idx_ch_hi_featureid ON derived.channels_hi USING btree (feature_id);
-select UpdateGeometrySRID('derived', 'channels_hi', 'geom', 3857);
+SELECT UpdateGeometrySRID('derived', 'channels_hi', 'geom', 3857);
+CREATE INDEX channels_hi_geom_idx ON derived.channels_hi USING GIST (geom);
 ALTER TABLE derived.channels_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.channels_prvi
@@ -209,8 +215,8 @@ CREATE TABLE derived.channels_prvi
 );
 
 \copy derived.channels_prvi from ${HOME}/nwm_v21_web_mercator_channels_prvi.csv delimiter ',' csv header;
-CREATE INDEX idx_ch_prvi_featureid ON derived.channels_prvi USING btree (feature_id);
-select UpdateGeometrySRID('derived', 'channels_prvi', 'geom', 3857);
+SELECT UpdateGeometrySRID('derived', 'channels_prvi', 'geom', 3857);
+CREATE INDEX channels_prvi_geom_idx ON derived.channels_prvi USING GIST (geom);
 ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the max flows tables.
@@ -281,7 +287,6 @@ CREATE TABLE ingest.rnr_max_flows (
 ALTER TABLE ingest.rnr_max_flows OWNER TO viz_proc_admin_rw_user;
 
 -- Grant Schemas to User
-
 GRANT ALL ON ALL TABLES IN SCHEMA admin TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA ingest TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA derived TO viz_proc_admin_rw_user;
