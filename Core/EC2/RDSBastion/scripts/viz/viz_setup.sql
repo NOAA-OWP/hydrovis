@@ -7,8 +7,10 @@ ALTER ROLE viz_proc_admin_rw_user WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOB
 CREATE SCHEMA admin;
 CREATE SCHEMA ingest;
 CREATE SCHEMA derived;
+CREATE SCHEMA fim;
 CREATE SCHEMA cache;
 CREATE SCHEMA publish;
+
 
 -- Create the ingest status table
 CREATE TABLE admin.ingest_status (
@@ -122,12 +124,12 @@ CREATE TABLE derived.recurrence_flows_conus (
     rf_50_0_17c double precision,
     rf_100_0_17c double precision
 );
-ALTER TABLE derived.recurrence_flows_conus OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_conus from ${HOME}/nwm_v21_recurrence_flows.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_featureid ON derived.recurrence_flows_conus (feature_id);
 ALTER TABLE derived.recurrence_flows_conus ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_conus SET bankfull = ${RECURR_FLOW_CONUS};
+ALTER TABLE derived.recurrence_flows_conus OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.recurrence_flows_hi (
     feature_id integer NOT NULL,
@@ -140,12 +142,12 @@ CREATE TABLE derived.recurrence_flows_hi (
     rf_500_0 double precision,
     huc6 text
 );
-ALTER TABLE derived.recurrence_flows_hi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_hi from ${HOME}/nwm_v20_recurrence_flows_hawaii.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_hi_featureid ON derived.recurrence_flows_hi (feature_id);
 ALTER TABLE derived.recurrence_flows_hi ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_hi SET bankfull = ${RECURR_FLOW_HI};
+ALTER TABLE derived.recurrence_flows_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.recurrence_flows_prvi (
     feature_id integer NOT NULL,
@@ -158,12 +160,12 @@ CREATE TABLE derived.recurrence_flows_prvi (
     rf_500_0 double precision,
     huc6 text
 );
-ALTER TABLE derived.recurrence_flows_prvi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.recurrence_flows_prvi from ${HOME}/nwm_v21_recurrence_flows_prvi.csv delimiter ',' csv header;
 CREATE INDEX idx_rf_prvi_featureid ON derived.recurrence_flows_prvi USING btree (feature_id);
 ALTER TABLE derived.recurrence_flows_prvi ADD COLUMN bankfull DOUBLE PRECISION; 
 UPDATE derived.recurrence_flows_prvi SET bankfull = ${RECURR_FLOW_PRVI};
+ALTER TABLE derived.recurrence_flows_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the channels tables
 CREATE TABLE derived.channels_conus
@@ -175,10 +177,11 @@ CREATE TABLE derived.channels_conus
     nwm_vers double precision,
     geom geometry
 );
-ALTER TABLE derived.channels_conus OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_conus from ${HOME}/nwm_v21_web_mercator_channels.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_featureid ON derived.channels_conus USING btree (feature_id);
+select UpdateGeometrySRID('derived', 'channels_conus', 'geom', 3857);
+ALTER TABLE derived.channels_conus OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.channels_hi
 (
@@ -189,10 +192,11 @@ CREATE TABLE derived.channels_hi
     nwm_vers double precision,
     geom geometry
 );
-ALTER TABLE derived.channels_hi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_hi from ${HOME}/nwm_v21_web_mercator_channels_hi.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_hi_featureid ON derived.channels_hi USING btree (feature_id);
+select UpdateGeometrySRID('derived', 'channels_hi', 'geom', 3857);
+ALTER TABLE derived.channels_hi OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE derived.channels_prvi
 (
@@ -203,38 +207,11 @@ CREATE TABLE derived.channels_prvi
     nwm_vers double precision,
     geom geometry
 );
-ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 
 \copy derived.channels_prvi from ${HOME}/nwm_v21_web_mercator_channels_prvi.csv delimiter ',' csv header;
 CREATE INDEX idx_ch_prvi_featureid ON derived.channels_prvi USING btree (feature_id);
-
--- Create the FIM channels tables
-CREATE TABLE derived.fim_channels_conus
-(
-    hydro_id integer PRIMARY KEY,
-    huc6 text,
-    fim_vers double precision,
-    geom geometry
-);
-ALTER TABLE derived.fim_channels_conus OWNER TO viz_proc_admin_rw_user;
-
-CREATE TABLE derived.fim_channels_hi
-(
-    hydro_id integer PRIMARY KEY,
-    huc6 text,
-    fim_vers double precision,
-    geom geometry
-);
-ALTER TABLE derived.fim_channels_hi OWNER TO viz_proc_admin_rw_user;
-
-CREATE TABLE derived.fim_channels_prvi
-(
-    hydro_id integer PRIMARY KEY,
-    huc6 text,
-    fim_vers double precision,
-    geom geometry
-);
-ALTER TABLE derived.fim_channels_prvi OWNER TO viz_proc_admin_rw_user;
+select UpdateGeometrySRID('derived', 'channels_prvi', 'geom', 3857);
+ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 
 -- Create the max flows tables.
 CREATE TABLE cache.max_flows_ana (
@@ -280,6 +257,28 @@ CREATE TABLE cache.max_flows_srf_prvi(
     maxflow_48hour double precision
 );
 ALTER TABLE cache.max_flows_srf_prvi OWNER TO viz_proc_admin_rw_user;
+
+-------- RFC tables --------
+CREATE TABLE ingest.rnr_max_flows (
+    feature_id integer,
+    nws_lid text,
+    streamflow double precision,
+    forecast_available_value integer,
+    has_ahps_forecast boolean,
+    forecast_feature_id integer,
+    forecast_nws_lid text,
+    forecast_issue_time timestamp,
+    forecast_max_value double precision,
+    forecast_max_valid_time timestamp,
+    forecast_max_status text,
+    forecast_reach_count integer,
+    viz_status_lid text,
+    viz_max_status text,
+    viz_status_reason text,
+    waterbody_status text,
+    waterbody_id text
+);
+ALTER TABLE ingest.rnr_max_flows OWNER TO viz_proc_admin_rw_user;
 
 -- Grant Schemas to User
 
