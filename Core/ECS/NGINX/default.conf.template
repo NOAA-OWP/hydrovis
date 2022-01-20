@@ -1,0 +1,13 @@
+server {
+    listen 80;
+
+location = /health {
+        access_log off;
+        add_header 'Content-Type' 'application/json';
+        return 200 '{"status":"UP"}';
+    }
+
+location / {
+        proxy_pass https://${KIBANA_URL}
+    }
+}
