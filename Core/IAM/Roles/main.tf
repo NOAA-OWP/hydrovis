@@ -242,6 +242,44 @@ resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
   policy = data.template_file.HydroVISSSMPolicy-template.rendered
 }
 
+# ECS Container Role
+resource "aws_iam_role" "hydrovis-ecs-resource-access" {
+  name = "HydroVIS-ECS-Container-Resource-Access"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "hydrovis-ecs-resource-access-profile" {
+  name = "hydrovis-ecs-profile"
+  role = aws_iam_role.hydrovis-ecs-resource-access.name
+}
+
+resource "aws_iam_role_policy" "hydrovis-ecs-resource-access-policy" {
+  name = "hydrovis-ecs-policy"
+  role = aws_iam_role.hydrovis-ecs-resource-access.id
+  policy = data.template_file.hydrovis-ecs-task-resource-access-template.rendered
+}
+
+data "template_file" "hydrovis-ecs-task-resource-access-template" {
+  template = file("${path.module}/hydrovis-ecs-task-template.json")
+  vars = {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  }
+}
 
 output "role_autoscaling" {
   value = aws_iam_service_linked_role.autoscaling
@@ -281,4 +319,12 @@ output "role_Hydroviz-RnR-EC2-Profile" {
 
 output "profile_Hydroviz-RnR-EC2-Profile" {
   value = aws_iam_instance_profile.Hydroviz-RnR-EC2-Profile
+}
+
+output "role_hydrovis-ecs-resource-access" {
+  value = aws_iam_role.hydrovis-ecs-resource-access
+}
+
+output "role_hydrovis-ecs-resource-access-profile" {
+  value = aws_iam_instance_profile.hydrovis-ecs-resource-access-profile
 }

@@ -195,6 +195,17 @@ module "vpces" {
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
 }
 
+#Load Balancers
+module "nginx_load_balancer" {
+  source = "./LoadBalancer/nginx"
+
+  environment                    = local.env.environment
+  security_groups = [module.security_groups.hv-allow-NWC-access]
+  subnets = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc = module.vpc.vpc_main.id
+  certificate_arn = local.env.load_balancer_certificare_arn
+}
+
 ###################### STAGE 3 ######################
 
 # Simple Service Notifications
@@ -390,6 +401,20 @@ module "monitoring" {
     module.viz_lambda_functions.db_ingest.function_name,
     module.viz_lambda_functions.db_postprocess.function_name
   ]
+}
+
+# Nginx Fargate
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment                    = local.env.environment
+  region                         = local.env.region
+  availability_zone              = module.vpc.subnet_hydrovis-sn-prv-web1a.availability_zone
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
+  kibana_endpoint                = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
+  load_balancer_tg               = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
+  subnets                        = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups                = [module.security_groups.hv-allow-NWC-access]
 }
 
 # Data Ingest
