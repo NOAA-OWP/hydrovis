@@ -200,10 +200,10 @@ module "nginx_load_balancer" {
   source = "./LoadBalancer/nginx"
 
   environment     = local.env.environment
-  security_groups = [module.security-groups.hv-allow-NWC-access]
+  security_groups = [module.security-groups.hv-allow-NWC-access.id]
   subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   vpc             = module.vpc.vpc_main.id
-  certificate_arn = local.env.load_balancer_certificare_arn
+  certificate_arn = local.env.load_balancer_certificate_arn
 }
 
 ###################### STAGE 3 ######################
@@ -414,7 +414,7 @@ module "nginx_fargate" {
   kibana_endpoint   = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
   load_balancer_tg  = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
   subnets           = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  security_groups   = [module.security-groups.hv-allow-NWC-access]
+  security_groups   = [module.security-groups.hv-allow-NWC-access.id]
 }
 
 # Data Ingest
