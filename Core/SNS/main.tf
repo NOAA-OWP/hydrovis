@@ -36,6 +36,7 @@ locals {
     nwm_ingest_mrf_10day = var.nwm_data_bucket
     rnr_max_flows        = var.rnr_max_flows_data_bucket
     nwm_max_flows        = var.nwm_max_flows_data_bucket
+    viz_db_postprocess   = var.nwm_data_bucket
   }
 }
 
