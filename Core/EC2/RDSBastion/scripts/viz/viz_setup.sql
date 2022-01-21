@@ -287,8 +287,18 @@ CREATE TABLE ingest.rnr_max_flows (
 ALTER TABLE ingest.rnr_max_flows OWNER TO viz_proc_admin_rw_user;
 
 -- Grant Schemas to User
+GRANT ALL ON SCHEMA admin TO viz_proc_admin_rw_user;
+GRANT ALL ON SCHEMA ingest TO viz_proc_admin_rw_user;
+GRANT ALL ON SCHEMA derived TO viz_proc_admin_rw_user;
+GRANT ALL ON SCHEMA cache TO viz_proc_admin_rw_user;
+GRANT ALL ON SCHEMA publish TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA admin TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA ingest TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA derived TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA cache TO viz_proc_admin_rw_user;
 GRANT ALL ON ALL TABLES IN SCHEMA publish TO viz_proc_admin_rw_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA admin GRANT all ON TABLES TO viz_proc_admin_rw_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA ingest GRANT all ON TABLES TO viz_proc_admin_rw_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA derived GRANT all ON TABLES TO viz_proc_admin_rw_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA cache GRANT all ON TABLES TO viz_proc_admin_rw_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA publish GRANT all ON TABLES TO viz_proc_admin_rw_user;
