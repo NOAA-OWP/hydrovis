@@ -60,7 +60,11 @@ module "kms" {
     ]
     "rds-ingest" = [
       module.iam-roles.role_autoscaling.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn,
+      module.iam-roles.role_hydrovis-hml-ingest-role.arn
+    ]
+    "rds-viz" = [
+      module.iam-roles.role_autoscaling.arn,
+      module.iam-roles.role_HydrovisESRISSMDeploy.arn
     ]
   }
 }
@@ -75,14 +79,14 @@ module "secrets-manager" {
     "data-services-forecast-pg-rdssecret" = { "username" : "rfc_fcst_ro_user" }
     "data-services-location-pg-rdssecret" = { "username" : "location_ro_user" }
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
-    "viz_proc-user-rdssecret"             = { "username" : "viz_proc_admin_rw_user" }
+    "viz_proc_admin_rw_user"              = { "username" : "viz_proc_admin_rw_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc_fcst"                        = { "username" : "rfc_fcst" }
     "rds-rfc_fcst_user"                   = { "username" : "rfc_fcst_user" }
     "rds-nwm_viz_ro"                      = { "username" : "nwm_viz_ro" }
     "mq-aws-monitoring"                   = { "username" : "monitoring-AWS-OWNED-DO-NOT-DELETE" }
-    "egis-pg-rds-secret"                  = { "username" : "hydrovis" }
+    "egis-pg-rds-secret"                  = { "username" : "hydrovis", "password" : local.env.egis-pg-rds_password }
     "egis-service-account"                = { "username" : "arcgis", "password" : local.env.egis-service-account_password }
   }
 }
@@ -215,6 +219,17 @@ module "rds-ingest" {
   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
 }
 
+module "rds-viz" {
+  source = "./RDS/viz"
+
+  environment                       = local.env.environment
+  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+}
+
 # Lambda Layers
 module "lambda_layers" {
   source = "./LAMBDA/layers"
@@ -245,7 +260,16 @@ module "viz_lambda_functions" {
   pandas_layer                  = module.lambda_layers.pandas.arn
   rasterio_layer                = module.lambda_layers.rasterio.arn
   mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
+  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
+  psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
+
+  db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_host                       = module.rds-viz.rds-viz-processing.address
+  db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 }
 
 # MQ
@@ -274,17 +298,22 @@ module "rds-bastion" {
   kms_key_arn            = module.kms.key_arns["encrypt-ec2"]
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
-  db_ingest_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  db_ingest_address              = module.rds-ingest.rds-ingest.address
-  db_ingest_port                 = module.rds-ingest.rds-ingest.port
+  ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  ingest_db_address              = module.rds-ingest.rds-ingest.address
+  ingest_db_port                 = module.rds-ingest.rds-ingest.port
   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
 
-  mq_ingest_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+
+  viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_address                  = module.rds-viz.rds-viz-processing.address
+  viz_db_port                     = module.rds-viz.rds-viz-processing.port
 }
 
 module "ingest_lambda_functions" {
@@ -294,9 +323,8 @@ module "ingest_lambda_functions" {
   region                      = local.env.region
   deployment_bucket           = module.s3.buckets["deployment"].bucket
   lambda_role                 = module.iam-roles.role_hydrovis-hml-ingest-role.arn
-  psycopg2_layer              = module.lambda_layers.psycopg2.arn
+  psycopg2_sqlalchemy_layer   = module.lambda_layers.psycopg2_sqlalchemy.arn
   pika_layer                  = module.lambda_layers.pika.arn
-  sqlalchemy_layer            = module.lambda_layers.sqlalchemy.arn
   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   mq_ingest_id                = module.mq-ingest.mq-ingest.id
   db_ingest_name              = module.rds-bastion.forecast_db
@@ -339,7 +367,9 @@ module "monitoring" {
     module.viz_lambda_functions.inundation_parent.function_name,
     module.viz_lambda_functions.huc_processing.function_name,
     module.viz_lambda_functions.optimize_rasters.function_name,
-    module.ingest_lambda_functions.hml_reciever.function_name
+    module.ingest_lambda_functions.hml_reciever.function_name,
+    module.viz_lambda_functions.db_ingest.function_name,
+    module.viz_lambda_functions.db_postprocess.function_name
   ]
 }
 
