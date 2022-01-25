@@ -5,6 +5,13 @@ terraform {
       version = "3.52"
     }
   }
+  backend "s3" {
+    bucket                  = "hydrovis-terraform-state-us-east-1"
+    key                     = "state"
+    region                  = "us-east-1"
+    profile                 = "prod"
+    shared_credentials_file = "/cloud/aws/credentials"
+  }
 }
 
 # See ./sensitive/envs/env.ENV.yaml for list of available variables
