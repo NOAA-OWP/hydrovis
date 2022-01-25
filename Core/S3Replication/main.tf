@@ -40,6 +40,12 @@ locals {
         var.role_hydrovis-viz-proc-pipeline-lambda_arn
       ]
     }
+    "pcpanl" = {
+      replication_role_arn = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-pcpanl-incoming-replication"
+      access_principal_arns = [
+        var.user_data-ingest-service-user_arn
+      ]
+    }
   }
 }
 
