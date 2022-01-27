@@ -106,7 +106,9 @@ module "s3" {
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
+      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execuition.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -193,6 +195,7 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
 }
 
 #Load Balancers
@@ -200,7 +203,7 @@ module "nginx_load_balancer" {
   source = "./LoadBalancer/nginx"
 
   environment     = local.env.environment
-  security_groups = [module.security-groups.hv-allow-NWC-access.id]
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
   subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   vpc             = module.vpc.vpc_main.id
   certificate_arn = local.env.load_balancer_certificate_arn
@@ -407,14 +410,15 @@ module "monitoring" {
 module "nginx_fargate" {
   source = "./ECS/NGINX"
 
-  environment       = local.env.environment
-  region            = local.env.region
-  availability_zone = module.vpc.subnet_hydrovis-sn-prv-web1a.availability_zone
-  deployment_bucket = module.s3.buckets["deployment"].bucket
-  kibana_endpoint   = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
-  load_balancer_tg  = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
-  subnets           = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  security_groups   = [module.security-groups.hv-allow-NWC-access.id]
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  kibana_endpoint    = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
+  load_balancer_tg   = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution-role.arn
 }
 
 # Data Ingest

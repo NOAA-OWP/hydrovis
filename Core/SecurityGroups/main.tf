@@ -513,6 +513,62 @@ resource "aws_security_group" "egis-overlord" {
   vpc_id = var.vpc_main_id
 }
 
+resource "aws_security_group" "hv-allow-kibana-access" {
+  description = "Allow NWC and NWAVE VPN users access to Kibana"
+  ingress = [
+    {
+      cidr_blocks = [
+        var.nwc_ip_block,
+        var.nwave_ip_block,
+        var.vpc_main_cidr_block
+      ]
+      description      = ""
+      from_port        = 443
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 443
+    },
+    {
+      cidr_blocks = [
+        var.nwc_ip_block,
+        var.nwave_ip_block,
+        var.vpc_main_cidr_block
+      ]
+      description      = ""
+      from_port        = 80
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 80
+    },
+  ]
+  egress = [
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 0
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+  name = "hv-${var.environment}-allow-kibana-access"
+  tags = {
+    "Name" = "hv-${var.environment}-http/s-from-NWC/NWave"
+  }
+  vpc_id = var.vpc_main_id
+}
+
 output "egis-overlord" {
   value = aws_security_group.egis-overlord
 }
@@ -543,4 +599,8 @@ output "hydrovis-nat-sg" {
 
 output "ssm-session-manager-sg" {
   value = aws_security_group.ssm-session-manager-sg
+}
+
+output "hv-allow-kibana-access" {
+  value = aws_security_group.hv-allow-kibana-access
 }
