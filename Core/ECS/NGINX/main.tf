@@ -6,10 +6,6 @@ variable "region" {
   type = string
 }
 
-variable "availability_zone" {
-  type = string
-}
-
 variable "kibana_endpoint" {
   type = string
 }
@@ -30,6 +26,14 @@ variable "security_groups" {
   type = list(string)
 }
 
+variable "iam_role_arn" {
+  type = string
+}
+
+variable "ecs_execution_role" {
+  type = string
+}
+
 resource "aws_ecs_cluster" "hydrovis_fargate" {
   name = "hydrovis-${var.environment}-fargate-cluster"
 }
@@ -45,7 +49,7 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
   container_definitions = jsonencode([
     {
       name      = "nginx"
-      image     = "nginx:1.21.4-alpine"
+      image     = "nginx:mainline-alpine"
       essential = true
       dependsOn = [
         {
@@ -62,7 +66,7 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
       mountPoints = [
         {
           containerPath = "/etc/nginx/templates"
-          sourceVolune  = "nginx_template"
+          sourceVolume  = "nginx_template"
         }
       ]
       environment = [
@@ -71,35 +75,45 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
           value = "${var.kibana_endpoint}"
         }
       ]
+      logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
+            awslogs-region = "${var.region}"
+            awslogs-create-group = "true"
+            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
+          }
+        }
     },
     {
       name      = "nginx-config"
-      image     = "amazon/aws-cli:2.4.7"
+      image     = "amazon/aws-cli:latest"
       essential = false
       command = [
-        "-c",
-        "aws s3 cp s3://$DEPLOYMENT_BUCKET/ecs/nginx/default.conf.template /etc/nginx/templates"
-      ]
-      environment = [
-        {
-          name  = "DEPLOYMENT_BUCKET"
-          value = "${var.deployment_bucket}"
-        }
+        "s3",
+        "cp", 
+        "s3://${var.deployment_bucket}/ecs/nginx/default.conf.template", 
+        "/etc/nginx/templates"
       ]
       mountPoints = [
         {
           containerPath = "/etc/nginx/templates"
-          sourceVolune  = "nginx_template"
+          sourceVolume  = "nginx_template"
         }
       ]
+      logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
+            awslogs-region = "${var.region}"
+            awslogs-create-group = "true"
+            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
+          }
+        }
     }
   ])
   volume {
     name = "nginx_template"
-
-    docker_volume_configuration {
-      scope = "task"
-    }
   }
 
   runtime_platform {
@@ -113,7 +127,7 @@ resource "aws_ecs_service" "kibana_nginx" {
   name                              = "hydrovis-${var.environment}-kibana-nginx-ecs-service"
   cluster                           = aws_ecs_cluster.hydrovis_fargate.id
   task_definition                   = aws_ecs_task_definition.kibana_nginx_proxy.arn
-  desired_count                     = 2
+  desired_count                     = 1
   launch_type                       = "FARGATE"
   health_check_grace_period_seconds = 10
 
