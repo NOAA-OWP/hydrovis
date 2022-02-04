@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.52"
+      version = "3.70"
     }
   }
   backend "s3" {
@@ -106,7 +106,9 @@ module "s3" {
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
+      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execuition.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -125,7 +127,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
-    ] 
+    ]
   }
 }
 
@@ -191,6 +193,18 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_load_balancer" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
+  certificate_arn = local.env.load_balancer_certificate_arn
 }
 
 ###################### STAGE 3 ######################
@@ -459,10 +473,10 @@ module "egis_license_manager" {
 module "egis_monitor" {
   source = "./EC2/ArcGIS_Monitor"
 
-  environment                    = local.env.environment
-  ami_owner_account_id           = local.env.ami_owner_account_id
-  region                         = local.env.region
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-web1a.id
+  environment          = local.env.environment
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
+  ec2_instance_subnet  = module.vpc.subnet_hydrovis-sn-prv-web1a.id
   ec2_instance_sgs = [
     module.security-groups.ssm-session-manager-sg.id,
     module.security-groups.egis-overlord.id
@@ -503,4 +517,18 @@ module "viz_ec2" {
   logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
   vlab_host                   = local.env.viz_ec2_vlab_host
+}
+
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  kibana_endpoint    = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
+  load_balancer_tg   = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution-role.arn
 }
