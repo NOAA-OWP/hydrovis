@@ -108,7 +108,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-roles.role_hydrovis-ecs-resource-access.arn,
-      module.iam-roles.role_ecs-task-execuition.arn
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -530,5 +530,5 @@ module "nginx_fargate" {
   subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   security_groups    = [module.security-groups.hv-allow-kibana-access.id]
   iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
-  ecs_execution_role = module.iam-roles.role_ecs-task-execution-role.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
 }
