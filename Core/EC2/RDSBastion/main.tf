@@ -92,6 +92,10 @@ variable "viz_proc_admin_rw_secret_string" {
   type = string
 }
 
+variable "fim_version" {
+  type = string
+}
+
 locals {
   ingest_db_users            = "rfc_fcst, rfc_fcst_ro"
   location_db_users          = "rfc_fcst_ro, location_ro_user_grp"
@@ -124,7 +128,7 @@ locals {
 resource "aws_instance" "rds-bastion" {
   ami                    = data.aws_ami.linux.id
   iam_instance_profile   = var.ec2_instance_profile_name
-  instance_type          = "m1.small"
+  instance_type          = "m5.large"
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
@@ -139,7 +143,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   root_block_device {
-    volume_size = 12
+    volume_size = 40
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     volume_type = "gp2"
@@ -214,6 +218,7 @@ data "template_file" "viz_postgresql_setup" {
     DEPLOYMENT_BUCKET = var.data_deployment_bucket
     DBUSERS           = local.viz_db_users
     HOME              = local.home_dir
+    FIM_VERSION       = var.fim_version
   }
 }
 
@@ -225,6 +230,7 @@ data "template_file" "viz_setup" {
     RECURR_FLOW_HI         = "rf_2_0"
     RECURR_FLOW_PRVI       = "rf_2_0"
     HOME                   = local.home_dir
+    FIM_VERSION            = var.fim_version
   }
 }
 

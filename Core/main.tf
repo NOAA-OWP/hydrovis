@@ -326,6 +326,7 @@ module "rds-bastion" {
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   viz_db_address                  = module.rds-viz.rds-viz-processing.address
   viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  fim_version                     = local.env.fim_version
 }
 
 module "ingest_lambda_functions" {
