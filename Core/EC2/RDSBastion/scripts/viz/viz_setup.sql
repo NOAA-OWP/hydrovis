@@ -175,12 +175,14 @@ CREATE TABLE fim.fr_catchments_conus
 (
     hydro_id integer,
     geom geometry,
+    coastal boolean
 );
 
 CREATE TABLE fim.ms_catchments_conus
 (
     hydro_id integer,
     geom geometry,
+    coastal boolean
 );
 
 -------- HI tables --------
@@ -230,7 +232,7 @@ ALTER TABLE ingest.fim_catchments_srf_hi OWNER to viz_proc_admin_rw_user;
 CREATE TABLE fim.fr_catchments_hi
 (
     hydro_id integer,
-    geom geometry,
+    geom geometry
 )
 \copy fim.fr_catchments_hi from ${HOME}/fim_catchments_${FIM_VERSION}_fr_hi.csv delimiter ',' csv header;
 SELECT UpdateGeometrySRID('fim', 'fr_catchments_hi', 'geom', 3857);
@@ -241,7 +243,7 @@ ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 CREATE TABLE fim.ms_catchments_hi
 (
     hydro_id integer,
-    geom geometry,
+    geom geometry
 );
 \copy fim.ms_catchments_hi from ${HOME}/fim_catchments_${FIM_VERSION}_ms_hi.csv delimiter ',' csv header;
 SELECT UpdateGeometrySRID('fim', 'ms_catchments_hi', 'geom', 3857);
@@ -295,7 +297,7 @@ ALTER TABLE ingest.fim_catchments_srf_prvi OWNER to viz_proc_admin_rw_user;
 CREATE TABLE fim.fr_catchments_prvi
 (
     hydro_id integer,
-    geom geometry,
+    geom geometry
 )
 \copy fim.fr_catchments_prvi from ${HOME}/fim_catchments_${FIM_VERSION}_fr_prvi.csv delimiter ',' csv header;
 SELECT UpdateGeometrySRID('fim', 'fr_catchments_prvi', 'geom', 3857);
@@ -306,7 +308,7 @@ ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 CREATE TABLE fim.ms_catchments_prvi
 (
     hydro_id integer,
-    geom geometry,
+    geom geometry
 );
 \copy fim.ms_catchments_prvi from ${HOME}/fim_catchments_${FIM_VERSION}_ms_prvi.csv delimiter ',' csv header;
 SELECT UpdateGeometrySRID('fim', 'ms_catchments_prvi', 'geom', 3857);

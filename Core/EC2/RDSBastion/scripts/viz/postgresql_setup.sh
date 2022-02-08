@@ -99,7 +99,7 @@ rm -f $${HOME}/*
 
 # Update users
 echo "Setting up CONUS FIM Catchments..."
-for i in {10..10}; 
+for i in $(seq -f "%02g" 1 18); 
 do
   aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv" "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv"
   psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "\copy fim.fr_catchments_conus from $${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv delimiter ',' csv header;" 
@@ -110,10 +110,10 @@ do
   rm "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_ms_conus.csv"
 done
 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "SELECT UpdateGeometrySRID('fim', 'fr_catchments_conus_test', 'geom', 3857);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_geom_idx ON fim.fr_catchments_conus_test USING GIST (geom);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_idx ON fim.fr_catchments_conus_test USING btree (hydro_id);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "ALTER TABLE fim.fr_catchments_conus_test OWNER TO viz_proc_admin_rw_user;" 
+psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "SELECT UpdateGeometrySRID('fim', 'fr_catchments_conus', 'geom', 3857);" 
+psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_geom_idx ON fim.fr_catchments_conus USING GIST (geom);" 
+psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_idx ON fim.fr_catchments_conus USING btree (hydro_id);" 
+psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "ALTER TABLE fim.fr_catchments_conus OWNER TO viz_proc_admin_rw_user;" 
 
 psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "SELECT UpdateGeometrySRID('fim', 'ms_catchments_conus', 'geom', 3857);" 
 psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX ms_catchments_conus_geom_idx ON fim.ms_catchments_conus USING GIST (geom);" 
