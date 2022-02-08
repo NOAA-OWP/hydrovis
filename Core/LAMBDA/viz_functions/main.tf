@@ -222,9 +222,14 @@ resource "aws_lambda_function" "viz_inundation_parent" {
 
   environment {
     variables = {
+      DB_DATABASE	                = "vizprocessing"
+      DB_HOST	                    = var.db_host
+      DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET         = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX     = "empty_rasters/mrf"
       FIM_DATA_BUCKET             = var.fim_data_bucket
+      FIM_VERSION                 = var.fim_version
       VIZ_AUTHORITATIVE_BUCKET    = var.viz_authoritative_bucket
       NWM_DATA_BUCKET             = var.nwm_data_bucket
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
@@ -235,7 +240,6 @@ resource "aws_lambda_function" "viz_inundation_parent" {
       RECURRENCE_HAWAII_BANKFULL  = "2_0_year_recurrence_flow"
       RECURRENCE_PRVI_FILENAME    = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows_prvi.nc"
       RECURRENCE_PRVI_BANKFULL    = "2_0_year_recurrence_flow"
-      FIM_VERSION                 = var.fim_version
       max_flows_function          = resource.aws_lambda_function.viz_max_flows.arn
       viz_huc_inundation_function = resource.aws_lambda_function.viz_huc_inundation_processing.arn
     }
@@ -253,11 +257,17 @@ resource "aws_lambda_function" "viz_inundation_parent" {
     var.multiprocessing_layer,
     var.xarray_layer,
     var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.viz_lambda_shared_funcs_layer,
+    var.psycopg2_sqlalchemy_layer
   ]
 
   tags = {
     "Name" = "viz_inundation_parent_${var.environment}"
+  }
+
+  vpc_config {
+  	security_group_ids = var.db_lambda_security_groups
+  	subnet_ids = var.db_lambda_subnets
   }
 }
 
@@ -288,6 +298,10 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
 
   environment {
     variables = {
+      DB_DATABASE	                = "vizprocessing"
+      DB_HOST	                    = var.db_host
+      DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET          = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX      = "empty_rasters/mrf"
       FR_FIM_BUCKET                = var.fim_data_bucket
@@ -312,11 +326,17 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
     var.rasterio_layer,
     var.pandas_layer,
     var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.viz_lambda_shared_funcs_layer,
+    var.psycopg2_sqlalchemy_layer
   ]
 
   tags = {
     "Name" = "viz_huc_inundation_processing_${var.environment}"
+  }
+
+  vpc_config {
+  	security_group_ids = var.db_lambda_security_groups
+  	subnet_ids = var.db_lambda_subnets
   }
 }
 
