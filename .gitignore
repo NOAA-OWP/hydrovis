@@ -1,5 +1,6 @@
 # Keep all the sensitive data out of the repo
 **/sensitive/*
+**/sensitive
 
 # Local .terraform directories
 **/.terraform/*
