@@ -106,7 +106,11 @@ resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service = "lambda.amazonaws.com"
+          Service = [
+            "lambda.amazonaws.com",
+            "events.amazonaws.com",
+            "apigateway.amazonaws.com"
+          ]
         }
       },
     ]
@@ -126,6 +130,34 @@ resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
   name   = "hydrovis-viz-proc-pipeline-lambda"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
   policy = data.template_file.hydrovis-viz-proc-pipeline-lambda-template.rendered
+}
+
+data "template_file" "EventBridge-PassToService-Policy-template" {
+  template = file("${path.module}/EventBridge-PassToService-Policy-template.json")
+}
+
+resource "aws_iam_role_policy" "EventBridge-PassToService-Policy" {
+  name   = "EventBridge-PassToService-Policy"
+  role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
+  policy = data.template_file.EventBridge-PassToService-Policy-template.rendered
+}
+
+data "template_file" "EventBridge-proc-pipeline-Lambda-Access-template" {
+  template = file("${path.module}/EventBridge-proc-pipeline-Lambda-Access-template.json")
+  vars = {
+    account_id  = var.account_id
+  }
+}
+
+resource "aws_iam_role_policy" "EventBridge-proc-pipeline-Lambda-Access" {
+  name   = "EventBridge-proc-pipeline-Lambda-Access"
+  role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
+  policy = data.template_file.EventBridge-proc-pipeline-Lambda-Access-template.rendered
+}
+
+resource "aws_iam_role_policy_attachment" "hydrovis-viz-proc-pipeline-lambda-event-bridge" {
+  role       = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
 }
 
 
