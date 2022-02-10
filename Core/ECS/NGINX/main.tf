@@ -46,6 +46,9 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
   cpu                      = 256
   memory                   = 512
 
+  task_role_arn      = var.iam_role_arn
+  execution_role_arn = var.ecs_execution_role
+
   container_definitions = jsonencode([
     {
       name      = "nginx"
