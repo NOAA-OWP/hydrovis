@@ -6,7 +6,7 @@ variable "region" {
   type = string
 }
 
-variable "kibana_endpoint" {
+variable "es_domain_endpoint" {
   type = string
 }
 
@@ -46,12 +46,9 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
   cpu                      = 256
   memory                   = 512
 
-<<<<<<< HEAD
-=======
   task_role_arn      = var.iam_role_arn
   execution_role_arn = var.ecs_execution_role
 
->>>>>>> 988553e16697ae59c02deec06f7941c0115219e4
   container_definitions = jsonencode([
     {
       name      = "nginx"
@@ -139,21 +136,12 @@ resource "aws_ecs_service" "kibana_nginx" {
 
   load_balancer {
     target_group_arn = var.load_balancer_tg
-<<<<<<< HEAD
-    container_name   = "nginx"
-    container_port   = 80
-  }
-
-  network_configuration {
-    subnets         = var.subnets
-=======
     container_name = "nginx"
     container_port = 80
   }
 
   network_configuration {
     subnets = var.subnets
->>>>>>> 988553e16697ae59c02deec06f7941c0115219e4
     security_groups = var.security_groups
   }
 }

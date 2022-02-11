@@ -8,16 +8,17 @@ server {
         return 200 '{"status":"UP"}';
     }
 
-    location /kibana/ {
-        rewrite ^/kibana(/.*)$  $1 break;
+    location /kibana {
+        return 301 /_plugin/kibana;
+    }
 
-        proxy_set_header Host https://${ELK_DOMAIN}/;
-
+    location / {
         proxy_http_version 1.1;
-        proxy_set_header Connection "Keep-Alive";
-        proxy_set_header Proxy-Connection "Keep-Alive";
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
 
-        proxy_pass https://${ELK_DOMAIN}/_plugin/kibana/;
-        proxy_redirect https://${ELK_DOMAIN}/_plugin/kibana/ https://maps-testing.water.noaa.gov/kibana/;
+        proxy_pass https://${ELK_DOMAIN}/;
     }
 }
