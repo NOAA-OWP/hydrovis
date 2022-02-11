@@ -197,14 +197,13 @@ module "vpces" {
 }
 
 #Load Balancers
-module "nginx_load_balancer" {
+module "nginx_listener" {
   source = "./LoadBalancer/nginx"
 
   environment     = local.env.environment
   security_groups = [module.security-groups.hv-allow-kibana-access.id]
   subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   vpc             = module.vpc.vpc_main.id
-  certificate_arn = local.env.load_balancer_certificate_arn
 }
 
 ###################### STAGE 3 ######################
@@ -525,7 +524,7 @@ module "nginx_fargate" {
   environment        = local.env.environment
   region             = local.env.region
   deployment_bucket  = module.s3.buckets["deployment"].bucket
-  kibana_endpoint    = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
+  es_domain_endpoint    = module.monitoring.aws_elasticsearch_domain.endpoint
   load_balancer_tg   = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
   subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   security_groups    = [module.security-groups.hv-allow-kibana-access.id]

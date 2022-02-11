@@ -74,8 +74,8 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
       ]
       environment = [
         {
-          name  = "KIBANA_URL"
-          value = "${var.kibana_endpoint}"
+          name  = "ELK_DOMAIN"
+          value = "${var.es_domain_endpoint}"
         }
       ]
       logConfiguration = {
