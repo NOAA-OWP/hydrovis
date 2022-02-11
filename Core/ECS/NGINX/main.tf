@@ -79,14 +79,14 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
         }
       ]
       logConfiguration = {
-          logDriver = "awslogs"
-          options = {
-            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
-            awslogs-region = "${var.region}"
-            awslogs-create-group = "true"
-            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
-          }
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "hydrovis-${var.environment}-fargate-logs"
+          awslogs-region        = "${var.region}"
+          awslogs-create-group  = "true"
+          awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
         }
+      }
     },
     {
       name      = "nginx-config"
@@ -94,8 +94,8 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
       essential = false
       command = [
         "s3",
-        "cp", 
-        "s3://${var.deployment_bucket}/ecs/nginx/default.conf.template", 
+        "cp",
+        "s3://${var.deployment_bucket}/ecs/nginx/default.conf.template",
         "/etc/nginx/templates"
       ]
       mountPoints = [
@@ -105,14 +105,14 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
         }
       ]
       logConfiguration = {
-          logDriver = "awslogs"
-          options = {
-            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
-            awslogs-region = "${var.region}"
-            awslogs-create-group = "true"
-            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
-          }
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "hydrovis-${var.environment}-fargate-logs"
+          awslogs-region        = "${var.region}"
+          awslogs-create-group  = "true"
+          awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
         }
+      }
     }
   ])
   volume {
@@ -136,12 +136,12 @@ resource "aws_ecs_service" "kibana_nginx" {
 
   load_balancer {
     target_group_arn = var.load_balancer_tg
-    container_name = "nginx"
-    container_port = 80
+    container_name   = "nginx"
+    container_port   = 80
   }
 
   network_configuration {
-    subnets = var.subnets
+    subnets         = var.subnets
     security_groups = var.security_groups
   }
 }

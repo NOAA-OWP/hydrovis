@@ -7,11 +7,11 @@ variable "security_groups" {
 }
 
 variable "subnets" {
-    type = list(string)
+  type = list(string)
 }
 
 variable "vpc" {
-    type = string
+  type = string
 }
 
 data "aws_lb" "hydrovis_public_lb" {
@@ -20,31 +20,31 @@ data "aws_lb" "hydrovis_public_lb" {
 
 data "aws_lb_listener" "hydrovis_443_listener" {
   load_balancer_arn = data.aws_lb.hydrovis_public_lb.arn
-  port = 443
+  port              = 443
 }
 
 resource "aws_lb_target_group" "kibana_nginx_target_group" {
-    name = "hv-${var.environment}-kibana-nginx-albtg"
-    port = 80
-    protocol = "HTTP"
-    target_type = "ip"
-    vpc_id = var.vpc
+  name        = "hv-${var.environment}-kibana-nginx-albtg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc
 
-    health_check {
-      enabled = true
-      healthy_threshold = 3
-      interval = 30
-      matcher = "200"
-      path = "/health"
-      unhealthy_threshold = 2
-    }
+  health_check {
+    enabled             = true
+    healthy_threshold   = 3
+    interval            = 30
+    matcher             = "200"
+    path                = "/health"
+    unhealthy_threshold = 2
+  }
 }
 
 resource "aws_lb_listener_rule" "kibana_listener" {
   listener_arn = data.aws_lb_listener.hydrovis_443_listener.arn
 
   action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_lb_target_group.kibana_nginx_target_group.arn
   }
 
