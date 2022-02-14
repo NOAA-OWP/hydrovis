@@ -258,9 +258,6 @@ $env:AUTHORITATIVE_ROOT = $AUTHORITATIVE_ROOT
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
 & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\create_s3_connection_files.py
 
-Set-Location HKCU:\Software\ESRI\ArcGISPro
-Remove-Item -Recurse -Force -Confirm:$false Licensing
-
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
 $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("everyone","FullControl", "Allow")
@@ -276,6 +273,9 @@ $ACL | Set-Acl -Path "D:\"
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 Set-Location -Path $VIZ_DIR
 & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\update_data_stores.py $EGIS_HOST $PUBLISHED_ROOT $HYDROVIS_EGIS_USER $HYDROVIS_EGIS_PASS
+
+Set-Location HKCU:\Software\ESRI\ArcGISPro
+Remove-Item -Recurse -Force -Confirm:$false Licensing
 
 LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
 $EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
