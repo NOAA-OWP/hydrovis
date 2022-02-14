@@ -525,7 +525,7 @@ module "nginx_fargate" {
   region             = local.env.region
   deployment_bucket  = module.s3.buckets["deployment"].bucket
   es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
-  load_balancer_tg   = module.nginx_load_balancer.aws_lb_target_group_kibana_nginx.arn
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
   subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   security_groups    = [module.security-groups.hv-allow-kibana-access.id]
   iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
