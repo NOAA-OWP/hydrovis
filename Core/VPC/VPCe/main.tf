@@ -74,12 +74,12 @@ resource "aws_vpc_endpoint" "ssmmessages" {
 resource "aws_vpc_endpoint" "cloudwatch_logs" {
   private_dns_enabled = true
   security_group_ids = [
-      var.kibana-access-sg_id,
+    var.kibana-access-sg_id,
   ]
   service_name = "com.amazonaws.${var.region}.logs"
-  subnet_ids = [ 
-      var.subnet_hydrovis-sn-prv-data1b_id
+  subnet_ids = [
+    var.subnet_hydrovis-sn-prv-data1b_id
   ]
   vpc_endpoint_type = "Interface"
-  vpc_id = var.vpc_main_id
+  vpc_id            = var.vpc_main_id
 }

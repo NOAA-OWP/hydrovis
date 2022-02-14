@@ -14,17 +14,13 @@ variable "vpc" {
   type = string
 }
 
-variable "certificate_arn" {
-  type = string
+data "aws_lb" "hydrovis_public_lb" {
+  name = "hv-${var.environment}-egis-pub-prtl-alb"
 }
 
-resource "aws_lb" "kibana_private" {
-  name               = "hv-${var.environment}-prv-kibana-nginx-alb"
-  internal           = true
-  load_balancer_type = "application"
-  security_groups    = var.security_groups
-  subnets            = var.subnets
-  ip_address_type    = "ipv4"
+data "aws_lb_listener" "hydrovis_443_listener" {
+  load_balancer_arn = data.aws_lb.hydrovis_public_lb.arn
+  port              = 443
 }
 
 resource "aws_lb_target_group" "kibana_nginx_target_group" {
@@ -44,27 +40,25 @@ resource "aws_lb_target_group" "kibana_nginx_target_group" {
   }
 }
 
-resource "aws_lb_listener" "kibana_nginx_listener" {
-  load_balancer_arn = aws_lb.kibana_private.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-FS-1-2-Res-2019-08"
-  certificate_arn   = var.certificate_arn
+resource "aws_lb_listener_rule" "kibana_listener" {
+  listener_arn = data.aws_lb_listener.hydrovis_443_listener.arn
 
-  default_action {
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.kibana_nginx_target_group.arn
   }
-}
 
-output "aws_lb_kibana_nginx_private" {
-  value = aws_lb.kibana_private
+  condition {
+    path_pattern {
+      values = ["/kibana", "/kibana/*", "/_plugin/kibana", "/_plugin/kibana/*"]
+    }
+  }
 }
 
 output "aws_lb_target_group_kibana_ngninx" {
   value = aws_lb_target_group.kibana_nginx_target_group
 }
 
-output "aws_lb_listener_kibana_nginx" {
-  value = aws_lb_listener.kibana_nginx_listener
+output "aws_lb_listener_rule_kibana_listener" {
+  value = aws_lb_listener_rule.kibana_listener
 }

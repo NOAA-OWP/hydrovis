@@ -199,14 +199,13 @@ module "vpces" {
 }
 
 #Load Balancers
-module "nginx_load_balancer" {
+module "nginx_listener" {
   source = "./LoadBalancer/nginx"
 
   environment     = local.env.environment
   security_groups = [module.security-groups.hv-allow-kibana-access.id]
   subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   vpc             = module.vpc.vpc_main.id
-  certificate_arn = local.env.load_balancer_certificate_arn
 }
 
 ###################### STAGE 3 ######################
@@ -278,12 +277,12 @@ module "viz_lambda_functions" {
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
 
-  db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
-  db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-  db_host                       = module.rds-viz.rds-viz-processing.address
-  db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
+  db_lambda_security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  db_lambda_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_host                   = module.rds-viz.rds-viz-processing.address
+  db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_password      = local.env.viz_ec2_hydrovis_egis_pass
 }
 
 # MQ
@@ -321,8 +320,8 @@ module "rds-bastion" {
   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
 
-  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
@@ -527,8 +526,8 @@ module "nginx_fargate" {
   environment        = local.env.environment
   region             = local.env.region
   deployment_bucket  = module.s3.buckets["deployment"].bucket
-  kibana_endpoint    = module.monitoring.aws_elasticsearch_domain.kibana_endpoint
-  load_balancer_tg   = module.nginx_load_balancer.aws_lb_target_group_kibana_ngninx.arn
+  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
   subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
   security_groups    = [module.security-groups.hv-allow-kibana-access.id]
   iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
