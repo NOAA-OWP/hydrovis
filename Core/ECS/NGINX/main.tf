@@ -6,7 +6,7 @@ variable "region" {
   type = string
 }
 
-variable "kibana_endpoint" {
+variable "es_domain_endpoint" {
   type = string
 }
 
@@ -46,6 +46,9 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
   cpu                      = 256
   memory                   = 512
 
+  task_role_arn      = var.iam_role_arn
+  execution_role_arn = var.ecs_execution_role
+
   container_definitions = jsonencode([
     {
       name      = "nginx"
@@ -71,19 +74,19 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
       ]
       environment = [
         {
-          name  = "KIBANA_URL"
-          value = "${var.kibana_endpoint}"
+          name  = "ELK_DOMAIN"
+          value = "${var.es_domain_endpoint}"
         }
       ]
       logConfiguration = {
-          logDriver = "awslogs"
-          options = {
-            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
-            awslogs-region = "${var.region}"
-            awslogs-create-group = "true"
-            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
-          }
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "hydrovis-${var.environment}-fargate-logs"
+          awslogs-region        = "${var.region}"
+          awslogs-create-group  = "true"
+          awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
         }
+      }
     },
     {
       name      = "nginx-config"
@@ -91,8 +94,8 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
       essential = false
       command = [
         "s3",
-        "cp", 
-        "s3://${var.deployment_bucket}/ecs/nginx/default.conf.template", 
+        "cp",
+        "s3://${var.deployment_bucket}/ecs/nginx/default.conf.template",
         "/etc/nginx/templates"
       ]
       mountPoints = [
@@ -102,14 +105,14 @@ resource "aws_ecs_task_definition" "kibana_nginx_proxy" {
         }
       ]
       logConfiguration = {
-          logDriver = "awslogs"
-          options = {
-            awslogs-group = "hydrovis-${var.environment}-fargate-logs"
-            awslogs-region = "${var.region}"
-            awslogs-create-group = "true"
-            awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
-          }
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "hydrovis-${var.environment}-fargate-logs"
+          awslogs-region        = "${var.region}"
+          awslogs-create-group  = "true"
+          awslogs-stream-prefix = "hydrovis-${var.environment}-fargate"
         }
+      }
     }
   ])
   volume {
