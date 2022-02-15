@@ -145,6 +145,8 @@ resource "aws_s3_bucket_policy" "hydrovis" {
             "s3:GetObject",
             "s3:PutObject",
             "s3:ListBucket",
+            "s3:DeleteObject",
+            "s3:PutObjectAcl"
           ]
           Effect = "Allow"
           Principal = {
