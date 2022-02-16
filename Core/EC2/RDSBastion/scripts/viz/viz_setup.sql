@@ -319,9 +319,25 @@ ALTER TABLE derived.channels_prvi OWNER TO viz_proc_admin_rw_user;
 -- Create the recurrence flows tables
 CREATE TABLE derived.recurrence_flows_conus (
     feature_id integer,
+    rf_1_3 double precision,
+    rf_1_4 double precision,
     rf_1_5 double precision,
+    rf_1_6 double precision,
+    rf_1_7 double precision,
+    rf_1_8 double precision,
+    rf_1_9 double precision,
     rf_2_0 double precision,
+    rf_2_1 double precision,
+    rf_2_2 double precision,
+    rf_2_3 double precision,
+    rf_2_4 double precision,
+    rf_2_5 double precision,
+    rf_2_6 double precision,
+    rf_2_7 double precision,
+    rf_2_8 double precision,
+    rf_2_9 double precision,
     rf_3_0 double precision,
+    rf_3_5 double precision,
     rf_4_0 double precision,
     rf_5_0 double precision,
     rf_10_0 double precision,
@@ -334,10 +350,69 @@ CREATE TABLE derived.recurrence_flows_conus (
 );
 
 \copy derived.recurrence_flows_conus from ${HOME}/nwm_v21_recurrence_flows.csv delimiter ',' csv header;
-ALTER TABLE derived.recurrence_flows_conus ADD COLUMN bankfull DOUBLE PRECISION; 
-UPDATE derived.recurrence_flows_conus SET bankfull = ${RECURR_FLOW_CONUS};
+ALTER TABLE derived.recurrence_flows_conus ADD COLUMN bankfull DOUBLE PRECISION;
 CREATE INDEX recurrence_flows_conus_idx ON derived.recurrence_flows_conus USING btree (feature_id);
 ALTER TABLE derived.recurrence_flows_conus OWNER TO viz_proc_admin_rw_user;
+
+CREATE TABLE derived.huc2_rf_thresholds (
+    huc2 integer,
+    region_name text,
+    recurrence_flow text,
+    recurrence_flow_method text,
+    nwm_data_source double precision
+);
+
+\copy derived.huc2_rf_thresholds from ${HOME}/huc2_rf_thresholds.csv delimiter ',' csv header;
+ALTER TABLE derived.huc2_rf_thresholds OWNER TO viz_proc_admin_rw_user;
+
+CREATE TABLE derived.featureid_huc_crosswalk(
+    feature_id integer NOT NULL,
+    huc12 bigint,
+    huc10 bigint,
+    huc8 integer,
+    huc6 integer,
+    huc4 integer,
+    huc2 integer
+);
+
+\copy derived.featureid_huc_crosswalk from ${HOME}/featureid_huc_crosswalk.csv delimiter ',' csv header;
+CREATE INDEX featureid_huc_crosswalk_idx ON derived.featureid_huc_crosswalk USING btree (feature_id);
+ALTER TABLE derived.featureid_huc_crosswalk OWNER TO viz_proc_admin_rw_user;
+
+UPDATE derived.recurrence_flows_conus AS rf_conus
+SET bankfull = CASE
+                                        WHEN hrft.recurrence_flow= 'rf_1_3' THEN rf_1_3
+                                        WHEN hrft.recurrence_flow= 'rf_1_4' THEN rf_1_4
+                                        WHEN hrft.recurrence_flow= 'rf_1_5' THEN rf_1_5
+                                        WHEN hrft.recurrence_flow= 'rf_1_6' THEN rf_1_6
+                                        WHEN hrft.recurrence_flow= 'rf_1_7' THEN rf_1_7
+                                        WHEN hrft.recurrence_flow= 'rf_1_8' THEN rf_1_8
+                                        WHEN hrft.recurrence_flow= 'rf_1_9' THEN rf_1_9
+                                        WHEN hrft.recurrence_flow= 'rf_2_0' THEN rf_2_0
+                                        WHEN hrft.recurrence_flow= 'rf_2_1' THEN rf_2_1
+                                        WHEN hrft.recurrence_flow= 'rf_2_2' THEN rf_2_2
+                                        WHEN hrft.recurrence_flow= 'rf_2_3' THEN rf_2_3
+                                        WHEN hrft.recurrence_flow= 'rf_2_4' THEN rf_2_4
+                                        WHEN hrft.recurrence_flow= 'rf_2_5' THEN rf_2_5
+                                        WHEN hrft.recurrence_flow= 'rf_2_6' THEN rf_2_6
+                                        WHEN hrft.recurrence_flow= 'rf_2_7' THEN rf_2_7
+                                        WHEN hrft.recurrence_flow= 'rf_2_8' THEN rf_2_8
+                                        WHEN hrft.recurrence_flow= 'rf_2_9' THEN rf_2_9
+                                        WHEN hrft.recurrence_flow= 'rf_3_0' THEN rf_3_0
+                                        WHEN hrft.recurrence_flow= 'rf_3_5' THEN rf_3_5
+                                        WHEN hrft.recurrence_flow= 'rf_4_0' THEN rf_4_0
+                                        WHEN hrft.recurrence_flow= 'rf_5_0' THEN rf_5_0
+                                        WHEN hrft.recurrence_flow= 'rf_10_0' THEN rf_10_0
+                                        WHEN hrft.recurrence_flow= 'rf_2_0_17c' THEN rf_2_0_17c
+                                        WHEN hrft.recurrence_flow= 'rf_5_0_17c' THEN rf_5_0_17c
+                                        WHEN hrft.recurrence_flow= 'rf_10_0_17c' THEN rf_10_0_17c
+                                        WHEN hrft.recurrence_flow= 'rf_25_0_17c' THEN rf_25_0_17c
+                                        WHEN hrft.recurrence_flow= 'rf_50_0_17c' THEN rf_50_0_17c
+                                        WHEN hrft.recurrence_flow= 'rf_100_0_17c' THEN rf_100_0_17c
+                                        ELSE NULL
+                           END
+FROM derived.featureid_huc_crosswalk AS fhc, derived.huc2_rf_thresholds AS hrft
+WHERE fhc.feature_id = rf_conus.feature_id AND fhc.huc2 = hrft.huc2;
 
 CREATE TABLE derived.recurrence_flows_hi (
     feature_id integer,

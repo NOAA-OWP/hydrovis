@@ -2,131 +2,70 @@
 
 echo "---- SETTING UP VIZ DB ----"
 
-DBNAME="${DBNAME}"
-DBHOST="${DBHOST}"
-DBPORT=${DBPORT}
-DBUSERNAME="${DBUSERNAME}"
-DBPASSWORD="${DBPASSWORD}"
+VIZDBNAME="${VIZDBNAME}"
+VIZDBHOST="${VIZDBHOST}"
+VIZDBPORT=${VIZDBPORT}
+VIZDBUSERNAME="${VIZDBUSERNAME}"
+VIZDBPASSWORD="${VIZDBPASSWORD}"
+EGISDBNAME="${EGISDBNAME}"
+EGISDBHOST="${EGISDBHOST}"
+EGISDBPORT=${EGISDBPORT}
+EGISDBUSERNAME="${EGISDBUSERNAME}"
+EGISDBPASSWORD="${EGISDBPASSWORD}"
 DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
-DBUSERS="${DBUSERS}"
 HOME="${HOME}"
-FIM_VERSION="${FIM_VERSION}"
 
 ### install postgresql ###
 sudo yum install -y postgresql12
 
-### Constants ###
-DBPASS="$${HOME}/.pgpass"
-HML_S3_PREFIX="ingest/database"
-POSTGIS_SCRIPT="postgis_setup.sql"
-SETUP_SCRIPT="viz_setup.sql"
-SERVICES_CSV="viz/db_pipeline/services.csv"
-CONUS_CH_CSV="viz/authoritative_data/derived_data/nwm_v21_projected/nwm_v21_web_mercator_channels.csv"
-HI_CH_CSV="viz/authoritative_data/derived_data/nwm_v21_projected/nwm_v21_web_mercator_channels_hi.csv"
-PRVI_CH_CSV="viz/authoritative_data/derived_data/nwm_v21_projected/nwm_v21_web_mercator_channels_prvi.csv"
-CONUS_RF_CSV="viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows.csv"
-HI_RF_CSV="viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v20_recurrence_flows_hawaii.csv"
-PRVI_RF_CSV="viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows_prvi.csv"
-FIM_DIR="viz/fim/catchments"
-DOWNLOAD_DIRECTORY="$${HOME}/postgres_data"
-POSTGIS_FILE="$${DOWNLOAD_DIRECTORY}/$${POSTGIS_SCRIPT}"
-SETUP_FILE="/deploy_files/$${SETUP_SCRIPT}"
-DROP_DATABASE=0
-REMOVE_BASE_FILE=0
-REMOVE_SETUP_FILE=0
-REMOVE_DIRECTORY=0
+export PGPASSWORD=$${VIZDBPASSWORD}
 
-export PGPASSWORD=$${DBPASSWORD}
+# Adding postgis extension
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -f "$${HOME}/postgis_setup.sql"
 
-### Create/validate DBpass file ###
-function create_pgpass()
-{
-  local FOUND=0
-  local DBPASSLINE="$${DBHOST}:*:*:$${DBUSERNAME}:$${DBPASSWORD}"
-  ### Check to see if file is present, and if so, validate it ###
-  if [ -f "$${DBPASS}" ]
-  then
-    while IFS= read -r LINE
-    do
-      if [ "$${LINE}" = "$${DBPASSLINE}" ]
-      then
-        FOUND=1
-        break 
-      fi
-    done < "$${DBPASS}"
-    if [ $${FOUND} -eq 0 ]
-    then
-      echo "Appending line to $${DBPASS}"
-      echo "$${DBPASSLINE}" >> "$${DBPASS}"
-    else
-      echo "Matching entry found in $${DBPASS}. No need to modify."
-    fi
-  else
-    echo "Creating new $${DBPASS}..."
-    echo "$${DBPASSLINE}" > "$${DBPASS}"
-  fi
+# Cleaning up DB
+echo "Cleaning up Viz DB..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
 
-  chmod 600 "$${DBPASS}"
-}
+echo "Setting up admin schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_admin.dump" "$${HOME}/vizDB_admin.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_admin.dump"
+rm "$${HOME}/vizDB_admin.dump"
 
-# Create DBPASS
-create_pgpass
+echo "Setting up cache schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_cache.dump" "$${HOME}/vizDB_cache.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_cache.dump"
+rm "$${HOME}/vizDB_cache.dump"
 
-# Download database contents
-echo "Downloading s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${POSTGIS_SCRIPT}..."
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${POSTGIS_SCRIPT} $${DOWNLOAD_DIRECTORY}/
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${SERVICES_CSV} "$${HOME}/services.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${CONUS_CH_CSV} "$${HOME}/nwm_v21_web_mercator_channels.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${HI_CH_CSV} "$${HOME}/nwm_v21_web_mercator_channels_hi.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${PRVI_CH_CSV} "$${HOME}/nwm_v21_web_mercator_channels_prvi.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${CONUS_RF_CSV} "$${HOME}/nwm_v21_recurrence_flows.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${HI_RF_CSV} "$${HOME}/nwm_v20_recurrence_flows_hawaii.csv"
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${PRVI_RF_CSV} "$${HOME}/nwm_v21_recurrence_flows_prvi.csv"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/fim_catchments_$${FIM_VERSION}_fr_hi.csv" "$${HOME}/fim_catchments_$${FIM_VERSION}_fr_hi.csv"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/fim_catchments_$${FIM_VERSION}_fr_prvi.csv" "$${HOME}/fim_catchments_$${FIM_VERSION}_fr_prvi.csv"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/fim_catchments_$${FIM_VERSION}_ms_hi.csv" "$${HOME}/fim_catchments_$${FIM_VERSION}_ms_hi.csv"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/fim_catchments_$${FIM_VERSION}_ms_prvi.csv" "$${HOME}/fim_catchments_$${FIM_VERSION}_ms_prvi.csv"
+echo "Setting up derived schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_derived.dump" "$${HOME}/vizDB_derived.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_derived.dump"
+rm "$${HOME}/vizDB_derived.dump"
 
-# Setting up DB
-echo "Setting up postgis.."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -f "$${POSTGIS_FILE}"
+echo "Setting up simplified fim schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_fim_simplified.dump" "$${HOME}/vizDB_fim_simplified.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_fim_simplified.dump"
+rm "$${HOME}/vizDB_fim_simplified.dump"
 
-# Update users
-echo "Setting up DB..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -f "$${SETUP_FILE}"
+echo "Setting up ingest schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_ingest.dump" "$${HOME}/vizDB_ingest.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_ingest.dump"
+rm "$${HOME}/vizDB_ingest.dump"
 
-rm -f $${HOME}/*
+echo "Setting up publish schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_publish.dump" "$${HOME}/vizDB_publish.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_publish.dump"
+rm "$${HOME}/vizDB_publish.dump"
 
-# Update users
-echo "Setting up CONUS FIM Catchments..."
-for i in $(seq -f "%02g" 1 18); 
-do
-  aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv" "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv"
-  psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "\copy fim.fr_catchments_conus from $${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv delimiter ',' csv header;" 
-  rm "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_fr_conus.csv"
-  
-  aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/$${FIM_DIR}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_ms_conus.csv" "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_ms_conus.csv"
-  psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "\copy fim.ms_catchments_conus from $${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_ms_conus.csv delimiter ',' csv header;" 
-  rm "$${HOME}/huc2_$${i}_fim_catchments_$${FIM_VERSION}_ms_conus.csv"
-done
+export PGPASSWORD=$${EGISDBPASSWORD}
 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "SELECT UpdateGeometrySRID('fim', 'fr_catchments_conus', 'geom', 3857);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_geom_idx ON fim.fr_catchments_conus USING GIST (geom);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX fr_catchments_conus_idx ON fim.fr_catchments_conus USING btree (hydro_id);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "ALTER TABLE fim.fr_catchments_conus OWNER TO viz_proc_admin_rw_user;" 
+# Cleaning up DB
+echo "Cleaning up EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS fim CASCADE;"
 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "SELECT UpdateGeometrySRID('fim', 'ms_catchments_conus', 'geom', 3857);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX ms_catchments_conus_geom_idx ON fim.ms_catchments_conus USING GIST (geom);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "CREATE INDEX ms_catchments_conus_idx ON fim.ms_catchments_conus USING btree (hydro_id);" 
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" -c "ALTER TABLE fim.ms_catchments_conus OWNER TO viz_proc_admin_rw_user;"
-
-# Updating permissions
-echo "Granting database level permissions..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${DBNAME}" \
-    -tAc "REVOKE CONNECT ON DATABASE $${DBNAME} FROM PUBLIC;
-            GRANT CONNECT ON DATABASE $${DBNAME} to $${DBUSERS};
-            COMMENT ON DATABASE $${DBNAME} IS 
-            'database for visualizatoin services';"
-
-DROP_DATABASE=0
+echo "Setting up fim schema in the EGIS DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/vizDB_fim.dump" "$${HOME}/egisDB_reference.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
+rm "$${HOME}/egisDB_reference.dump"
 

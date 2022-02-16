@@ -242,6 +242,11 @@ module "rds-viz" {
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
 }
 
+# Import EGIS DB
+data "aws_db_instance" "egis_rds" {
+  db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
+}
+
 # Lambda Layers
 module "lambda_layers" {
   source = "./LAMBDA/layers"
@@ -279,6 +284,7 @@ module "viz_lambda_functions" {
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
   db_host                       = module.rds-viz.rds-viz-processing.address
+  egis_db_host                  = data.aws_db_instance.egis_rds.address
   db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
@@ -326,6 +332,9 @@ module "rds-bastion" {
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   viz_db_address                  = module.rds-viz.rds-viz-processing.address
   viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_address                 = data.aws_db_instance.egis_rds.address
+  egis_db_port                    = data.aws_db_instance.egis_rds.port
   fim_version                     = local.env.fim_version
 }
 

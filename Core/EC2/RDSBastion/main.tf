@@ -56,6 +56,18 @@ variable "viz_db_port" {
   type = string
 }
 
+variable "egis_db_secret_string" {
+  type = string
+}
+
+variable "egis_db_address" {
+  type = string
+}
+
+variable "egis_db_port" {
+  type = string
+}
+
 variable "data_deployment_bucket" {
   type = string
 }
@@ -97,19 +109,14 @@ variable "fim_version" {
 }
 
 locals {
-  ingest_db_users            = "rfc_fcst, rfc_fcst_ro"
-  location_db_users          = "rfc_fcst_ro, location_ro_user_grp"
-  viz_db_users               = "viz_proc_admin_rw_user"
-  forecast_db                = "rfcfcst"
-  location_db                = "wrds_location3"
-  viz_db                     = "vizprocessing"
-  nwm_viz_ro_password        = jsondecode(var.nwm_viz_ro_secret_string)["password"]
-  rfc_fcst_password          = jsondecode(var.rfc_fcst_secret_string)["password"]
-  rfc_fcst_ro_user_password  = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
-  rfc_fcst_user_password     = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-  location_ro_user_password  = jsondecode(var.location_ro_user_secret_string)["password"]
-  viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-  home_dir                   = "/home/ec2-user"
+  ingest_db_users             = "rfc_fcst, rfc_fcst_ro"
+  location_db_users           = "rfc_fcst_ro, location_ro_user_grp"
+  viz_db_users                = "viz_proc_admin_rw_user"
+  forecast_db                 = "rfcfcst"
+  location_db                 = "wrds_location3"
+  viz_db                      = "vizprocessing"
+  egis_db                     = "hydrovis"
+  home_dir                    = "/home/ec2-user"
 
   mq_vhost = {
     "dev" : "development",
@@ -187,11 +194,11 @@ data "template_file" "ingest_postgresql_setup" {
 data "template_file" "ingest_users" {
   template = file("${path.module}/scripts/ingest/ingest_users.sql")
   vars = {
-    NWM_VIZ_RO       = local.nwm_viz_ro_password
-    RFC_FCST         = local.rfc_fcst_password
-    RFC_FCST_RO_USER = local.rfc_fcst_ro_user_password
-    RFC_FCST_USER    = local.rfc_fcst_user_password
-    LOCATION_RO_USER = local.location_ro_user_password
+    NWM_VIZ_RO       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
+    RFC_FCST         = jsondecode(var.rfc_fcst_secret_string)["password"]
+    RFC_FCST_RO_USER = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
+    RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
+    LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
   }
 }
 
@@ -210,27 +217,18 @@ data "template_file" "rabbitmq_setup" {
 data "template_file" "viz_postgresql_setup" {
   template = file("${path.module}/scripts/viz/postgresql_setup.sh")
   vars = {
-    DBNAME            = local.viz_db
-    DBHOST            = var.viz_db_address
-    DBPORT            = var.viz_db_port
-    DBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
-    DBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
+    VIZDBNAME            = local.viz_db
+    VIZDBHOST            = var.viz_db_address
+    VIZDBPORT            = var.viz_db_port
+    VIZDBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
+    VIZDBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
+    EGISDBNAME            = local.egis_db
+    EGISDBHOST            = var.egis_db_address
+    EGISDBPORT            = var.egis_db_port
+    EGISDBUSERNAME        = jsondecode(var.egis_db_secret_string)["username"]
+    EGISDBPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
     DEPLOYMENT_BUCKET = var.data_deployment_bucket
-    DBUSERS           = local.viz_db_users
     HOME              = local.home_dir
-    FIM_VERSION       = var.fim_version
-  }
-}
-
-data "template_file" "viz_setup" {
-  template = file("${path.module}/scripts/viz/viz_setup.sql")
-  vars = {
-    VIZ_PROC_ADMIN_RW_PASS = local.viz_proc_admin_rw_password
-    RECURR_FLOW_CONUS      = "rf_2_0_17c"
-    RECURR_FLOW_HI         = "rf_2_0"
-    RECURR_FLOW_PRVI       = "rf_2_0"
-    HOME                   = local.home_dir
-    FIM_VERSION            = var.fim_version
   }
 }
 
@@ -268,12 +266,6 @@ data "cloudinit_config" "startup" {
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
         content     = data.template_file.ingest_users.rendered
-      },
-      {
-        path        = "/deploy_files/viz_setup.sql"
-        permissions = "0400"
-        owner       = "ec2-user:ec2-user"
-        content     = data.template_file.viz_setup.rendered
       }
     ]
 })}

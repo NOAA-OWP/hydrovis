@@ -62,8 +62,13 @@ variable "sns_topics" {
   type        = map(any)
 }
 
-variable "db_host" {
+variable "viz_db_host" {
   description = "Hostname of the viz processing RDS instance."
+  type        = string
+}
+
+variable "egis_db_host" {
+  description = "Hostname of the EGIS RDS instance."
   type        = string
 }
 
@@ -119,11 +124,6 @@ variable "viz_lambda_shared_funcs_layer" {
 }
 
 data "aws_caller_identity" "current" {}
-
-# Import the EGIS RDS database data -- Not sure if this should be a variable.
-data "aws_db_instance" "egis_rds" {
-  db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
-}
 
 locals {
   egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
@@ -223,7 +223,7 @@ resource "aws_lambda_function" "viz_inundation_parent" {
   environment {
     variables = {
       DB_DATABASE	                = "vizprocessing"
-      DB_HOST	                    = var.db_host
+      DB_HOST	                    = var.viz_db_host
       DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
       DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET         = var.fim_data_bucket
@@ -299,7 +299,7 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
   environment {
     variables = {
       DB_DATABASE	                = "vizprocessing"
-      DB_HOST	                    = var.db_host
+      DB_HOST	                    = var.viz_db_host
       DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
       DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET          = var.fim_data_bucket
@@ -384,7 +384,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
   environment {
     variables = {
       DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
+      DB_HOST = var.viz_db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
       MAX_WORKERS = 500
@@ -445,7 +445,7 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   environment {
     variables = {
       DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
+      DB_HOST = var.viz_db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
     }
@@ -485,11 +485,11 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   environment {
     variables = {
       DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
+      DB_HOST = var.viz_db_host
       DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
       DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
       RDS_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
-      EGIS_DB_HOST = data.aws_db_instance.egis_rds.address
+      EGIS_DB_HOST = var.egis_db_host
       EGIS_DB_USERNAME = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD = jsondecode(var.egis_db_secret_string)["password"]
       EGIS_DB_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
