@@ -9,7 +9,7 @@ The main folder that holds the infrastructure for the ti/uat/prod environments i
 In order to use this repository, you need to do the following:
 
  - Clone this repository.
- - Copy the `sentitive` data folder from other loction into the `Core` folder of this repo.
+ - Copy the `sentitive` data folder from other location into the `Core` folder of this repo.
  - Install the AWS CLI tools and Terraform onto your machine.
  - Follow the instructions found [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) and [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) to get aws profiles set up for the ti/uat/prod environments.
  - Run `terraform init` in the `Core` folder to get everything initialized.
