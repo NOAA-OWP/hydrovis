@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.52"
+      version = "3.70"
     }
   }
   backend "s3" {
@@ -106,7 +106,9 @@ module "s3" {
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
+      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -125,7 +127,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
-    ] 
+    ]
   }
 }
 
@@ -162,10 +164,12 @@ module "s3-replication" {
 module "vpc" {
   source = "./VPC"
 
-  environment    = local.env.environment
-  region         = local.env.region
-  vpc_ip_block   = local.env.vpc_ip_block
-  nwave_ip_block = local.env.nwave_ip_block
+  environment                        = local.env.environment
+  region                             = local.env.region
+  vpc_ip_block                       = local.env.vpc_ip_block
+  nwave_ip_block                     = local.env.nwave_ip_block
+  public_route_peering_ip_block      = local.env.public_route_peering_ip_block
+  public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
 # SGs
@@ -191,6 +195,17 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_listener" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -474,10 +489,10 @@ module "egis_license_manager" {
 module "egis_monitor" {
   source = "./EC2/ArcGIS_Monitor"
 
-  environment                    = local.env.environment
-  ami_owner_account_id           = local.env.ami_owner_account_id
-  region                         = local.env.region
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-web1a.id
+  environment          = local.env.environment
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
+  ec2_instance_subnet  = module.vpc.subnet_hydrovis-sn-prv-web1a.id
   ec2_instance_sgs = [
     module.security-groups.ssm-session-manager-sg.id,
     module.security-groups.egis-overlord.id

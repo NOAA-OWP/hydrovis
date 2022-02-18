@@ -1,6 +1,7 @@
 <powershell>
 Write-Host "Setting up ${PIPELINE_USER} profile"
 Add-LocalGroupMember -Group "Administrators" -Member ${PIPELINE_USER}
+
 # This command will fail but that is on purpose. It will initialize the profile which is what we want
 $securePassword = ConvertTo-SecureString ${PIPELINE_USER}_ACCOUNT_PASSWORD -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential ${PIPELINE_USER}, $securePassword
@@ -255,6 +256,9 @@ $ACL | Set-Acl -Path "D:\"
 LogWrite "ADDING $PUBLISHED_ROOT TO ${EGIS_HOST}"
 Set-Location -Path $VIZ_DIR
 & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\update_data_stores.py ${EGIS_HOST} $PUBLISHED_ROOT "hydrovis.proc" ${HYDROVIS_EGIS_PASS}
+
+Set-Location HKCU:\Software\ESRI\ArcGISPro
+Remove-Item -Recurse -Force -Confirm:$false Licensing
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing

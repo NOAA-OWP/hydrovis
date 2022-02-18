@@ -210,6 +210,77 @@ resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
   policy = data.template_file.HydroVISSSMPolicy-template.rendered
 }
 
+#ECS Execution Role
+resource "aws_iam_role" "ecs-task-execution-role" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy" "ecs_task_execution_policy" {
+  name = "AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-policy" {
+  name   = "ecs-task-execution-policy"
+  role   = aws_iam_role.ecs-task-execution-role.id
+  policy = data.aws_iam_policy.ecs_task_execution_policy.policy
+}
+
+data "template_file" "hydrovis-cloudwatch-log-template" {
+  template = file("${path.module}/hydrovis-cloudwatch-log-template.json")
+  vars = {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  }
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
+  name   = "ecs-task-execution-cloudwatch-log-policy"
+  role   = aws_iam_role.ecs-task-execution-role.id
+  policy = data.template_file.hydrovis-cloudwatch-log-template.rendered
+}
+
+# ECS Container Role
+resource "aws_iam_role" "hydrovis-ecs-resource-access" {
+  name = "HydroVIS-ECS-Container-Resource-Access"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "ecs-tasks.amazonaws.com",
+            "ecs.amazonaws.com"
+          ]
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
+  name   = "hydrovis-cloudwatch-log-policy"
+  role   = aws_iam_role.hydrovis-ecs-resource-access.id
+  policy = data.template_file.hydrovis-cloudwatch-log-template.rendered
+}
 
 output "role_autoscaling" {
   value = aws_iam_service_linked_role.autoscaling
@@ -249,4 +320,12 @@ output "role_Hydroviz-RnR-EC2-Profile" {
 
 output "profile_Hydroviz-RnR-EC2-Profile" {
   value = aws_iam_instance_profile.Hydroviz-RnR-EC2-Profile
+}
+
+output "role_hydrovis-ecs-resource-access" {
+  value = aws_iam_role.hydrovis-ecs-resource-access
+}
+
+output "role_ecs-task-execution" {
+  value = aws_iam_role.ecs-task-execution-role
 }

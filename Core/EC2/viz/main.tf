@@ -8,7 +8,7 @@ variable "environment" {
 }
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "region" {
@@ -221,8 +221,8 @@ data "template_file" "pipeline_setup" {
 }
 
 data "template_cloudinit_config" "pipeline_setup" {
-  gzip          = false
-  base64_encode = false
+  gzip          = true
+  base64_encode = true
 
   part {
     content_type = "text/x-shellscript"

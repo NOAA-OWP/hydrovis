@@ -93,7 +93,7 @@ resource "aws_iam_role" "hml-replication" {
   )
 
   inline_policy {
-    name   = "HMLBucketReplicationPolicy"
+    name = "HMLBucketReplicationPolicy"
     policy = jsonencode(
       {
         Version = "2012-10-17"
@@ -211,7 +211,7 @@ resource "aws_s3_bucket" "hydrovis-hml-incoming" {
       filter {}
 
       destination {
-        account_id         = "${var.uat_account_id}"
+        account_id         = var.uat_account_id
         bucket             = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-hml-us-east-1-s3"
 
@@ -234,7 +234,7 @@ resource "aws_s3_bucket" "hydrovis-hml-incoming" {
       filter {}
 
       destination {
-        account_id         = "${var.ti_account_id}"
+        account_id         = var.ti_account_id
         bucket             = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-hml-us-east-1-s3"
 
@@ -435,7 +435,7 @@ resource "aws_iam_role" "nwm-replication" {
   )
 
   inline_policy {
-    name   = "HMLBucketReplicationPolicy"
+    name = "HMLBucketReplicationPolicy"
     policy = jsonencode(
       {
         Version = "2012-10-17"
@@ -553,7 +553,7 @@ resource "aws_s3_bucket" "hydrovis-nwm-incoming" {
       filter {}
 
       destination {
-        account_id         = "${var.uat_account_id}"
+        account_id         = var.uat_account_id
         bucket             = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-nwm-us-east-1-s3"
 
@@ -576,7 +576,7 @@ resource "aws_s3_bucket" "hydrovis-nwm-incoming" {
       filter {}
 
       destination {
-        account_id         = "${var.ti_account_id}"
+        account_id         = var.ti_account_id
         bucket             = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-nwm-us-east-1-s3"
 
