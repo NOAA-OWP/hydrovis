@@ -222,14 +222,14 @@ resource "aws_iam_role" "ecs-task-execution-role" {
         Effect = "Allow"
         Sid    = ""
         Principal = {
-          Service ="ecs-tasks.amazonaws.com"
+          Service = "ecs-tasks.amazonaws.com"
         }
       }
     ]
   })
 }
 
-data "aws_iam_policy" "ecs_task_execution_policy"{
+data "aws_iam_policy" "ecs_task_execution_policy" {
   name = "AmazonECSTaskExecutionRolePolicy"
 }
 
@@ -249,8 +249,8 @@ data "template_file" "hydrovis-cloudwatch-log-template" {
 }
 
 resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
-  name = "ecs-task-execution-cloudwatch-log-policy"
-  role = aws_iam_role.ecs-task-execution-role.id
+  name   = "ecs-task-execution-cloudwatch-log-policy"
+  role   = aws_iam_role.ecs-task-execution-role.id
   policy = data.template_file.hydrovis-cloudwatch-log-template.rendered
 }
 

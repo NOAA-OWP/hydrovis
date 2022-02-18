@@ -50,6 +50,7 @@ resource "aws_security_group" "es-sg" {
     {
       cidr_blocks = [
         var.vpc_main_cidr_block,
+        var.nwave_ip_block,
       ]
       description      = ""
       from_port        = 443

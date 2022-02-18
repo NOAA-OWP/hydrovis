@@ -6,6 +6,14 @@ variable "nwave_ip_block" {
   type = string
 }
 
+variable "public_route_peering_ip_block" {
+  type = string
+}
+
+variable "public_route_peering_connection_id" {
+  type = string
+}
+
 variable "environment" {
   type = string
 }
@@ -25,6 +33,39 @@ locals {
     "uat" : cidrsubnet(var.nwave_ip_block, 1, 0),
     "prod" : cidrsubnet(var.nwave_ip_block, 1, 1)
   }
+  public_route_default = {
+    cidr_block                 = "0.0.0.0/0"
+    gateway_id                 = data.aws_vpn_gateway.main.id
+    nat_gateway_id             = ""
+    carrier_gateway_id         = ""
+    destination_prefix_list_id = ""
+    egress_only_gateway_id     = ""
+    instance_id                = ""
+    ipv6_cidr_block            = ""
+    local_gateway_id           = ""
+    network_interface_id       = ""
+    transit_gateway_id         = ""
+    vpc_endpoint_id            = ""
+    vpc_peering_connection_id  = ""
+  }
+  public_route = var.public_route_peering_ip_block != "" ? [
+    local.public_route_default,
+    {
+      carrier_gateway_id         = ""
+      cidr_block                 = var.public_route_peering_ip_block
+      destination_prefix_list_id = ""
+      egress_only_gateway_id     = ""
+      gateway_id                 = ""
+      instance_id                = ""
+      ipv6_cidr_block            = ""
+      local_gateway_id           = ""
+      nat_gateway_id             = ""
+      network_interface_id       = ""
+      transit_gateway_id         = ""
+      vpc_endpoint_id            = ""
+      vpc_peering_connection_id  = var.public_route_peering_connection_id
+    }
+  ] : [local.public_route_default]
 }
 
 resource "aws_vpc" "main" {
@@ -171,24 +212,9 @@ resource "aws_subnet" "hydrovis-sn-prv-web1b" {
 }
 
 
+
 resource "aws_route_table" "public" {
-  route = [
-    {
-      cidr_block                 = "0.0.0.0/0"
-      gateway_id                 = data.aws_vpn_gateway.main.id
-      nat_gateway_id             = ""
-      carrier_gateway_id         = ""
-      destination_prefix_list_id = ""
-      egress_only_gateway_id     = ""
-      instance_id                = ""
-      ipv6_cidr_block            = ""
-      local_gateway_id           = ""
-      network_interface_id       = ""
-      transit_gateway_id         = ""
-      vpc_endpoint_id            = ""
-      vpc_peering_connection_id  = ""
-    }
-  ]
+  route = local.public_route
   vpc_id = aws_vpc.main.id
 }
 
