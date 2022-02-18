@@ -233,7 +233,7 @@ module "rds-viz" {
 
 # Import EGIS DB
 data "aws_db_instance" "egis_rds" {
-  db_instance_identifier = "hv-${local.env.environment}-egis-rds-pg-egdb"
+  db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
 }
 
 # Lambda Layers
