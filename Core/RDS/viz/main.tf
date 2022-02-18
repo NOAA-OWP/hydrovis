@@ -22,6 +22,10 @@ variable "db_viz_processing_secret_string" {
   type = string
 }
 
+variable "viz_db_name" {
+  type = string
+}
+
 resource "aws_db_subnet_group" "viz-processing" {
   name       = "rds_viz-processing_${var.environment}"
   subnet_ids = [var.subnet-app1a, var.subnet-app1b]
@@ -32,7 +36,7 @@ resource "aws_db_subnet_group" "viz-processing" {
 
 resource "aws_db_instance" "viz-processing" {
   identifier                   = "hydrovis-${var.environment}-viz-processing"
-  name                         = "vizprocessing"
+  name                         = var.viz_db_name
   instance_class               = "db.r6g.large"
   allocated_storage            = 100
   storage_type                 = "gp2"

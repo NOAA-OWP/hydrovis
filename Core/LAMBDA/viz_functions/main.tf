@@ -67,12 +67,17 @@ variable "viz_db_host" {
   type        = string
 }
 
+variable "viz_db_name" {
+  description = "DB Name of the viz processing RDS instance."
+  type        = string
+}
+
 variable "egis_db_host" {
   description = "Hostname of the EGIS RDS instance."
   type        = string
 }
 
-variable "db_user_secret_string" {
+variable "viz_db_user_secret_string" {
   description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
@@ -222,10 +227,10 @@ resource "aws_lambda_function" "viz_inundation_parent" {
 
   environment {
     variables = {
-      DB_DATABASE	                = "vizprocessing"
+      DB_DATABASE	                = var.viz_db_name
       DB_HOST	                    = var.viz_db_host
-      DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
-      DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
+      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET         = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX     = "empty_rasters/mrf"
       FIM_DATA_BUCKET             = var.fim_data_bucket
@@ -298,10 +303,10 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
 
   environment {
     variables = {
-      DB_DATABASE	                = "vizprocessing"
+      DB_DATABASE	                = var.viz_db_name
       DB_HOST	                    = var.viz_db_host
-      DB_PASSWORD	                = jsondecode(var.db_user_secret_string)["password"]
-      DB_USERNAME	                = jsondecode(var.db_user_secret_string)["username"]
+      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET          = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX      = "empty_rasters/mrf"
       FR_FIM_BUCKET                = var.fim_data_bucket
@@ -383,10 +388,10 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
+      DB_DATABASE = var.viz_db_name
       DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
       MAX_WORKERS = 500
       MRF_TIMESTEP = 3
       WORKER_LAMBDA_NAME = resource.aws_lambda_function.viz_db_ingest_worker.function_name
@@ -444,10 +449,10 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
+      DB_DATABASE = var.viz_db_name
       DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket = var.lambda_data_bucket
@@ -484,10 +489,10 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
+      DB_DATABASE = var.viz_db_name
       DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
       RDS_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
       EGIS_DB_HOST = var.egis_db_host
       EGIS_DB_USERNAME = jsondecode(var.egis_db_secret_string)["username"]

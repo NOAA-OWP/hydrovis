@@ -56,6 +56,10 @@ variable "viz_db_port" {
   type = string
 }
 
+variable "viz_db_name" {
+  type = string
+}
+
 variable "egis_db_secret_string" {
   type = string
 }
@@ -65,6 +69,10 @@ variable "egis_db_address" {
 }
 
 variable "egis_db_port" {
+  type = string
+}
+
+variable "egis_db_name" {
   type = string
 }
 
@@ -108,14 +116,18 @@ variable "fim_version" {
   type = string
 }
 
+variable "forecast_db_name" {
+  type = string
+}
+
+variable "location_db_name" {
+  type = string
+}
+
 locals {
   ingest_db_users             = "rfc_fcst, rfc_fcst_ro"
   location_db_users           = "rfc_fcst_ro, location_ro_user_grp"
   viz_db_users                = "viz_proc_admin_rw_user"
-  forecast_db                 = "rfcfcst"
-  location_db                 = "wrds_location3"
-  viz_db                      = "vizprocessing"
-  egis_db                     = "hydrovis"
   home_dir                    = "/home/ec2-user"
 
   mq_vhost = {
@@ -179,8 +191,8 @@ data "aws_ami" "linux" {
 data "template_file" "ingest_postgresql_setup" {
   template = file("${path.module}/scripts/ingest/postgresql_setup.sh")
   vars = {
-    FORECASTDB        = local.forecast_db
-    LOCATIONDB        = local.location_db
+    FORECASTDB        = var.forecast_db_name
+    LOCATIONDB        = var.location_db_name
     INGESTDBUSERS     = local.ingest_db_users
     LOCATIONDBUSERS   = local.location_db_users
     DBHOST            = var.ingest_db_address
@@ -217,12 +229,12 @@ data "template_file" "rabbitmq_setup" {
 data "template_file" "viz_postgresql_setup" {
   template = file("${path.module}/scripts/viz/postgresql_setup.sh")
   vars = {
-    VIZDBNAME            = local.viz_db
+    VIZDBNAME            = var.viz_db_name
     VIZDBHOST            = var.viz_db_address
     VIZDBPORT            = var.viz_db_port
     VIZDBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
     VIZDBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
-    EGISDBNAME            = local.egis_db
+    EGISDBNAME            = var.egis_db_name
     EGISDBHOST            = var.egis_db_address
     EGISDBPORT            = var.egis_db_port
     EGISDBUSERNAME        = jsondecode(var.egis_db_secret_string)["username"]
@@ -271,16 +283,4 @@ data "cloudinit_config" "startup" {
 })}
     END
 }
-}
-
-output "forecast_db" {
-  value = local.forecast_db
-}
-
-output "location_db" {
-  value = local.location_db
-}
-
-output "viz_db" {
-  value = local.viz_db
 }

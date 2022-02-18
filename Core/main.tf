@@ -240,6 +240,7 @@ module "rds-viz" {
   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   rds_kms_key                       = module.kms.key_arns["rds-viz"]
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+  viz_db_name                       = local.env.viz_db_name
 }
 
 # Import EGIS DB
@@ -283,9 +284,10 @@ module "viz_lambda_functions" {
 
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-  db_host                       = module.rds-viz.rds-viz-processing.address
+  viz_db_host                   = module.rds-viz.rds-viz-processing.address
+  viz_db_name                   = local.env.viz_db_name
   egis_db_host                  = data.aws_db_instance.egis_rds.address
-  db_user_secret_string         = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 }
@@ -324,6 +326,8 @@ module "rds-bastion" {
   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
+  location_db_name               = local.env.location_db_name
+  forecast_db_name               = local.env.forecast_db_name
 
   ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
   ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
@@ -332,9 +336,11 @@ module "rds-bastion" {
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   viz_db_address                  = module.rds-viz.rds-viz-processing.address
   viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  viz_db_name                     = local.env.viz_db_name
   egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_db_address                 = data.aws_db_instance.egis_rds.address
   egis_db_port                    = data.aws_db_instance.egis_rds.port
+  egis_db_name                    = local.env.egis_db_name
   fim_version                     = local.env.fim_version
 }
 
@@ -437,8 +443,8 @@ module "data-services" {
   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
   rds_host                           = module.rds-ingest.rds-ingest.address
-  location_db_name                   = module.rds-bastion.location_db
-  forecast_db_name                   = module.rds-bastion.forecast_db
+  location_db_name                   = local.env.location_db_name
+  forecast_db_name                   = local.env.forecast_db_name
   location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
   forecast_credentials_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   logstash_ip                        = module.monitoring.aws_instance_logstash.private_ip
@@ -527,6 +533,12 @@ module "viz_ec2" {
   logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
   vlab_host                   = local.env.viz_ec2_vlab_host
+  viz_db_host                 = module.rds-viz.rds-viz-processing.address
+  viz_db_name                 = local.env.viz_db_name
+  viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_host                = data.aws_db_instance.egis_rds.address
+  egis_db_name                = local.env.egis_db_name
+  egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
 }
 
 module "nginx_fargate" {

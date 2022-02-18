@@ -18,6 +18,15 @@ $WINDOWS_SERVICE_STARTUP = '${WINDOWS_SERVICE_STARTUP}'
 $PIPELINE_USER = '${PIPELINE_USER}'
 $PIPELINE_USER_ACCOUNT_PASSWORD = '${PIPELINE_USER_ACCOUNT_PASSWORD}'
 
+$VIZ_DB_HOST = '${VIZ_DB_HOST}'
+$VIZ_DB_DATABASE = '${VIZ_DB_DATABASE}'
+$VIZ_DB_USERNAME = '${VIZ_DB_USERNAME}'
+$VIZ_DB_PASSWORD = '${VIZ_DB_PASSWORD}'
+$EGIS_DB_HOST = '${EGIS_DB_HOST}'
+$EGIS_DB_DATABASE = '${EGIS_DB_DATABASE}'
+$EGIS_DB_USERNAME = '${EGIS_DB_USERNAME}'
+$EGIS_DB_PASSWORD = '${EGIS_DB_PASSWORD}'
+
 $HYDROVIS_EGIS_USER = "hydrovis.proc"
 $HYDROVIS_EGIS_PASS = '${HYDROVIS_EGIS_PASS}'
 
@@ -150,6 +159,14 @@ LogWrite "Setting up environment variables"
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $FIM_OUTPUT_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("LOGSTASH_SOCKET", "$LOGSTASH_IP`:5000", "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_HOST", $VIZ_DB_HOST, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_DATABASE", $VIZ_DB_DATABASE, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_USERNAME", $VIZ_DB_USERNAME, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_PASSWORD", $VIZ_DB_PASSWORD, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_HOST", $EGIS_DB_HOST, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_DATABASE", $EGIS_DB_DATABASE, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_USERNAME", $EGIS_DB_USERNAME, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_PASSWORD", $EGIS_DB_PASSWORD, "2")
 
 function GetRepo
 {
