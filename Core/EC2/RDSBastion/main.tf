@@ -56,6 +56,26 @@ variable "viz_db_port" {
   type = string
 }
 
+variable "viz_db_name" {
+  type = string
+}
+
+variable "egis_db_secret_string" {
+  type = string
+}
+
+variable "egis_db_address" {
+  type = string
+}
+
+variable "egis_db_port" {
+  type = string
+}
+
+variable "egis_db_name" {
+  type = string
+}
+
 variable "data_deployment_bucket" {
   type = string
 }
@@ -92,20 +112,23 @@ variable "viz_proc_admin_rw_secret_string" {
   type = string
 }
 
+variable "fim_version" {
+  type = string
+}
+
+variable "forecast_db_name" {
+  type = string
+}
+
+variable "location_db_name" {
+  type = string
+}
+
 locals {
-  ingest_db_users            = "rfc_fcst, rfc_fcst_ro"
-  location_db_users          = "rfc_fcst_ro, location_ro_user_grp"
-  viz_db_users               = "viz_proc_admin_rw_user"
-  forecast_db                = "rfcfcst"
-  location_db                = "wrds_location3"
-  viz_db                     = "vizprocessing"
-  nwm_viz_ro_password        = jsondecode(var.nwm_viz_ro_secret_string)["password"]
-  rfc_fcst_password          = jsondecode(var.rfc_fcst_secret_string)["password"]
-  rfc_fcst_ro_user_password  = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
-  rfc_fcst_user_password     = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-  location_ro_user_password  = jsondecode(var.location_ro_user_secret_string)["password"]
-  viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-  home_dir                   = "/home/ec2-user"
+  ingest_db_users             = "rfc_fcst, rfc_fcst_ro"
+  location_db_users           = "rfc_fcst_ro, location_ro_user_grp"
+  viz_db_users                = "viz_proc_admin_rw_user"
+  home_dir                    = "/home/ec2-user"
 
   mq_vhost = {
     "dev" : "development",
@@ -124,7 +147,7 @@ locals {
 resource "aws_instance" "rds-bastion" {
   ami                    = data.aws_ami.linux.id
   iam_instance_profile   = var.ec2_instance_profile_name
-  instance_type          = "m1.small"
+  instance_type          = "m5.large"
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
@@ -139,7 +162,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   root_block_device {
-    volume_size = 12
+    volume_size = 40
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     volume_type = "gp2"
@@ -168,8 +191,8 @@ data "aws_ami" "linux" {
 data "template_file" "ingest_postgresql_setup" {
   template = file("${path.module}/scripts/ingest/postgresql_setup.sh")
   vars = {
-    FORECASTDB        = local.forecast_db
-    LOCATIONDB        = local.location_db
+    FORECASTDB        = var.forecast_db_name
+    LOCATIONDB        = var.location_db_name
     INGESTDBUSERS     = local.ingest_db_users
     LOCATIONDBUSERS   = local.location_db_users
     DBHOST            = var.ingest_db_address
@@ -183,11 +206,11 @@ data "template_file" "ingest_postgresql_setup" {
 data "template_file" "ingest_users" {
   template = file("${path.module}/scripts/ingest/ingest_users.sql")
   vars = {
-    NWM_VIZ_RO       = local.nwm_viz_ro_password
-    RFC_FCST         = local.rfc_fcst_password
-    RFC_FCST_RO_USER = local.rfc_fcst_ro_user_password
-    RFC_FCST_USER    = local.rfc_fcst_user_password
-    LOCATION_RO_USER = local.location_ro_user_password
+    NWM_VIZ_RO       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
+    RFC_FCST         = jsondecode(var.rfc_fcst_secret_string)["password"]
+    RFC_FCST_RO_USER = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
+    RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
+    LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
   }
 }
 
@@ -206,25 +229,18 @@ data "template_file" "rabbitmq_setup" {
 data "template_file" "viz_postgresql_setup" {
   template = file("${path.module}/scripts/viz/postgresql_setup.sh")
   vars = {
-    DBNAME            = local.viz_db
-    DBHOST            = var.viz_db_address
-    DBPORT            = var.viz_db_port
-    DBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
-    DBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
+    VIZDBNAME            = var.viz_db_name
+    VIZDBHOST            = var.viz_db_address
+    VIZDBPORT            = var.viz_db_port
+    VIZDBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
+    VIZDBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
+    EGISDBNAME            = var.egis_db_name
+    EGISDBHOST            = var.egis_db_address
+    EGISDBPORT            = var.egis_db_port
+    EGISDBUSERNAME        = jsondecode(var.egis_db_secret_string)["username"]
+    EGISDBPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
     DEPLOYMENT_BUCKET = var.data_deployment_bucket
-    DBUSERS           = local.viz_db_users
     HOME              = local.home_dir
-  }
-}
-
-data "template_file" "viz_setup" {
-  template = file("${path.module}/scripts/viz/viz_setup.sql")
-  vars = {
-    VIZ_PROC_ADMIN_RW_PASS = local.viz_proc_admin_rw_password
-    RECURR_FLOW_CONUS      = "rf_2_0_17c"
-    RECURR_FLOW_HI         = "rf_2_0"
-    RECURR_FLOW_PRVI       = "rf_2_0"
-    HOME                   = local.home_dir
   }
 }
 
@@ -262,27 +278,9 @@ data "cloudinit_config" "startup" {
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
         content     = data.template_file.ingest_users.rendered
-      },
-      {
-        path        = "/deploy_files/viz_setup.sql"
-        permissions = "0400"
-        owner       = "ec2-user:ec2-user"
-        content     = data.template_file.viz_setup.rendered
       }
     ]
 })}
     END
 }
-}
-
-output "forecast_db" {
-  value = local.forecast_db
-}
-
-output "location_db" {
-  value = local.location_db
-}
-
-output "viz_db" {
-  value = local.viz_db
 }
