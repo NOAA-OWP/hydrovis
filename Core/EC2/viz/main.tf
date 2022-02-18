@@ -121,6 +121,30 @@ variable "vlab_host" {
   type = string
 }
 
+variable "viz_db_host" {
+  type = string
+}
+
+variable "viz_db_name" {
+  type = string
+}
+
+variable "viz_db_user_secret_string" {
+  type = string
+}
+
+variable "egis_db_host" {
+  type = string
+}
+
+variable "egis_db_name" {
+  type = string
+}
+
+variable "egis_db_secret_string" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
@@ -185,6 +209,14 @@ data "template_file" "pipeline_setup" {
     LOGSTASH_IP                    = var.logstash_ip
     VLAB_REPO_PREFIX               = var.vlab_repo_prefix
     VLAB_HOST                      = var.vlab_host
+    VIZ_DB_HOST                    = var.viz_db_host
+    VIZ_DB_DATABASE                = var.viz_db_name
+    VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
+    VIZ_DB_PASSWORD                = jsondecode(var.viz_db_user_secret_string)["password"]
+    EGIS_DB_HOST                   = var.egis_db_host
+    EGIS_DB_DATABASE               = var.egis_db_name
+    EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
+    EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
   }
 }
 

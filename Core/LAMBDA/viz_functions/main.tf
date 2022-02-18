@@ -62,12 +62,22 @@ variable "sns_topics" {
   type        = map(any)
 }
 
-variable "db_host" {
+variable "viz_db_host" {
   description = "Hostname of the viz processing RDS instance."
   type        = string
 }
 
-variable "db_user_secret_string" {
+variable "viz_db_name" {
+  description = "DB Name of the viz processing RDS instance."
+  type        = string
+}
+
+variable "egis_db_host" {
+  description = "Hostname of the EGIS RDS instance."
+  type        = string
+}
+
+variable "viz_db_user_secret_string" {
   description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
@@ -119,11 +129,6 @@ variable "viz_lambda_shared_funcs_layer" {
 }
 
 data "aws_caller_identity" "current" {}
-
-# Import the EGIS RDS database data -- Not sure if this should be a variable.
-data "aws_db_instance" "egis_rds" {
-  db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
-}
 
 locals {
   egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
@@ -222,9 +227,14 @@ resource "aws_lambda_function" "viz_inundation_parent" {
 
   environment {
     variables = {
+      DB_DATABASE	                = var.viz_db_name
+      DB_HOST	                    = var.viz_db_host
+      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET         = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX     = "empty_rasters/mrf"
       FIM_DATA_BUCKET             = var.fim_data_bucket
+      FIM_VERSION                 = var.fim_version
       VIZ_AUTHORITATIVE_BUCKET    = var.viz_authoritative_bucket
       NWM_DATA_BUCKET             = var.nwm_data_bucket
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
@@ -235,7 +245,6 @@ resource "aws_lambda_function" "viz_inundation_parent" {
       RECURRENCE_HAWAII_BANKFULL  = "2_0_year_recurrence_flow"
       RECURRENCE_PRVI_FILENAME    = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows_prvi.nc"
       RECURRENCE_PRVI_BANKFULL    = "2_0_year_recurrence_flow"
-      FIM_VERSION                 = var.fim_version
       max_flows_function          = resource.aws_lambda_function.viz_max_flows.arn
       viz_huc_inundation_function = resource.aws_lambda_function.viz_huc_inundation_processing.arn
     }
@@ -253,11 +262,17 @@ resource "aws_lambda_function" "viz_inundation_parent" {
     var.multiprocessing_layer,
     var.xarray_layer,
     var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.viz_lambda_shared_funcs_layer,
+    var.psycopg2_sqlalchemy_layer
   ]
 
   tags = {
     "Name" = "viz_inundation_parent_${var.environment}"
+  }
+
+  vpc_config {
+  	security_group_ids = var.db_lambda_security_groups
+  	subnet_ids = var.db_lambda_subnets
   }
 }
 
@@ -288,6 +303,10 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
 
   environment {
     variables = {
+      DB_DATABASE	                = var.viz_db_name
+      DB_HOST	                    = var.viz_db_host
+      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
+      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET          = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX      = "empty_rasters/mrf"
       FR_FIM_BUCKET                = var.fim_data_bucket
@@ -312,11 +331,17 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
     var.rasterio_layer,
     var.pandas_layer,
     var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.viz_lambda_shared_funcs_layer,
+    var.psycopg2_sqlalchemy_layer
   ]
 
   tags = {
     "Name" = "viz_huc_inundation_processing_${var.environment}"
+  }
+
+  vpc_config {
+  	security_group_ids = var.db_lambda_security_groups
+  	subnet_ids = var.db_lambda_subnets
   }
 }
 
@@ -363,10 +388,10 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_DATABASE = var.viz_db_name
+      DB_HOST = var.viz_db_host
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
       MAX_WORKERS = 500
       MRF_TIMESTEP = 3
       WORKER_LAMBDA_NAME = resource.aws_lambda_function.viz_db_ingest_worker.function_name
@@ -424,10 +449,10 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_DATABASE = var.viz_db_name
+      DB_HOST = var.viz_db_host
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket = var.lambda_data_bucket
@@ -464,12 +489,12 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   }
   environment {
     variables = {
-      DB_DATABASE = "vizprocessing"
-      DB_HOST = var.db_host
-      DB_USERNAME = jsondecode(var.db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.db_user_secret_string)["password"]
+      DB_DATABASE = var.viz_db_name
+      DB_HOST = var.viz_db_host
+      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
       RDS_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
-      EGIS_DB_HOST = data.aws_db_instance.egis_rds.address
+      EGIS_DB_HOST = var.egis_db_host
       EGIS_DB_USERNAME = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD = jsondecode(var.egis_db_secret_string)["password"]
       EGIS_DB_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
