@@ -329,8 +329,8 @@ module "rds-bastion" {
   location_db_name               = local.env.location_db_name
   forecast_db_name               = local.env.forecast_db_name
 
-  ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
@@ -539,18 +539,4 @@ module "viz_ec2" {
   egis_db_host                = data.aws_db_instance.egis_rds.address
   egis_db_name                = local.env.egis_db_name
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-}
-
-module "nginx_fargate" {
-  source = "./ECS/NGINX"
-
-  environment        = local.env.environment
-  region             = local.env.region
-  deployment_bucket  = module.s3.buckets["deployment"].bucket
-  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
-  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
-  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
-  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
-  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
 }
