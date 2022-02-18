@@ -18,6 +18,15 @@ $WINDOWS_SERVICE_STARTUP = '${WINDOWS_SERVICE_STARTUP}'
 $PIPELINE_USER = '${PIPELINE_USER}'
 $PIPELINE_USER_ACCOUNT_PASSWORD = '${PIPELINE_USER_ACCOUNT_PASSWORD}'
 
+$VIZ_DB_HOST = '${VIZ_DB_HOST}'
+$VIZ_DB_DATABASE = '${VIZ_DB_DATABASE}'
+$VIZ_DB_USERNAME = '${VIZ_DB_USERNAME}'
+$VIZ_DB_PASSWORD = '${VIZ_DB_PASSWORD}'
+$EGIS_DB_HOST = '${EGIS_DB_HOST}'
+$EGIS_DB_DATABASE = '${EGIS_DB_DATABASE}'
+$EGIS_DB_USERNAME = '${EGIS_DB_USERNAME}'
+$EGIS_DB_PASSWORD = '${EGIS_DB_PASSWORD}'
+
 $HYDROVIS_EGIS_USER = "hydrovis.proc"
 $HYDROVIS_EGIS_PASS = '${HYDROVIS_EGIS_PASS}'
 
@@ -150,6 +159,14 @@ LogWrite "Setting up environment variables"
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $FIM_OUTPUT_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("LOGSTASH_SOCKET", "$LOGSTASH_IP`:5000", "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_HOST", $VIZ_DB_HOST, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_DATABASE", $VIZ_DB_DATABASE, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_USERNAME", $VIZ_DB_USERNAME, "2")
+[Environment]::SetEnvironmentVariable("VIZ_DB_PASSWORD", $VIZ_DB_PASSWORD, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_HOST", $EGIS_DB_HOST, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_DATABASE", $EGIS_DB_DATABASE, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_USERNAME", $EGIS_DB_USERNAME, "2")
+[Environment]::SetEnvironmentVariable("EGIS_DB_PASSWORD", $EGIS_DB_PASSWORD, "2")
 
 function GetRepo
 {
@@ -258,9 +275,6 @@ $env:AUTHORITATIVE_ROOT = $AUTHORITATIVE_ROOT
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
 & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\create_s3_connection_files.py
 
-Set-Location HKCU:\Software\ESRI\ArcGISPro
-Remove-Item -Recurse -Force -Confirm:$false Licensing
-
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
 $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("everyone","FullControl", "Allow")
@@ -276,6 +290,9 @@ $ACL | Set-Acl -Path "D:\"
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 Set-Location -Path $VIZ_DIR
 & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\update_data_stores.py $EGIS_HOST $PUBLISHED_ROOT $HYDROVIS_EGIS_USER $HYDROVIS_EGIS_PASS
+
+Set-Location HKCU:\Software\ESRI\ArcGISPro
+Remove-Item -Recurse -Force -Confirm:$false Licensing
 
 LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
 $EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
