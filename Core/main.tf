@@ -233,7 +233,7 @@ module "rds-viz" {
 
 # Import EGIS DB
 data "aws_db_instance" "egis_rds" {
-  db_instance_identifier = "hv-${var.environment}-egis-rds-pg-egdb"
+  db_instance_identifier = "hv-${local.env.environment}-egis-rds-pg-egdb"
 }
 
 # Lambda Layers
@@ -342,7 +342,7 @@ module "ingest_lambda_functions" {
   pika_layer                  = module.lambda_layers.pika.arn
   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   mq_ingest_id                = module.mq-ingest.mq-ingest.id
-  db_ingest_name              = module.rds-bastion.forecast_db
+  db_ingest_name              = local.env.forecast_db_name
   db_ingest_host              = module.rds-ingest.rds-ingest.address
   mq_ingest_port              = split(":", module.mq-ingest.mq-ingest.instances.0.endpoints.0)[2]
   db_ingest_port              = module.rds-ingest.rds-ingest.port
