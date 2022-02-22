@@ -221,8 +221,8 @@ data "template_file" "pipeline_setup" {
 }
 
 data "template_cloudinit_config" "pipeline_setup" {
-  gzip          = true
-  base64_encode = true
+  gzip          = false
+  base64_encode = false
 
   part {
     content_type = "text/x-shellscript"
