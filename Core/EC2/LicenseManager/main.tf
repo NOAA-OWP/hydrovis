@@ -88,14 +88,6 @@ data "aws_ami" "windows" {
   owners = [var.ami_owner_account_id]
 }
 
-data "template_file" "licensemanager" {
-  template = file("${path.module}/templates/ArcGIS_LM_Setup.ps1")
-  vars = {
-    environment = var.environment
-    region      = var.region
-  }
-}
-
 data "template_cloudinit_config" "licensemanager" {
   gzip          = false
   base64_encode = false
@@ -103,7 +95,10 @@ data "template_cloudinit_config" "licensemanager" {
   part {
     content_type = "text/x-shellscript"
     filename     = "ArcGIS_LM_Setup.ps1"
-    content      = data.template_file.licensemanager.rendered
+    content      = templatefile("${path.module}/templates/ArcGIS_LM_Setup.ps1.tftpl", {
+      environment = var.environment
+      region      = var.region
+    })
   }
 }
 #######################################################################################################################################

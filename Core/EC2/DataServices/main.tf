@@ -62,7 +62,7 @@ variable "data_services_versions" {
 
 locals {
   ssh_key_filename        = "id_ed25519"
-  cloudinit_config_data_part_0 = {
+  cloudinit_config_data = {
     write_files = [
       {
         path        = "/home/ec2-user/.ssh/${local.ssh_key_filename}"
@@ -157,7 +157,7 @@ data "cloudinit_config" "startup" {
     filename     = "cloud-config.yaml"
     content = <<-END
       #cloud-config
-      ${jsonencode(local.cloudinit_config_data_part_0)}
+      ${jsonencode(local.cloudinit_config_data)}
     END
   }
 
