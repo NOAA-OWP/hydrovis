@@ -14,6 +14,10 @@ variable "region" {
   type = string
 }
 
+variable "policy_filename" {
+  type = string
+}
+
 variable "admin_team_arns" {
   type = list(string)
 }
@@ -123,44 +127,10 @@ resource "aws_s3_bucket" "hydrovis" {
 
 resource "aws_s3_bucket_policy" "hydrovis" {
   bucket = aws_s3_bucket.hydrovis.bucket
-  policy = jsonencode(
-    {
-      Statement = [
-        {
-          Action = "s3:PutObject"
-          Condition = {
-            StringNotEquals = {
-              "s3:x-amz-server-side-encryption" = "aws:kms"
-            }
-          }
-          Effect    = "Deny"
-          Principal = "*"
-          Resource  = "${aws_s3_bucket.hydrovis.arn}/*"
-          Sid       = "DenyUnEncryptedObjectUploads"
-        },
-        {
-          Action = [
-            "s3:GetBucketPolicy",
-            "s3:GetBucketAcl",
-            "s3:GetObject",
-            "s3:PutObject",
-            "s3:ListBucket",
-            "s3:DeleteObject",
-            "s3:PutObjectAcl"
-          ]
-          Effect = "Allow"
-          Principal = {
-            AWS = concat(var.admin_team_arns, var.access_principal_arns)
-          }
-          Resource = [
-            "${aws_s3_bucket.hydrovis.arn}/*",
-            "${aws_s3_bucket.hydrovis.arn}",
-          ]
-        },
-      ]
-      Version = "2008-10-17"
-    }
-  )
+  policy = templatefile("${path.module}/../templates/${var.policy_filename}", {
+    bucket_arn            = aws_s3_bucket.hydrovis.arn
+    access_principal_arns = jsonencode(concat(var.admin_team_arns, var.access_principal_arns))
+  })
 }
 
 output "bucket" {
