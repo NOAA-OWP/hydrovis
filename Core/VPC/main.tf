@@ -215,6 +215,11 @@ resource "aws_route_table_association" "hydrovis-sn-pub-1a_public" {
   route_table_id = aws_route_table.public.id
 }
 
+resource "aws_route_table_association" "hydrovis-sn-pub-1b_public" {
+  subnet_id      = aws_subnet.hydrovis-sn-pub-1b.id
+  route_table_id = aws_route_table.public.id
+}
+
 resource "aws_network_acl" "hydrovis-acl-default" {
   vpc_id = aws_vpc.main.id
   subnet_ids = [aws_subnet.hydrovis-sn-prv-data1a.id,
@@ -224,7 +229,7 @@ resource "aws_network_acl" "hydrovis-acl-default" {
     aws_subnet.hydrovis-sn-prv-web1a.id,
     aws_subnet.hydrovis-sn-prv-web1b.id,
     aws_subnet.hydrovis-sn-pub-1a.id,
-  aws_subnet.hydrovis-sn-pub-1b.id]
+    aws_subnet.hydrovis-sn-pub-1b.id]
   ingress {
     protocol   = "-1"
     rule_no    = "10"
