@@ -130,6 +130,7 @@ resource "aws_s3_bucket_policy" "hydrovis" {
   policy = templatefile("${path.module}/../templates/${var.policy_filename}", {
     bucket_arn            = aws_s3_bucket.hydrovis.arn
     access_principal_arns = jsonencode(concat(var.admin_team_arns, var.access_principal_arns))
+	kms_key_id = aws_kms_key.hydrovis-s3.key_id
   })
 }
 
