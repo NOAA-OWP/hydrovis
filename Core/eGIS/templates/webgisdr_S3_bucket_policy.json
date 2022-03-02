@@ -33,7 +33,6 @@
             }
 
         },
-
         {
 
             "Sid": "DenyIfPassedAnythingNotMatchingThisKMSKey",
@@ -55,7 +54,6 @@
                 }
 
             }
-
         },
 		 {
             "Effect": "Allow",
@@ -73,7 +71,9 @@
 				"s3:GetBucketLocation",
                 "s3:DeleteObjectTagging",
                 "s3:PutBucketTagging",
-                "s3:PutObjectTagging"
+                "s3:PutObjectTagging",
+				"s3:GetLifecycleConfiguration",
+				"s3:PutLifecycleConfiguration"
             ],
             "Resource": [
                 "${bucket_arn}/*",
