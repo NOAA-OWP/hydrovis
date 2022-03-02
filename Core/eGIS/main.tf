@@ -65,7 +65,7 @@ locals {
         var.role_autoscaling_arn,
         var.role_HydrovisESRISSMDeploy_arn
       ]
-      "policy_filename" = "portalcontent_S3_bucket_policy.json"
+      "policy_filename" = "portalcontent_S3_bucket_policy.json.tftpl"
     }
     "pub-alb-logging" = {
       "access_principal_arns" = [
@@ -79,7 +79,7 @@ locals {
         var.role_autoscaling_arn,
         var.role_HydrovisESRISSMDeploy_arn
       ]
-      "policy_filename" = "webgisdr_S3_bucket_policy.json"
+      "policy_filename" = "webgisdr_S3_bucket_policy.json.tftpl"
     }
   }
 }
