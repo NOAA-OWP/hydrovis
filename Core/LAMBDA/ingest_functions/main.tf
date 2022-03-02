@@ -15,15 +15,11 @@ variable "lambda_role" {
   type = string
 }
 
-variable "psycopg2_layer" {
+variable "psycopg2_sqlalchemy_layer" {
   type = string
 }
 
 variable "pika_layer" {
-  type = string
-}
-
-variable "sqlalchemy_layer" {
   type = string
 }
 
@@ -133,9 +129,8 @@ resource "aws_lambda_function" "hml_reciever" {
   role = var.lambda_role
 
   layers = [
-    var.psycopg2_layer,
-    var.pika_layer,
-    var.sqlalchemy_layer
+    var.psycopg2_sqlalchemy_layer,
+    var.pika_layer
   ]
 
   vpc_config {

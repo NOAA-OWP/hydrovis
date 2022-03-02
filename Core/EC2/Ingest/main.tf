@@ -8,7 +8,7 @@ variable "environment" {
 }
 
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "prc1_subnet" {

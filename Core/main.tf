@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.52"
+      version = "3.70"
     }
   }
   backend "s3" {
@@ -60,7 +60,11 @@ module "kms" {
     ]
     "rds-ingest" = [
       module.iam-roles.role_autoscaling.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn,
+      module.iam-roles.role_hydrovis-hml-ingest-role.arn
+    ]
+    "rds-viz" = [
+      module.iam-roles.role_autoscaling.arn,
+      module.iam-roles.role_HydrovisESRISSMDeploy.arn
     ]
   }
 }
@@ -75,14 +79,14 @@ module "secrets-manager" {
     "data-services-forecast-pg-rdssecret" = { "username" : "rfc_fcst_ro_user" }
     "data-services-location-pg-rdssecret" = { "username" : "location_ro_user" }
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
-    "viz_proc-user-rdssecret"             = { "username" : "viz_proc_admin_rw_user" }
+    "viz_proc_admin_rw_user"              = { "username" : "viz_proc_admin_rw_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc_fcst"                        = { "username" : "rfc_fcst" }
     "rds-rfc_fcst_user"                   = { "username" : "rfc_fcst_user" }
     "rds-nwm_viz_ro"                      = { "username" : "nwm_viz_ro" }
     "mq-aws-monitoring"                   = { "username" : "monitoring-AWS-OWNED-DO-NOT-DELETE" }
-    "egis-pg-rds-secret"                  = { "username" : "hydrovis" }
+    "egis-pg-rds-secret"                  = { "username" : "hydrovis", "password" : local.env.egis-pg-rds_password }
     "egis-service-account"                = { "username" : "arcgis", "password" : local.env.egis-service-account_password }
   }
 }
@@ -102,7 +106,9 @@ module "s3" {
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
+      module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -121,7 +127,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
-    ] 
+    ]
   }
 }
 
@@ -158,10 +164,12 @@ module "s3-replication" {
 module "vpc" {
   source = "./VPC"
 
-  environment    = local.env.environment
-  region         = local.env.region
-  vpc_ip_block   = local.env.vpc_ip_block
-  nwave_ip_block = local.env.nwave_ip_block
+  environment                        = local.env.environment
+  region                             = local.env.region
+  vpc_ip_block                       = local.env.vpc_ip_block
+  nwave_ip_block                     = local.env.nwave_ip_block
+  public_route_peering_ip_block      = local.env.public_route_peering_ip_block
+  public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
 # SGs
@@ -187,6 +195,17 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_listener" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -211,6 +230,23 @@ module "rds-ingest" {
   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
   rds_kms_key               = module.kms.key_arns["rds-ingest"]
   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
+}
+
+module "rds-viz" {
+  source = "./RDS/viz"
+
+  environment                       = local.env.environment
+  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+  viz_db_name                       = local.env.viz_db_name
+}
+
+# Import EGIS DB
+data "aws_db_instance" "egis_rds" {
+  db_instance_identifier = "hv-${local.env.environment}-egis-rds-pg-egdb"
 }
 
 # Lambda Layers
@@ -243,7 +279,17 @@ module "viz_lambda_functions" {
   pandas_layer                  = module.lambda_layers.pandas.arn
   rasterio_layer                = module.lambda_layers.rasterio.arn
   mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
+  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
+  psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
+  db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  viz_db_host                   = module.rds-viz.rds-viz-processing.address
+  viz_db_name                   = local.env.viz_db_name
+  egis_db_host                  = data.aws_db_instance.egis_rds.address
+  viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 }
 
 # MQ
@@ -272,17 +318,30 @@ module "rds-bastion" {
   kms_key_arn            = module.kms.key_arns["encrypt-ec2"]
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
-  db_ingest_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  db_ingest_address              = module.rds-ingest.rds-ingest.address
-  db_ingest_port                 = module.rds-ingest.rds-ingest.port
+  ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  ingest_db_address              = module.rds-ingest.rds-ingest.address
+  ingest_db_port                 = module.rds-ingest.rds-ingest.port
   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
+  location_db_name               = local.env.location_db_name
+  forecast_db_name               = local.env.forecast_db_name
 
-  mq_ingest_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+
+  viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_address                  = module.rds-viz.rds-viz-processing.address
+  viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  viz_db_name                     = local.env.viz_db_name
+  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_address                 = data.aws_db_instance.egis_rds.address
+  egis_db_port                    = data.aws_db_instance.egis_rds.port
+  egis_db_name                    = local.env.egis_db_name
+  fim_version                     = local.env.fim_version
 }
 
 module "ingest_lambda_functions" {
@@ -292,12 +351,11 @@ module "ingest_lambda_functions" {
   region                      = local.env.region
   deployment_bucket           = module.s3.buckets["deployment"].bucket
   lambda_role                 = module.iam-roles.role_hydrovis-hml-ingest-role.arn
-  psycopg2_layer              = module.lambda_layers.psycopg2.arn
+  psycopg2_sqlalchemy_layer   = module.lambda_layers.psycopg2_sqlalchemy.arn
   pika_layer                  = module.lambda_layers.pika.arn
-  sqlalchemy_layer            = module.lambda_layers.sqlalchemy.arn
   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   mq_ingest_id                = module.mq-ingest.mq-ingest.id
-  db_ingest_name              = module.rds-bastion.forecast_db
+  db_ingest_name              = local.env.forecast_db_name
   db_ingest_host              = module.rds-ingest.rds-ingest.address
   mq_ingest_port              = split(":", module.mq-ingest.mq-ingest.instances.0.endpoints.0)[2]
   db_ingest_port              = module.rds-ingest.rds-ingest.port
@@ -337,7 +395,9 @@ module "monitoring" {
     module.viz_lambda_functions.inundation_parent.function_name,
     module.viz_lambda_functions.huc_processing.function_name,
     module.viz_lambda_functions.optimize_rasters.function_name,
-    module.ingest_lambda_functions.hml_reciever.function_name
+    module.ingest_lambda_functions.hml_reciever.function_name,
+    module.viz_lambda_functions.db_ingest.function_name,
+    module.viz_lambda_functions.db_postprocess.function_name
   ]
 }
 
@@ -383,8 +443,8 @@ module "data-services" {
   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
   rds_host                           = module.rds-ingest.rds-ingest.address
-  location_db_name                   = module.rds-bastion.location_db
-  forecast_db_name                   = module.rds-bastion.forecast_db
+  location_db_name                   = local.env.location_db_name
+  forecast_db_name                   = local.env.forecast_db_name
   location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
   forecast_credentials_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
   logstash_ip                        = module.monitoring.aws_instance_logstash.private_ip
@@ -429,10 +489,10 @@ module "egis_license_manager" {
 module "egis_monitor" {
   source = "./EC2/ArcGIS_Monitor"
 
-  environment                    = local.env.environment
-  ami_owner_account_id           = local.env.ami_owner_account_id
-  region                         = local.env.region
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-web1a.id
+  environment          = local.env.environment
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
+  ec2_instance_subnet  = module.vpc.subnet_hydrovis-sn-prv-web1a.id
   ec2_instance_sgs = [
     module.security-groups.ssm-session-manager-sg.id,
     module.security-groups.egis-overlord.id
@@ -473,4 +533,24 @@ module "viz_ec2" {
   logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
   vlab_host                   = local.env.viz_ec2_vlab_host
+  viz_db_host                 = module.rds-viz.rds-viz-processing.address
+  viz_db_name                 = local.env.viz_db_name
+  viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_host                = data.aws_db_instance.egis_rds.address
+  egis_db_name                = local.env.egis_db_name
+  egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
 }
+    
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
+} 
