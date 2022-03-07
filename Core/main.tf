@@ -218,6 +218,9 @@ module "sns" {
   nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
   nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
+  error_email_list = {
+    viz_lambda_errors = ["corey.krewson@noaa.gov", "tyler.schrag@noaa.gov"]
+  }
 }
 
 # RDS
