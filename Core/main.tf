@@ -253,7 +253,6 @@ module "viz_lambda_functions" {
   source = "./LAMBDA/viz_functions"
 
   environment                   = local.env.environment
-  viz_environment               = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
@@ -263,6 +262,7 @@ module "viz_lambda_functions" {
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   sns_topics                    = module.sns.sns_topics
+  email_sns_topics              = module.sns.email_sns_topics
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
   multiprocessing_layer         = module.lambda_layers.multiprocessing.arn
@@ -273,11 +273,13 @@ module "viz_lambda_functions" {
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
   viz_db_host                   = module.rds-viz.rds-viz-processing.address
   viz_db_name                   = local.env.viz_db_name
-  egis_db_host                  = data.aws_db_instance.egis_rds.address
   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_host                  = data.aws_db_instance.egis_rds.address
+  egis_db_name                  = local.env.egis_db_name
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 }
