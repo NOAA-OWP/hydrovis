@@ -526,7 +526,7 @@ module "viz_ec2" {
   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
   nwm_max_flows_data_bucket   = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
-  s3_static_data_bucket       = module.s3.buckets["deployment"].bucket
+  deployment_data_bucket       = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name
   fim_version                 = local.env.fim_version
