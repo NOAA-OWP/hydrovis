@@ -218,7 +218,7 @@ module "sns" {
   nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
   nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
-  error_email_list = local.env.sns_email_lists
+  error_email_list          = local.env.sns_email_lists
 }
 
 # RDS
