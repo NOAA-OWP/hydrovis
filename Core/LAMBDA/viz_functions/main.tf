@@ -621,6 +621,7 @@ resource "aws_lambda_function" "viz_db_postprocess" {
       GIS_PASSWORD = var.egis_portal_password
       GIS_HOST = local.egis_host
       GIS_USERNAME = "hydrovis.proc"
+      PUBLISH_FLAG_BUCKET = var.max_flows_bucket
       S3_BUCKET = var.viz_authoritative_bucket
       SD_S3_PATH = "viz/db_pipeline/pro_project_data/sd_files/"
       SERVICE_TAG = local.service_suffix
