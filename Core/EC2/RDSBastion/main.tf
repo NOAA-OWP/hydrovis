@@ -162,7 +162,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   root_block_device {
-    volume_size = 40
+    volume_size = 60
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     volume_type = "gp2"

@@ -68,10 +68,14 @@ rm "$${HOME}/postgis_setup.sql"
 
 # Cleaning up DB
 echo "Cleaning up EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE; DROP SCHEMA IF EXISTS services CASCADE;"
 
 echo "Setting up fim schema in the EGIS DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
 pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
 rm "$${HOME}/egisDB_reference.dump"
 
+echo "Setting up services schema in the EGIS DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_services.dump" "$${HOME}/egisDB_services.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_services.dump"
+rm "$${HOME}/egisDB_services.dump"
