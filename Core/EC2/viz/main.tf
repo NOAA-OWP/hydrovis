@@ -61,7 +61,7 @@ variable "rnr_max_flows_data_bucket" {
   type        = string
 }
 
-variable "s3_static_data_bucket" {
+variable "deployment_data_bucket" {
   description = "S3 bucket where the visualization static data lives"
   type        = string
 }
@@ -199,7 +199,7 @@ data "template_file" "pipeline_setup" {
     FIM_OUTPUT_BUCKET              = var.fim_output_bucket
     NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
     RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
-    S3_STATIC_DATA_BUCKET          = var.s3_static_data_bucket
+    DEPLOYMENT_DATA_BUCKET          = var.deployment_data_bucket
     DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
     WINDOWS_SERVICE_STATUS         = var.windows_service_status
     WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
@@ -217,6 +217,7 @@ data "template_file" "pipeline_setup" {
     EGIS_DB_DATABASE               = var.egis_db_name
     EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
     EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
+    AWS_REGION                     = var.region
   }
 }
 
