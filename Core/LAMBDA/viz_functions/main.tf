@@ -145,7 +145,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   egis_host              = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
-  service_suffix         = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_gamma" : "_alpha"
+  service_suffix         = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
   
   max_flows_subscriptions = toset([
     "nwm_ingest_ana",
