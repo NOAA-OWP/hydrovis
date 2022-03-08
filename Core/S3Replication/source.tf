@@ -74,6 +74,7 @@ resource "aws_kms_key" "hydrovis-hml-incoming-s3" {
 }
 
 resource "aws_kms_alias" "hydrovis-hml-incoming-s3" {
+  count = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   name          = "alias/noaa-nws-hydrovis-prod-hml-incoming-s3-cmk-alias"
   target_key_id = aws_kms_key.hydrovis-hml-incoming-s3[0].key_id
 }
@@ -421,6 +422,7 @@ resource "aws_kms_key" "hydrovis-nwm-incoming-s3" {
 }
 
 resource "aws_kms_alias" "hydrovis-nwm-incoming-s3" {
+  count = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   name          = "alias/noaa-nws-hydrovis-prod-nwm-incoming-s3-cmk-alias"
   target_key_id = aws_kms_key.hydrovis-nwm-incoming-s3[0].key_id
 }
@@ -742,6 +744,7 @@ resource "aws_kms_key" "hydrovis-pcpanl-incoming-s3" {
 }
 
 resource "aws_kms_alias" "hydrovis-pcpanl-incoming-s3" {
+  count = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   name          = "alias/noaa-nws-hydrovis-prod-pcpanl-incoming-s3-cmk-alias"
   target_key_id = aws_kms_key.hydrovis-pcpanl-incoming-s3[0].key_id
 }
