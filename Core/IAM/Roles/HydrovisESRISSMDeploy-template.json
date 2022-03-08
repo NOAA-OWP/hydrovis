@@ -356,6 +356,12 @@
         "Effect": "Allow",
         "Action": "kms:GenerateDataKey",
         "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:*:${account_id}:function:*"
     }
   ]
 }
