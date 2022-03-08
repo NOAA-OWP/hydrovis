@@ -218,9 +218,7 @@ module "sns" {
   nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
   nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
-  error_email_list = {
-    viz_lambda_errors = ["corey.krewson@noaa.gov", "tyler.schrag@noaa.gov"]
-  }
+  error_email_list = local.env.sns_email_lists
 }
 
 # RDS
@@ -295,6 +293,7 @@ module "viz_lambda_functions" {
   egis_db_name                  = local.env.egis_db_name
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
+  dataservices_ip               = module.data-services.dataservices-ip
 }
 
 # MQ
