@@ -3,11 +3,6 @@ variable "environment" {
   type        = string
 }
 
-variable "viz_environment" {
-  description = "Visualization environment for code that should be used."
-  type        = string
-}
-
 variable "viz_authoritative_bucket" {
   description = "S3 bucket where the viz authoritative data will live."
   type        = string
@@ -52,12 +47,22 @@ variable "db_lambda_security_groups" {
   description = "Security group for db-pipeline lambdas."
   type = list(any)
 }
+
+variable "nat_sg_group" {
+  type = string
+}
+
 variable "db_lambda_subnets"{
   description = "Subnets to use for the db-pipeline lambdas."
   type = list(any)
 }
 
 variable "sns_topics" {
+  description = "SnS topics"
+  type        = map(any)
+}
+
+variable "email_sns_topics" {
   description = "SnS topics"
   type        = map(any)
 }
@@ -75,6 +80,10 @@ variable "viz_db_name" {
 variable "egis_db_host" {
   description = "Hostname of the EGIS RDS instance."
   type        = string
+}
+
+variable "egis_db_name" {
+  type = string
 }
 
 variable "viz_db_user_secret_string" {
@@ -128,6 +137,10 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
+variable "dataservices_ip" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
@@ -150,18 +163,83 @@ locals {
     "nwm_ingest_ana_prvi",
     "rnr_max_flows",
     "nwm_max_flows"
-  ])
-
+  ])  
+  
   db_ingest_subscriptions = toset([
     "nwm_ingest_ana",
     "nwm_ingest_ana_hi",
     "nwm_ingest_ana_prvi",
+    "nwm_ingest_srf",
     "nwm_ingest_srf_hi",
     "nwm_ingest_srf_prvi",
-    "rnr_max_flows",
-    "nwm_ingest_srf",
-    "nwm_ingest_mrf_10day"
+    "nwm_ingest_mrf_10day",
+    "rnr_max_flows"
   ])
+}
+
+###############################
+## WRDS API Handler Function ##
+###############################
+resource "aws_lambda_function" "viz_wrds_api_handler" {
+  function_name = "viz_wrds_api_handler_${var.environment}"
+  description   = "Lambda function to ping WRDS API and format outputs for processing."
+  memory_size   = 512
+  timeout       = 900
+  vpc_config {
+  	security_group_ids = [var.nat_sg_group]
+  	subnet_ids = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      DATASERVICES_HOST	= var.dataservices_ip
+      PROCESSED_OUTPUT_BUCKET	= var.max_flows_bucket
+      PROCESSED_OUTPUT_PREFIX	= "max_stage/ahps"
+      DB_INGEST_FUNCTION = aws_lambda_function.viz_db_ingest.arn
+    }
+  }
+  s3_bucket = var.lambda_data_bucket
+  s3_key    = "viz/lambda_functions/viz_wrds_api_handler.zip"
+  runtime = "python3.7"
+  handler = "lambda_function.lambda_handler"
+  role = var.lambda_role
+  layers = [
+    var.xarray_layer,
+    var.es_logging_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "viz_wrds_api_handler_${var.environment}"
+  }
+}
+
+resource "aws_cloudwatch_event_rule" "every_fifteen_minutes" {
+    name = "every_fifteen_minutes"
+    description = "Fires every fifteen minutes"
+    schedule_expression = "cron(0/15 * * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+    rule = "${aws_cloudwatch_event_rule.every_fifteen_minutes.name}"
+    target_id = "${aws_lambda_function.viz_wrds_api_handler.function_name}"
+    arn = "${aws_lambda_function.viz_wrds_api_handler.arn}"
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
+    statement_id = "AllowExecutionFromCloudWatch"
+    action = "lambda:InvokeFunction"
+    function_name = "${aws_lambda_function.viz_wrds_api_handler.function_name}"
+    principal = "events.amazonaws.com"
+    source_arn = "${aws_cloudwatch_event_rule.every_fifteen_minutes.arn}"
+}
+
+resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
+  function_name = resource.aws_lambda_function.viz_wrds_api_handler.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
 }
 
 ########################
@@ -176,8 +254,9 @@ resource "aws_lambda_function" "viz_max_flows" {
 
   environment {
     variables = {
-      CACHE_DAYS       = 1
-      MAX_FLOWS_BUCKET = var.max_flows_bucket
+      CACHE_DAYS         = 1
+      MAX_FLOWS_BUCKET   = var.max_flows_bucket
+      DB_INGEST_FUNCTION =	aws_lambda_function.viz_db_ingest.arn
     }
   }
 
@@ -215,6 +294,16 @@ resource "aws_lambda_permission" "max_flows_permissions" {
   source_arn    = var.sns_topics["${each.value}"].arn
 }
 
+resource "aws_lambda_function_event_invoke_config" "viz_max_flows" {
+  function_name = resource.aws_lambda_function.viz_max_flows.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
+}
+
 ################################
 ## Inundation Parent Function ##
 ################################
@@ -222,29 +311,23 @@ resource "aws_lambda_permission" "max_flows_permissions" {
 resource "aws_lambda_function" "viz_inundation_parent" {
   function_name = "viz_inundation_parent_${var.environment}"
   description   = "Lambda function to process NWM data and kick off HUC inundation lambdas for each HUC with streams above bankfull threshold"
-  memory_size   = 1024
+  memory_size   = 2048
   timeout       = 900
 
   environment {
     variables = {
-      DB_DATABASE	                = var.viz_db_name
-      DB_HOST	                    = var.viz_db_host
-      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
-      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET         = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX     = "empty_rasters/mrf"
       FIM_DATA_BUCKET             = var.fim_data_bucket
       FIM_VERSION                 = var.fim_version
-      VIZ_AUTHORITATIVE_BUCKET    = var.viz_authoritative_bucket
       NWM_DATA_BUCKET             = var.nwm_data_bucket
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX     = "processing_outputs"
-      RECURRENCE_FILENAME         = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v20_recurrence_flows_slim.nc"
-      RECURRENCE_BANKFULL         = "1_5_year_recurrence_flow"
-      RECURRENCE_HAWAII_FILENAME  = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v20_recurrence_flows_hawaii.nc"
-      RECURRENCE_HAWAII_BANKFULL  = "2_0_year_recurrence_flow"
-      RECURRENCE_PRVI_FILENAME    = "viz/authoritative_data/derived_data/nwm_v21_recurrence_flows/nwm_v21_recurrence_flows_prvi.nc"
-      RECURRENCE_PRVI_BANKFULL    = "2_0_year_recurrence_flow"
+      VIZ_AUTHORITATIVE_BUCKET    = var.viz_authoritative_bucket
+      VIZ_DB_DATABASE	            = var.viz_db_name
+      VIZ_DB_HOST	                = var.viz_db_host
+      VIZ_DB_PASSWORD	            = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_USERNAME	            = jsondecode(var.viz_db_user_secret_string)["username"]
       max_flows_function          = resource.aws_lambda_function.viz_max_flows.arn
       viz_huc_inundation_function = resource.aws_lambda_function.viz_huc_inundation_processing.arn
     }
@@ -291,6 +374,16 @@ resource "aws_lambda_permission" "inundation_parent_permissions" {
   source_arn    = var.sns_topics["${each.value}"].arn
 }
 
+resource "aws_lambda_function_event_invoke_config" "viz_inundation_parent" {
+  function_name = resource.aws_lambda_function.viz_inundation_parent.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
+}
+
 ########################################
 ## HUC Inundation Processing Function ##
 ########################################
@@ -303,10 +396,6 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
 
   environment {
     variables = {
-      DB_DATABASE	                = var.viz_db_name
-      DB_HOST	                    = var.viz_db_host
-      DB_PASSWORD	                = jsondecode(var.viz_db_user_secret_string)["password"]
-      DB_USERNAME	                = jsondecode(var.viz_db_user_secret_string)["username"]
       EMPTY_RASTER_BUCKET          = var.fim_data_bucket
       EMPTY_RASTER_MRF_PREFIX      = "empty_rasters/mrf"
       FR_FIM_BUCKET                = var.fim_data_bucket
@@ -315,6 +404,10 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
       MS_FIM_PREFIX                = "fim_${replace(var.fim_version, ".", "_")}_ms_c"
       PROCESSED_OUTPUT_BUCKET      = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX      = "processing_outputs"
+      VIZ_DB_DATABASE	             = var.viz_db_name
+      VIZ_DB_HOST	                 = var.viz_db_host
+      VIZ_DB_PASSWORD	             = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_USERNAME	             = jsondecode(var.viz_db_user_secret_string)["username"]
       viz_optimize_raster_function = resource.aws_lambda_function.viz_optimize_rasters.arn
     }
   }
@@ -342,6 +435,16 @@ resource "aws_lambda_function" "viz_huc_inundation_processing" {
   vpc_config {
   	security_group_ids = var.db_lambda_security_groups
   	subnet_ids = var.db_lambda_subnets
+  }
+}
+
+resource "aws_lambda_function_event_invoke_config" "viz_huc_inundation_processing" {
+  function_name = resource.aws_lambda_function.viz_huc_inundation_processing.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
   }
 }
 
@@ -374,9 +477,20 @@ resource "aws_lambda_function" "viz_optimize_rasters" {
   }
 }
 
+resource "aws_lambda_function_event_invoke_config" "viz_optimize_rasters_destinations" {
+  function_name = resource.aws_lambda_function.viz_optimize_rasters.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
+}
+
 ############################
 ## Viz DB Ingest Function ##
 ############################
+
 resource "aws_lambda_function" "viz_db_ingest" {
   function_name = "viz_db_ingest_${var.environment}"
   description   = "Lambda function to manage the loading of datasets into the Viz Processing database. Requires db_ingest_worker to delegate files to."
@@ -388,13 +502,14 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      DB_DATABASE = var.viz_db_name
-      DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
-      MAX_WORKERS = 500
-      MRF_TIMESTEP = 3
-      WORKER_LAMBDA_NAME = resource.aws_lambda_function.viz_db_ingest_worker.function_name
+      BACKLOAD_BATCH_SIZE	= 100
+      MAX_WORKERS         = 500
+      MRF_TIMESTEP        = 3
+      VIZ_DB_DATABASE     = var.viz_db_name
+      VIZ_DB_HOST         = var.viz_db_host
+      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      WORKER_LAMBDA_NAME  = resource.aws_lambda_function.viz_db_ingest_worker.function_name
     }
   }
   s3_bucket = var.lambda_data_bucket
@@ -412,12 +527,14 @@ resource "aws_lambda_function" "viz_db_ingest" {
     "Name" = "viz_db_ingest_${var.environment}"
   }
 }
+
 resource "aws_sns_topic_subscription" "viz_db_ingest_subscriptions" {
   for_each  = local.db_ingest_subscriptions
   topic_arn = var.sns_topics["${each.value}"].arn
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.viz_db_ingest.arn
 }
+
 resource "aws_lambda_permission" "viz_db_ingest_permissions" {
   for_each      = local.db_ingest_subscriptions
   action        = "lambda:InvokeFunction"
@@ -425,6 +542,7 @@ resource "aws_lambda_permission" "viz_db_ingest_permissions" {
   principal     = "sns.amazonaws.com"
   source_arn    = var.sns_topics["${each.value}"].arn
 }
+
 resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" {
   function_name = resource.aws_lambda_function.viz_db_ingest.function_name
   maximum_retry_attempts = 0
@@ -432,12 +550,17 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
     on_success {
       destination = var.sns_topics["viz_db_postprocess"].arn
     }
+
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
   }
 }
 
 ###############################
 ## DB Ingest Worker Function ##
 ###############################
+
 resource "aws_lambda_function" "viz_db_ingest_worker" {
   function_name = "viz_db_ingest_worker_${var.environment}"
   description   = "Worker function to load individual files into the Viz Processing database."
@@ -449,10 +572,10 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
   }
   environment {
     variables = {
-      DB_DATABASE = var.viz_db_name
-      DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket = var.lambda_data_bucket
@@ -470,6 +593,7 @@ resource "aws_lambda_function" "viz_db_ingest_worker" {
     "Name" = "viz_db_ingest_worker_${var.environment}"
   }
 }
+
 resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_worker_destinations" {
   function_name = resource.aws_lambda_function.viz_db_ingest_worker.function_name
   maximum_retry_attempts = 0
@@ -478,6 +602,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_worker_destina
 #############################
 ## DB Postprocess Function ##
 #############################
+
 resource "aws_lambda_function" "viz_db_postprocess" {
   function_name = "viz_db_postprocess_${var.environment}"
   description   = "Lambda function to run viz postprocessing on already-ingested data sources, copy publish tables to egis rds, and publish services."
@@ -489,22 +614,21 @@ resource "aws_lambda_function" "viz_db_postprocess" {
   }
   environment {
     variables = {
-      DB_DATABASE = var.viz_db_name
-      DB_HOST = var.viz_db_host
-      DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
-      RDS_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
+      EGIS_DB_DATABASE = var.egis_db_name
       EGIS_DB_HOST = var.egis_db_host
       EGIS_DB_USERNAME = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD = jsondecode(var.egis_db_secret_string)["password"]
-      EGIS_DB_SECRET_NAME = "" # TODO: remove this redundant lookup from lambda code
-      EGIS_PASSWORD = var.egis_portal_password
+      GIS_PASSWORD = var.egis_portal_password
       GIS_HOST = local.egis_host
-      GIS_SECRET_NAME = "" # TODO: use secrets manager instead of passing username/password from ENV file
       GIS_USERNAME = "hydrovis.proc"
+      PUBLISH_FLAG_BUCKET = var.max_flows_bucket
       S3_BUCKET = var.viz_authoritative_bucket
       SD_S3_PATH = "viz/db_pipeline/pro_project_data/sd_files/"
       SERVICE_TAG = local.service_suffix
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket = var.lambda_data_bucket
@@ -523,16 +647,28 @@ resource "aws_lambda_function" "viz_db_postprocess" {
     "Name" = "viz_db_postprocess_${var.environment}"
   }
 }
+
 resource "aws_sns_topic_subscription" "viz_db_postprocess_subscription" {
   topic_arn = var.sns_topics["viz_db_postprocess"].arn
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.viz_db_postprocess.arn
 }
+
 resource "aws_lambda_permission" "viz_db_postprocess_permissions" {
   action        = "lambda:InvokeFunction"
   function_name = resource.aws_lambda_function.viz_db_postprocess.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.sns_topics["viz_db_postprocess"].arn
+}
+
+resource "aws_lambda_function_event_invoke_config" "viz_db_postprocess_destinations" {
+  function_name = resource.aws_lambda_function.viz_db_postprocess.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
 }
 
 #####################
@@ -563,4 +699,8 @@ output "db_ingest_worker" {
 
 output "db_postprocess" {
   value = aws_lambda_function.viz_db_postprocess
+}
+
+output "wrds_api_handler" {
+  value = aws_lambda_function.viz_wrds_api_handler
 }
