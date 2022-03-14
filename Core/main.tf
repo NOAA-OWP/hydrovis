@@ -121,7 +121,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
-    ] 
+    ]
   }
 }
 
@@ -431,10 +431,10 @@ module "egis_license_manager" {
 module "egis_monitor" {
   source = "./EC2/ArcGIS_Monitor"
 
-  environment                    = local.env.environment
-  ami_owner_account_id           = local.env.ami_owner_account_id
-  region                         = local.env.region
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-web1a.id
+  environment          = local.env.environment
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
+  ec2_instance_subnet  = module.vpc.subnet_hydrovis-sn-prv-web1a.id
   ec2_instance_sgs = [
     module.security-groups.ssm-session-manager-sg.id,
     module.security-groups.egis-overlord.id
