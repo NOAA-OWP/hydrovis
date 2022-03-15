@@ -14,6 +14,8 @@ EGISDBUSERNAME="${EGISDBUSERNAME}"
 EGISDBPASSWORD="${EGISDBPASSWORD}"
 DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
 HOME="${HOME}"
+VIZ_PROC_ADMIN_RW_USER="${VIZ_PROC_ADMIN_RW_USER}"
+VIZ_PROC_ADMIN_RW_PASS="${VIZ_PROC_ADMIN_RW_PASS}"
 
 ### install postgresql ###
 sudo yum install -y postgresql12
@@ -24,6 +26,10 @@ export PGPASSWORD=$${VIZDBPASSWORD}
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -f "$${HOME}/postgis_setup.sql"
 rm "$${HOME}/postgis_setup.sql"
+
+echo "Adding viz user..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_ADMIN_RW_USER};"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_ADMIN_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 500 ENCRYPTED PASSWORD '$${VIZ_PROC_ADMIN_RW_PASS}';"
 
 # Cleaning up DB
 echo "Cleaning up Viz DB..."
