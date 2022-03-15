@@ -25,38 +25,62 @@ variable "role_autoscaling_arn" {
 
 locals {
   buckets_and_bucket_users = {
-    "none" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "gis-server-cache" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "gp-server-cache" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "img-server-cache" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "prv-alb-logging" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "ptl-content" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "pub-alb-logging" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
-    "webgisdr" = [
-      var.role_autoscaling_arn,
-      var.role_HydrovisESRISSMDeploy_arn
-    ]
+    "none" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "gis-server-cache" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "gp-server-cache" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "img-server-cache" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "prv-alb-logging" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "ptl-content" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "portalcontent_S3_bucket_policy.json.tftpl"
+    }
+    "pub-alb-logging" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "standard.json.tftpl"
+    }
+    "webgisdr" = {
+      "access_principal_arns" = [
+        var.role_autoscaling_arn,
+        var.role_HydrovisESRISSMDeploy_arn
+      ]
+      "policy_filename" = "webgisdr_S3_bucket_policy.json.tftpl"
+    }
   }
 }
 
@@ -69,7 +93,8 @@ module "bucket" {
   region      = var.region
 
   name_suffix           = each.key
-  access_principal_arns = each.value
+  access_principal_arns = each.value["access_principal_arns"]
+  policy_filename       = each.value["policy_filename"]
   admin_team_arns       = var.admin_team_arns
 }
 
