@@ -241,6 +241,8 @@ data "template_file" "viz_postgresql_setup" {
     EGISDBPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
     DEPLOYMENT_BUCKET = var.data_deployment_bucket
     HOME              = local.home_dir
+    VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
+    VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
   }
 }
 
