@@ -606,7 +606,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_worker_destina
 resource "aws_lambda_function" "viz_db_postprocess" {
   function_name = "viz_db_postprocess_${var.environment}"
   description   = "Lambda function to run viz postprocessing on already-ingested data sources, copy publish tables to egis rds, and publish services."
-  memory_size   = 1024
+  memory_size   = 1536
   timeout       = 900
   vpc_config {
   	security_group_ids = var.db_lambda_security_groups
