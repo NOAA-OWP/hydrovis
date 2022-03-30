@@ -271,19 +271,14 @@ resource "aws_iam_role_policy" "ecs-task-execution-policy" {
   policy = data.aws_iam_policy.ecs_task_execution_policy.policy
 }
 
-data "template_file" "hydrovis-cloudwatch-log-template" {
-  template = file("${path.module}/hydrovis-cloudwatch-log-template.json")
-  vars = {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
-  }
-}
-
 resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
   name   = "ecs-task-execution-cloudwatch-log-policy"
   role   = aws_iam_role.ecs-task-execution-role.id
-  policy = data.template_file.hydrovis-cloudwatch-log-template.rendered
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  })
 }
 
 # ECS Container Role
@@ -311,7 +306,11 @@ resource "aws_iam_role" "hydrovis-ecs-resource-access" {
 resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
   name   = "hydrovis-cloudwatch-log-policy"
   role   = aws_iam_role.hydrovis-ecs-resource-access.id
-  policy = data.template_file.hydrovis-cloudwatch-log-template.rendered
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  })
 }
 
 output "role_autoscaling" {
