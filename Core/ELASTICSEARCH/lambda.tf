@@ -10,15 +10,10 @@ variable "lambda_trigger_functions" {
   type = set(string)
 }
 
-data "template_file" "lambda_code_index_template" {
-  template = file("${path.module}/lambda_code/index.js.template")
-  vars = {
-    es_endpoint = aws_elasticsearch_domain.es.endpoint
-  }
-}
-
 resource "local_file" "lambda_code_index" {
-  content  = data.template_file.lambda_code_index_template.rendered
+  content  = templatefile("${path.module}/lambda_code/index.js.tftpl", {
+    es_endpoint = aws_elasticsearch_domain.es.endpoint
+  })
   filename = "${path.module}/lambda_code/index.js"
 }
 
@@ -46,18 +41,13 @@ resource "aws_iam_role" "LambdaforElasticsearch" {
   })
 }
 
-data "template_file" "LambdaforElasticsearch-template" {
-  template = file("${path.module}/LambdaforElasticsearch-template.json")
-  vars = {
-    account_id = var.account_id
-    region     = var.region
-  }
-}
-
 resource "aws_iam_role_policy" "LambdaforElasticsearch" {
   name   = "LambdaforElasticsearch"
   role   = aws_iam_role.LambdaforElasticsearch.id
-  policy = data.template_file.LambdaforElasticsearch-template.rendered
+  policy = templatefile("${path.module}/LambdaforElasticsearch.json.tftpl", {
+    account_id = var.account_id
+    region     = var.region
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {

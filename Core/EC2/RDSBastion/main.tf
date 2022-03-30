@@ -188,64 +188,6 @@ data "aws_ami" "linux" {
   owners = [var.ami_owner_account_id]
 }
 
-data "template_file" "ingest_postgresql_setup" {
-  template = file("${path.module}/scripts/ingest/postgresql_setup.sh")
-  vars = {
-    FORECASTDB        = var.forecast_db_name
-    LOCATIONDB        = var.location_db_name
-    INGESTDBUSERS     = local.ingest_db_users
-    LOCATIONDBUSERS   = local.location_db_users
-    DBHOST            = var.ingest_db_address
-    DBPORT            = var.ingest_db_port
-    DBUSERNAME        = jsondecode(var.ingest_db_secret_string)["username"]
-    DBPASSWORD        = jsondecode(var.ingest_db_secret_string)["password"]
-    DEPLOYMENT_BUCKET = var.data_deployment_bucket
-  }
-}
-
-data "template_file" "ingest_users" {
-  template = file("${path.module}/scripts/ingest/ingest_users.sql")
-  vars = {
-    NWM_VIZ_RO       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
-    RFC_FCST         = jsondecode(var.rfc_fcst_secret_string)["password"]
-    RFC_FCST_RO_USER = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
-    RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-    LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
-  }
-}
-
-data "template_file" "rabbitmq_setup" {
-  template = file("${path.module}/scripts/rabbitmq/rabbitmq_setup.sh")
-  vars = {
-    MQINGESTENDPOINT       = var.ingest_mq_endpoint
-    MQUSERNAME             = jsondecode(var.ingest_mq_secret_string)["username"]
-    MQPASSWORD             = jsondecode(var.ingest_mq_secret_string)["password"]
-    RFC_FCST_USER          = jsondecode(var.rfc_fcst_user_secret_string)["username"]
-    RFC_FCST_USER_PASSWORD = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-    MQVHOST                = local.mq_vhost[var.environment]
-  }
-}
-
-data "template_file" "viz_postgresql_setup" {
-  template = file("${path.module}/scripts/viz/postgresql_setup.sh")
-  vars = {
-    VIZDBNAME            = var.viz_db_name
-    VIZDBHOST            = var.viz_db_address
-    VIZDBPORT            = var.viz_db_port
-    VIZDBUSERNAME        = jsondecode(var.viz_db_secret_string)["username"]
-    VIZDBPASSWORD        = jsondecode(var.viz_db_secret_string)["password"]
-    EGISDBNAME            = var.egis_db_name
-    EGISDBHOST            = var.egis_db_address
-    EGISDBPORT            = var.egis_db_port
-    EGISDBUSERNAME        = jsondecode(var.egis_db_secret_string)["username"]
-    EGISDBPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
-    DEPLOYMENT_BUCKET = var.data_deployment_bucket
-    HOME              = local.home_dir
-    VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-    VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-  }
-}
-
 data "cloudinit_config" "startup" {
   gzip          = true
   base64_encode = true
@@ -253,19 +195,51 @@ data "cloudinit_config" "startup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "ingest_postgresql_setup.sh"
-    content      = data.template_file.ingest_postgresql_setup.rendered
+    content      = templatefile("${path.module}/scripts/ingest/postgresql_setup.sh.tftpl", {
+      FORECASTDB        = var.forecast_db_name
+      LOCATIONDB        = var.location_db_name
+      INGESTDBUSERS     = local.ingest_db_users
+      LOCATIONDBUSERS   = local.location_db_users
+      DBHOST            = var.ingest_db_address
+      DBPORT            = var.ingest_db_port
+      DBUSERNAME        = jsondecode(var.ingest_db_secret_string)["username"]
+      DBPASSWORD        = jsondecode(var.ingest_db_secret_string)["password"]
+      DEPLOYMENT_BUCKET = var.data_deployment_bucket
+    })
   }
 
   part {
     content_type = "text/x-shellscript"
     filename     = "rabbitmq_setup.sh"
-    content      = data.template_file.rabbitmq_setup.rendered
+    content      = templatefile("${path.module}/scripts/rabbitmq/rabbitmq_setup.sh.tftpl", {
+      MQINGESTENDPOINT       = var.ingest_mq_endpoint
+      MQUSERNAME             = jsondecode(var.ingest_mq_secret_string)["username"]
+      MQPASSWORD             = jsondecode(var.ingest_mq_secret_string)["password"]
+      RFC_FCST_USER          = jsondecode(var.rfc_fcst_user_secret_string)["username"]
+      RFC_FCST_USER_PASSWORD = jsondecode(var.rfc_fcst_user_secret_string)["password"]
+      MQVHOST                = local.mq_vhost[var.environment]
+    })
   }
 
   part {
     content_type = "text/x-shellscript"
     filename     = "viz_postgresql_setup.sh"
-    content      = data.template_file.viz_postgresql_setup.rendered
+    content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
+      VIZDBNAME              = var.viz_db_name
+      VIZDBHOST              = var.viz_db_address
+      VIZDBPORT              = var.viz_db_port
+      VIZDBUSERNAME          = jsondecode(var.viz_db_secret_string)["username"]
+      VIZDBPASSWORD          = jsondecode(var.viz_db_secret_string)["password"]
+      EGISDBNAME             = var.egis_db_name
+      EGISDBHOST             = var.egis_db_address
+      EGISDBPORT             = var.egis_db_port
+      EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
+      EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
+      DEPLOYMENT_BUCKET      = var.data_deployment_bucket
+      HOME                   = local.home_dir
+      VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
+      VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+    })
   }
 
   part {
@@ -274,15 +248,21 @@ data "cloudinit_config" "startup" {
     content = <<-END
       #cloud-config
       ${jsonencode({
-    write_files = [
-      {
-        path        = "/deploy_files/ingest_users.sql"
-        permissions = "0400"
-        owner       = "ec2-user:ec2-user"
-        content     = data.template_file.ingest_users.rendered
-      }
-    ]
-})}
+        write_files = [
+          {
+            path        = "/deploy_files/ingest_users.sql"
+            permissions = "0400"
+            owner       = "ec2-user:ec2-user"
+            content     = templatefile("${path.module}/scripts/ingest/ingest_users.sql.tftpl", {
+              NWM_VIZ_RO       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
+              RFC_FCST         = jsondecode(var.rfc_fcst_secret_string)["password"]
+              RFC_FCST_RO_USER = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
+              RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
+              LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
+            })
+          }
+        ]
+      })}
     END
-}
+  }
 }

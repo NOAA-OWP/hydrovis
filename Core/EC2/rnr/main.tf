@@ -59,6 +59,31 @@ variable "nomads_url" {
   type = string
 }
 
+locals {
+  cloudinit_config_data = {
+    write_files = [
+      {
+        path        = "/deploy_files/conus.ini"
+        permissions = "0400"
+        owner       = "ec2-user:ec2-user"
+        content     = templatefile("${path.module}/templates/conus.ini.tftpl", {
+          WRDS_HOST = "http://${var.dataservices_ip}"
+          DSTORE_URL = var.dstore_url
+          NOMADS_URL = var.nomads_url
+        })
+      },
+      {
+        path        = "/deploy_files/.env.devel"
+        permissions = "0400"
+        owner       = "ec2-user:ec2-user"
+        content     = templatefile("${path.module}/templates/.env.devel.tftpl", {
+          OUTPUT_BUCKET = var.output_bucket
+        })
+      }
+    ]
+  }
+}
+
 ##################
 ## EC2 Instance ##
 ##################
@@ -116,30 +141,6 @@ data "aws_ami" "linux" {
   owners = [var.ami_owner_account_id]
 }
 
-data "template_file" "env_devel" {
-  template = file("${path.module}/templates/.env.devel")
-  vars = {
-    OUTPUT_BUCKET = var.output_bucket
-  }
-}
-
-data "template_file" "conus_ini_template" {
-  template = file("${path.module}/templates/conus.ini.template")
-  vars = {
-    WRDS_HOST = "http://${var.dataservices_ip}"
-    DSTORE_URL = var.dstore_url
-    NOMADS_URL = var.nomads_url
-  }
-}
-
-data "template_file" "install" {
-  template = file("${path.module}/templates/install.sh")
-  vars = {
-    DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-    logstash_ip            = var.logstash_ip
-  }
-}
-
 data "cloudinit_config" "startup" {
   gzip          = false
   base64_encode = false
@@ -147,7 +148,10 @@ data "cloudinit_config" "startup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "install.sh"
-    content      = data.template_file.install.rendered
+    content      = templatefile("${path.module}/templates/install.sh.tftpl", {
+      DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
+      logstash_ip            = var.logstash_ip
+    })
   }
 
   part {
@@ -155,22 +159,7 @@ data "cloudinit_config" "startup" {
     filename     = "cloud-config.yaml"
     content = <<-END
       #cloud-config
-      ${jsonencode({
-    write_files = [
-      {
-        path        = "/deploy_files/conus.ini"
-        permissions = "0400"
-        owner       = "ec2-user:ec2-user"
-        content     = data.template_file.conus_ini_template.rendered
-      },
-      {
-        path        = "/deploy_files/.env.devel"
-        permissions = "0400"
-        owner       = "ec2-user:ec2-user"
-        content     = data.template_file.env_devel.rendered
-      }
-    ]
-})}
+      ${jsonencode(local.cloudinit_config_data)}
     END
-}
+  }
 }
