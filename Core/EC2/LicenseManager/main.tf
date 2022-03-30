@@ -59,7 +59,7 @@ resource "aws_instance" "license_manager" {
     delete_on_termination = true
   }
 
-  user_data = data.template_cloudinit_config.licensemanager.rendered
+  user_data = data.cloudinit_config.licensemanager.rendered
 
   lifecycle {
     ignore_changes = [ami, tags]
@@ -88,7 +88,7 @@ data "aws_ami" "windows" {
   owners = [var.ami_owner_account_id]
 }
 
-data "template_cloudinit_config" "licensemanager" {
+data "cloudinit_config" "licensemanager" {
   gzip          = false
   base64_encode = false
 

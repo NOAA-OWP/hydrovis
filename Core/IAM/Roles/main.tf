@@ -117,27 +117,18 @@ resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
   })
 }
 
-data "template_file" "EventBridge-PassToService-Policy-template" {
-  template = file("${path.module}/EventBridge-PassToService-Policy-template.json")
-}
-
 resource "aws_iam_role_policy" "EventBridge-PassToService-Policy" {
   name   = "EventBridge-PassToService-Policy"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
-  policy = data.template_file.EventBridge-PassToService-Policy-template.rendered
-}
-
-data "template_file" "EventBridge-proc-pipeline-Lambda-Access-template" {
-  template = file("${path.module}/EventBridge-proc-pipeline-Lambda-Access-template.json")
-  vars = {
-    account_id  = var.account_id
-  }
+  policy = templatefile("${path.module}/EventBridge-PassToService-Policy.json.tftpl", {})
 }
 
 resource "aws_iam_role_policy" "EventBridge-proc-pipeline-Lambda-Access" {
   name   = "EventBridge-proc-pipeline-Lambda-Access"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
-  policy = data.template_file.EventBridge-proc-pipeline-Lambda-Access-template.rendered
+  policy = templatefile("${path.module}/EventBridge-proc-pipeline-Lambda-Access.json.tftpl", {
+    account_id  = var.account_id
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "hydrovis-viz-proc-pipeline-lambda-event-bridge" {
