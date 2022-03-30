@@ -19,29 +19,43 @@ variable "rnr_max_flows_data_bucket" {
   type        = string
 }
 
+variable "error_email_list" {
+  type = map(list(string))
+}
+
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 locals {
 
   sns_topics = {
-    nwm_ingest_ana       = var.nwm_data_bucket
-    nwm_ingest_ana_hi    = var.nwm_data_bucket
-    nwm_ingest_ana_prvi  = var.nwm_data_bucket
-    nwm_ingest_srf       = var.nwm_data_bucket
-    nwm_ingest_srf_hi    = var.nwm_data_bucket
-    nwm_ingest_srf_prvi  = var.nwm_data_bucket
-    nwm_ingest_mrf_3day  = var.nwm_data_bucket
-    nwm_ingest_mrf_5day  = var.nwm_data_bucket
-    nwm_ingest_mrf_10day = var.nwm_data_bucket
-    rnr_max_flows        = var.rnr_max_flows_data_bucket
-    nwm_max_flows        = var.nwm_max_flows_data_bucket
+    nwm_ingest_ana       = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_ana_hi    = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_ana_prvi  = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_srf       = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_srf_hi    = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_srf_prvi  = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_mrf_3day  = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_mrf_5day  = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    nwm_ingest_mrf_10day = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
+    rnr_max_flows        = tomap({ "sns_type" = "s3", "bucket" = var.rnr_max_flows_data_bucket })
+    nwm_max_flows        = tomap({ "sns_type" = "s3", "bucket" = var.nwm_max_flows_data_bucket })
+    viz_db_postprocess   = tomap({ "sns_type" = "lambda_trigger" })
   }
+
+  email_list = flatten([
+    for email_group_name, email_list in var.error_email_list : [
+      for email in email_list : {
+        email_group_name = email_group_name
+        email            = email
+      }
+    ]
+  ])
 }
 
-################
-## SNS Topics ##
-################
+####################
+## All SNS Topics ##
+####################
 
 resource "aws_sns_topic" "sns_topics" {
   for_each     = local.sns_topics
@@ -52,23 +66,27 @@ resource "aws_sns_topic" "sns_topics" {
   }
 }
 
-############################
-## SNS Topic Policies ##
-############################
 
-resource "aws_sns_topic_policy" "sns_topics" {
-  for_each = local.sns_topics
-  arn      = resource.aws_sns_topic.sns_topics[each.key].arn
+###########################
+## S3 SNS Topic Policies ##
+###########################
 
-  policy = data.aws_iam_policy_document.sns_topic_policies[each.key].json
+resource "aws_sns_topic_policy" "s3_sns_topics" {
+  for_each = {
+    for topic_name, metadata in local.sns_topics : topic_name => metadata
+    if metadata.sns_type == "s3"
+  }
+  arn = resource.aws_sns_topic.sns_topics[each.key].arn
+
+  policy = data.aws_iam_policy_document.s3_sns_topic_policies[each.key].json
 }
 
-######################################
-## SNS Topic Policies Documents ##
-######################################
+data "aws_iam_policy_document" "s3_sns_topic_policies" {
+  for_each = {
+    for topic_name, metadata in local.sns_topics : topic_name => metadata
+    if metadata.sns_type == "s3"
+  }
 
-data "aws_iam_policy_document" "sns_topic_policies" {
-  for_each  = local.sns_topics
   policy_id = "__default_policy_ID"
 
   version = "2008-10-17"
@@ -111,7 +129,7 @@ data "aws_iam_policy_document" "sns_topic_policies" {
       variable = "aws:SourceArn"
 
       values = [
-        "arn:aws:s3:::${each.value}"
+        "arn:aws:s3:::${each.value.bucket}"
       ]
     }
   }
@@ -135,6 +153,152 @@ data "aws_iam_policy_document" "sns_topic_policies" {
     resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
   }
 }
+
+#######################################
+## Lambda Trigger SNS Topic Policies ##
+#######################################
+
+resource "aws_sns_topic_policy" "lambda_trigger_sns_topics" {
+  for_each = {
+    for topic_name, metadata in local.sns_topics : topic_name => metadata
+    if metadata.sns_type == "lambda_trigger"
+  }
+  arn = resource.aws_sns_topic.sns_topics[each.key].arn
+
+  policy = data.aws_iam_policy_document.lambda_trigger_sns_topic_policies[each.key].json
+}
+
+data "aws_iam_policy_document" "lambda_trigger_sns_topic_policies" {
+  for_each = {
+    for topic_name, metadata in local.sns_topics : topic_name => metadata
+    if metadata.sns_type == "lambda_trigger"
+  }
+
+  policy_id = "__default_policy_ID"
+
+  version = "2008-10-17"
+
+  statement {
+    sid = "__default_statement_ID"
+
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "SNS:Publish",
+      "SNS:RemovePermission",
+      "SNS:SetTopicAttributes",
+      "SNS:DeleteTopic",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:GetTopicAttributes",
+      "SNS:AddPermission",
+      "SNS:Subscribe"
+    ]
+
+    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceAccount"
+
+      values = [
+        data.aws_caller_identity.current.account_id,
+      ]
+    }
+  }
+
+  statement {
+    sid    = "__console_sub_0"
+    effect = "Allow"
+
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+
+    actions = [
+      "SNS:Subscribe"
+    ]
+
+    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+  }
+}
+
+##############################
+## Email SNS Topic Policies ##
+##############################
+
+
+resource "aws_sns_topic" "email_sns_topics" {
+  for_each     = var.error_email_list
+  name         = "${lower(var.environment)}_${each.key}"
+  display_name = "${lower(var.environment)}_${each.key}"
+  tags = {
+    Name = "${lower(var.environment)}_${each.key}"
+  }
+}
+
+resource "aws_sns_topic_policy" "email_sns_topics" {
+  for_each = var.error_email_list
+  arn      = resource.aws_sns_topic.email_sns_topics[each.key].arn
+
+  policy = data.aws_iam_policy_document.email_sns_topic_policies[each.key].json
+}
+
+data "aws_iam_policy_document" "email_sns_topic_policies" {
+  for_each = var.error_email_list
+
+  policy_id = "__default_policy_ID"
+
+  version = "2008-10-17"
+
+  statement {
+    sid = "__default_statement_ID"
+
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "SNS:Publish",
+      "SNS:RemovePermission",
+      "SNS:SetTopicAttributes",
+      "SNS:DeleteTopic",
+      "SNS:ListSubscriptionsByTopic",
+      "SNS:GetTopicAttributes",
+      "SNS:AddPermission",
+      "SNS:Subscribe"
+    ]
+
+    resources = [resource.aws_sns_topic.email_sns_topics[each.key].arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceAccount"
+
+      values = [
+        data.aws_caller_identity.current.account_id,
+      ]
+    }
+  }
+}
+
+resource "aws_sns_topic_subscription" "email-targets" {
+  count = length(local.email_list)
+
+  topic_arn = resource.aws_sns_topic.email_sns_topics[local.email_list[count.index].email_group_name].arn
+  protocol  = "email"
+  endpoint  = local.email_list[count.index].email
+}
+
 
 #########################
 ## Event Notifications ##
@@ -235,4 +399,8 @@ resource "aws_s3_bucket_notification" "rnr_max_flows_bucket_notification" {
 
 output "sns_topics" {
   value = { for k, v in resource.aws_sns_topic.sns_topics : k => v }
+}
+
+output "email_sns_topics" {
+  value = { for k, v in resource.aws_sns_topic.email_sns_topics : k => v }
 }
