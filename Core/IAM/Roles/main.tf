@@ -40,19 +40,14 @@ resource "aws_iam_instance_profile" "HydrovisESRISSMDeploy" {
   role = aws_iam_role.HydrovisESRISSMDeploy.name
 }
 
-data "template_file" "HydrovisESRISSMDeploy-template" {
-  template = file("${path.module}/HydrovisESRISSMDeploy-template.json")
-  vars = {
-    environment = var.environment
-    region      = var.region
-    account_id  = var.account_id
-  }
-}
-
 resource "aws_iam_role_policy" "HydrovisESRISSMDeploy" {
   name   = "HydrovisESRISSMDeploy"
   role   = aws_iam_role.HydrovisESRISSMDeploy.id
-  policy = data.template_file.HydrovisESRISSMDeploy-template.rendered
+  policy = templatefile("${path.module}/HydrovisESRISSMDeploy.json.tftpl", {
+    environment = var.environment
+    region      = var.region
+    account_id  = var.account_id
+  })
 }
 
 
@@ -80,17 +75,12 @@ resource "aws_iam_instance_profile" "HydrovisSSMInstanceProfileRole" {
   role = aws_iam_role.HydrovisSSMInstanceProfileRole.name
 }
 
-data "template_file" "HydroVISSSMPolicy-template" {
-  template = file("${path.module}/HydroVISSSMPolicy-template.json")
-  vars = {
-    environment = var.environment
-  }
-}
-
 resource "aws_iam_role_policy" "HydroVISSSMPolicy" {
   name   = "HydroVISSSMPolicy"
   role   = aws_iam_role.HydrovisSSMInstanceProfileRole.id
-  policy = data.template_file.HydroVISSSMPolicy-template.rendered
+  policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
+    environment = var.environment
+  })
 }
 
 
@@ -117,42 +107,28 @@ resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {
   })
 }
 
-data "template_file" "hydrovis-viz-proc-pipeline-lambda-template" {
-  template = file("${path.module}/hydrovis-viz-proc-pipeline-lambda-template.json")
-  vars = {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
-  }
-}
-
 resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
   name   = "hydrovis-viz-proc-pipeline-lambda"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
-  policy = data.template_file.hydrovis-viz-proc-pipeline-lambda-template.rendered
-}
-
-data "template_file" "EventBridge-PassToService-Policy-template" {
-  template = file("${path.module}/EventBridge-PassToService-Policy-template.json")
+  policy = templatefile("${path.module}/hydrovis-viz-proc-pipeline-lambda.json.tftpl", {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  })
 }
 
 resource "aws_iam_role_policy" "EventBridge-PassToService-Policy" {
   name   = "EventBridge-PassToService-Policy"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
-  policy = data.template_file.EventBridge-PassToService-Policy-template.rendered
-}
-
-data "template_file" "EventBridge-proc-pipeline-Lambda-Access-template" {
-  template = file("${path.module}/EventBridge-proc-pipeline-Lambda-Access-template.json")
-  vars = {
-    account_id  = var.account_id
-  }
+  policy = templatefile("${path.module}/EventBridge-PassToService-Policy.json.tftpl", {})
 }
 
 resource "aws_iam_role_policy" "EventBridge-proc-pipeline-Lambda-Access" {
   name   = "EventBridge-proc-pipeline-Lambda-Access"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
-  policy = data.template_file.EventBridge-proc-pipeline-Lambda-Access-template.rendered
+  policy = templatefile("${path.module}/EventBridge-proc-pipeline-Lambda-Access.json.tftpl", {
+    account_id  = var.account_id
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "hydrovis-viz-proc-pipeline-lambda-event-bridge" {
@@ -185,25 +161,22 @@ resource "aws_iam_instance_profile" "hydrovis-hml-ingest-role" {
   role = aws_iam_role.hydrovis-hml-ingest-role.name
 }
 
-data "template_file" "hydrovis-hml-ingest-role-template" {
-  template = file("${path.module}/hydrovis-hml-ingest-role-template.json")
-  vars = {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
-  }
-}
-
 resource "aws_iam_role_policy" "hydrovis-hml-ingest-role" {
   name   = "hydrovis-hml-ingest-role"
   role   = aws_iam_role.hydrovis-hml-ingest-role.id
-  policy = data.template_file.hydrovis-hml-ingest-role-template.rendered
+  policy = templatefile("${path.module}/hydrovis-hml-ingest-role.json.tftpl", {
+    environment = var.environment
+    account_id  = var.account_id
+    region      = var.region
+  })
 }
 
 resource "aws_iam_role_policy" "hydrovis-hml-ingest-role-SSM-policy" {
   name   = "HydroVISSSMPolicy"
   role   = aws_iam_role.hydrovis-hml-ingest-role.id
-  policy = data.template_file.HydroVISSSMPolicy-template.rendered
+  policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
+    environment = var.environment
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "hydrovis-hml-ingest-role-lambda-execute-policy" {
@@ -239,7 +212,9 @@ resource "aws_iam_instance_profile" "Hydroviz-RnR-EC2-Profile" {
 resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
   name   = "HydroVISSSMPolicy"
   role   = aws_iam_role.Hydroviz-RnR-EC2-Profile.id
-  policy = data.template_file.HydroVISSSMPolicy-template.rendered
+  policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
+    environment = var.environment
+  })
 }
 
 

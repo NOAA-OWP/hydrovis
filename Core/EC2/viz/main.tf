@@ -175,60 +175,49 @@ data "aws_ami" "windows" {
 ## Data Blocks ##
 #################
 
-# Builds startup script with specific commits for needed viz pipeline
-data "template_file" "arcgispro_setup" {
-  template = file("${path.module}/templates/pro_license.reg")
-  vars = {
-    LICENSE_SERVER = var.license_server_ip
-    PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
-  }
-}
-
-data "template_file" "pipeline_setup" {
-  template = file("${path.module}/templates/prc_setup.ps1")
-  vars = {
-    Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
-    EGIS_HOST                      = local.egis_host
-    VIZ_ENVIRONMENT                = local.viz_environment
-    FIM_VERSION                    = var.fim_version
-    SSH_KEY_CONTENT                = file("${path.root}/sensitive/viz/id_rsa")
-    LICENSE_REG_CONTENT            = data.template_file.arcgispro_setup.rendered
-    WRDS_HOST                      = var.dataservices_ip
-    NWM_DATA_BUCKET                = var.nwm_data_bucket
-    FIM_DATA_BUCKET                = var.fim_data_bucket
-    FIM_OUTPUT_BUCKET              = var.fim_output_bucket
-    NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
-    RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
-    DEPLOYMENT_DATA_BUCKET          = var.deployment_data_bucket
-    DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
-    WINDOWS_SERVICE_STATUS         = var.windows_service_status
-    WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
-    PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
-    PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
-    HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
-    LOGSTASH_IP                    = var.logstash_ip
-    VLAB_REPO_PREFIX               = var.vlab_repo_prefix
-    VLAB_HOST                      = var.vlab_host
-    VIZ_DB_HOST                    = var.viz_db_host
-    VIZ_DB_DATABASE                = var.viz_db_name
-    VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
-    VIZ_DB_PASSWORD                = jsondecode(var.viz_db_user_secret_string)["password"]
-    EGIS_DB_HOST                   = var.egis_db_host
-    EGIS_DB_DATABASE               = var.egis_db_name
-    EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
-    EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
-    AWS_REGION                     = var.region
-  }
-}
-
-data "template_cloudinit_config" "pipeline_setup" {
+data "cloudinit_config" "pipeline_setup" {
   gzip          = false
   base64_encode = false
 
   part {
     content_type = "text/x-shellscript"
     filename     = "prc_setup.ps1"
-    content      = data.template_file.pipeline_setup.rendered
+    content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
+      Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
+      EGIS_HOST                      = local.egis_host
+      VIZ_ENVIRONMENT                = local.viz_environment
+      FIM_VERSION                    = var.fim_version
+      SSH_KEY_CONTENT                = file("${path.root}/sensitive/viz/id_rsa")
+      LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
+        LICENSE_SERVER = var.license_server_ip
+        PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
+      })
+      WRDS_HOST                      = var.dataservices_ip
+      NWM_DATA_BUCKET                = var.nwm_data_bucket
+      FIM_DATA_BUCKET                = var.fim_data_bucket
+      FIM_OUTPUT_BUCKET              = var.fim_output_bucket
+      NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
+      RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
+      DEPLOYMENT_DATA_BUCKET          = var.deployment_data_bucket
+      DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
+      WINDOWS_SERVICE_STATUS         = var.windows_service_status
+      WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
+      PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
+      PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
+      HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
+      LOGSTASH_IP                    = var.logstash_ip
+      VLAB_REPO_PREFIX               = var.vlab_repo_prefix
+      VLAB_HOST                      = var.vlab_host
+      VIZ_DB_HOST                    = var.viz_db_host
+      VIZ_DB_DATABASE                = var.viz_db_name
+      VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD                = jsondecode(var.viz_db_user_secret_string)["password"]
+      EGIS_DB_HOST                   = var.egis_db_host
+      EGIS_DB_DATABASE               = var.egis_db_name
+      EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
+      EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
+      AWS_REGION                     = var.region
+    })
   }
 }
 
@@ -270,7 +259,7 @@ resource "aws_instance" "viz_pipeline" {
     }
   }
 
-  user_data = data.template_cloudinit_config.pipeline_setup.rendered
+  user_data = data.cloudinit_config.pipeline_setup.rendered
 }
 
 
@@ -278,21 +267,16 @@ resource "aws_instance" "viz_pipeline" {
 ## VIZ FILESHARE ##
 ###################
 
-data "template_file" "fileshare_setup" {
-  template = file("${path.module}/templates/fs_setup.ps1")
-  vars = {
-    PIPELINE_USER = jsondecode(var.pipeline_user_secret_string)["username"]
-  }
-}
-
-data "template_cloudinit_config" "fileshare_setup" {
+data "cloudinit_config" "fileshare_setup" {
   gzip          = false
   base64_encode = false
 
   part {
     content_type = "text/x-shellscript"
     filename     = "fs_setup.ps1"
-    content      = data.template_file.fileshare_setup.rendered
+    content      = templatefile("${path.module}/templates/fs_setup.ps1.tftpl", {
+      PIPELINE_USER = jsondecode(var.pipeline_user_secret_string)["username"]
+    })
   }
 }
 
@@ -330,5 +314,5 @@ resource "aws_instance" "viz_fileshare" {
     }
   }
 
-  user_data = data.template_cloudinit_config.fileshare_setup.rendered
+  user_data = data.cloudinit_config.fileshare_setup.rendered
 }

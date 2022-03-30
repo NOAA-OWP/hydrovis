@@ -68,6 +68,18 @@ variable "logstash_ip" {
 
 locals {
   hvl_environment = var.environment == "ti" ? "TI" : var.environment == "uat" ? "UAT" : var.environment
+  user_data = templatefile("${path.module}/templates/prc_install.sh.tftpl", {
+    DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
+    HVLEnvironment         = local.hvl_environment
+    RSCHEME                = split(":", var.mq_ingest_endpoint)[0]
+    RPORT                  = split(":", var.mq_ingest_endpoint)[2]
+    RHOST                  = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
+    MQINGESTPASSWORD       = jsondecode(var.mq_ingest_secret_string)["password"]
+    DBHOST                 = var.db_host
+    DBPASSWORD             = jsondecode(var.db_ingest_secret_string)["password"]
+    HVLEnvironment         = var.environment
+    logstash_ip            = var.logstash_ip
+  })
 }
 
 
@@ -116,7 +128,7 @@ resource "aws_instance" "ingest_prc1" {
     volume_type = "gp2"
   }
 
-  user_data = data.template_file.prc_install.rendered
+  user_data = local.user_data
 }
 
 resource "aws_instance" "ingest_prc2" {
@@ -143,25 +155,5 @@ resource "aws_instance" "ingest_prc2" {
     volume_type = "gp2"
   }
 
-  user_data = data.template_file.prc_install.rendered
-}
-
-####################
-## TEMPLATE FILES ##
-####################
-
-data "template_file" "prc_install" {
-  template = file("${path.module}/templates/prc_install.sh")
-  vars = {
-    DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-    HVLEnvironment         = local.hvl_environment
-    RSCHEME                = split(":", var.mq_ingest_endpoint)[0]
-    RPORT                  = split(":", var.mq_ingest_endpoint)[2]
-    RHOST                  = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
-    MQINGESTPASSWORD       = jsondecode(var.mq_ingest_secret_string)["password"]
-    DBHOST                 = var.db_host
-    DBPASSWORD             = jsondecode(var.db_ingest_secret_string)["password"]
-    HVLEnvironment         = var.environment
-    logstash_ip            = var.logstash_ip
-  }
+  user_data = local.user_data
 }

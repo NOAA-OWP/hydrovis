@@ -127,77 +127,42 @@ resource "aws_elasticsearch_domain" "es" {
   }
 }
 
-data "template_file" "parser_templates" {
-  for_each = fileset("${path.module}/parsers", "*.conf.template")
-  template = file("${path.module}/parsers/${each.value}")
-  vars = {
-    parser_name = regex("(.+).template", each.value)[0] # Not used in the template, just in the for loop below
-    es_endpoint = aws_elasticsearch_domain.es.endpoint
-    region      = var.region
-  }
-}
-
-data "template_file" "startup" {
-  template = file("${path.module}/startup.sh")
-  vars = {
-    es_endpoint       = aws_elasticsearch_domain.es.endpoint
-    deployment_bucket = var.deployment_bucket
+locals {
+  cloudinit_config_data = {
+    write_files = [
+      for parser_template in fileset("${path.module}/parser_templates", "*.conf") :
+      {
+        path        = "/parsers/${parser_template}"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = templatefile("${path.module}/parser_templates/${parser_template}", {
+          es_endpoint = aws_elasticsearch_domain.es.endpoint
+          region      = var.region
+        })
+      }
+    ]
   }
 }
 
 data "cloudinit_config" "startup" {
-  # gzip          = false
-  # base64_encode = false
-
   part {
     content_type = "text/cloud-config"
     filename     = "cloud-config.yaml"
     content = <<-END
       #cloud-config
-      ${jsonencode({ write_files = [for parser_template in data.template_file.parser_templates :
-    {
-      path        = "/parsers/${parser_template.vars["parser_name"]}"
-      permissions = "0777"
-      owner       = "ec2-user:ec2-user"
-      content     = "${parser_template.rendered}"
-    }
-] })}
+      ${jsonencode(local.cloudinit_config_data)}
     END
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "startup.sh"
+    content      = templatefile("${path.module}/startup.sh.tftpl", {
+      es_endpoint       = aws_elasticsearch_domain.es.endpoint
+      deployment_bucket = var.deployment_bucket
+    })
+  }
 }
-
-part {
-  content_type = "text/x-shellscript"
-  filename     = "startup.sh"
-  content      = data.template_file.startup.rendered
-}
-}
-
-# data "cloudinit_config" "startup" {
-#   # gzip          = false
-#   # base64_encode = false
-
-#   part {
-#     content_type = "text/cloud-config"
-#     filename     = "cloud-config.yaml"
-#     content = <<-END
-#       #cloud-config
-#       ${jsonencode({ write_files = [for parser in fileset(path.module, "parsers/*.conf") :
-#         {
-#           path        = "/${parser}"
-#           permissions = "0777"
-#           owner       = "ec2-user:ec2-user"
-#           content     = "${file("${path.module}/${parser}")}"
-#         }
-#       ]})}
-#     END
-#   }
-
-#   part {
-#     content_type = "text/x-shellscript"
-#     filename     = "startup.sh"
-#     content      = file("${path.module}/startup.sh")
-#   }
-# }
 
 resource "aws_instance" "logstash" {
   ami                    = data.aws_ami.linux.id

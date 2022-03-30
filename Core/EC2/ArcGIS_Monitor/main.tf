@@ -55,7 +55,7 @@ resource "aws_instance" "arcgismonitor" {
     delete_on_termination = true
   }
 
-  user_data = data.template_cloudinit_config.arcgismonitor.rendered
+  user_data = data.cloudinit_config.arcgismonitor.rendered
 
   lifecycle {
     ignore_changes = [ami, tags]
@@ -84,22 +84,17 @@ data "aws_ami" "windows" {
   owners = [var.ami_owner_account_id]
 }
 
-data "template_file" "arcgismonitor" {
-  template = file("${path.module}/templates/ArcGIS_Monitor_Setup.ps1")
-  vars = {
-    environment = var.environment
-    region      = var.region
-  }
-}
-
-data "template_cloudinit_config" "arcgismonitor" {
+data "cloudinit_config" "arcgismonitor" {
   gzip          = false
   base64_encode = false
 
   part {
     content_type = "text/x-shellscript"
     filename     = "ArcGIS_LM_Setup.ps1"
-    content      = data.template_file.arcgismonitor.rendered
+    content      = templatefile("${path.module}/templates/ArcGIS_Monitor_Setup.ps1.tftpl", {
+      environment = var.environment
+      region      = var.region
+    })
   }
 }
 #################################################################################################################################
