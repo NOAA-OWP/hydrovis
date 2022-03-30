@@ -30,7 +30,7 @@ variable "subnet_hydrovis-sn-prv-data1b_cidr_block" {
 }
 
 resource "aws_security_group" "es-sg" {
-  description = "Allow inbound traffic to ElasticSearch from VPC/NWAVE CIDRs"
+  description = "Allow inbound traffic to ElasticSearch from VPC CIDR"
   egress = [
     {
       cidr_blocks = [
