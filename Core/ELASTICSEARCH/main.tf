@@ -201,3 +201,7 @@ data "aws_ami" "linux" {
 output "aws_instance_logstash" {
   value = aws_instance.logstash
 }
+
+output "aws_elasticsearch_domain" {
+  value = aws_elasticsearch_domain.es
+}
