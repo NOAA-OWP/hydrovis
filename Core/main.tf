@@ -40,6 +40,15 @@ module "iam-roles" {
   region      = local.env.region
 }
 
+# IAM Users
+module "iam-users" {
+  source = "./IAM/Users"
+
+  environment = local.env.environment
+  account_id  = local.env.account_id
+  region      = local.env.region
+}
+
 # KMS
 module "kms" {
   source = "./KMS"
@@ -107,6 +116,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
+      module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-roles.role_hydrovis-ecs-resource-access.arn,
       module.iam-roles.role_ecs-task-execution.arn
     ]
