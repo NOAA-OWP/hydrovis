@@ -41,7 +41,7 @@ terraform.rc
 **/LAMBDA/**/repos
 
 # Ignore elasticsearch zip files
-**/ELASTICSEARCH/lambda_code.zip
+**/ELASTICSEARCH/lambda_code*.zip
 
 **/buildplan
 **/destroyplan
