@@ -10,18 +10,22 @@ variable "lambda_trigger_functions" {
   type = set(string)
 }
 
-resource "local_file" "lambda_code_index" {
-  content  = templatefile("${path.module}/lambda_code/index.js.tftpl", {
-    es_endpoint = aws_elasticsearch_domain.es.endpoint
-  })
-  filename = "${path.module}/lambda_code/index.js"
-}
-
 data "archive_file" "lambda_code" {
   type = "zip"
 
-  source_dir  = "${path.module}/lambda_code"
-  output_path = "${path.module}/lambda_code.zip"
+  source {
+    content  = templatefile("${path.module}/lambda_code/index.js.tftpl", {
+      es_endpoint = aws_elasticsearch_domain.es.endpoint
+    })
+    filename = "index.js"
+  }
+
+  source {
+    content  = file("${path.module}/lambda_code/viz_js.js")
+    filename = "viz_js.js"
+  }
+
+  output_path = "${path.module}/lambda_code_${var.environment}.zip"
 }
 
 resource "aws_iam_role" "LambdaforElasticsearch" {

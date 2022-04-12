@@ -120,8 +120,8 @@ resource "aws_lambda_function" "hml_reciever" {
     }
   }
 
-  s3_bucket = var.deployment_bucket
-  s3_key    = "ingest/lambda/HML_receiver_lambda.zip"
+  filename         = "${path.module}/HML_receiver_lambda.zip"
+  source_code_hash = filebase64sha256("${path.module}/HML_receiver_lambda.zip")
 
   runtime = "python3.8"
   handler = "hml_receiver.lambda_function"
