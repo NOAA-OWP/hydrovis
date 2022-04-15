@@ -459,6 +459,7 @@ module "rnr_ec2" {
   logstash_ip                    = module.monitoring.aws_instance_logstash.private_ip
   dstore_url                     = local.env.rnr_dstore_url
   nomads_url                     = local.env.rnr_nomads_url
+  rnr_versions                   = local.env.rnr_versions
 }
 
 module "egis_license_manager" {

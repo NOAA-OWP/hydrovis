@@ -40,10 +40,12 @@ sudo yum -y install m4
 echo "Installing Python Dependencies"
 sudo git clone https://github.com/Unidata/netcdf-c.git /opt/netcdf-c
 cd /opt/netcdf-c
+sudo git checkout ${netcdf_c_commit}
 sudo cmake3 .
 sudo make install
 sudo git clone https://github.com/Unidata/netcdf-fortran.git /opt/netcdf-fortran
 cd /opt/netcdf-fortran
+sudo git checkout ${netcdf_fortran_commit}
 sudo cmake3 .
 sudo make install
 
