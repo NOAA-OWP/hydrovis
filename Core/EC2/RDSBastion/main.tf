@@ -194,6 +194,27 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
+    filename     = "viz_postgresql_setup.sh"
+    content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
+      VIZDBNAME              = var.viz_db_name
+      VIZDBHOST              = var.viz_db_address
+      VIZDBPORT              = var.viz_db_port
+      VIZDBUSERNAME          = jsondecode(var.viz_db_secret_string)["username"]
+      VIZDBPASSWORD          = jsondecode(var.viz_db_secret_string)["password"]
+      EGISDBNAME             = var.egis_db_name
+      EGISDBHOST             = var.egis_db_address
+      EGISDBPORT             = var.egis_db_port
+      EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
+      EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
+      DEPLOYMENT_BUCKET      = var.data_deployment_bucket
+      HOME                   = local.home_dir
+      VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
+      VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
     filename     = "ingest_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/ingest/postgresql_setup.sh.tftpl", {
       FORECASTDB        = var.forecast_db_name
@@ -218,27 +239,6 @@ data "cloudinit_config" "startup" {
       RFC_FCST_USER          = jsondecode(var.rfc_fcst_user_secret_string)["username"]
       RFC_FCST_USER_PASSWORD = jsondecode(var.rfc_fcst_user_secret_string)["password"]
       MQVHOST                = local.mq_vhost[var.environment]
-    })
-  }
-
-  part {
-    content_type = "text/x-shellscript"
-    filename     = "viz_postgresql_setup.sh"
-    content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
-      VIZDBNAME              = var.viz_db_name
-      VIZDBHOST              = var.viz_db_address
-      VIZDBPORT              = var.viz_db_port
-      VIZDBUSERNAME          = jsondecode(var.viz_db_secret_string)["username"]
-      VIZDBPASSWORD          = jsondecode(var.viz_db_secret_string)["password"]
-      EGISDBNAME             = var.egis_db_name
-      EGISDBHOST             = var.egis_db_address
-      EGISDBPORT             = var.egis_db_port
-      EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
-      EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
-      DEPLOYMENT_BUCKET      = var.data_deployment_bucket
-      HOME                   = local.home_dir
-      VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-      VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
     })
   }
 
