@@ -112,6 +112,10 @@ variable "viz_proc_admin_rw_secret_string" {
   type = string
 }
 
+variable "viz_proc_dev_rw_secret_string" {
+  type = string
+}
+
 variable "fim_version" {
   type = string
 }
@@ -210,6 +214,8 @@ data "cloudinit_config" "startup" {
       HOME                   = local.home_dir
       VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
       VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+      VIZ_PROC_DEV_RW_USER   = jsondecode(var.viz_proc_dev_rw_secret_string)["username"]
+      VIZ_PROC_DEV_RW_PASS   = jsondecode(var.viz_proc_dev_rw_secret_string)["password"]
     })
   }
 

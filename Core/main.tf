@@ -89,6 +89,7 @@ module "secrets-manager" {
     "data-services-location-pg-rdssecret" = { "username" : "location_ro_user" }
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
     "viz_proc_admin_rw_user"              = { "username" : "viz_proc_admin_rw_user" }
+    "viz_proc_dev_rw_user"                = { "username" : "viz_proc_dev_rw_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc_fcst"                        = { "username" : "rfc_fcst" }
@@ -358,6 +359,7 @@ module "rds-bastion" {
   ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   viz_db_address                  = module.rds-viz.rds-viz-processing.address
   viz_db_port                     = module.rds-viz.rds-viz-processing.port

@@ -16,6 +16,8 @@ DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
 HOME="${HOME}"
 VIZ_PROC_ADMIN_RW_USER="${VIZ_PROC_ADMIN_RW_USER}"
 VIZ_PROC_ADMIN_RW_PASS="${VIZ_PROC_ADMIN_RW_PASS}"
+VIZ_PROC_DEV_RW_USER="${VIZ_PROC_DEV_RW_USER}"
+VIZ_PROC_DEV_RW_PASS="${VIZ_PROC_DEV_RW_PASS}"
 
 ### install postgresql ###
 sudo yum install -y postgresql12
@@ -27,10 +29,11 @@ aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOM
 psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -f "$${HOME}/postgis_setup.sql"
 rm "$${HOME}/postgis_setup.sql"
 
-# Cleaning up DB
+# Cleaning up EGIS DB
 echo "Cleaning up EGIS DB..."
 psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE; DROP SCHEMA IF EXISTS services CASCADE;"
 
+# Restoring EGIS Schema Dumps
 echo "Setting up fim schema in the EGIS DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
 pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
@@ -43,19 +46,25 @@ rm "$${HOME}/egisDB_services.dump"
 
 export PGPASSWORD=$${VIZDBPASSWORD}
 
-# Adding postgis extension
+# Adding postgis extension to Viz DB
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -f "$${HOME}/postgis_setup.sql"
 rm "$${HOME}/postgis_setup.sql"
 
-echo "Adding viz user..."
+# Adding users to Viz DB
+echo "Adding viz proc user..."
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_ADMIN_RW_USER};"
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_ADMIN_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 500 ENCRYPTED PASSWORD '$${VIZ_PROC_ADMIN_RW_PASS}';"
 
-# Cleaning up DB
+echo "Adding viz dev user..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_DEV_RW_USER};"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_DEV_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '$${VIZ_PROC_DEV_RW_PASS}';"
+
+# Cleaning up Viz DB
 echo "Cleaning up Viz DB..."
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
 
+# Resoring Viz DB Schema Dumps
 echo "Setting up admin schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_admin.dump" "$${HOME}/vizDB_admin.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_admin.dump"
@@ -85,3 +94,15 @@ echo "Setting up publish schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_publish.dump" "$${HOME}/vizDB_publish.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_publish.dump"
 rm "$${HOME}/vizDB_publish.dump"
+
+# Adding Dev Schema to Viz DB
+echo "Setting up dev schema in the VIZ DB and grant full permissions to both viz proc and dev users..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
+    -tAc "DROP SCHEMA IF EXISTS dev CASCADE;
+            CREATE SCHEMA dev;
+            GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_ADMIN_RW_USER};
+            GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_ADMIN_RW_USER};
+            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_ADMIN_RW_USER};
+            GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
+            GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
+            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
