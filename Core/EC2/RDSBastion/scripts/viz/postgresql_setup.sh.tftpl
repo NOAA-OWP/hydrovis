@@ -22,6 +22,28 @@ VIZ_PROC_DEV_RW_PASS="${VIZ_PROC_DEV_RW_PASS}"
 ### install postgresql ###
 sudo yum install -y postgresql12
 
+# Setting up EGIS DB
+export PGPASSWORD=$${EGISDBPASSWORD}
+
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -f "$${HOME}/postgis_setup.sql"
+rm "$${HOME}/postgis_setup.sql"
+
+# Cleaning up EGIS DB
+echo "Cleaning up EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE; DROP SCHEMA IF EXISTS services CASCADE;"
+
+# Restoring EGIS Schema Dumps
+echo "Setting up fim schema in the EGIS DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
+rm "$${HOME}/egisDB_reference.dump"
+
+echo "Setting up services schema in the EGIS DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_services.dump" "$${HOME}/egisDB_services.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_services.dump"
+rm "$${HOME}/egisDB_services.dump"
+
 export PGPASSWORD=$${VIZDBPASSWORD}
 
 # Adding postgis extension to Viz DB
@@ -59,9 +81,9 @@ pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSE
 rm "$${HOME}/vizDB_derived.dump"
 
 echo "Setting up simplified fim schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_fim_simplified.dump" "$${HOME}/vizDB_fim_simplified.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_fim_simplified.dump"
-rm "$${HOME}/vizDB_fim_simplified.dump"
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_fim.dump" "$${HOME}/vizDB_fim.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_fim.dump"
+rm "$${HOME}/vizDB_fim.dump"
 
 echo "Setting up ingest schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_ingest.dump" "$${HOME}/vizDB_ingest.dump"
@@ -84,24 +106,3 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
-
-# Setting up EGIS DB
-export PGPASSWORD=$${EGISDBPASSWORD}
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -f "$${HOME}/postgis_setup.sql"
-rm "$${HOME}/postgis_setup.sql"
-
-# Cleaning up EGIS DB
-echo "Cleaning up EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE; DROP SCHEMA IF EXISTS services CASCADE;"
-
-# Resoring EGIS Schema Dumps
-echo "Setting up fim schema in the EGIS DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
-rm "$${HOME}/egisDB_reference.dump"
-
-echo "Setting up services schema in the EGIS DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_services.dump" "$${HOME}/egisDB_services.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_services.dump"
-rm "$${HOME}/egisDB_services.dump"

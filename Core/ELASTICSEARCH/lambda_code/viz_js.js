@@ -1,7 +1,9 @@
 function parse_viz_logs(source, logGroup, message) {
     source['function_name'] = source['@log_group'].replace("/aws/lambda/", '');
     
-    if (logGroup.toLowerCase().includes("viz")) {
+    if (logGroup.toLowerCase().includes("viz_db")) {
+        source['aws_process'] = "visualization_db"
+    } else if (logGroup.toLowerCase().includes("viz")) {
         source['aws_process'] = "visualization"
     } else if (logGroup.toLowerCase().includes("hml")) {
         source['aws_process'] = "data_ingest"
@@ -112,6 +114,13 @@ function parse_viz_logs(source, logGroup, message) {
     
             source['process_code'] = 6
         }
+    } else if (source.aws_process == "visualization_db") {
+         var myRe = /\[ELASTICSEARCH (\D*)\]:  (.*) - \[(.*)\]/;
+         var match_array = message.match(myRe);
+         var myJson = JSON.parse(match_array[3])
+         Object.keys(myJson).forEach(function(key) {
+            source[key] = myJson[key]
+         })
     }
     return source
 }
