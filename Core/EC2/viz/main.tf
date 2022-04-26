@@ -175,7 +175,7 @@ data "aws_ami" "windows" {
 ## S3 Uploads ##
 ################
 
-resource "aws_s3_object" "setup_upload" {
+resource "aws_s3_bucket_object" "setup_upload" {
   bucket      = var.deployment_data_bucket
   key         = "viz/viz_ec2_setup.ps1"
   source      = "${path.module}/scripts/viz_ec2_setup.ps1"
@@ -210,6 +210,7 @@ data "cloudinit_config" "pipeline_setup" {
       NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
       RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
       DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
+      DEPLOYMENT_DATA_OBJECT         = aws_s3_bucket_object.setup_upload.key
       DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
       WINDOWS_SERVICE_STATUS         = var.windows_service_status
       WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
