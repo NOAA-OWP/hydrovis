@@ -41,7 +41,7 @@ resource "aws_db_instance" "viz-processing" {
   allocated_storage            = 200
   storage_type                 = "gp2"
   engine                       = "postgres"
-  engine_version               = "12.7"
+  engine_version               = "12.8"
   username                     = jsondecode(var.db_viz_processing_secret_string)["username"]
   password                     = jsondecode(var.db_viz_processing_secret_string)["password"]
   db_subnet_group_name         = aws_db_subnet_group.viz-processing.name
@@ -52,6 +52,7 @@ resource "aws_db_instance" "viz-processing" {
   performance_insights_enabled = true
   backup_retention_period      = 7
   skip_final_snapshot          = true
+  auto_minor_version_upgrade   = false
   tags = {
     "hydrovis-${var.environment}-viz-processing-rdsdbtag" : "hydrovis-${var.environment}-viz-processing-rdsdbtag"
   }

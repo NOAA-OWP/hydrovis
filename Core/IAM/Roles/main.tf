@@ -217,6 +217,68 @@ resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
   })
 }
 
+#ECS Execution Role
+resource "aws_iam_role" "ecs-task-execution-role" {
+  name = "ecsTaskExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy" "ecs_task_execution_policy" {
+  name = "AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-policy" {
+  name   = "ecs-task-execution-policy"
+  role   = aws_iam_role.ecs-task-execution-role.id
+  policy = data.aws_iam_policy.ecs_task_execution_policy.policy
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
+  name   = "ecs-task-execution-cloudwatch-log-policy"
+  role   = aws_iam_role.ecs-task-execution-role.id
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
+}
+
+# ECS Container Role
+resource "aws_iam_role" "hydrovis-ecs-resource-access" {
+  name = "HydroVIS-ECS-Container-Resource-Access"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "ecs-tasks.amazonaws.com",
+            "ecs.amazonaws.com"
+          ]
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
+  name   = "hydrovis-cloudwatch-log-policy"
+  role   = aws_iam_role.hydrovis-ecs-resource-access.id
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
+}
 
 output "role_autoscaling" {
   value = aws_iam_service_linked_role.autoscaling
@@ -256,4 +318,12 @@ output "role_Hydroviz-RnR-EC2-Profile" {
 
 output "profile_Hydroviz-RnR-EC2-Profile" {
   value = aws_iam_instance_profile.Hydroviz-RnR-EC2-Profile
+}
+
+output "role_hydrovis-ecs-resource-access" {
+  value = aws_iam_role.hydrovis-ecs-resource-access
+}
+
+output "role_ecs-task-execution" {
+  value = aws_iam_role.ecs-task-execution-role
 }
