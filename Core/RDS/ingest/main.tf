@@ -37,7 +37,7 @@ resource "aws_db_instance" "ingest" {
   allocated_storage            = 100
   storage_type                 = "gp2"
   engine                       = "postgres"
-  engine_version               = "12.7"
+  engine_version               = "12.8"
   username                     = jsondecode(var.db_ingest_secret_string)["username"]
   password                     = jsondecode(var.db_ingest_secret_string)["password"]
   db_subnet_group_name         = aws_db_subnet_group.ingest.name
@@ -48,6 +48,7 @@ resource "aws_db_instance" "ingest" {
   performance_insights_enabled = true
   backup_retention_period      = 7
   skip_final_snapshot          = true
+  auto_minor_version_upgrade   = false
   tags = {
     "hydrovis-${var.environment}-data-ingest-rdsdbtag" : "hydrovis-${var.environment}-data-ingest-rdsdbtag"
   }
