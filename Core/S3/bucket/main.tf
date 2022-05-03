@@ -135,18 +135,6 @@ resource "aws_s3_bucket_policy" "hydrovis" {
     {
       Statement = [
         {
-          Action = "s3:PutObject"
-          Condition = {
-            StringNotEquals = {
-              "s3:x-amz-server-side-encryption" = "aws:kms"
-            }
-          }
-          Effect    = "Deny"
-          Principal = "*"
-          Resource  = "${aws_s3_bucket.hydrovis.arn}/*"
-          Sid       = "DenyUnEncryptedObjectUploads"
-        },
-        {
           Action = [
             "s3:GetBucketPolicy",
             "s3:GetBucketAcl",
