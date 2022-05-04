@@ -138,7 +138,7 @@ locals {
     "dev" : "development",
     "development" : "development",
     "ti" : "testing_integration",
-    "uat" : "user_acceptance-testing",
+    "uat" : "user_acceptance_testing",
     "prod" : "production",
     "production" : "production",
   }
