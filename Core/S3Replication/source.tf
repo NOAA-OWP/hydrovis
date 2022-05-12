@@ -43,7 +43,7 @@ resource "aws_kms_key" "hydrovis-hml-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:user/noel.perkins@noaa.gov"
+            AWS = var.admin_team_arns
           }
           Resource = "*"
           Sid      = "Allow administration of the key"
@@ -59,11 +59,10 @@ resource "aws_kms_key" "hydrovis-hml-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = [
-              "arn:aws:iam::${var.prod_account_id}:user/zachary.wills@noaa.gov",
+            AWS = concat(var.admin_team_arns, [
               "arn:aws:iam::${var.prod_account_id}:user/hydrovis-data-prod-ingest-service-user",
               "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE",
-            ]
+            ])
           }
           Resource = "*"
           Sid      = "Allow use of the key"
@@ -391,7 +390,7 @@ resource "aws_kms_key" "hydrovis-nwm-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:user/noel.perkins@noaa.gov"
+            AWS = var.admin_team_arns
           }
           Resource = "*"
           Sid      = "Allow administration of the key"
@@ -407,11 +406,10 @@ resource "aws_kms_key" "hydrovis-nwm-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = [
-              "arn:aws:iam::${var.prod_account_id}:user/zachary.wills@noaa.gov",
+            AWS = concat(var.admin_team_arns, [
               "arn:aws:iam::${var.prod_account_id}:user/hydrovis-data-prod-ingest-service-user",
               "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC",
-            ]
+            ])
           }
           Resource = "*"
           Sid      = "Allow use of the key"
@@ -713,7 +711,7 @@ resource "aws_kms_key" "hydrovis-pcpanl-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:user/noel.perkins@noaa.gov"
+            AWS = var.admin_team_arns
           }
           Resource = "*"
           Sid      = "Allow administration of the key"
@@ -729,11 +727,10 @@ resource "aws_kms_key" "hydrovis-pcpanl-incoming-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = [
-              "arn:aws:iam::${var.prod_account_id}:user/zachary.wills@noaa.gov",
+            AWS = concat(var.admin_team_arns, [
               "arn:aws:iam::${var.prod_account_id}:user/hydrovis-data-prod-ingest-service-user",
               "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-pcpanl-incoming-replication",
-            ]
+            ])
           }
           Resource = "*"
           Sid      = "Allow use of the key"
