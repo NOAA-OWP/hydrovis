@@ -31,13 +31,7 @@ rm "$${HOME}/postgis_setup.sql"
 
 # Cleaning up EGIS DB
 echo "Cleaning up EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE; DROP SCHEMA IF EXISTS services CASCADE;"
-
-# Restoring EGIS Schema Dumps
-echo "Setting up fim schema in the EGIS DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
-rm "$${HOME}/egisDB_reference.dump"
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
 
 echo "Setting up services schema in the EGIS DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_services.dump" "$${HOME}/egisDB_services.dump"
@@ -106,3 +100,16 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
+
+# Setting up EGIS DB
+export PGPASSWORD=$${EGISDBPASSWORD}
+
+# Cleaning up EGIS DB
+echo "Cleaning up EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
+
+# Restoring EGIS Reference Schema Dumps
+echo "Setting up reference schema in the EGIS DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
+rm "$${HOME}/egisDB_reference.dump"
