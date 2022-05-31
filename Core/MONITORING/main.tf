@@ -2,8 +2,12 @@ variable "environment" {
   type = string
 }
 
+variable "account_id" {
+  type = string
+}
+
 variable "ami_owner_account_id" {
-  type        = string
+  type = string
 }
 
 variable "region" {
@@ -125,6 +129,18 @@ resource "aws_elasticsearch_domain" "es" {
     Domain = "monitoring-hydrovis"
     name   = "monitoring-hydrovis"
   }
+}
+
+module "s3" {
+  source   = "./S3"
+
+  environment = var.environment
+  account_id  = var.account_id
+  region      = var.region
+
+  es_endpoint  = aws_elasticsearch_domain.es.endpoint
+  es_sgs       = var.es_sgs
+  data_subnets = var.data_subnets
 }
 
 locals {

@@ -1,7 +1,3 @@
-variable "account_id" {
-  type = string
-}
-
 variable "fim_bucket_name" {
   type = string
 }
