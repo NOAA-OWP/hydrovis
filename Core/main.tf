@@ -372,7 +372,7 @@ module "ingest_lambda_functions" {
 
 # Monitoring (Kibana, ElasticSearch, Logstash)
 module "monitoring" {
-  source = "./ELASTICSEARCH"
+  source = "./MONITORING"
 
   environment          = local.env.environment
   ami_owner_account_id = local.env.ami_owner_account_id
