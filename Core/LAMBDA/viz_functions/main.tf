@@ -212,14 +212,14 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "every_fifteen_minutes" {
-  name                = "every_fifteen_minutes"
-  description         = "Fires every fifteen minutes"
-  schedule_expression = "cron(0/15 * * * ? *)"
+resource "aws_cloudwatch_event_rule" "every_five_minutes" {
+  name                = "every_five_minutes"
+  description         = "Fires every five minutes"
+  schedule_expression = "cron(0/5 * * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
-  rule      = aws_cloudwatch_event_rule.every_fifteen_minutes.name
+  rule      = aws_cloudwatch_event_rule.every_five_minutes.name
   target_id = aws_lambda_function.viz_wrds_api_handler.function_name
   arn       = aws_lambda_function.viz_wrds_api_handler.arn
 }
@@ -229,7 +229,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.viz_wrds_api_handler.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.every_fifteen_minutes.arn
+  source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
