@@ -2,6 +2,14 @@
 
 # Keep every file as a LF line ending to avoid issues with Windows.
 * text eol=lf
+*.js text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.conf text eol=lf
+*.tftpl text eol=lf
+*.tf tex teol=lf
+
+.terraform.lock.hcl text=auto
 
 # Leave .zip files alone
 *.zip binary
