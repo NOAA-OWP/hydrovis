@@ -1,1 +1,18 @@
 /CHANGELOG.md merge=union
+
+# Keep every file as a LF line ending to avoid issues with Windows.
+* text eol=lf
+*.js text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=lf
+*.conf text eol=lf
+*.tftpl text eol=lf
+*.tf tex teol=lf
+*.yaml tex teol=lf
+*.yml tex teol=lf
+
+.terraform.lock.hcl text=auto
+
+# Leave .zip files alone
+*.zip binary
