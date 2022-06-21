@@ -1,1 +1,4 @@
 /CHANGELOG.md merge=union
+
+# Keep every file as a LF line ending to avoid issues with Windows.
+* text eol=lf
