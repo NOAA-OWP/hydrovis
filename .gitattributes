@@ -2,3 +2,6 @@
 
 # Keep every file as a LF line ending to avoid issues with Windows.
 * text eol=lf
+
+# Leave .zip files alone
+*.zip binary
