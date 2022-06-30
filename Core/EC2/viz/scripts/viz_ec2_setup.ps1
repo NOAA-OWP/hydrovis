@@ -133,7 +133,6 @@ $env:RNR_MAX_FLOWS_DATA_BUCKET = $RNR_MAX_FLOWS_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
-$env:LOGSTASH_SOCKET = "$LOGSTASH_IP`:5000"
 $env:VIZ_DB_HOST = $VIZ_DB_HOST
 $env:VIZ_DB_DATABASE = $VIZ_DB_DATABASE
 $env:VIZ_DB_USERNAME = $VIZ_DB_USERNAME
@@ -160,7 +159,6 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $env:FIM_OUTPUT_BUCKET, "2")
-[Environment]::SetEnvironmentVariable("LOGSTASH_SOCKET", $env:LOGSTASH_SOCKET, "2")
 [Environment]::SetEnvironmentVariable("VIZ_DB_HOST", $env:VIZ_DB_HOST, "2")
 [Environment]::SetEnvironmentVariable("VIZ_DB_DATABASE", $env:VIZ_DB_DATABASE, "2")
 [Environment]::SetEnvironmentVariable("VIZ_DB_USERNAME", $env:VIZ_DB_USERNAME, "2")
@@ -309,6 +307,19 @@ Remove-Item nssm-2.24 -Force -Recurse
 $PATH = [Environment]::GetEnvironmentVariable("PATH")
 $PATH += ";C:\Programs"
 [Environment]::SetEnvironmentVariable("PATH", $PATH, "2")
+
+CreateUTF8File $FILEBEAT_YML_CONTENT "C:\Users\$PIPELINE_USER\Desktop" filebeat.yml
+$Url = "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.2.3-windows-x86_64.zip"
+$DownloadZipFile = "C:\Users\$PIPELINE_USER\Downloads\" + $(Split-Path -Path $Url -Leaf)
+$ExtractPath = "C:\Program Files"
+Invoke-WebRequest -Uri $Url -OutFile $DownloadZipFile
+$ExtractShell = New-Object -ComObject Shell.Application
+$ExtractFiles = $ExtractShell.Namespace($DownloadZipFile).Items()
+$ExtractShell.NameSpace($ExtractPath).CopyHere($ExtractFiles)
+Rename-Item -Path "$ExtractPath\filebeat-8.2.3-windows-x86_64" -NewName "Filebeat"
+Copy-Item "C:\Users\arcgis\Desktop\filebeat.yml" -Destination "$ExtractPath\Filebeat"
+& "C:\Program Files\Filebeat\install-service-filebeat.ps1"
+START-SERVICE filebeat
 
 LogWrite "SETTING UP WINDOWS SERVICES"
 Set-Location -Path $VIZ_DIR

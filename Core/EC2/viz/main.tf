@@ -203,6 +203,9 @@ data "cloudinit_config" "pipeline_setup" {
         LICENSE_SERVER = var.license_server_ip
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
+      FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {
+        LOGSTASH_IP = var.logstash_ip
+      })
       WRDS_HOST                      = var.dataservices_ip
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
