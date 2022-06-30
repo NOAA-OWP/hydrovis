@@ -317,7 +317,7 @@ $ExtractShell = New-Object -ComObject Shell.Application
 $ExtractFiles = $ExtractShell.Namespace($DownloadZipFile).Items()
 $ExtractShell.NameSpace($ExtractPath).CopyHere($ExtractFiles)
 Rename-Item -Path "$ExtractPath\filebeat-8.2.3-windows-x86_64" -NewName "Filebeat"
-Copy-Item "C:\Users\arcgis\Desktop\filebeat.yml" -Destination "$ExtractPath\Filebeat"
+Copy-Item "C:\Users\$PIPELINE_USER\Desktop\filebeat.yml" -Destination "$ExtractPath\Filebeat"
 & "C:\Program Files\Filebeat\install-service-filebeat.ps1"
 START-SERVICE filebeat
 
