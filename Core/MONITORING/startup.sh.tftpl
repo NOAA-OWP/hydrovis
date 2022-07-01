@@ -5,9 +5,9 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 cd /etc/yum.repos.d/
 
 cat > logstash.repo << EOF
-[logstash-7.x]
-name=Elastic repository for 7.x packages
-baseurl=https://artifacts.elastic.co/packages/7.x/yum
+[logstash-8.x]
+name=Elastic repository for 8.x packages
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
 gpgcheck=1
 gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -15,11 +15,11 @@ autorefresh=1
 type=rpm-md
 EOF
 
-yum -y install logstash-7.16.1
+yum -y install logstash-8.2.3
 
 usermod -a -G logstash ec2-user
 
-export LS_JAVA_OPTS="-Xms1g -Xmx1g -XX:ParallelGCThreads=1"
+export LS_JAVA_OPTS="-Xms2g -Xmx2g -XX:ParallelGCThreads=1"
 
 cd /etc/logstash/conf.d
 
