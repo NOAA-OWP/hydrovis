@@ -1,0 +1,14 @@
+filebeat.inputs:
+- type: filestream
+  id: viz-pipeline
+  paths:
+    - D:\pipeline_workspace\logs\*\*.log
+output.logstash:
+  hosts: ["${LOGSTASH_IP}:5044"]
+logging.level: error
+logging.to_files: true
+logging.files:
+  path: D:\filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0640
