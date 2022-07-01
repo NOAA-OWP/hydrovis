@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    server_name _;
+
+    location /health {
+        access_log off;
+        add_header 'Content-Type' 'application/json';
+        return 200 '{"status":"UP"}';
+    }
+
+    location /kibana {
+        return 301 /_plugin/kibana;
+    }
+
+    location / {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+
+        proxy_pass https://${ELK_DOMAIN}/;
+    }
+}

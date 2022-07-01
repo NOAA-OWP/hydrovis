@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.52"
+      version = "3.70"
     }
   }
   backend "s3" {
@@ -117,7 +117,9 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
-      module.iam-users.user_WRDSServiceAccount.arn
+      module.iam-users.user_WRDSServiceAccount.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -136,7 +138,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
-    ] 
+    ]
   }
 }
 
@@ -181,6 +183,13 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
@@ -204,6 +213,17 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_listener" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -331,8 +351,8 @@ module "rds-bastion" {
   location_db_name               = local.env.location_db_name
   forecast_db_name               = local.env.forecast_db_name
 
-  ingest_mq_secret_string        = module.secrets-manager.secret_strings["ingest-mqsecret"]
-  ingest_mq_endpoint             = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
@@ -402,6 +422,21 @@ module "monitoring" {
     module.viz_lambda_functions.db_ingest.function_name,
     module.viz_lambda_functions.db_postprocess.function_name
   ]
+}
+
+# Nginx Fargate
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
 }
 
 # Data Ingest
@@ -493,10 +528,10 @@ module "egis_license_manager" {
 module "egis_monitor" {
   source = "./EC2/ArcGIS_Monitor"
 
-  environment                    = local.env.environment
-  ami_owner_account_id           = local.env.ami_owner_account_id
-  region                         = local.env.region
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-web1a.id
+  environment          = local.env.environment
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
+  ec2_instance_subnet  = module.vpc.subnet_hydrovis-sn-prv-web1a.id
   ec2_instance_sgs = [
     module.security-groups.ssm-session-manager-sg.id,
     module.security-groups.egis-overlord.id
@@ -525,7 +560,7 @@ module "viz_ec2" {
   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
   nwm_max_flows_data_bucket   = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
-  deployment_data_bucket       = module.s3.buckets["deployment"].bucket
+  deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name
   fim_version                 = local.env.fim_version
@@ -543,4 +578,14 @@ module "viz_ec2" {
   egis_db_host                = data.aws_db_instance.egis_rds.address
   egis_db_name                = local.env.egis_db_name
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+}
+
+module "sagemaker" {
+  source = "./Sagemaker"
+
+  environment     = local.env.environment
+  iam_role        = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  subnet          = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  kms_key_id      = module.kms.key_arns["encrypt-ec2"]
 }
