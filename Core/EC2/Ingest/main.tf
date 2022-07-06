@@ -82,6 +82,16 @@ locals {
   })
 }
 
+###############
+## ARTIFACTS ##
+###############
+
+resource "aws_s3_bucket_object" "owp_hml_ingester" {
+  bucket = var.deployment_data_bucket
+  key    = "ingest/owp-hml-ingester.tar.gz"
+  source = "${path.module}/owp-hml-ingester.tar.gz"
+  source_hash = filemd5("${path.module}/owp-hml-ingester.tar.gz")
+}
 
 #################
 ## DATA BLOCKS ##
@@ -128,6 +138,10 @@ resource "aws_instance" "ingest_prc1" {
     volume_type = "gp2"
   }
 
+  depends_on = [
+    aws_s3_bucket_object.owp_hml_ingester
+  ]
+
   user_data = local.user_data
 }
 
@@ -154,6 +168,10 @@ resource "aws_instance" "ingest_prc2" {
     kms_key_id  = var.ec2_kms_key
     volume_type = "gp2"
   }
+
+  depends_on = [
+    aws_s3_bucket_object.owp_hml_ingester
+  ]
 
   user_data = local.user_data
 }
