@@ -121,7 +121,8 @@ module "s3" {
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
-      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
+      module.iam-users.user_FIMServiceAccount.arn
     ]
     "hml-backup" = [
       module.iam-roles.role_hydrovis-hml-ingest-role.arn
