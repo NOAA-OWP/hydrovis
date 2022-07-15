@@ -117,7 +117,8 @@ module "s3" {
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
-      module.iam-users.user_WRDSServiceAccount.arn
+      module.iam-users.user_WRDSServiceAccount.arn,
+      module.iam-users.user_FIMServiceAccount.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
