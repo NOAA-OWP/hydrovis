@@ -274,10 +274,8 @@ module "viz_lambda_functions" {
   email_sns_topics              = module.sns.email_sns_topics
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
-  multiprocessing_layer         = module.lambda_layers.multiprocessing.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
-  rasterio_layer                = module.lambda_layers.rasterio.arn
-  mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
+  huc_proc_combo_layer          = module.lambda_layers.huc_proc_combo.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
@@ -292,6 +290,7 @@ module "viz_lambda_functions" {
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
+  step_function_arn             = "insert step function here"
 }
 
 # MQ
