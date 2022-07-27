@@ -156,7 +156,6 @@ data "aws_caller_identity" "current" {}
 
 locals {
   egis_host          = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
-  viz_environment    = var.environment == "prod" ? "production" : var.environment == "uat" ? "staging" : var.environment == "ti" ? "testing" : "development"
   deploy_file_prefix = "viz/"
 }
 
@@ -203,7 +202,7 @@ data "cloudinit_config" "pipeline_setup" {
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
       Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
       EGIS_HOST                      = local.egis_host
-      VIZ_ENVIRONMENT                = local.viz_environment
+      VIZ_ENVIRONMENT                = var.environment
       FIM_VERSION                    = var.fim_version
       VLAB_SSH_KEY_CONTENT           = file("${path.root}/sensitive/viz/vlab")
       GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
