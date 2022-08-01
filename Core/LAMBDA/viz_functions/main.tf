@@ -445,7 +445,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 
 resource "aws_lambda_function" "viz_fim_data_prep" {
   function_name = "viz_fim_data_prep_${var.environment}"
-  description   = "Lambda function to setup a fim run by , preapring a database table, querying max flows from the database, and creating a dictionary for huc-based workers."
+  description   = "Lambda function to setup a fim run by retriving max flows from the database, prepare an ingest database table, and creating a dictionary for huc-based worker lambdas to use."
   memory_size   = 2048
   timeout       = 900
   vpc_config {
@@ -494,8 +494,8 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 ##   FIM HUC Processing    ##
 #############################
 
-resource "aws_lambda_function" "viz_huc_processing" {
-  function_name = "viz_huc_processing_${var.environment}"
+resource "aws_lambda_function" "viz_fim_huc_processing" {
+  function_name = "viz_fim_huc_processing_${var.environment}"
   description   = "Lambda function to process FIM for an individual huc, and load data into a specified database table."
   memory_size   = 10240
 
@@ -520,8 +520,8 @@ resource "aws_lambda_function" "viz_huc_processing" {
       VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_huc_processing.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_huc_processing.zip")
+  filename         = "${path.module}/viz_fim_huc_processing.zip"
+  source_code_hash = filebase64sha256("${path.module}/viz_fim_huc_processing.zip")
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -531,15 +531,15 @@ resource "aws_lambda_function" "viz_huc_processing" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_huc_processing_${var.environment}"
+    "Name" = "viz_fim_huc_processing_${var.environment}"
   }
   ephemeral_storage {
     size = 2048
   }
 }
 
-resource "aws_lambda_function_event_invoke_config" "viz_huc_processing_destinations" {
-  function_name          = resource.aws_lambda_function.viz_huc_processing.function_name
+resource "aws_lambda_function_event_invoke_config" "viz_fim_huc_processing_destinations" {
+  function_name          = resource.aws_lambda_function.viz_fim_huc_processing.function_name
   maximum_retry_attempts = 0
   destination_config {
     on_failure {
