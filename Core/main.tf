@@ -290,7 +290,6 @@ module "viz_lambda_functions" {
   egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
-  step_function_arn             = "insert step function here"
 }
 
 # MQ
