@@ -74,13 +74,15 @@ reg import $UD_LICENSE
 reg unload "HKU\$PIPELINE_USER"
 
 New-Item -ItemType Directory -Force -Path $HV_SSH_DIR | Out-Null
-CreateUTF8File $SSH_KEY_CONTENT $HV_SSH_DIR id_rsa
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
+CreateUTF8File $VLAB_SSH_KEY_CONTENT $HV_SSH_DIR id_rsa
+CreateUTF8File $GITHUB_SSH_KEY_CONTENT $HV_SSH_DIR id_ed25519
+"call ssh-keyscan -p 29418 -H $VLAB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 
 New-Item -ItemType Directory -Force -Path $UD_SSH_DIR | Out-Null
-CreateUTF8File $SSH_KEY_CONTENT $UD_SSH_DIR id_rsa
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
+CreateUTF8File $VLAB_SSH_KEY_CONTENT $UD_SSH_DIR id_rsa
+CreateUTF8File $GITHUB_SSH_KEY_CONTENT $UD_SSH_DIR id_ed25519
+"call ssh-keyscan -p 29418 -H $VLAB_HOST >> $HOME\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 
 LogWrite "Setting up file structure of static and dynamic data"
@@ -170,13 +172,13 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 
 function GetRepo
 {
-   Param ([string]$branch, [string]$repo)
+   Param ([string]$branch, [string]$prefix, [string]$repo)
 
    if (Test-Path -Path $repo) {
        Remove-Item $repo -Recurse
        Get-ChildItem $repo -Hidden -Recurse | Remove-Item -Force -Recurse
    }
-   git clone -b $branch $VLAB_REPO_PREFIX/$repo
+   git clone -b $branch $prefix/$repo
 
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
 }
@@ -218,10 +220,10 @@ New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 
 Set-Location -Path $VIZ_DIR
 LogWrite "CLONING PIPELINE REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo master owp-viz-proc-pipeline})
+Retry({GetRepo master $VLAB_REPO_PREFIX owp-viz-proc-pipeline})
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $VIZ_ENVIRONMENT owp-viz-services-aws})
+Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis-visualization.git})
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
@@ -242,13 +244,8 @@ $PIPELINE_REPO = $VIZ_DIR + "\owp-viz-proc-pipeline"
 Set-Location -Path $PIPELINE_REPO
 & $python_exe setup.py develop
 
-LogWrite "INSTALLING SERVICE REPO"
-$SERVICE_REPO = $VIZ_DIR + "\owp-viz-services"
-Set-Location -Path $SERVICE_REPO
-& $python_exe setup.py develop
-
 LogWrite "INSTALLING AWS SERVICE REPO"
-$AWS_SERVICE_REPO = $VIZ_DIR + "\owp-viz-services-aws"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis-visualization"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
@@ -264,7 +261,7 @@ aws s3 cp $s3_pristine $PRISTINE_ROOT --recursive
 
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
 Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\create_s3_connection_files.py
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\create_s3_connection_files.py
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -280,7 +277,7 @@ $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\update_data_stores_and_sd_files.py
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\update_data_stores_and_sd_files.py
 
 LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
 $EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
@@ -291,7 +288,7 @@ if ($EXISTING_PUBLISHED_FLAGS) {
 
 LogWrite "Kicking of viz lambdas"
 Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\owp-viz-services-aws\aws_loosa\ec2\deploy\kick_off_lambdas.py
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\kick_off_lambdas.py
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
@@ -323,6 +320,6 @@ START-SERVICE filebeat
 
 LogWrite "SETTING UP WINDOWS SERVICES"
 Set-Location -Path $VIZ_DIR
-& .\owp-viz-services-aws\aws_loosa\ec2\deploy\create_windows_services.ps1 $WINDOWS_SERVICE_STARTUP $WINDOWS_SERVICE_STATUS $PIPELINE_USER $PIPELINE_USER_ACCOUNT_PASSWORD
+& .\hydrovis-visualization\aws_loosa\ec2\deploy\create_windows_services.ps1 $WINDOWS_SERVICE_STARTUP $WINDOWS_SERVICE_STATUS $PIPELINE_USER $PIPELINE_USER_ACCOUNT_PASSWORD
 
 LogWrite "DONE SETTING UP PIPELINE"

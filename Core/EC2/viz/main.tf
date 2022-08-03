@@ -1,7 +1,6 @@
 #######################
 ## DYNAMIC VARIABLES ##
 #######################
-
 variable "environment" {
   description = "Hydrovis environment"
   type        = string
@@ -121,6 +120,14 @@ variable "vlab_host" {
   type = string
 }
 
+variable "github_repo_prefix" {
+  type = string
+}
+
+variable "github_host" {
+  type = string
+}
+
 variable "viz_db_host" {
   type = string
 }
@@ -149,7 +156,6 @@ data "aws_caller_identity" "current" {}
 
 locals {
   egis_host          = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
-  viz_environment    = var.environment == "prod" ? "production" : var.environment == "uat" ? "staging" : var.environment == "ti" ? "testing" : "development"
   deploy_file_prefix = "viz/"
 }
 
@@ -196,9 +202,10 @@ data "cloudinit_config" "pipeline_setup" {
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
       Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
       EGIS_HOST                      = local.egis_host
-      VIZ_ENVIRONMENT                = local.viz_environment
+      VIZ_ENVIRONMENT                = var.environment
       FIM_VERSION                    = var.fim_version
-      SSH_KEY_CONTENT                = file("${path.root}/sensitive/viz/id_rsa")
+      VLAB_SSH_KEY_CONTENT           = file("${path.root}/sensitive/viz/vlab")
+      GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
       LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
         LICENSE_SERVER = var.license_server_ip
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
@@ -223,6 +230,8 @@ data "cloudinit_config" "pipeline_setup" {
       LOGSTASH_IP                    = var.logstash_ip
       VLAB_REPO_PREFIX               = var.vlab_repo_prefix
       VLAB_HOST                      = var.vlab_host
+      GITHUB_REPO_PREFIX             = var.github_repo_prefix
+      GITHUB_HOST                    = var.github_host
       VIZ_DB_HOST                    = var.viz_db_host
       VIZ_DB_DATABASE                = var.viz_db_name
       VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
