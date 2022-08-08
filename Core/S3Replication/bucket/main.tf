@@ -26,7 +26,7 @@ variable "access_principal_arns" {
   type = list(string)
 }
 
-variable "replication_role_arn" {
+variable "replication_role_name" {
   type = string
 }
 
@@ -79,7 +79,7 @@ resource "aws_kms_key" "hydrovis-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, concat(var.access_principal_arns, [var.replication_role_arn]))
+            AWS = concat(var.admin_team_arns, concat(var.access_principal_arns, ["arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"]))
           }
           Resource = "*"
           Sid      = "Allow use of the key"
@@ -96,33 +96,47 @@ resource "aws_kms_alias" "hydrovis-s3" {
 
 resource "aws_s3_bucket" "hydrovis" {
   bucket = "hydrovis-${var.environment}-${var.name}-${var.region}"
+}
 
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 0
-    enabled                                = true
+resource "aws_s3_bucket_lifecycle_configuration" "hydrovis" {
+  bucket = aws_s3_bucket.hydrovis.id
+
+  rule {
+    id     = "30 Day Expiration"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 0
+    }
 
     expiration {
       days = 30
     }
 
     noncurrent_version_expiration {
-      days = 1
+      noncurrent_days = 1
     }
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      bucket_key_enabled = true
+resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis" {
+  bucket = aws_s3_bucket.hydrovis.bucket
 
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.hydrovis-s3.arn
-        sse_algorithm     = "aws:kms"
-      }
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.hydrovis-s3.arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "hydrovis" {
+  bucket = aws_s3_bucket.hydrovis.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
@@ -151,7 +165,7 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = var.replication_role_arn
+            AWS = "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"
           }
           Resource = "${aws_s3_bucket.hydrovis.arn}/*"
           Sid      = "PermissionsOnObjects"
@@ -164,7 +178,7 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = var.replication_role_arn
+            AWS = "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"
           }
           Resource = aws_s3_bucket.hydrovis.arn
           Sid      = "PermissionsOnBucket"

@@ -200,7 +200,8 @@ resource "aws_instance" "data_services" {
   }
 
   # This runs the cloud-init config, copying the SSH key to the EC2 and running the startup.sh script.
-  user_data = data.cloudinit_config.startup.rendered
+  user_data                   = data.cloudinit_config.startup.rendered
+  user_data_replace_on_change = true
 }
 
 data "aws_ami" "linux" {

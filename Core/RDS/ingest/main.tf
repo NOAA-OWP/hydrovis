@@ -32,7 +32,7 @@ resource "aws_db_subnet_group" "ingest" {
 
 resource "aws_db_instance" "ingest" {
   identifier                   = "hydrovis-${var.environment}-ingest"
-  name                         = "rfcfcst"
+  db_name                      = "rfcfcst"
   instance_class               = "db.r6g.large"
   allocated_storage            = 100
   storage_type                 = "gp2"
