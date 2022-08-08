@@ -86,7 +86,7 @@ locals {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_bucket_object" "owp_hml_ingester" {
+resource "aws_s3_object" "owp_hml_ingester" {
   bucket = var.deployment_data_bucket
   key    = "ingest/owp-hml-ingester.tar.gz"
   source = "${path.module}/owp-hml-ingester.tar.gz"
@@ -139,10 +139,11 @@ resource "aws_instance" "ingest_prc1" {
   }
 
   depends_on = [
-    aws_s3_bucket_object.owp_hml_ingester
+    aws_s3_object.owp_hml_ingester
   ]
 
-  user_data = local.user_data
+  user_data                   = local.user_data
+  user_data_replace_on_change = true
 }
 
 resource "aws_instance" "ingest_prc2" {
@@ -170,8 +171,9 @@ resource "aws_instance" "ingest_prc2" {
   }
 
   depends_on = [
-    aws_s3_bucket_object.owp_hml_ingester
+    aws_s3_object.owp_hml_ingester
   ]
 
-  user_data = local.user_data
+  user_data                   = local.user_data
+  user_data_replace_on_change = true
 }

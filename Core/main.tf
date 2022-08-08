@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.70"
+      version = "4.24"
     }
   }
   backend "s3" {
@@ -22,7 +22,7 @@ locals {
 provider "aws" {
   region                  = local.env.region
   profile                 = local.env.environment
-  shared_credentials_file = "/cloud/aws/credentials"
+  shared_credentials_files = ["/cloud/aws/credentials"]
 
   default_tags {
     tags = local.env.tags
