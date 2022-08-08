@@ -74,11 +74,6 @@ aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_derived.dum
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_derived.dump"
 rm "$${HOME}/vizDB_derived.dump"
 
-echo "Setting up simplified fim schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_fim.dump" "$${HOME}/vizDB_fim.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_fim.dump"
-rm "$${HOME}/vizDB_fim.dump"
-
 echo "Setting up ingest schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_ingest.dump" "$${HOME}/vizDB_ingest.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_ingest.dump"
