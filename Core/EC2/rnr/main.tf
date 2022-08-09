@@ -92,7 +92,7 @@ locals {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_bucket_object" "owp_viz_replace_route" {
+resource "aws_s3_object" "owp_viz_replace_route" {
   bucket = var.deployment_data_bucket
   key    = "rnr/owp-viz-replace-route.tar"
   source = "${path.module}/owp-viz-replace-route.tar"
@@ -136,12 +136,13 @@ resource "aws_instance" "replace_and_route" {
   }
 
   depends_on = [
-    aws_s3_bucket_object.owp_viz_replace_route,
-    data.aws_s3_bucket_object.wrf_hydro,
-    data.aws_s3_bucket_object.rnr_static
+    aws_s3_object.owp_viz_replace_route,
+    data.aws_s3_object.wrf_hydro,
+    data.aws_s3_object.rnr_static
   ]
 
-  user_data = data.cloudinit_config.startup.rendered
+  user_data                   = data.cloudinit_config.startup.rendered
+  user_data_replace_on_change = true
 }
 
 
@@ -149,12 +150,12 @@ resource "aws_instance" "replace_and_route" {
 ## DATA BLOCKS ##
 #################
 
-data "aws_s3_bucket_object" "wrf_hydro" {
+data "aws_s3_object" "wrf_hydro" {
   bucket = var.deployment_data_bucket
   key    = "rnr/wrf_hydro.tgz"
 }
 
-data "aws_s3_bucket_object" "rnr_static" {
+data "aws_s3_object" "rnr_static" {
   bucket = var.deployment_data_bucket
   key    = "rnr/rnr_static.tgz"
 }

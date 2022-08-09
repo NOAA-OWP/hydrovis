@@ -172,7 +172,8 @@ resource "aws_instance" "rds-bastion" {
     volume_type = "gp2"
   }
 
-  user_data = data.cloudinit_config.startup.rendered
+  user_data                   = data.cloudinit_config.startup.rendered
+  user_data_replace_on_change = true
 }
 
 #################
