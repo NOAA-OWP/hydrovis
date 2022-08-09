@@ -25,7 +25,9 @@ provider "aws" {
   shared_credentials_files = ["/cloud/aws/credentials"]
 
   default_tags {
-    tags = local.env.tags
+    tags = merge(local.env.tags, {
+      CreatedBy            = "Terraform"
+    })
   }
 }
 
