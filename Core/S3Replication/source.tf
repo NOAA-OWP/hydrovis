@@ -177,7 +177,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-hml-incoming" {
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
-      days_after_initiation = 0
+      days_after_initiation = 1
     }
 
     expiration {
@@ -552,7 +552,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-nwm-incoming" {
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
-      days_after_initiation = 0
+      days_after_initiation = 1
     }
 
     expiration {
@@ -901,7 +901,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-pcpanl-incoming" {
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
-      days_after_initiation = 0
+      days_after_initiation = 1
     }
 
     expiration {
