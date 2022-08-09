@@ -1,11 +1,3 @@
-variable "uat_account_id" {
-  type = string
-}
-
-variable "ti_account_id" {
-  type = string
-}
-
 resource "aws_kms_key" "hydrovis-hml-incoming-s3" {
   count               = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   description         = "Symmetric CMK for KMS-KEY-ARN for HML Incoming Bucket"
@@ -174,101 +166,129 @@ resource "aws_iam_role" "hml-replication" {
 resource "aws_s3_bucket" "hydrovis-hml-incoming" {
   count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   bucket = "hydrovis-prod-hml-incoming-us-east-1"
+}
 
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 0
-    enabled                                = true
+resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-hml-incoming[0].id
+
+  rule {
+    id     = "30 Day Expiration"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
 
     expiration {
       days = 30
     }
 
     noncurrent_version_expiration {
-      days = 1
+      noncurrent_days = 1
     }
   }
+}
 
-  replication_configuration {
-    role = aws_iam_role.hml-replication[0].arn
+resource "aws_s3_bucket_replication_configuration" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-hml-incoming[0].id
+  role   = aws_iam_role.hml-replication[0].arn
 
-    rules {
-      id       = "HMLReplicationRoleToProdHML"
-      priority = 0
-      status   = "Enabled"
-      filter {}
+  rule {
+    id       = "HMLReplicationRoleToProdHML"
+    priority = 0
+    status   = "Enabled"
+    filter {}
 
-      destination {
-        bucket             = "arn:aws:s3:::hydrovis-prod-hml-us-east-1"
+    destination {
+      bucket = "arn:aws:s3:::hydrovis-prod-hml-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-hml-us-east-1-s3"
       }
-
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
-      }
     }
 
-    rules {
-      id       = "HMLReplicationRoleToUatHML"
-      priority = 1
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.uat_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
+  rule {
+    id       = "HMLReplicationRoleToUatHML"
+    priority = 1
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-hml-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
       }
     }
 
-    rules {
-      id       = "HMLReplicationRoleToTiHML"
-      priority = 2
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.ti_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
+  rule {
+    id       = "HMLReplicationRoleToTiHML"
+    priority = 2
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.ti_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-hml-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
+      }
+    }
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
       }
     }
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      bucket_key_enabled = true
+resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-hml-incoming[0].bucket
 
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.hydrovis-hml-incoming-s3[0].arn
-        sse_algorithm     = "aws:kms"
-      }
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.hydrovis-hml-incoming-s3[0].arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "hydrovis-hml-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-hml-incoming[0].id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
@@ -521,101 +541,129 @@ resource "aws_iam_role" "nwm-replication" {
 resource "aws_s3_bucket" "hydrovis-nwm-incoming" {
   count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   bucket = "hydrovis-prod-nwm-incoming-us-east-1"
+}
 
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 0
-    enabled                                = true
+resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].id
+
+  rule {
+    id     = "30 Day Expiration"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
 
     expiration {
       days = 30
     }
 
     noncurrent_version_expiration {
-      days = 1
+      noncurrent_days = 1
     }
   }
+}
 
-  replication_configuration {
-    role = aws_iam_role.nwm-replication[0].arn
+resource "aws_s3_bucket_replication_configuration" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].id
+  role   = aws_iam_role.nwm-replication[0].arn
 
-    rules {
-      id       = "HMLReplicationRoleToProdHML"
-      priority = 0
-      status   = "Enabled"
-      filter {}
+  rule {
+    id       = "HMLReplicationRoleToProdHML"
+    priority = 0
+    status   = "Enabled"
+    filter {}
 
-      destination {
-        bucket             = "arn:aws:s3:::hydrovis-prod-nwm-us-east-1"
+    destination {
+      bucket = "arn:aws:s3:::hydrovis-prod-nwm-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-nwm-us-east-1-s3"
       }
-
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
-      }
     }
 
-    rules {
-      id       = "HMLReplicationRoleToUatHML"
-      priority = 1
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.uat_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
+  rule {
+    id       = "HMLReplicationRoleToUatHML"
+    priority = 1
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-nwm-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
       }
     }
 
-    rules {
-      id       = "HMLReplicationRoleToTiHML"
-      priority = 2
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.ti_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
+  rule {
+    id       = "HMLReplicationRoleToTiHML"
+    priority = 2
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.ti_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-nwm-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
+      }
+    }
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
       }
     }
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      bucket_key_enabled = true
+resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].bucket
 
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.hydrovis-nwm-incoming-s3[0].arn
-        sse_algorithm     = "aws:kms"
-      }
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.hydrovis-nwm-incoming-s3[0].arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "hydrovis-nwm-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
@@ -842,101 +890,129 @@ resource "aws_iam_role" "pcpanl-replication" {
 resource "aws_s3_bucket" "hydrovis-pcpanl-incoming" {
   count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
   bucket = "hydrovis-prod-pcpanl-incoming-us-east-1"
+}
 
-  lifecycle_rule {
-    abort_incomplete_multipart_upload_days = 0
-    enabled                                = true
+resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-pcpanl-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-pcpanl-incoming[0].id
+
+  rule {
+    id     = "30 Day Expiration"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 1
+    }
 
     expiration {
       days = 30
     }
 
     noncurrent_version_expiration {
-      days = 1
+      noncurrent_days = 1
     }
   }
+}
 
-  replication_configuration {
-    role = aws_iam_role.pcpanl-replication[0].arn
+resource "aws_s3_bucket_replication_configuration" "hydrovis-pcpanl-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-pcpanl-incoming[0].id
+  role   = aws_iam_role.pcpanl-replication[0].arn
 
-    rules {
-      id       = "pcpanlReplicationRoleToProdPcpanl"
-      priority = 0
-      status   = "Enabled"
-      filter {}
+  rule {
+    id       = "pcpanlReplicationRoleToProdPcpanl"
+    priority = 0
+    status   = "Enabled"
+    filter {}
 
-      destination {
-        bucket             = "arn:aws:s3:::hydrovis-prod-pcpanl-us-east-1"
+    destination {
+      bucket = "arn:aws:s3:::hydrovis-prod-pcpanl-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-pcpanl-us-east-1-s3"
       }
-
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
-      }
     }
 
-    rules {
-      id       = "pcpanlReplicationRoleToUatPcpanl"
-      priority = 1
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.uat_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-uat-pcpanl-us-east-1"
+  rule {
+    id       = "pcpanlReplicationRoleToUATPcpanl"
+    priority = 1
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-uat-pcpanl-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-pcpanl-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
       }
     }
 
-    rules {
-      id       = "pcpanlReplicationRoleToTiPcpanl"
-      priority = 2
-      status   = "Enabled"
-      filter {}
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
 
-      destination {
-        account_id         = "${var.ti_account_id}"
-        bucket             = "arn:aws:s3:::hydrovis-ti-pcpanl-us-east-1"
+  rule {
+    id       = "pcpanlReplicationRoleToTiPcpanl"
+    priority = 2
+    status   = "Enabled"
+    filter {}
+
+    destination {
+      account = "${var.ti_account_id}"
+      bucket     = "arn:aws:s3:::hydrovis-ti-pcpanl-us-east-1"
+
+      encryption_configuration {
         replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-pcpanl-us-east-1-s3"
-
-        access_control_translation {
-          owner = "Destination"
-        }
       }
 
-      source_selection_criteria {
-        sse_kms_encrypted_objects {
-          enabled = true
-        }
+      access_control_translation {
+        owner = "Destination"
+      }
+    }
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
       }
     }
   }
+}
 
-  server_side_encryption_configuration {
-    rule {
-      bucket_key_enabled = true
+resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis-pcpanl-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-pcpanl-incoming[0].bucket
 
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.hydrovis-pcpanl-incoming-s3[0].arn
-        sse_algorithm     = "aws:kms"
-      }
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.hydrovis-pcpanl-incoming-s3[0].arn
+      sse_algorithm     = "aws:kms"
     }
   }
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "hydrovis-pcpanl-incoming" {
+  count  = var.environment == "prod" ? 1 : 0 // This makes sure this is only built when deploying to prod
+  bucket = aws_s3_bucket.hydrovis-pcpanl-incoming[0].id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
