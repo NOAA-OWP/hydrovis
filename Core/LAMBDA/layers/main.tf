@@ -45,9 +45,16 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 ## ArcGIS Python API Layer ##
 #############################
 
+resource "aws_s3_object" "arcgis_python_api" {
+  bucket = var.lambda_data_bucket
+  key    = "lambda_layers/arcgis_python_api.zip"
+  source = "${path.module}/arcgis_python_api.zip"
+  source_hash = filemd5("${path.module}/arcgis_python_api.zip")
+}
+
 resource "aws_lambda_layer_version" "arcgis_python_api" {
-  filename         = "${path.module}/arcgis_python_api.zip"
-  source_code_hash = filebase64sha256("${path.module}/arcgis_python_api.zip")
+  s3_bucket = aws_s3_object.arcgis_python_api.bucket
+  s3_key = aws_s3_object.arcgis_python_api.key
 
   layer_name = "arcgis_python_api_${var.environment}"
 
@@ -87,9 +94,16 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 ## HUC Proc Combo Layer ##
 ##########################
 
+resource "aws_s3_object" "huc_proc_combo" {
+  bucket = var.lambda_data_bucket
+  key    = "lambda_layers/huc_proc_combo.zip"
+  source = "${path.module}/huc_proc_combo.zip"
+  source_hash = filemd5("${path.module}/huc_proc_combo.zip")
+}
+
 resource "aws_lambda_layer_version" "huc_proc_combo" {
-  filename         = "${path.module}/huc_proc_combo.zip"
-  source_code_hash = filebase64sha256("${path.module}/huc_proc_combo.zip")
+  s3_bucket = aws_s3_object.huc_proc_combo.bucket
+  s3_key = aws_s3_object.huc_proc_combo.key
 
   layer_name = "huc_proc_combo_${var.environment}"
 
