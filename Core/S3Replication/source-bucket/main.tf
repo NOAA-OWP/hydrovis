@@ -212,7 +212,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis" {
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
-      days_after_initiation = 0
+      days_after_initiation = 1
     }
 
     expiration {
