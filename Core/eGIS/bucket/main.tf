@@ -112,15 +112,17 @@ resource "aws_kms_alias" "hydrovis-s3" {
 
 resource "aws_s3_bucket" "hydrovis" {
   bucket = "hydrovis-${var.environment}-egis-${var.region}${var.name_suffix != "none" ? format("-%s", var.name_suffix) : ""}"
+}
 
-  server_side_encryption_configuration {
-    rule {
-      bucket_key_enabled = true
+resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis" {
+  bucket = aws_s3_bucket.hydrovis.bucket
 
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.hydrovis-s3.arn
-        sse_algorithm     = "aws:kms"
-      }
+  rule {
+    bucket_key_enabled = true
+
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.hydrovis-s3.arn
+      sse_algorithm     = "aws:kms"
     }
   }
 }

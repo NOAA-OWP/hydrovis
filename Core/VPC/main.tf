@@ -34,36 +34,16 @@ locals {
     "prod" : cidrsubnet(var.nwave_ip_block, 1, 1)
   }
   public_route_default = {
-    cidr_block                 = "0.0.0.0/0"
-    gateway_id                 = data.aws_vpn_gateway.main.id
-    nat_gateway_id             = ""
-    carrier_gateway_id         = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id     = ""
-    instance_id                = ""
-    ipv6_cidr_block            = ""
-    local_gateway_id           = ""
-    network_interface_id       = ""
-    transit_gateway_id         = ""
-    vpc_endpoint_id            = ""
-    vpc_peering_connection_id  = ""
+    cidr_block                = "0.0.0.0/0"
+    gateway_id                = data.aws_vpn_gateway.main.id
+    vpc_peering_connection_id = ""
   }
-  public_route = var.public_route_peering_ip_block != "" ? [
+  public_routes = var.public_route_peering_ip_block != "" ? [
     local.public_route_default,
     {
-      carrier_gateway_id         = ""
-      cidr_block                 = var.public_route_peering_ip_block
-      destination_prefix_list_id = ""
-      egress_only_gateway_id     = ""
-      gateway_id                 = ""
-      instance_id                = ""
-      ipv6_cidr_block            = ""
-      local_gateway_id           = ""
-      nat_gateway_id             = ""
-      network_interface_id       = ""
-      transit_gateway_id         = ""
-      vpc_endpoint_id            = ""
-      vpc_peering_connection_id  = var.public_route_peering_connection_id
+      cidr_block                = var.public_route_peering_ip_block
+      gateway_id                = ""
+      vpc_peering_connection_id = var.public_route_peering_connection_id
     }
   ] : [local.public_route_default]
 }
@@ -114,24 +94,12 @@ resource "aws_nat_gateway" "hv-pub-nat-gw-b" {
 }
 
 resource "aws_route_table" "private" {
-  route = [
-    {
-      cidr_block                 = "0.0.0.0/0"
-      nat_gateway_id             = aws_nat_gateway.hv-pub-nat-gw-a.id
-      carrier_gateway_id         = ""
-      destination_prefix_list_id = ""
-      egress_only_gateway_id     = ""
-      gateway_id                 = ""
-      instance_id                = ""
-      ipv6_cidr_block            = ""
-      local_gateway_id           = ""
-      network_interface_id       = ""
-      transit_gateway_id         = ""
-      vpc_endpoint_id            = ""
-      vpc_peering_connection_id  = ""
-    }
-  ]
   vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block                 = "0.0.0.0/0"
+    nat_gateway_id             = aws_nat_gateway.hv-pub-nat-gw-a.id
+  }
 }
 
 resource "aws_main_route_table_association" "main_private" {
@@ -214,8 +182,17 @@ resource "aws_subnet" "hydrovis-sn-prv-web1b" {
 
 
 resource "aws_route_table" "public" {
-  route = local.public_route
   vpc_id = aws_vpc.main.id
+
+
+  dynamic route {
+    for_each = local.public_routes
+    content {
+      cidr_block                = route.value["cidr_block"]
+      gateway_id                = route.value["gateway_id"]
+      vpc_peering_connection_id = route.value["vpc_peering_connection_id"]
+    }
+  }
 }
 
 resource "aws_subnet" "hydrovis-sn-pub-1a" {

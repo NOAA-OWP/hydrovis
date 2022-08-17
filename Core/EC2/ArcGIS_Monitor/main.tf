@@ -55,7 +55,8 @@ resource "aws_instance" "arcgismonitor" {
     delete_on_termination = true
   }
 
-  user_data = data.cloudinit_config.arcgismonitor.rendered
+  user_data                   = data.cloudinit_config.arcgismonitor.rendered
+  user_data_replace_on_change = true
 
   lifecycle {
     ignore_changes = [ami, tags]
