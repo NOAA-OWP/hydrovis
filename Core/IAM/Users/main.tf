@@ -10,8 +10,7 @@ variable "region" {
   type = string
 }
 
-
-# HydrovisESRISSMDeploy Role
+# WRDS Service Account
 resource "aws_iam_user" "WRDSServiceAccount" {
   name = "wrds-service-account"
 }
@@ -33,6 +32,32 @@ resource "local_file" "WRDSServiceAccount" {
 }
 
 
+# FIM Service Account
+resource "aws_iam_user" "FIMServiceAccount" {
+  name = "fim-service-account"
+}
+
+resource "aws_iam_user_policy" "FIMServiceAccount" {
+  name = "fim-service-account"
+  user = aws_iam_user.FIMServiceAccount.name
+
+  policy = templatefile("${path.module}/fim-service-account-policy.json.tftpl", {})
+}
+
+resource "aws_iam_access_key" "FIMServiceAccount" {
+  user = aws_iam_user.FIMServiceAccount.name
+}
+
+resource "local_file" "FIMServiceAccount" {
+  content  = "ID: ${aws_iam_access_key.FIMServiceAccount.id}\nSecret: ${aws_iam_access_key.FIMServiceAccount.secret}"
+  filename = "${path.root}/sensitive/Certs/${aws_iam_user.FIMServiceAccount.name}-${var.environment}"
+}
+
+
 output "user_WRDSServiceAccount" {
   value = aws_iam_user.WRDSServiceAccount
+}
+
+output "user_FIMServiceAccount" {
+  value = aws_iam_user.FIMServiceAccount
 }
