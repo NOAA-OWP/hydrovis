@@ -539,6 +539,8 @@ module "viz_ec2" {
   logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
   vlab_host                   = local.env.viz_ec2_vlab_host
+  github_repo_prefix          = local.env.viz_ec2_github_repo_prefix
+  github_host                 = local.env.viz_ec2_github_host
   viz_db_host                 = module.rds-viz.rds-viz-processing.address
   viz_db_name                 = local.env.viz_db_name
   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
