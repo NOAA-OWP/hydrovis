@@ -54,10 +54,36 @@ resource "local_file" "FIMServiceAccount" {
 }
 
 
+# ISED Service Account
+resource "aws_iam_user" "ISEDServiceAccount" {
+  name = "ised-service-account"
+}
+
+resource "aws_iam_user_policy" "ISEDServiceAccount" {
+  name = "ised-service-account"
+  user = aws_iam_user.ISEDServiceAccount.name
+
+  policy = templatefile("${path.module}/ised-service-account-policy.json.tftpl", {})
+}
+
+resource "aws_iam_access_key" "ISEDServiceAccount" {
+  user = aws_iam_user.ISEDServiceAccount.name
+}
+
+resource "local_file" "ISEDServiceAccount" {
+  content  = "ID: ${aws_iam_access_key.ISEDServiceAccount.id}\nSecret: ${aws_iam_access_key.ISEDServiceAccount.secret}"
+  filename = "${path.root}/sensitive/Certs/${aws_iam_user.ISEDServiceAccount.name}-${var.environment}"
+}
+
+
 output "user_WRDSServiceAccount" {
   value = aws_iam_user.WRDSServiceAccount
 }
 
 output "user_FIMServiceAccount" {
   value = aws_iam_user.FIMServiceAccount
+}
+
+output "user_ISEDServiceAccount" {
+  value = aws_iam_user.ISEDServiceAccount
 }
