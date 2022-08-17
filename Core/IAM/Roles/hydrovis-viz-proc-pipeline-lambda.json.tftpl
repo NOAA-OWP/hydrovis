@@ -183,6 +183,13 @@
         "Effect": "Allow",
         "Action": "kms:GenerateDataKey",
         "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "states:StartExecution"
+        ],
+        "Resource": "*"
     }
   ]
 }

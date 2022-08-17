@@ -276,10 +276,8 @@ module "viz_lambda_functions" {
   email_sns_topics              = module.sns.email_sns_topics
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
-  multiprocessing_layer         = module.lambda_layers.multiprocessing.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
-  rasterio_layer                = module.lambda_layers.rasterio.arn
-  mrf_rasterio_layer            = module.lambda_layers.mrf_rasterio.arn
+  huc_proc_combo_layer          = module.lambda_layers.huc_proc_combo.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
@@ -397,12 +395,12 @@ module "monitoring" {
 
   lambda_trigger_functions = [
     module.viz_lambda_functions.max_flows.function_name,
-    module.viz_lambda_functions.inundation_parent.function_name,
-    module.viz_lambda_functions.huc_processing.function_name,
-    module.viz_lambda_functions.optimize_rasters.function_name,
+    # module.viz_lambda_functions.inundation_parent.function_name,
+    # module.viz_lambda_functions.huc_processing.function_name,
+    # module.viz_lambda_functions.optimize_rasters.function_name,
     module.ingest_lambda_functions.hml_reciever.function_name,
     module.viz_lambda_functions.db_ingest.function_name,
-    module.viz_lambda_functions.db_postprocess.function_name
+    # module.viz_lambda_functions.db_postprocess.function_name
   ]
 }
 

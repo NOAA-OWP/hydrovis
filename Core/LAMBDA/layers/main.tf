@@ -37,50 +37,29 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 
   layer_name = "viz_lambda_shared_funcs_${var.environment}"
 
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
-  description         = "Helper functions for general viz lambda functionality"
+  compatible_runtimes = ["python3.7", "python3.8"]
+  description         = "Viz classes and helper functions for general viz lambda functionality"
 }
 
 #############################
 ## ArcGIS Python API Layer ##
 #############################
 
+resource "aws_s3_object" "arcgis_python_api" {
+  bucket = var.lambda_data_bucket
+  key    = "lambda_layers/arcgis_python_api.zip"
+  source = "${path.module}/arcgis_python_api.zip"
+  source_hash = filemd5("${path.module}/arcgis_python_api.zip")
+}
+
 resource "aws_lambda_layer_version" "arcgis_python_api" {
-  filename         = "${path.module}/arcgis_python_api.zip"
-  source_code_hash = filebase64sha256("${path.module}/arcgis_python_api.zip")
+  s3_bucket = aws_s3_object.arcgis_python_api.bucket
+  s3_key = aws_s3_object.arcgis_python_api.key
 
   layer_name = "arcgis_python_api_${var.environment}"
 
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
+  compatible_runtimes = ["python3.9"]
   description         = "ArcGIS Python API module"
-}
-
-########################
-## MRF Rasterio Layer ##
-########################
-
-resource "aws_lambda_layer_version" "mrf_rasterio" {
-  filename         = "${path.module}/mrf_rasterio.zip"
-  source_code_hash = filebase64sha256("${path.module}/mrf_rasterio.zip")
-
-  layer_name = "mrf_rasterio_${var.environment}"
-
-  compatible_runtimes = ["python3.6"]
-  description         = "Rasterio python package with MRF enabled"
-}
-
-###########################
-## Multiprocessing Layer ##
-###########################
-
-resource "aws_lambda_layer_version" "multiprocessing" {
-  filename         = "${path.module}/multiprocessing.zip"
-  source_code_hash = filebase64sha256("${path.module}/multiprocessing.zip")
-
-  layer_name = "multiprocessing_${var.environment}"
-
-  compatible_runtimes = ["python3.6", "python3.7"]
-  description         = "Multiprocessing python package"
 }
 
 ##################
@@ -93,7 +72,7 @@ resource "aws_lambda_layer_version" "pandas" {
 
   layer_name = "pandas_${var.environment}"
 
-  compatible_runtimes = ["python3.6", "python3.7"]
+  compatible_runtimes = ["python3.9"]
   description         = "pandas python package"
 }
 
@@ -107,22 +86,29 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 
   layer_name = "psycopg2_sqlalchemy_${var.environment}"
 
-  compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
+  compatible_runtimes = ["python3.9"]
   description         = "psycopg2 and sql alchemy python packages"
 }
 
-####################
-## Rasterio Layer ##
-####################
+##########################
+## HUC Proc Combo Layer ##
+##########################
 
-resource "aws_lambda_layer_version" "rasterio" {
-  filename         = "${path.module}/rasterio.zip"
-  source_code_hash = filebase64sha256("${path.module}/rasterio.zip")
+resource "aws_s3_object" "huc_proc_combo" {
+  bucket = var.lambda_data_bucket
+  key    = "lambda_layers/huc_proc_combo.zip"
+  source = "${path.module}/huc_proc_combo.zip"
+  source_hash = filemd5("${path.module}/huc_proc_combo.zip")
+}
 
-  layer_name = "rasterio_${var.environment}"
+resource "aws_lambda_layer_version" "huc_proc_combo" {
+  s3_bucket = aws_s3_object.huc_proc_combo.bucket
+  s3_key = aws_s3_object.huc_proc_combo.key
 
-  compatible_runtimes = ["python3.6"]
-  description         = "rasterio python package"
+  layer_name = "huc_proc_combo_${var.environment}"
+
+  compatible_runtimes = ["python3.9"]
+  description         = "Includes pandas, pyscopg2, sqlachemy, and rasterio"
 }
 
 ##################
@@ -135,7 +121,7 @@ resource "aws_lambda_layer_version" "xarray" {
 
   layer_name = "xarray_${var.environment}"
 
-  compatible_runtimes = ["python3.7"]
+  compatible_runtimes = ["python3.9"]
   description         = "xarray python package"
 }
 
@@ -169,14 +155,6 @@ output "arcgis_python_api" {
   value = resource.aws_lambda_layer_version.arcgis_python_api
 }
 
-output "mrf_rasterio" {
-  value = resource.aws_lambda_layer_version.mrf_rasterio
-}
-
-output "multiprocessing" {
-  value = resource.aws_lambda_layer_version.multiprocessing
-}
-
 output "pandas" {
   value = resource.aws_lambda_layer_version.pandas
 }
@@ -185,8 +163,8 @@ output "psycopg2_sqlalchemy" {
   value = resource.aws_lambda_layer_version.psycopg2_sqlalchemy
 }
 
-output "rasterio" {
-  value = resource.aws_lambda_layer_version.rasterio
+output "huc_proc_combo" {
+  value = resource.aws_lambda_layer_version.huc_proc_combo
 }
 
 output "xarray" {
