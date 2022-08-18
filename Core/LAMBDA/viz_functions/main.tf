@@ -661,8 +661,28 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   definition = <<EOF
   {
   "Comment": "A description of my state machine",
-  "StartAt": "Database Ingest Groups",
+  "StartAt": "Choice",
   "States": {
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Or": [
+            {
+              "Variable": "$.pipeline_info.data_type",
+              "StringEquals": "forcing"
+            },
+            {
+              "Variable": "$.pipeline_info.data_type",
+              "StringEquals": "land"
+            }
+          ],
+          "Comment": "Forcing/Land Inputs",
+          "Next": "Services Processing"
+        }
+      ],
+      "Default": "Database Ingest Groups"
+    },
     "Database Ingest Groups": {
       "Type": "Map",
       "Next": "Max Flows Processing",
@@ -764,7 +784,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     },
     "Max Flows Processing": {
       "Type": "Map",
-      "Next": "Auto vs. Past Event Run",
+      "Next": "Services Processing",
       "Iterator": {
         "StartAt": "Postprocess SQL - Max Flows",
         "States": {
@@ -809,217 +829,59 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       },
       "MaxConcurrency": 5
     },
-    "Auto vs. Past Event Run": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.pipeline_info.job_type",
-          "StringEquals": "past_event",
-          "Next": "Past Event - Service Processing"
-        }
-      ],
-      "Default": "Auto Pipeline - Services Processing"
-    },
-    "Past Event - Service Processing": {
+    "Services Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "FIM vs Non-FIM Services (Past Event)",
+        "StartAt": "Vector vs Raster",
         "States": {
-          "FIM vs Non-FIM Services (Past Event)": {
+          "Vector vs Raster": {
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.service.fim_service",
-                "BooleanEquals": true,
-                "Comment": "FIM Processing",
-                "Next": "FIM Processing (Past Event)"
+                "Variable": "$.service.egis_server",
+                "StringEquals": "image",
+                "Next": "Raster Processing",
+                "Comment": "Raster Processing"
               }
             ],
-            "Default": "Postprocess SQL - Service (Past Event)"
+            "Default": "FIM vs Non-FIM Services"
           },
-          "FIM Processing (Past Event)": {
-            "Type": "Map",
-            "Next": "Postprocess SQL - Service (Past Event)",
-            "Iterator": {
-              "StartAt": "FIM Data Preparation (Past Event)",
-              "States": {
-                "FIM Data Preparation (Past Event)": {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::lambda:invoke",
-                  "OutputPath": "$.Payload",
-                  "Parameters": {
-                    "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
-                    "Payload": {
-                      "args.$": "$",
-                      "step": "fim_prep"
-                    }
-                  },
-                  "Retry": [
-                    {
-                      "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException"
-                      ],
-                      "IntervalSeconds": 2,
-                      "MaxAttempts": 6,
-                      "BackoffRate": 2
-                    }
-                  ],
-                  "Next": "HUC Processing Map (Past Event)"
-                },
-                "HUC Processing Map (Past Event)": {
-                  "Type": "Map",
-                  "Iterator": {
-                    "StartAt": "FIM Processing by HUC (Past Event)",
-                    "States": {
-                      "FIM Processing by HUC (Past Event)": {
-                        "Type": "Task",
-                        "Resource": "arn:aws:states:::lambda:invoke",
-                        "OutputPath": "$.Payload",
-                        "Parameters": {
-                          "FunctionName": "${aws_lambda_function.viz_fim_huc_processing.arn}",
-                          "Payload": {
-                            "args.$": "$",
-                            "step": "fim_processing"
-                          }
-                        },
-                        "Retry": [
-                          {
-                            "ErrorEquals": [
-                              "Lambda.ServiceException",
-                              "Lambda.AWSLambdaException",
-                              "Lambda.SdkClientException"
-                            ],
-                            "IntervalSeconds": 2,
-                            "MaxAttempts": 6,
-                            "BackoffRate": 2
-                          }
-                        ],
-                        "End": true
-                      }
-                    }
-                  },
-                  "ItemsPath": "$.taskList",
-                  "ResultPath": null,
-                  "MaxConcurrency": 200,
-                  "End": true,
-                  "InputPath": "$.body"
-                }
-              }
-            },
-            "ItemsPath": "$.service.fim_configs",
-            "Parameters": {
-              "fim_config.$": "$$.Map.Item.Value",
-              "service.$": "$.service",
-              "reference_time.$": "$.reference_time",
-              "sql_rename_dict.$": "$.sql_rename_dict"
-            },
-            "ResultPath": null
-          },
-          "Postprocess SQL - Service (Past Event)": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
-              "Payload": {
-                "args": {
-                  "map.$": "$",
-                  "sql_rename_dict.$": "$.sql_rename_dict"
-                },
-                "step": "services",
-                "folder": "services"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
-            "Next": "Summary vs. Non-Summary Services (Past Event)",
-            "ResultPath": null
-          },
-          "Summary vs. Non-Summary Services (Past Event)": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.service.postprocess_summary",
-                "IsNull": true,
-                "Next": "Past Event - Success"
-              }
-            ],
-            "Default": "Postprocess SQL - Summary (Past Event)"
-          },
-          "Postprocess SQL - Summary (Past Event)": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
-              "Payload": {
-                "args": {
-                  "map.$": "$",
-                  "map_item.$": "$.service.postprocess_summary",
-                  "reference_time.$": "$.reference_time",
-                  "sql_rename_dict.$": "$.sql_rename_dict"
-                },
-                "step": "summaries",
-                "folder": "summaries"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
-            "ResultPath": null,
-            "Next": "Past Event - Success"
-          },
-          "Past Event - Success": {
-            "Type": "Succeed"
-          }
-        }
-      },
-      "ResultPath": null,
-      "Parameters": {
-        "service.$": "$$.Map.Item.Value",
-        "map_item.$": "$$.Map.Item.Value.postprocess_service",
-        "reference_time.$": "$.pipeline_info.reference_time",
-        "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
-      },
-      "ItemsPath": "$.pipeline_info.pipeline_services",
-      "MaxConcurrency": 15,
-      "End": true
-    },
-    "Auto Pipeline - Services Processing": {
-      "Type": "Map",
-      "Iterator": {
-        "StartAt": "FIM vs Non-FIM Services",
-        "States": {
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.service.fim_service",
-                "BooleanEquals": true,
+                "Variable": "$.service.service_type ",
+                "StringEquals": "fim",
                 "Comment": "FIM Processing",
                 "Next": "FIM Processing"
               }
             ],
             "Default": "Postprocess SQL - Service"
+          },
+          "Raster Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Update EGIS Data - Service",
+            "ResultPath": "$.raster_result",
+            "ResultSelector": {
+              "output_rasters.$": "$.Payload"
+            }
           },
           "FIM Processing": {
             "Type": "Map",
@@ -1134,7 +996,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+              "FunctionName": "arn:aws:lambda:us-east-1:526904826677:function:viz_update_egis_data_dev",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
@@ -1161,10 +1023,21 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               {
                 "Variable": "$.service.postprocess_summary",
                 "IsNull": true,
-                "Next": "Publish Service"
+                "Next": "Auto vs. Past Event Run"
               }
             ],
             "Default": "Postprocess SQL - Summary"
+          },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Success"
+              }
+            ],
+            "Default": "Publish Service"
           },
           "Postprocess SQL - Summary": {
             "Type": "Task",
@@ -1220,7 +1093,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Publish Service"
+            "Next": "Auto vs. Past Event Run"
           },
           "Publish Service": {
             "Type": "Task",
@@ -1244,9 +1117,9 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BackoffRate": 2
               }
             ],
-            "Next": "Auto Run - Success"
+            "Next": "Success"
           },
-          "Auto Run - Success": {
+          "Success": {
             "Type": "Succeed"
           }
         }
@@ -1256,6 +1129,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
         "service.$": "$$.Map.Item.Value",
         "map_item.$": "$$.Map.Item.Value.postprocess_service",
         "reference_time.$": "$.pipeline_info.reference_time",
+        "job_type.$": "$.pipeline_info.job_type",
         "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
