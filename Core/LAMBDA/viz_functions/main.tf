@@ -586,6 +586,9 @@ resource "aws_lambda_function" "viz_update_egis_data" {
   tags = {
     "Name" = "viz_update_egis_data_${var.environment}"
   }
+  ephemeral_storage {
+    size = 2048
+  }
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destinations" {
