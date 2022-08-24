@@ -33,6 +33,11 @@ variable "max_flows_bucket" {
   type        = string
 }
 
+variable "viz_cache_bucket" {
+  description = "S3 bucket where the viz cache shapefiles will live."
+  type        = string
+}
+
 variable "fim_version" {
   description = "FIM version to run"
   type        = string
@@ -113,6 +118,10 @@ variable "pandas_layer" {
   type = string
 }
 
+variable "geopandas_layer" {
+  type = string
+}
+
 variable "huc_proc_combo_layer" {
   type = string
 }
@@ -122,6 +131,10 @@ variable "psycopg2_sqlalchemy_layer" {
 }
 
 variable "arcgis_python_api_layer" {
+  type = string
+}
+
+variable "requests_layer" {
   type = string
 }
 
@@ -422,6 +435,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
   layers = [
     var.psycopg2_sqlalchemy_layer,
     var.xarray_layer,
+    var.requests_layer,
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
@@ -555,7 +569,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_huc_processing_desti
 resource "aws_lambda_function" "viz_update_egis_data" {
   function_name = "viz_update_egis_data_${var.environment}"
   description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
-  memory_size   = 4200
+  memory_size   = 6400
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
@@ -571,6 +585,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
       VIZ_DB_HOST         = var.viz_db_host
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      CACHE_BUCKET        = var.viz_cache_bucket
     }
   }
   filename         = "${path.module}/viz_update_egis_data.zip"
@@ -579,7 +594,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
   layers = [
-    var.pandas_layer,
+    var.geopandas_layer,
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer
   ]
