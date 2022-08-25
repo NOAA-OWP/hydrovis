@@ -676,28 +676,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   definition = <<EOF
   {
   "Comment": "A description of my state machine",
-  "StartAt": "Choice",
+  "StartAt": "Database Ingest Groups",
   "States": {
-    "Choice": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Or": [
-            {
-              "Variable": "$.pipeline_info.data_type",
-              "StringEquals": "forcing"
-            },
-            {
-              "Variable": "$.pipeline_info.data_type",
-              "StringEquals": "land"
-            }
-          ],
-          "Comment": "Forcing/Land Inputs",
-          "Next": "Services Processing"
-        }
-      ],
-      "Default": "Database Ingest Groups"
-    },
     "Database Ingest Groups": {
       "Type": "Map",
       "Next": "Max Flows Processing",
@@ -847,56 +827,19 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     "Services Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "Vector vs Raster",
+        "StartAt": "FIM vs Non-FIM Services",
         "States": {
-          "Vector vs Raster": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.service.egis_server",
-                "StringEquals": "image",
-                "Next": "Raster Processing",
-                "Comment": "Raster Processing"
-              }
-            ],
-            "Default": "FIM vs Non-FIM Services"
-          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
               {
-                "Variable": "$.service.service_type ",
-                "StringEquals": "fim",
+                "Variable": "$.service.fim_service",
+                "BooleanEquals": true,
                 "Comment": "FIM Processing",
                 "Next": "FIM Processing"
               }
             ],
             "Default": "Postprocess SQL - Service"
-          },
-          "Raster Processing": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "Payload.$": "$",
-              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}"
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
-            "Next": "Update EGIS Data - Service",
-            "ResultPath": "$.raster_result",
-            "ResultSelector": {
-              "output_rasters.$": "$.Payload"
-            }
           },
           "FIM Processing": {
             "Type": "Map",
@@ -965,7 +908,12 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   "ResultPath": null,
                   "MaxConcurrency": 200,
                   "End": true,
-                  "InputPath": "$.body"
+                  "InputPath": "$.body",
+                  "Parameters": {
+                    "data_key.$": "$$.Map.Item.Value.data_key",
+                    "inundation_mode.$": "$.inundation_mode",
+                    "db_fim_table.$": "$.db_fim_table"
+                  }
                 }
               }
             },
@@ -1011,7 +959,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "arn:aws:lambda:us-east-1:526904826677:function:viz_update_egis_data_dev",
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
