@@ -76,6 +76,20 @@ resource "aws_lambda_layer_version" "pandas" {
   description         = "pandas python package"
 }
 
+##################
+## GeoPandas Layer ##
+##################
+
+resource "aws_lambda_layer_version" "geopandas" {
+  filename         = "${path.module}/geopandas.zip"
+  source_code_hash = filebase64sha256("${path.module}/geopandas.zip")
+
+  layer_name = "geopandas_${var.environment}"
+
+  compatible_runtimes = ["python3.9"]
+  description         = "geopandas python package"
+}
+
 ##################################
 ## Psycopg2 & SQL Alchemy Layer ##
 ##################################
@@ -139,6 +153,20 @@ resource "aws_lambda_layer_version" "pika" {
   description         = "Python pika module"
 }
 
+####################
+## Requests Layer ##
+####################
+
+resource "aws_lambda_layer_version" "requests" {
+  filename         = "${path.module}/requests.zip"
+  source_code_hash = filebase64sha256("${path.module}/requests.zip")
+
+  layer_name = "requests_${var.environment}"
+
+  compatible_runtimes = ["python3.9"]
+  description         = "Python requests module"
+}
+
 #############
 ## Outputs ##
 #############
@@ -159,6 +187,10 @@ output "pandas" {
   value = resource.aws_lambda_layer_version.pandas
 }
 
+output "geopandas" {
+  value = resource.aws_lambda_layer_version.geopandas
+}
+
 output "psycopg2_sqlalchemy" {
   value = resource.aws_lambda_layer_version.psycopg2_sqlalchemy
 }
@@ -173,4 +205,8 @@ output "xarray" {
 
 output "pika" {
   value = resource.aws_lambda_layer_version.pika
+}
+
+output "requests" {
+  value = resource.aws_lambda_layer_version.requests
 }
