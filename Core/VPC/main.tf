@@ -98,8 +98,8 @@ resource "aws_route_table" "private" {
 
   route {
     cidr_block                 = "0.0.0.0/0"
-    nat_gateway_id             = aws_nat_gateway.hv-pub-nat-gw-a.id
-  }
+    gateway_id                 = data.aws_vpn_gateway.main.id
+   }
 }
 
 resource "aws_main_route_table_association" "main_private" {
