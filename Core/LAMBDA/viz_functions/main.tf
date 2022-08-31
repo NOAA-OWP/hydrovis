@@ -730,8 +730,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                         "MissingS3FileException"
                       ],
                       "BackoffRate": 1,
-                      "IntervalSeconds": 60,
-                      "MaxAttempts": 15,
+                      "IntervalSeconds": 120,
+                      "MaxAttempts": 20,
                       "Comment": "Missing S3 File"
                     }
                   ]
