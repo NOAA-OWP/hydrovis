@@ -275,6 +275,7 @@ module "viz_lambda_functions" {
   fim_output_bucket             = module.s3.buckets["fim"].bucket
   max_flows_bucket              = module.s3.buckets["fim"].bucket
   lambda_data_bucket            = module.s3.buckets["deployment"].bucket
+  viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   sns_topics                    = module.sns.sns_topics
@@ -282,9 +283,11 @@ module "viz_lambda_functions" {
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
+  geopandas_layer               = module.lambda_layers.geopandas.arn
   huc_proc_combo_layer          = module.lambda_layers.huc_proc_combo.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
+  requests_layer                = module.lambda_layers.requests.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id

@@ -123,7 +123,7 @@ resource "aws_lambda_function" "hml_reciever" {
   filename         = "${path.module}/HML_receiver_lambda.zip"
   source_code_hash = filebase64sha256("${path.module}/HML_receiver_lambda.zip")
 
-  runtime = "python3.8"
+  runtime = "python3.9"
   handler = "hml_receiver.lambda_function"
 
   role = var.lambda_role
