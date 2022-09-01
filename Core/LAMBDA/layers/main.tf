@@ -80,9 +80,17 @@ resource "aws_lambda_layer_version" "pandas" {
 ## GeoPandas Layer ##
 ##################
 
+
+resource "aws_s3_object" "geopandas" {
+  bucket = var.lambda_data_bucket
+  key    = "lambda_layers/geopandas.zip"
+  source = "${path.module}/geopandas.zip"
+  source_hash = filemd5("${path.module}/geopandas.zip")
+}
+
 resource "aws_lambda_layer_version" "geopandas" {
-  filename         = "${path.module}/geopandas.zip"
-  source_code_hash = filebase64sha256("${path.module}/geopandas.zip")
+  s3_bucket = aws_s3_object.geopandas.bucket
+  s3_key = aws_s3_object.geopandas.key
 
   layer_name = "geopandas_${var.environment}"
 
