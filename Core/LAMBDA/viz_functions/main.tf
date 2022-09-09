@@ -3,6 +3,16 @@ variable "environment" {
   type        = string
 }
 
+variable "account_id" {
+  description = "Hydrovis environment"
+  type        = string
+}
+
+variable "region" {
+  description = "Hydrovis environment"
+  type        = string
+}
+
 variable "viz_authoritative_bucket" {
   description = "S3 bucket where the viz authoritative data will live."
   type        = string
@@ -96,7 +106,7 @@ variable "viz_db_user_secret_string" {
   type        = string
 }
 
-variable "egis_db_secret_string" {
+variable "egis_db_user_secret_string" {
   description = "The secret string for the egis rds database."
   type        = string
 }
@@ -114,15 +124,11 @@ variable "xarray_layer" {
   type = string
 }
 
-variable "pandas_layer" {
-  type = string
-}
-
 variable "geopandas_layer" {
   type = string
 }
 
-variable "huc_proc_combo_layer" {
+variable "pandas_isodate_layer" {
   type = string
 }
 
@@ -331,7 +337,8 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   role             = var.lambda_role
   layers = [
     var.psycopg2_sqlalchemy_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.viz_lambda_shared_funcs_layer,
+    var.pandas_isodate_layer
   ]
   tags = {
     "Name" = "viz_initialize_pipeline_${var.environment}"
@@ -523,8 +530,8 @@ resource "aws_lambda_function" "viz_update_egis_data" {
     variables = {
       EGIS_DB_DATABASE    = var.egis_db_name
       EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_secret_string)["password"]
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
       VIZ_DB_DATABASE     = var.viz_db_name
       VIZ_DB_HOST         = var.viz_db_host
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
@@ -615,9 +622,9 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
 module "image_based_lambdas" {
   source = "./image_based"
 
-  environment = local.env.environment
-  account_id  = local.env.account_id
-  region      = local.env.region
+  environment = var.environment
+  account_id  = var.account_id
+  region      = var.region
   deployment_bucket = var.lambda_data_bucket
   raster_output_bucket = var.fim_output_bucket
   raster_output_prefix = local.raster_output_prefix
@@ -837,7 +844,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
               "Payload.$": "$",
-              "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.raster_processing}"
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.raster_processing}"
             },
             "Retry": [
               {
@@ -866,7 +873,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   "OutputPath": "$.Payload",
                   "Parameters": {
                     "Payload.$": "$",
-                    "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.optimize_rasters}"
+                    "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.optimize_rasters}"
                   },
                   "Retry": [
                     {
@@ -1170,7 +1177,7 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
             "OutputPath": "$.Payload",
             "Parameters": {
               "Payload.$": "$",
-              "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.fim_huc_processing}"
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
             },
             "End": true
           }
@@ -1230,13 +1237,13 @@ output "viz_pipeline_step_function" {
 }
 
 output "fim_huc_processing" {
-  value = image_based_lambdas.fim_huc_processing
+  value = module.image_based_lambdas.fim_huc_processing
 }
 
 output "optimize_rasters" {
-  value = image_based_lambdas.optimize_rasters
+  value = module.image_based_lambdas.optimize_rasters
 }
 
 output "raster_processing" {
-  value = image_based_lambdas.raster_processing
+  value = module.image_based_lambdas.raster_processing
 }

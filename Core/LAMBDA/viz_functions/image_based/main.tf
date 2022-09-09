@@ -70,10 +70,6 @@ variable "egis_db_user_secret_string" {
   type = string
 }
 
-locals {
-  lambda_role_arn = "arn:aws:iam::${var.account_id}:role/${var.lambda_role}"
-}
-
 ##############################
 ## RASTER PROCESSING LAMBDA ##
 ##############################
@@ -100,7 +96,7 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
   name          = "viz-${var.environment}-raster-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
-  service_role  = local.lambda_role_arn
+  service_role  = var.lambda_role
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -135,7 +131,7 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
     
     environment_variable {
       name  = "LAMBDA_ROLE_ARN"
-      value = local.lambda_role_arn
+      value = var.lambda_role
     }
 
     environment_variable {
@@ -202,7 +198,7 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
   name          = "viz-${var.environment}-optimize-rasters"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
-  service_role  = local.lambda_role_arn
+  service_role  = var.lambda_role
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -237,7 +233,7 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
     
     environment_variable {
       name  = "LAMBDA_ROLE_ARN"
-      value = local.lambda_role_arn
+      value = var.lambda_role
     }
 
     environment_variable {
@@ -294,7 +290,7 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
   name          = "viz-${var.environment}-huc-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
-  service_role  = local.lambda_role_arn
+  service_role  = var.lambda_role
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -329,7 +325,7 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
     
     environment_variable {
       name  = "LAMBDA_ROLE_ARN"
-      value = local.lambda_role_arn
+      value = var.lambda_role
     }
 
     environment_variable {
