@@ -1105,6 +1105,30 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   EOF
 }
 
+####### Step Function Failure / Time Out SNS #######
+resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
+  name        = "viz_pipeline_step_function_failure_${var.environment}"
+  description = "Alert when the viz step function times out or fails."
+
+  event_pattern = <<EOF
+  {
+  "source": ["aws.states"],
+  "detail-type": ["Step Functions Execution Status Change"],
+  "detail": {
+    "status": ["FAILED", "TIMED_OUT"],
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
+    }
+  }
+  EOF
+}
+
+resource "aws_cloudwatch_event_target" "step_function_failure_sns" {
+  rule        = aws_cloudwatch_event_rule.viz_pipeline_step_function_failure.name
+  target_id   = "SendToSNS"
+  arn         = var.email_sns_topics["viz_lambda_errors"].arn
+  input_path  = "$.detail.name"
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 
