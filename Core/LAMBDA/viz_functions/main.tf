@@ -153,6 +153,8 @@ data "aws_caller_identity" "current" {}
 locals {
   egis_host      = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
   service_suffix = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
+  raster_output_prefix = "processing_outputs"
+  ecr_repository_image_tag = "latest"
 
   max_flows_subscriptions = toset([
     "nwm_ingest_ana"
@@ -505,64 +507,6 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 }
 
 #############################
-##   FIM HUC Processing    ##
-#############################
-
-resource "aws_lambda_function" "viz_fim_huc_processing" {
-  function_name = "viz_fim_huc_processing_${var.environment}"
-  description   = "Lambda function to process FIM for an individual huc, and load data into a specified database table."
-  memory_size   = 10240
-
-  timeout       = 900
-  vpc_config {
-    security_group_ids = var.db_lambda_security_groups
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      FIM_DATA_BUCKET             = var.fim_data_bucket
-      FIM_VERSION                 = var.fim_version
-      PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
-      PROCESSED_OUTPUT_PREFIX     = "processing_outputs"
-      FR_FIM_BUCKET               = var.fim_data_bucket
-      FR_FIM_PREFIX               = "fim_${replace(var.fim_version, ".", "_")}_fr_c"
-      MS_FIM_BUCKET               = var.fim_data_bucket
-      MS_FIM_PREFIX               = "fim_${replace(var.fim_version, ".", "_")}_ms_c"
-      VIZ_DB_DATABASE             = var.viz_db_name
-      VIZ_DB_HOST                 = var.viz_db_host
-      VIZ_DB_USERNAME             = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
-    }
-  }
-  filename         = "${path.module}/viz_fim_huc_processing.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_fim_huc_processing.zip")
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.huc_proc_combo_layer,
-    var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "viz_fim_huc_processing_${var.environment}"
-  }
-  ephemeral_storage {
-    size = 2048
-  }
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_fim_huc_processing_destinations" {
-  function_name          = resource.aws_lambda_function.viz_fim_huc_processing.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
-}
-
-#############################
 ##    Update EGIS Data     ##
 #############################
 
@@ -663,6 +607,34 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
     }
   }
 }
+
+#########################
+## Image Based Lambdas ##
+#########################
+
+module "image_based_lambdas" {
+  source = "./image_based"
+
+  environment = local.env.environment
+  account_id  = local.env.account_id
+  region      = local.env.region
+  deployment_bucket = var.lambda_data_bucket
+  raster_output_bucket = var.fim_output_bucket
+  raster_output_prefix = local.raster_output_prefix
+  lambda_role = var.lambda_role
+  huc_processing_sgs = var.db_lambda_security_groups
+  huc_processing_subnets = var.db_lambda_subnets
+  ecr_repository_image_tag = local.ecr_repository_image_tag
+  fim_version = var.fim_version
+  fim_data_bucket = var.fim_data_bucket
+  viz_db_name = var.viz_db_name
+  viz_db_host = var.viz_db_host
+  viz_db_user_secret_string = var.viz_db_user_secret_string
+  egis_db_name = var.egis_db_name
+  egis_db_host = var.egis_db_host
+  egis_db_user_secret_string = var.egis_db_user_secret_string
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 ########################################
@@ -674,17 +646,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   role_arn = var.lambda_role
 
   definition = <<EOF
-  {
+{
   "Comment": "A description of my state machine",
-  "StartAt": "Database Ingest Groups",
+  "StartAt": "Input Data Groups",
   "States": {
-    "Database Ingest Groups": {
+    "Input Data Groups": {
       "Type": "Map",
       "Next": "Max Flows Processing",
       "Iterator": {
-        "StartAt": "Postprocess SQL - Ingest Prep",
+        "StartAt": "Postprocess SQL - Input Data Prep",
         "States": {
-          "Postprocess SQL - Ingest Prep": {
+          "Postprocess SQL - Input Data Prep": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
@@ -707,15 +679,15 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BackoffRate": 2
               }
             ],
-            "Next": "Database Ingest Files",
+            "Next": "Input Data Files",
             "ResultPath": null
           },
-          "Database Ingest Files": {
+          "Input Data Files": {
             "Type": "Map",
             "Iterator": {
-              "StartAt": "DB Ingest",
+              "StartAt": "Input Data Checker/Ingester",
               "States": {
-                "DB Ingest": {
+                "Input Data Checker/Ingester": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "OutputPath": "$.Payload",
@@ -738,11 +710,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 }
               }
             },
-            "InputPath": "$.map.ingest_datasets",
             "ResultPath": null,
-            "Next": "Postprocess SQL - Ingest Finish"
+            "Next": "Postprocess SQL - Input Data Prep Finish",
+            "Parameters": {
+              "file.$": "$$.Map.Item.Value.file",
+              "target_table.$": "$.map.target_table",
+              "bucket.$": "$.map.bucket",
+              "reference_time.$": "$.map.reference_time",
+              "keep_flows_at_or_above.$": "$.map.keep_flows_at_or_above"
+            },
+            "ItemsPath": "$.map.ingest_datasets"
           },
-          "Postprocess SQL - Ingest Finish": {
+          "Postprocess SQL - Input Data Prep Finish": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
@@ -827,8 +806,20 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     "Services Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "FIM vs Non-FIM Services",
+        "StartAt": "Vector vs Raster",
         "States": {
+          "Vector vs Raster": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.service.egis_server",
+                "StringEquals": "image",
+                "Next": "Raster Processing",
+                "Comment": "Raster Processing"
+              }
+            ],
+            "Default": "FIM vs Non-FIM Services"
+          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
@@ -840,6 +831,68 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "Default": "Postprocess SQL - Service"
+          },
+          "Raster Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.raster_processing}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Map",
+            "OutputPath": "$.Payload"
+          },
+          "Map": {
+            "Type": "Map",
+            "Next": "Postprocess SQL - Service",
+            "Iterator": {
+              "StartAt": "Optimize Rasters",
+              "States": {
+                "Optimize Rasters": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters": {
+                    "Payload.$": "$",
+                    "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.optimize_rasters}"
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "End": true
+                }
+              }
+            },
+            "ItemsPath": "$.output_rasters",
+            "Parameters": {
+              "output_raster.$": "$$.Map.Item.Value",
+              "service.$": "$.service",
+              "reference_time.$": "$.reference_time",
+              "map_item.$": "$.map_item",
+              "job_type.$": "$.job_type"
+            },
+            "ResultPath": null
           },
           "FIM Processing": {
             "Type": "Map",
@@ -875,44 +928,35 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "HUC Processing Map": {
                   "Type": "Map",
                   "Iterator": {
-                    "StartAt": "FIM Processing by HUC",
+                    "StartAt": "FIM HUC Processing State Machine",
                     "States": {
-                      "FIM Processing by HUC": {
+                      "FIM HUC Processing State Machine": {
                         "Type": "Task",
-                        "Resource": "arn:aws:states:::lambda:invoke",
-                        "OutputPath": "$.Payload",
+                        "Resource": "arn:aws:states:::states:startExecution.sync:2",
                         "Parameters": {
-                          "FunctionName": "${aws_lambda_function.viz_fim_huc_processing.arn}",
-                          "Payload": {
-                            "args.$": "$",
-                            "step": "fim_processing"
+                          "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
+                          "Input": {
+                            "huc8s_to_process.$": "$.huc8s_to_process",
+                            "s3_payload_json.$": "$.s3_payload_json",
+                            "data_bucket.$": "$.data_bucket",
+                            "data_prefix.$": "$.data_prefix",
+                            "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
                         },
-                        "Retry": [
-                          {
-                            "ErrorEquals": [
-                              "Lambda.ServiceException",
-                              "Lambda.AWSLambdaException",
-                              "Lambda.SdkClientException"
-                            ],
-                            "IntervalSeconds": 2,
-                            "MaxAttempts": 6,
-                            "BackoffRate": 2
-                          }
-                        ],
                         "End": true
                       }
                     }
                   },
-                  "ItemsPath": "$.taskList",
+                  "ItemsPath": "$.huc8s_to_process",
                   "ResultPath": null,
-                  "MaxConcurrency": 200,
+                  "MaxConcurrency": 2,
                   "End": true,
                   "InputPath": "$.body",
                   "Parameters": {
-                    "data_key.$": "$$.Map.Item.Value.data_key",
-                    "inundation_mode.$": "$.inundation_mode",
-                    "db_fim_table.$": "$.db_fim_table"
+                    "huc8s_to_process.$": "$$.Map.Item.Value",
+                    "s3_payload_json.$": "$.s3_payload_json",
+                    "data_bucket.$": "$.data_bucket",
+                    "data_prefix.$": "$.data_prefix"
                   }
                 }
               }
@@ -1105,6 +1149,47 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   EOF
 }
 
+resource "aws_sfn_state_machine" "huc_processing_step_function" {
+  name     = "huc_processing_${var.environment}"
+  role_arn = var.lambda_role
+
+  definition = <<EOF
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "HUC 8 Map",
+  "States": {
+    "HUC 8 Map": {
+      "Type": "Map",
+      "End": true,
+      "Iterator": {
+        "StartAt": "HUC Processing",
+        "States": {
+          "HUC Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "arn:aws:lambda:${local.env.region}:${local.env.account_id}:function:${image_based_lambdas.fim_huc_processing}"
+            },
+            "End": true
+          }
+        }
+      },
+      "MaxConcurrency": 40,
+      "ItemsPath": "$.huc8s_to_process",
+      "Parameters": {
+        "huc.$": "$$.Map.Item.Value",
+        "s3_payload_json.$": "$.s3_payload_json",
+        "data_prefix.$": "$.data_prefix",
+        "data_bucket.$": "$.data_bucket"
+      }
+    }
+  }
+}
+  EOF
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 
@@ -1128,10 +1213,6 @@ output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
 
-output "fim_huc_processing" {
-  value = aws_lambda_function.viz_fim_huc_processing
-}
-
 output "update_egis_data" {
   value = aws_lambda_function.viz_update_egis_data
 }
@@ -1146,4 +1227,16 @@ output "wrds_api_handler" {
 
 output "viz_pipeline_step_function" {
   value = aws_sfn_state_machine.viz_pipeline_step_function
+}
+
+output "fim_huc_processing" {
+  value = image_based_lambdas.fim_huc_processing
+}
+
+output "optimize_rasters" {
+  value = image_based_lambdas.optimize_rasters
+}
+
+output "raster_processing" {
+  value = image_based_lambdas.raster_processing
 }
