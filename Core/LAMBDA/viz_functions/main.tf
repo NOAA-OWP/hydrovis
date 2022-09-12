@@ -897,7 +897,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               "service.$": "$.service",
               "reference_time.$": "$.reference_time",
               "map_item.$": "$.map_item",
-              "job_type.$": "$.job_type"
+              "job_type.$": "$.job_type",
+              "output_bucket.$": "$.output_bucket"
             },
             "ResultPath": null
           },
