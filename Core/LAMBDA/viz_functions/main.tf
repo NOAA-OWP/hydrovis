@@ -128,7 +128,7 @@ variable "geopandas_layer" {
   type = string
 }
 
-variable "pandas_isodate_layer" {
+variable "pandas_layer" {
   type = string
 }
 
@@ -338,7 +338,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   layers = [
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer,
-    var.pandas_isodate_layer
+    var.pandas_layer
   ]
   tags = {
     "Name" = "viz_initialize_pipeline_${var.environment}"
