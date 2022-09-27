@@ -168,7 +168,7 @@ resource "null_resource" "viz_raster_processing_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name} --profile ${var.environment}"
   }
 }
 
@@ -260,7 +260,7 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name} --profile ${var.environment}"
   }
 }
 
@@ -427,7 +427,7 @@ resource "null_resource" "viz_fim_huc_processing_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_fim_huc_processing_lambda.name}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_fim_huc_processing_lambda.name} --profile ${var.environment}"
   }
 }
 
