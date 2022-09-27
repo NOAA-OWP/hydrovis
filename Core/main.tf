@@ -120,7 +120,9 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -172,6 +174,7 @@ module "s3-replication" {
   admin_team_arns                            = local.env.admin_team_arns
   user_data-ingest-service-user_arn          = module.iam-roles.role_hydrovis-hml-ingest-role.arn
   role_hydrovis-viz-proc-pipeline-lambda_arn = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  role_Hydroviz-RnR-EC2-Profile_arn          = module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
 }
 
 ###################### STAGE 2 ######################
@@ -186,6 +189,13 @@ module "vpc" {
   nwave_ip_block                     = local.env.nwave_ip_block
   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
+}
+
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
 }
 
 # SGs
@@ -211,6 +221,17 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_listener" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -413,6 +434,21 @@ module "monitoring" {
   ]
 }
 
+# Nginx Fargate
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
+}
+
 # Data Ingest
 module "data-ingest-ec2" {
   source = "./EC2/Ingest"
@@ -478,8 +514,8 @@ module "rnr_ec2" {
   ec2_instance_profile_name      = module.iam-roles.profile_Hydroviz-RnR-EC2-Profile.name
   dataservices_ip                = module.data-services.dataservices-ip
   logstash_ip                    = module.monitoring.aws_instance_logstash.private_ip
-  dstore_url                     = local.env.rnr_dstore_url
   nomads_url                     = local.env.rnr_nomads_url
+  s3_url                         = local.env.rnr_s3_url
   rnr_versions                   = local.env.rnr_versions
 }
 
