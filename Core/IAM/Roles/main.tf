@@ -101,7 +101,8 @@ resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {
             "events.amazonaws.com",
             "apigateway.amazonaws.com",
             "sagemaker.amazonaws.com",
-            "states.amazonaws.com"
+            "states.amazonaws.com",
+            "codebuild.amazonaws.com"
           ]
         }
       },
