@@ -167,13 +167,20 @@ locals {
   ])
 
   initialize_pipeline_subscriptions = toset([
-    "nwm_ingest_ana",
-    "nwm_ingest_ana_hi",
-    "nwm_ingest_ana_prvi",
-    "nwm_ingest_srf",
-    "nwm_ingest_srf_hi",
-    "nwm_ingest_srf_prvi",
-    "nwm_ingest_mrf_10day",
+    "nwm_channel_ana",
+    "nwm_forcing_ana",
+    "nwm_channel_ana_hi",
+    "nwm_forcing_ana_hi",
+    "nwm_channel_ana_prvi",
+    "nwm_forcing_ana_prvi",
+    "nwm_channel_srf",
+    "nwm_forcing_srf",
+    "nwm_channel_srf_hi",
+    "nwm_forcing_srf_hi",
+    "nwm_channel_srf_prvi",
+    "nwm_forcing_srf_prvi",
+    "nwm_channel_mrf_10day",
+    "nwm_forcing_mrf",
     "rnr_max_flows"
   ])
 }
@@ -943,6 +950,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                         "Resource": "arn:aws:states:::states:startExecution.sync:2",
                         "Parameters": {
                           "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
+                          "Name.$": "$.state_machine_name",
                           "Input": {
                             "huc8s_to_process.$": "$.huc8s_to_process",
                             "s3_payload_json.$": "$.s3_payload_json",
@@ -964,7 +972,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     "huc8s_to_process.$": "$$.Map.Item.Value",
                     "s3_payload_json.$": "$.s3_payload_json",
                     "data_bucket.$": "$.data_bucket",
-                    "data_prefix.$": "$.data_prefix"
+                    "data_prefix.$": "$.data_prefix",
+                    "state_machine_name.$": "States.Format('{}_group_{}', $.fim_config, $$.Map.Item.Index)"
                   }
                 }
               }
@@ -1195,6 +1204,23 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
     }
   }
 }
+  EOF
+}
+
+####### Step Function Failure / Time Out SNS #######
+resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
+  name        = "viz_pipeline_step_function_failure_${var.environment}"
+  description = "Alert when the viz step function times out or fails."
+
+  event_pattern = <<EOF
+  {
+  "source": ["aws.states"],
+  "detail-type": ["Step Functions Execution Status Change"],
+  "detail": {
+    "status": ["FAILED", "TIMED_OUT"],
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
+    }
+  }
   EOF
 }
 
