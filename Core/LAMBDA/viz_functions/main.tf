@@ -1221,14 +1221,8 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
     "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
     }
   }
-  EOF
 }
-
-resource "aws_cloudwatch_event_target" "step_function_failure_sns" {
-  rule        = aws_cloudwatch_event_rule.viz_pipeline_step_function_failure.name
-  target_id   = "SendToSNS"
-  arn         = var.email_sns_topics["viz_lambda_errors"].arn
-  input_path  = "$.detail.name"
+  EOF
 }
 
 ########################################################################################################################################
