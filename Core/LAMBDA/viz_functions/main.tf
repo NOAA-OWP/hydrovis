@@ -163,7 +163,7 @@ locals {
   ecr_repository_image_tag = "latest"
 
   max_flows_subscriptions = toset([
-    "nwm_ingest_ana"
+    "nwm_channel_ana"
   ])
 
   initialize_pipeline_subscriptions = toset([
