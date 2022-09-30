@@ -1166,6 +1166,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   EOF
 }
 
+<<<<<<< HEAD
 resource "aws_sfn_state_machine" "huc_processing_step_function" {
   name     = "huc_processing_${var.environment}"
   role_arn = var.lambda_role
@@ -1207,6 +1208,8 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
   EOF
 }
 
+=======
+>>>>>>> uat
 ####### Step Function Failure / Time Out SNS #######
 resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   name        = "viz_pipeline_step_function_failure_${var.environment}"
@@ -1218,12 +1221,26 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   "detail-type": ["Step Functions Execution Status Change"],
   "detail": {
     "status": ["FAILED", "TIMED_OUT"],
+<<<<<<< HEAD
     "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
+=======
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
+>>>>>>> uat
     }
   }
   EOF
 }
 
+<<<<<<< HEAD
+=======
+resource "aws_cloudwatch_event_target" "step_function_failure_sns" {
+  rule        = aws_cloudwatch_event_rule.viz_pipeline_step_function_failure.name
+  target_id   = "SendToSNS"
+  arn         = var.email_sns_topics["viz_lambda_errors"].arn
+  input_path  = "$.detail.name"
+}
+
+>>>>>>> uat
 ########################################################################################################################################
 ########################################################################################################################################
 
