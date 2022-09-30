@@ -1221,7 +1221,6 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
     "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
     }
   }
-}
   EOF
 }
 
