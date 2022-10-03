@@ -94,9 +94,9 @@ locals {
 
 resource "aws_s3_object" "owp_viz_replace_route" {
   bucket = var.deployment_data_bucket
-  key    = "rnr/owp-viz-replace-route.tar"
-  source = "${path.module}/owp-viz-replace-route.tar"
-  source_hash = filemd5("${path.module}/owp-viz-replace-route.tar")
+  key    = "rnr/owp-viz-replace-route.tgz"
+  source = "${path.module}/owp-viz-replace-route.tgz"
+  source_hash = filemd5("${path.module}/owp-viz-replace-route.tgz")
 }
 
 ##################
