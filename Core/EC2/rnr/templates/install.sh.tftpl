@@ -72,7 +72,7 @@ bash install.sh -s
 echo "Copying Static Resources"
 cd /rnr
 sudo aws s3 cp  s3://${DEPLOYMENT_DATA_BUCKET}/rnr/rnr_static.tgz  .
-tar -zxvf rnr_static.tgz
+sudo tar -zxvf rnr_static.tgz
 sudo chown root static
 sudo chgrp root static
 sudo mkdir /rnr/owp-viz-replace-route/RESOURCES
