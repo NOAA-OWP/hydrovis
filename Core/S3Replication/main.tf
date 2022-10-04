@@ -34,6 +34,10 @@ variable "role_hydrovis-viz-proc-pipeline-lambda_arn" {
   type = string
 }
 
+variable "role_Hydroviz-RnR-EC2-Profile_arn" {
+  type = string
+}
+
 locals {
   buckets_and_bucket_users = {
     "hml" = {
@@ -47,7 +51,8 @@ locals {
       replication_role_name = "hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
       source_access_user_name = "hydrovis-data-prod-ingest-service-user"
       access_principal_arns = [
-        var.role_hydrovis-viz-proc-pipeline-lambda_arn
+        var.role_hydrovis-viz-proc-pipeline-lambda_arn,
+        var.role_Hydroviz-RnR-EC2-Profile_arn
       ]
     }
     "pcpanl" = {
