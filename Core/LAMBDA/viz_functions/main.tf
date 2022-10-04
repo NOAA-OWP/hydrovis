@@ -973,7 +973,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     "s3_payload_json.$": "$.s3_payload_json",
                     "data_bucket.$": "$.data_bucket",
                     "data_prefix.$": "$.data_prefix",
-                    "state_machine_name.$": "States.Format('{}_group_{}', $.fim_config, $$.Map.Item.Index)"
+                    "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
                   }
                 }
               }
