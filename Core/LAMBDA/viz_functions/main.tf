@@ -544,6 +544,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
       CACHE_BUCKET        = var.viz_cache_bucket
+      HYDROVIS_ENV        = var.environment
     }
   }
   filename         = "${path.module}/viz_update_egis_data.zip"
