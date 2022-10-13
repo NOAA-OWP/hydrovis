@@ -37,7 +37,7 @@ resource "aws_db_subnet_group" "viz-processing" {
 resource "aws_db_instance" "viz-processing" {
   identifier                   = "hydrovis-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.r6g.large"
+  instance_class               = "db.r6g.xlarge"
   allocated_storage            = 400
   storage_type                 = "gp2"
   engine                       = "postgres"
