@@ -16,3 +16,4 @@
 
 # Leave .zip files alone
 *.zip binary
+*.tgz binary
