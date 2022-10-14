@@ -51,11 +51,11 @@ variable "logstash_ip" {
   type = string
 }
 
-variable "dstore_url" {
+variable "nomads_url" {
   type = string
 }
 
-variable "nomads_url" {
+variable "s3_url" {
   type = string
 }
 
@@ -72,7 +72,7 @@ locals {
         owner       = "ec2-user:ec2-user"
         content     = templatefile("${path.module}/templates/conus.ini.tftpl", {
           WRDS_HOST = "http://${var.dataservices_ip}"
-          DSTORE_URL = var.dstore_url
+          S3_URL = var.s3_url
           NOMADS_URL = var.nomads_url
         })
       },
