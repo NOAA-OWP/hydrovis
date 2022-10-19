@@ -966,7 +966,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   },
                   "ItemsPath": "$.huc8s_to_process",
                   "ResultPath": null,
-                  "MaxConcurrency": 2,
+                  "MaxConcurrency": 4,
                   "End": true,
                   "InputPath": "$.body",
                   "Parameters": {
@@ -1190,7 +1190,17 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
               "Payload.$": "$",
               "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
             },
-            "End": true
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.Unknown"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 3
+              }
+            ]
           }
         }
       },
