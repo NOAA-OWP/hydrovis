@@ -648,6 +648,7 @@ module "image_based_lambdas" {
   egis_db_name = var.egis_db_name
   egis_db_host = var.egis_db_host
   egis_db_user_secret_string = var.egis_db_user_secret_string
+  cache_bucket = var.viz_cache_bucket
 }
 
 ########################################################################################################################################
@@ -1021,7 +1022,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
