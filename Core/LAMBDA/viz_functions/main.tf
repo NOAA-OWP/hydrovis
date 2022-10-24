@@ -967,7 +967,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   },
                   "ItemsPath": "$.huc8s_to_process",
                   "ResultPath": null,
-                  "MaxConcurrency": 4,
                   "End": true,
                   "InputPath": "$.body",
                   "Parameters": {
@@ -976,7 +975,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     "data_bucket.$": "$.data_bucket",
                     "data_prefix.$": "$.data_prefix",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
-                  }
+                  },
+                  "MaxConcurrency": 4
                 }
               }
             },
@@ -1015,8 +1015,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BackoffRate": 2
               }
             ],
-            "Next": "Update EGIS Data - Service",
+            "Next": "Wait 30 Seconds",
             "ResultPath": null
+          },
+          "Wait 30 Seconds": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
             "Type": "Task",
@@ -1093,8 +1098,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BackoffRate": 2
               }
             ],
-            "Next": "Update EGIS Data - Summary",
+            "Next": "Wait 30 Seconds Again",
             "ResultPath": null
+          },
+          "Wait 30 Seconds Again": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "Update EGIS Data - Summary"
           },
           "Update EGIS Data - Summary": {
             "Type": "Task",
