@@ -120,7 +120,9 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -189,6 +191,13 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
@@ -212,6 +221,17 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
+}
+
+#Load Balancers
+module "nginx_listener" {
+  source = "./LoadBalancer/nginx"
+
+  environment     = local.env.environment
+  security_groups = [module.security-groups.hv-allow-kibana-access.id]
+  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -270,6 +290,8 @@ module "viz_lambda_functions" {
   source = "./LAMBDA/viz_functions"
 
   environment                   = local.env.environment
+  account_id                    = local.env.account_id
+  region                        = local.env.region
   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
@@ -285,7 +307,6 @@ module "viz_lambda_functions" {
   xarray_layer                  = module.lambda_layers.xarray.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
   geopandas_layer               = module.lambda_layers.geopandas.arn
-  huc_proc_combo_layer          = module.lambda_layers.huc_proc_combo.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   requests_layer                = module.lambda_layers.requests.arn
@@ -298,7 +319,7 @@ module "viz_lambda_functions" {
   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   egis_db_host                  = data.aws_db_instance.egis_rds.address
   egis_db_name                  = local.env.egis_db_name
-  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
 }
@@ -411,6 +432,21 @@ module "monitoring" {
     module.viz_lambda_functions.db_ingest.function_name,
     # module.viz_lambda_functions.db_postprocess.function_name
   ]
+}
+
+# Nginx Fargate
+module "nginx_fargate" {
+  source = "./ECS/NGINX"
+
+  environment        = local.env.environment
+  region             = local.env.region
+  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
+  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
+  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
+  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
+  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
 }
 
 # Data Ingest
