@@ -600,5 +600,5 @@ output "raster_processing" {
 }
 
 output "update_egis_data" {
-  value = "viz_update_egis_data__${var.environment}"
+  value = "viz_update_egis_data_${var.environment}"
 }
