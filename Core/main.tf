@@ -285,7 +285,6 @@ module "viz_lambda_functions" {
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
-  geopandas_layer               = module.lambda_layers.geopandas.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   requests_layer                = module.lambda_layers.requests.arn
