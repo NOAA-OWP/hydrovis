@@ -35,7 +35,7 @@ echo "Installing System Dependencies"
 sudo amazon-linux-extras install epel -y
 sudo yum-config-manager --enable epel
 sudo yum -y install git python3-devel openmpi-devel hdf5-devel  gcc-c++ cmake3 curl-devel make
-sudo yum -y install m4
+sudo yum -y install m4 dos2unix
 
 echo "Installing Python Dependencies"
 sudo git clone https://github.com/Unidata/netcdf-c.git /opt/netcdf-c
@@ -94,6 +94,7 @@ sudo mkdir /rnr/share/Run
 echo "Copying Rendered Template File to Replace and Route"
 sudo cp /deploy_files/conus.ini /rnr/owp-viz-replace-route/configs/conus.ini
 sudo cp /deploy_files/.env.devel /rnr/owp-viz-replace-route/.env.devel
+sudo dos2unix /rnr/owp-viz-replace-route/.env.devel
 
 echo "Setting up RNR Crontab"
 sudo crontab -l -u ec2-user > /tmp/mycrontab
