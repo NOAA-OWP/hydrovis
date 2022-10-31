@@ -172,6 +172,7 @@ module "s3-replication" {
   admin_team_arns                            = local.env.admin_team_arns
   user_data-ingest-service-user_arn          = module.iam-roles.role_hydrovis-hml-ingest-role.arn
   role_hydrovis-viz-proc-pipeline-lambda_arn = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  role_Hydroviz-RnR-EC2-Profile_arn          = module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn
 }
 
 ###################### STAGE 2 ######################
@@ -269,6 +270,8 @@ module "viz_lambda_functions" {
   source = "./LAMBDA/viz_functions"
 
   environment                   = local.env.environment
+  account_id                    = local.env.account_id
+  region                        = local.env.region
   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
@@ -283,8 +286,6 @@ module "viz_lambda_functions" {
   es_logging_layer              = module.lambda_layers.es_logging.arn
   xarray_layer                  = module.lambda_layers.xarray.arn
   pandas_layer                  = module.lambda_layers.pandas.arn
-  geopandas_layer               = module.lambda_layers.geopandas.arn
-  huc_proc_combo_layer          = module.lambda_layers.huc_proc_combo.arn
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   requests_layer                = module.lambda_layers.requests.arn
@@ -297,7 +298,7 @@ module "viz_lambda_functions" {
   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   egis_db_host                  = data.aws_db_instance.egis_rds.address
   egis_db_name                  = local.env.egis_db_name
-  egis_db_secret_string         = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
 }
@@ -477,8 +478,8 @@ module "rnr_ec2" {
   ec2_instance_profile_name      = module.iam-roles.profile_Hydroviz-RnR-EC2-Profile.name
   dataservices_ip                = module.data-services.dataservices-ip
   logstash_ip                    = module.monitoring.aws_instance_logstash.private_ip
-  dstore_url                     = local.env.rnr_dstore_url
   nomads_url                     = local.env.rnr_nomads_url
+  s3_url                         = local.env.rnr_s3_url
   rnr_versions                   = local.env.rnr_versions
 }
 

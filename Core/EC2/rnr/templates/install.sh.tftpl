@@ -35,7 +35,7 @@ echo "Installing System Dependencies"
 sudo amazon-linux-extras install epel -y
 sudo yum-config-manager --enable epel
 sudo yum -y install git python3-devel openmpi-devel hdf5-devel  gcc-c++ cmake3 curl-devel make
-sudo yum -y install m4
+sudo yum -y install m4 dos2unix
 
 echo "Installing Python Dependencies"
 sudo git clone https://github.com/Unidata/netcdf-c.git /opt/netcdf-c
@@ -55,24 +55,24 @@ sudo chown ssm-user: /rnr
 
 echo "Installing WRF-Hydro Files"
 cd /rnr
-aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/rnr/wrf_hydro.tgz .
-tar -zxvf wrf_hydro.tgz
+sudo aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/rnr/wrf_hydro.tgz .
+sudo tar -zxvf wrf_hydro.tgz
 
 echo "Installing Replace and Route"
 cd /rnr
 sudo aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/rnr/owp-viz-replace-route.tgz .
-tar -zxvf owp-viz-replace-route.tgz
+sudo tar -zxvf owp-viz-replace-route.tgz
 #git clone https://vlab.ncep.noaa.gov/code-review/a/owp-viz-replace-route
 
 echo "Installing RNR Dependencies"
 cd /rnr/owp-viz-replace-route
 #sudo git checkout python-timeslicegen
-bash install.sh -s
+sudo bash install.sh -s
 
 echo "Copying Static Resources"
 cd /rnr
 sudo aws s3 cp  s3://${DEPLOYMENT_DATA_BUCKET}/rnr/rnr_static.tgz  .
-tar -zxvf rnr_static.tgz
+sudo tar -zxvf rnr_static.tgz
 sudo chown root static
 sudo chgrp root static
 sudo mkdir /rnr/owp-viz-replace-route/RESOURCES
@@ -94,6 +94,7 @@ sudo mkdir /rnr/share/Run
 echo "Copying Rendered Template File to Replace and Route"
 sudo cp /deploy_files/conus.ini /rnr/owp-viz-replace-route/configs/conus.ini
 sudo cp /deploy_files/.env.devel /rnr/owp-viz-replace-route/.env.devel
+sudo dos2unix /rnr/owp-viz-replace-route/.env.devel
 
 echo "Setting up RNR Crontab"
 sudo crontab -l -u ec2-user > /tmp/mycrontab
