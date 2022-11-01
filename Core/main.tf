@@ -120,9 +120,7 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
-      module.iam-roles.role_ecs-task-execution.arn
+      module.iam-users.user_FIMServiceAccount.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -191,13 +189,6 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
-# Route53 DNS
-module "route53" {
-  source = "./Route53"
-
-  vpc_main_id = module.vpc.vpc_main.id
-}
-
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
@@ -221,17 +212,6 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
-  kibana-access-sg_id              = module.security-groups.hv-allow-kibana-access.id
-}
-
-#Load Balancers
-module "nginx_listener" {
-  source = "./LoadBalancer/nginx"
-
-  environment     = local.env.environment
-  security_groups = [module.security-groups.hv-allow-kibana-access.id]
-  subnets         = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  vpc             = module.vpc.vpc_main.id
 }
 
 ###################### STAGE 3 ######################
@@ -431,21 +411,6 @@ module "monitoring" {
     module.viz_lambda_functions.db_ingest.function_name,
     # module.viz_lambda_functions.db_postprocess.function_name
   ]
-}
-
-# Nginx Fargate
-module "nginx_fargate" {
-  source = "./ECS/NGINX"
-
-  environment        = local.env.environment
-  region             = local.env.region
-  deployment_bucket  = module.s3.buckets["deployment"].bucket
-  es_domain_endpoint = module.monitoring.aws_elasticsearch_domain.endpoint
-  load_balancer_tg   = module.nginx_listener.aws_lb_target_group_kibana_ngninx.arn
-  subnets            = [module.vpc.subnet_hydrovis-sn-prv-web1a.id, module.vpc.subnet_hydrovis-sn-prv-web1b.id]
-  security_groups    = [module.security-groups.hv-allow-kibana-access.id]
-  iam_role_arn       = module.iam-roles.role_hydrovis-ecs-resource-access.arn
-  ecs_execution_role = module.iam-roles.role_ecs-task-execution.arn
 }
 
 # Data Ingest

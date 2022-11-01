@@ -18,10 +18,6 @@ variable "ssm-session-manager-sg_id" {
   type = string
 }
 
-variable "kibana-access-sg_id" {
-  type = string
-}
-
 resource "aws_vpc_endpoint" "ec2messages" {
   private_dns_enabled = true
   security_group_ids = [
@@ -66,19 +62,6 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   service_name = "com.amazonaws.${var.region}.ssmmessages"
   subnet_ids = [
     var.subnet_hydrovis-sn-prv-data1b_id,
-  ]
-  vpc_endpoint_type = "Interface"
-  vpc_id            = var.vpc_main_id
-}
-
-resource "aws_vpc_endpoint" "cloudwatch_logs" {
-  private_dns_enabled = true
-  security_group_ids = [
-    var.kibana-access-sg_id,
-  ]
-  service_name = "com.amazonaws.${var.region}.logs"
-  subnet_ids = [
-    var.subnet_hydrovis-sn-prv-data1b_id
   ]
   vpc_endpoint_type = "Interface"
   vpc_id            = var.vpc_main_id

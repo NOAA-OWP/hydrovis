@@ -524,7 +524,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   function_name = "viz_publish_service_${var.environment}"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
   memory_size   = 512
-  timeout       = 600
+  timeout       = 180
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
     subnet_ids         = var.db_lambda_subnets
@@ -1185,6 +1185,13 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
     }
   }
   EOF
+}
+
+resource "aws_cloudwatch_event_target" "step_function_failure_sns" {
+  rule        = aws_cloudwatch_event_rule.viz_pipeline_step_function_failure.name
+  target_id   = "SendToSNS"
+  arn         = var.email_sns_topics["viz_lambda_errors"].arn
+  input_path  = "$.detail.name"
 }
 
 ########################################################################################################################################
