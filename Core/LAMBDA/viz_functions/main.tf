@@ -524,7 +524,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   function_name = "viz_publish_service_${var.environment}"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
   memory_size   = 512
-  timeout       = 180
+  timeout       = 600
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
     subnet_ids         = var.db_lambda_subnets
