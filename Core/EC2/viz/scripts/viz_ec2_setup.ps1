@@ -250,7 +250,7 @@ Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz typing_extensions=4.1.1
-& $python_exe pip install geopandas==0.10.2
+& $python_exe -m pip install geopandas==0.10.2
 
 LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
 $s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "authoritative_data/"
