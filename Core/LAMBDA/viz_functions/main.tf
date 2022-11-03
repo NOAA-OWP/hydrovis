@@ -523,7 +523,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 resource "aws_lambda_function" "viz_publish_service" {
   function_name = "viz_publish_service_${var.environment}"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
-  memory_size   = 512
+  memory_size   = 1024
   timeout       = 600
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
