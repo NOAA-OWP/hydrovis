@@ -1146,11 +1146,12 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
             "Retry": [
               {
                 "ErrorEquals": [
-                  "Lambda.Unknown"
+                  "Lambda.ServiceException"
                 ],
                 "BackoffRate": 1,
                 "IntervalSeconds": 60,
-                "MaxAttempts": 3
+                "MaxAttempts": 3,
+                "Comment": "Handle insufficient capacity"
               }
             ]
           }
