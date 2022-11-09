@@ -1057,8 +1057,21 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Parallelize Summaries",
+            "Next": "Summary vs. Non-Summary Services",
             "Catch": [
+              {
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Next": "Summary vs. Non-Summary Services",
+                "ResultPath": "$.error",
+                "Comment": "Memory Failure"
+              }
+            ]
+          },
+          "Summary vs. Non-Summary Services": {
+            "Type": "Choice",
+            "Choices": [
               {
                 "ErrorEquals": [
                   "Runtime.ExitError"
@@ -1161,6 +1174,77 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "Default": "Publish Service"
+          },
+          "Postprocess SQL - Summary": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
+              "Payload": {
+                "args": {
+                  "map.$": "$",
+                  "map_item.$": "$.service.postprocess_summary",
+                  "reference_time.$": "$.reference_time",
+                  "sql_rename_dict.$": "$.sql_rename_dict"
+                },
+                "step": "summaries",
+                "folder": "summaries"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Wait 30 Seconds Again",
+            "ResultPath": null
+          },
+          "Wait 30 Seconds Again": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "Update EGIS Data - Summary"
+          },
+          "Update EGIS Data - Summary": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+              "Payload": {
+                "args.$": "$",
+                "step": "update_summary_data"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "ResultPath": null,
+            "Next": "Auto vs. Past Event Run",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Comment": "Memory Failure",
+                "Next": "Auto vs. Past Event Run",
+                "ResultPath": "$.error"
+              }
+            ]
           },
           "Publish Service": {
             "Type": "Task",
