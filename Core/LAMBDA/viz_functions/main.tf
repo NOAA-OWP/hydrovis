@@ -987,7 +987,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Summary vs. Non-Summary Services"
+            "Next": "Summary vs. Non-Summary Services",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Next": "Summary vs. Non-Summary Services",
+                "ResultPath": "$.error",
+                "Comment": "Memory Failure"
+              }
+            ]
           },
           "Summary vs. Non-Summary Services": {
             "Type": "Choice",
@@ -1006,7 +1016,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               {
                 "Variable": "$.job_type",
                 "StringEquals": "past_event",
-                "Next": "Success"
+                "Next": "Pass"
               }
             ],
             "Default": "Publish Service"
@@ -1070,7 +1080,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Auto vs. Past Event Run"
+            "Next": "Auto vs. Past Event Run",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Comment": "Memory Failure",
+                "Next": "Auto vs. Past Event Run",
+                "ResultPath": "$.error"
+              }
+            ]
           },
           "Publish Service": {
             "Type": "Task",
@@ -1094,14 +1114,19 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BackoffRate": 2
               }
             ],
-            "Next": "Success"
+            "Next": "Pass",
+            "ResultPath": null
           },
-          "Success": {
-            "Type": "Succeed"
+          "Pass": {
+            "Type": "Pass",
+            "End": true,
+            "ResultPath": null,
+            "Result": {
+              "ValueEnteredInForm": ""
+            }
           }
         }
       },
-      "ResultPath": null,
       "Parameters": {
         "service.$": "$$.Map.Item.Value",
         "map_item.$": "$$.Map.Item.Value.postprocess_service",
@@ -1110,8 +1135,29 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
         "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
-      "End": true,
-      "MaxConcurrency": 15
+      "MaxConcurrency": 15,
+      "Next": "EGIS Update Failure Detection",
+      "ResultSelector": {
+        "error.$": "$[?(@.error)]"
+      }
+    },
+    "EGIS Update Failure Detection": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.error[0]",
+          "IsPresent": true,
+          "Next": "Non-Breaking EGIS Update Memory Failure"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Non-Breaking EGIS Update Memory Failure": {
+      "Type": "Fail",
+      "Error": "Non-Breaking EGIS Update Memory Failure"
+    },
+    "Success": {
+      "Type": "Succeed"
     }
   },
   "TimeoutSeconds": 3600
@@ -1146,11 +1192,12 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
             "Retry": [
               {
                 "ErrorEquals": [
-                  "Lambda.Unknown"
+                  "Lambda.ServiceException"
                 ],
                 "BackoffRate": 1,
                 "IntervalSeconds": 60,
-                "MaxAttempts": 3
+                "MaxAttempts": 3,
+                "Comment": "Handle insufficient capacity"
               }
             ]
           }
