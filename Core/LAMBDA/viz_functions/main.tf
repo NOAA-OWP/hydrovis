@@ -633,7 +633,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Input Data Files",
@@ -662,6 +663,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "IntervalSeconds": 120,
                       "MaxAttempts": 20,
                       "Comment": "Missing S3 File"
+                    },
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ]
                 }
@@ -698,7 +710,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "End": true,
@@ -743,7 +756,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "End": true
@@ -805,7 +819,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Map",
@@ -834,7 +849,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
-                      "BackoffRate": 2
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ],
                   "End": true
@@ -878,7 +894,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
-                      "BackoffRate": 2
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ],
                   "Next": "HUC Processing Map"
@@ -953,7 +970,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Wait 30 Seconds",
@@ -983,7 +1001,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "ResultPath": null,
@@ -1046,7 +1065,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Wait 30 Seconds Again",
@@ -1076,7 +1096,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "ResultPath": null,
@@ -1111,7 +1132,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Pass",
