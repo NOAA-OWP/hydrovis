@@ -50,10 +50,14 @@ variable "lambda_trigger_functions" {
   type = set(string)
 }
 
+variable "buckets_and_parameters" {
+  type = map(map(string))
+}
+
 
 # Creates OpenSearch Dashboards User Credentials and stores them in Secrets Manager.
 module "dashboard_users_credentials" {
-  source      = "./DashboardUsersCredentials"
+  source = "./DashboardUsersCredentials"
 
   for_each    = merge(var.dashboard_users_and_roles, {monitoring_admin = [""]})
   environment = var.environment
@@ -62,7 +66,7 @@ module "dashboard_users_credentials" {
 
 # Creates OpenSearch Domain and S3 Object of Saved Objects.
 module "opensearch" {
-  source      = "./OpenSearch"
+  source = "./OpenSearch"
 
   environment  = var.environment
   account_id   = var.account_id
@@ -77,7 +81,7 @@ module "opensearch" {
 
 # Creates various methods of sending logs to OpenSearch to be indexed.
 module "logingest" {
-  source                 = "./LogIngest"
+  source = "./LogIngest"
 
   # General Variables
   environment  = var.environment
@@ -102,4 +106,7 @@ module "logingest" {
   opensearch_domain_arn    = module.opensearch.domain_arn
   es_sgs                   = var.es_sgs
   data_subnet_ids          = var.data_subnet_ids
+
+  # S3 Module
+  buckets_and_parameters = var.buckets_and_parameters
 }

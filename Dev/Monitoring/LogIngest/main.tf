@@ -70,11 +70,15 @@ variable "opensearch_domain_arn" {
   type = string
 }
 
+variable "buckets_and_parameters" {
+  type = map(map(string))
+}
+
 
 # Creates Logstash EC2 instance, where all other EC2 instances send their logs to and are routed to OpenSearch.
 # Also imports saved objects into OpenSearch domain.
 module "ec2" {
-  source                 = "./EC2"
+  source = "./EC2"
 
   environment            = var.environment
   ami_owner_account_id   = var.ami_owner_account_id
@@ -95,7 +99,7 @@ module "ec2" {
 
 # Creates Lambda Function that reads CloudWatch logs from other Lambdas and sends them to OpenSearch.
 module "lambda" {
-  source                 = "./Lambda"
+  source = "./Lambda"
 
   environment            = var.environment
   account_id             = var.account_id
@@ -110,7 +114,7 @@ module "lambda" {
 
 # Creates Lambda Function that reads CloudWatch logs from replicated S3 Buckets and sends them to OpenSearch.
 module "s3" {
-  source                 = "./S3"
+  source = "./S3"
 
   environment            = var.environment
   account_id             = var.account_id
@@ -121,18 +125,5 @@ module "s3" {
   opensearch_domain_endpoint = var.opensearch_domain_endpoint
   lambda_role_arn            = module.lambda.role_arn
 
-  buckets_and_parameters = {
-    "hml" = {
-      bucket_name         = "hydrovis-${var.environment}-hml-${var.region}"
-      comparison_operator = "LessThanLowerThreshold"
-    }
-    "nwm" = {
-      bucket_name         = "hydrovis-${var.environment}-nwm-${var.region}"
-      comparison_operator = "LessThanLowerThreshold"
-    }
-    "pcpanl" = {
-      bucket_name         = "hydrovis-${var.environment}-pcpanl-${var.region}"
-      comparison_operator = "LessThanLowerThreshold"
-    }
-  }
+  buckets_and_parameters = var.buckets_and_parameters
 }

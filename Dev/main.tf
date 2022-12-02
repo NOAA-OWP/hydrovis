@@ -106,4 +106,18 @@ module "monitoring" {
     data.aws_lambda_function.hml_reciever.function_name,
     data.aws_lambda_function.db_ingest.function_name
   ]
+  buckets_and_parameters = {
+    "hml" = {
+      bucket_name         = "hydrovis-${local.env.environment}-hml-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+    "nwm" = {
+      bucket_name         = "hydrovis-${local.env.environment}-nwm-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+    "pcpanl" = {
+      bucket_name         = "hydrovis-${local.env.environment}-pcpanl-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+  }
 }
