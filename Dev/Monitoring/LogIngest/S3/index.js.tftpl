@@ -1,0 +1,77 @@
+var AWS = require('aws-sdk');
+
+const region = '${region}'; // e.g. us-west-1
+const domain = '${os_endpoint}'; // e.g. search-domain.region.es.amazonaws.com
+
+exports.handler = async function(event, _context) {
+
+    var snsPublishTime = event.Records[0].Sns.Timestamp
+
+    var messageId = event.Records[0].Sns.MessageId
+    var message = JSON.parse(event.Records[0].Sns.Message)
+    var newAlertState = message.NewStateValue
+    var oldAlertState = message.OldStateValue
+
+    var bucketName = message.Trigger.Metrics[1].MetricStat.Metric.Dimensions[1].value
+
+    if (newAlertState != oldAlertState) {
+        if (newAlertState == "ALARM") {
+            console.log(`Bucket $${bucketName} reported irregular object counts at $${snsPublishTime}`)
+        }
+        else {
+            console.log(`Bucket $${bucketName} reported back to normal at $${snsPublishTime}`)
+        }
+
+        var json = {
+            "@timestamp": snsPublishTime,
+            "bucket": bucketName,
+            "alert_state": newAlertState,
+        };
+
+        return indexDocument(json, messageId, domain, region)
+    }
+};
+
+function indexDocument(json, id, domain, region) {
+    var endpoint = new AWS.Endpoint(domain);
+    var request = new AWS.HttpRequest(endpoint, region);
+
+    request.method = 'PUT';
+    request.path += 's3_anomaly_detection/_doc/' + id;
+    request.body = JSON.stringify(json);
+    request.headers['host'] = domain;
+    request.headers['Content-Type'] = 'application/json';
+    request.headers['Content-Length'] = Buffer.byteLength(request.body);
+
+    var credentials = new AWS.EnvironmentCredentials('AWS');
+    var signer = new AWS.Signers.V4(request, 'es');
+    signer.addAuthorization(credentials, new Date());
+
+
+    var client = new AWS.HttpClient();
+    return new Promise((resolve, reject) => {
+        client.handleRequest(
+            request,
+            null,
+            (response) => {
+                const {statusCode, statusMessage, headers} = response;
+                let body = '';
+                response.on('data', (chunk) => {
+                    body += chunk;
+                });
+                response.on('end', () => {
+                    const data = {statusCode, statusMessage, headers};
+                    if (body) {
+                        data.body = body;
+                    }
+                    resolve(data);
+                console.log("Response body:" + body);
+                });
+            },
+            (error) => {
+                reject(error);
+                console.log("Error:" + error)
+            }
+        );
+    })
+};
