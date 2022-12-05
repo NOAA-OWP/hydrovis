@@ -50,6 +50,13 @@ variable "master_user_credentials_secret_string" {
   type = string
 }
 
+variable "internal_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
 
 locals {
   cloudinit_config_data = {
@@ -141,6 +148,14 @@ resource "aws_instance" "logstash" {
 
   user_data = data.cloudinit_config.startup.rendered
   user_data_replace_on_change = true
+}
+
+resource "aws_route53_record" "logstash" {
+  zone_id = var.internal_route_53_zone.zone_id
+  name    = "logstash.${var.internal_route_53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.logstash.private_ip]
 }
 
 data "aws_ami" "linux" {

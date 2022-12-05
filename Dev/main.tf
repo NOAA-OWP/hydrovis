@@ -70,6 +70,11 @@ data "aws_lambda_function" "db_ingest" {
   function_name = "viz_db_ingest_ti"
 }
 
+data "aws_route53_zone" "internal" {
+  name         = "hydrovis.internal"
+  private_zone = true
+}
+
 
 
 # Monitoring Module
@@ -119,5 +124,9 @@ module "monitoring" {
       bucket_name         = "hydrovis-${local.env.environment}-pcpanl-${local.env.region}"
       comparison_operator = "LessThanLowerThreshold"
     }
+  }
+  internal_route_53_zone = {
+    name    = data.aws_route53_zone.internal.name
+    zone_id = data.aws_route53_zone.internal.zone_id
   }
 }

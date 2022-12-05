@@ -74,6 +74,13 @@ variable "buckets_and_parameters" {
   type = map(map(string))
 }
 
+variable "internal_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
 
 # Creates Logstash EC2 instance, where all other EC2 instances send their logs to and are routed to OpenSearch.
 # Also imports saved objects into OpenSearch domain.
@@ -95,6 +102,8 @@ module "ec2" {
   dashboard_users_credentials_secret_strings = var.dashboard_users_credentials_secret_strings
   dashboard_users_and_roles                  = var.dashboard_users_and_roles
   master_user_credentials_secret_string      = var.master_user_credentials_secret_string
+
+  internal_route_53_zone = var.internal_route_53_zone
 }
 
 # Creates Lambda Function that reads CloudWatch logs from other Lambdas and sends them to OpenSearch.

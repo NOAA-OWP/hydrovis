@@ -54,6 +54,13 @@ variable "buckets_and_parameters" {
   type = map(map(string))
 }
 
+variable "internal_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
 
 # Creates OpenSearch Dashboards User Credentials and stores them in Secrets Manager.
 module "dashboard_users_credentials" {
@@ -100,6 +107,7 @@ module "logingest" {
   dashboard_users_credentials_secret_strings = [ for name in keys(var.dashboard_users_and_roles) : module.dashboard_users_credentials[name].secret_string ]
   dashboard_users_and_roles                  = var.dashboard_users_and_roles
   master_user_credentials_secret_string      = module.dashboard_users_credentials["monitoring_admin"].secret_string
+  internal_route_53_zone                     = var.internal_route_53_zone
 
   # Lambda Module
   lambda_trigger_functions = var.lambda_trigger_functions
