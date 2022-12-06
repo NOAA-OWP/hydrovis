@@ -35,10 +35,17 @@ variable "execution_role_arn" {
 }
 
 
+locals {
+  load_balancer_names = {
+      "ti" : "hv-ti-egis-pub-prtl-alb",
+      "uat" : "hv-uat-pub-lb-pub-age-alb",
+      "prod" : "hv-prod-pub-lb-alb-pub-age-alb"
+  }
+}
 
 # Create the Public Load Balancer Rule
 data "aws_lb" "hydrovis_public_lb" {
-  name = "hv-${var.environment}-egis-pub-prtl-alb"
+  name = local.load_balancer_names[var.environment]
 }
 
 data "aws_lb_listener" "hydrovis_443_listener" {

@@ -60,6 +60,20 @@ resource "aws_security_group" "es-sg" {
       self             = false
       to_port          = 443
     },
+    {
+      cidr_blocks = [
+        var.vpc_main_cidr_block,
+        var.nwave_ip_block,
+      ]
+      description      = ""
+      from_port        = 80
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 80
+    },
   ]
   name = "es-sg"
   tags = {

@@ -49,8 +49,8 @@ data "archive_file" "lambda_code" {
   output_path = "${path.module}/lambda_code_${var.environment}.zip"
 }
 
-resource "aws_iam_role" "LambdaforOpenSearch" {
-  name = "LambdaforOpenSearch"
+resource "aws_iam_role" "hydrovis-opensearch-lambda" {
+  name = "hydrovis-opensearch-lambda"
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -66,10 +66,10 @@ resource "aws_iam_role" "LambdaforOpenSearch" {
   })
 }
 
-resource "aws_iam_role_policy" "LambdaforOpenSearch" {
-  name   = "LambdaforOpenSearch"
-  role   = aws_iam_role.LambdaforOpenSearch.id
-  policy = templatefile("${path.module}/LambdaforOpenSearch.json.tftpl", {
+resource "aws_iam_role_policy" "hydrovis-opensearch-lambda" {
+  name   = "hydrovis-opensearch-lambda"
+  role   = aws_iam_role.hydrovis-opensearch-lambda.id
+  policy = templatefile("${path.module}/hydrovis-opensearch-lambda.json.tftpl", {
     account_id            = var.account_id
     region                = var.region
     opensearch_domain_arn = var.opensearch_domain_arn
@@ -77,7 +77,7 @@ resource "aws_iam_role_policy" "LambdaforOpenSearch" {
 }
 
 resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-  role       = aws_iam_role.LambdaforOpenSearch.name
+  role       = aws_iam_role.hydrovis-opensearch-lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
@@ -93,7 +93,7 @@ resource "aws_lambda_function" "CWLogsToOpenSearch" {
   runtime = "nodejs16.x"
   handler = "index.handler"
 
-  role = aws_iam_role.LambdaforOpenSearch.arn
+  role = aws_iam_role.hydrovis-opensearch-lambda.arn
   vpc_config {
     subnet_ids         = var.data_subnet_ids
     security_group_ids = var.opensearch_security_group_ids
@@ -123,5 +123,5 @@ resource "aws_cloudwatch_log_subscription_filter" "logfilter" {
 }
 
 output "role_arn" {
-  value = aws_iam_role.LambdaforOpenSearch.arn
+  value = aws_iam_role.hydrovis-opensearch-lambda.arn
 }

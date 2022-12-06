@@ -142,7 +142,7 @@ resource "aws_instance" "logstash" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-logstash-os"
+    "Name" = "hv-${var.environment}-logstash"
     "OS"   = "Linux"
   }
 

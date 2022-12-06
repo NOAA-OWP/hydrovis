@@ -201,7 +201,6 @@ module "security-groups" {
   vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
   subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
   subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
-  public_route_peering_ip_block            = local.env.public_route_peering_ip_block
 }
 
 # VPCe's

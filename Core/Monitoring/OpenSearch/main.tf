@@ -60,7 +60,7 @@ resource "aws_iam_service_linked_role" "os" {
 }
 
 resource "aws_cloudwatch_log_group" "os_loggroup" {
-  name = "/aws/OpenSearchService/domains/monitoring-hydrovis-os/application-logs"
+  name = "/aws/OpenSearchService/domains/hydrovis-monitoring/application-logs"
 }
 
 resource "aws_cloudwatch_log_resource_policy" "os_loggroup" {
@@ -95,7 +95,7 @@ resource "aws_s3_object" "saved_objects" {
 }
 
 resource "aws_opensearch_domain" "hydrovis" {
-  domain_name      = "monitoring-hydrovis-os"
+  domain_name      = "hydrovis-monitoring"
   engine_version   = "OpenSearch_2.3"  
 
   cluster_config {
@@ -114,7 +114,7 @@ resource "aws_opensearch_domain" "hydrovis" {
           Action    = "es:*"
           Effect    = "Allow"
           Principal = "*"
-          Resource  = "arn:aws:es:${var.region}:${var.account_id}:domain/monitoring-hydrovis-os/*"
+          Resource  = "arn:aws:es:${var.region}:${var.account_id}:domain/hydrovis-monitoring/*"
         },
       ]
       Version = "2012-10-17"
@@ -172,7 +172,7 @@ resource "aws_opensearch_domain" "hydrovis" {
   depends_on = [aws_iam_service_linked_role.os]
 
   tags = {
-    Domain = "monitoring-hydrovis-os"
+    Domain = "hydrovis-monitoring"
   }
 }
 

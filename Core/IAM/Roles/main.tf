@@ -246,13 +246,13 @@ data "aws_iam_policy" "ecs_task_execution_policy" {
 
 resource "aws_iam_role_policy" "ecs-task-execution-policy" {
   name   = "ecs-task-execution-policy"
-  role   = aws_iam_role.ecs-task-execution-role.id
+  role   = aws_iam_role.hydrovis-ecs-task-execution.id
   policy = data.aws_iam_policy.ecs_task_execution_policy.policy
 }
 
 resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
   name   = "ecs-task-execution-cloudwatch-log-policy"
-  role   = aws_iam_role.ecs-task-execution-role.id
+  role   = aws_iam_role.hydrovis-ecs-task-execution.id
   policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
 }
 
