@@ -57,9 +57,9 @@ data "archive_file" "lambda_code" {
   output_path = "${path.module}/lambda_code_${var.environment}.zip"
 }
 
-resource "aws_lambda_function" "CWS3AlertsToOpenSearch" {
-  function_name = "CWS3AlertsToOpenSearch"
-  description   = "CloudWatch S3 Alerts to Amazon OpenSearch"
+resource "aws_lambda_function" "opensearch_s3_log_ingester" {
+  function_name = "opensearch_s3_log_ingester_${var.environment}"
+  description   = "S3 Logs to Amazon OpenSearch"
   memory_size   = 128
   timeout       = 300
 
@@ -76,19 +76,19 @@ resource "aws_lambda_function" "CWS3AlertsToOpenSearch" {
   }
 }
 
-resource "aws_sns_topic_subscription" "CWS3AlertsToOpenSearch_subscription" {
+resource "aws_sns_topic_subscription" "opensearch_s3_log_ingester_subscription" {
   for_each = var.buckets_and_parameters
 
   topic_arn = module.bucket[each.key].sns.arn
   protocol  = "lambda"
-  endpoint  = resource.aws_lambda_function.CWS3AlertsToOpenSearch.arn
+  endpoint  = resource.aws_lambda_function.opensearch_s3_log_ingester.arn
 }
 
-resource "aws_lambda_permission" "CWS3AlertsToOpenSearch_permissions" {
+resource "aws_lambda_permission" "opensearch_s3_log_ingester_permissions" {
   for_each = var.buckets_and_parameters
 
   action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.CWS3AlertsToOpenSearch.function_name
+  function_name = resource.aws_lambda_function.opensearch_s3_log_ingester.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = module.bucket[each.key].sns.arn
 }

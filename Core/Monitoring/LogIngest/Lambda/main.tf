@@ -81,9 +81,9 @@ resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-resource "aws_lambda_function" "CWLogsToOpenSearch" {
-  function_name = "CWLogsToOpenSearch"
-  description   = "CloudWatch Logs to Amazon OpenSearch streaming"
+resource "aws_lambda_function" "opensearch_lambda_log_ingester" {
+  function_name = "opensearch_lambda_log_ingester_${var.environment}"
+  description   = "Lambda Logs to Amazon OpenSearch"
   memory_size   = 128
   timeout       = 300
 
@@ -103,7 +103,7 @@ resource "aws_lambda_function" "CWLogsToOpenSearch" {
 resource "aws_lambda_permission" "allow_cloudwatch" {
   for_each      = var.lambda_trigger_functions
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.CWLogsToOpenSearch.function_name
+  function_name = aws_lambda_function.opensearch_lambda_log_ingester.function_name
   principal     = "logs.${var.region}.amazonaws.com"
   source_arn    = "arn:aws:logs:${var.region}:${var.account_id}:log-group:/aws/lambda/${each.key}:*"
 }
@@ -118,7 +118,7 @@ resource "aws_cloudwatch_log_subscription_filter" "logfilter" {
   name            = "${each.key}_logfilter"
   log_group_name  = "/aws/lambda/${each.key}"
   filter_pattern  = "?ELASTICSEARCH ?ERROR ?REPORT"
-  destination_arn = aws_lambda_function.CWLogsToOpenSearch.arn
+  destination_arn = aws_lambda_function.opensearch_lambda_log_ingester.arn
   depends_on      = [aws_lambda_permission.allow_cloudwatch, aws_cloudwatch_log_group.loggroup]
 }
 

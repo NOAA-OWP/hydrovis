@@ -120,7 +120,9 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_hydrovis-ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
