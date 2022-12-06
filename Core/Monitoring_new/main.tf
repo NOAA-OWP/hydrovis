@@ -10,7 +10,7 @@ variable "region" {
   type = string
 }
 
-variable "es_sgs" {
+variable "opensearch_security_group_ids" {
   type = list(string)
 }
 
@@ -38,7 +38,7 @@ variable "logstash_instance_profile_name" {
   type = string
 }
 
-variable "logstash_instance_sgs" {
+variable "logstash_instance_security_group_ids" {
   type = list(string)
 }
 
@@ -61,6 +61,18 @@ variable "internal_route_53_zone" {
   })
 }
 
+variable "vpc_id" {
+  type = string
+}
+
+variable "task_role_arn" {
+  type = string
+}
+
+variable "execution_role_arn" {
+  type = string
+}
+
 
 # Creates OpenSearch Dashboards User Credentials and stores them in Secrets Manager.
 module "dashboard_users_credentials" {
@@ -71,7 +83,7 @@ module "dashboard_users_credentials" {
   username    = each.key
 }
 
-# Creates OpenSearch Domain and S3 Object of Saved Objects.
+# Creates OpenSearch Domain, S3 Object of OpenSearch Saved Objects, and nginx proxy to forward traffic to OpenSearch.
 module "opensearch" {
   source = "./OpenSearch"
 
@@ -81,9 +93,14 @@ module "opensearch" {
 
   deployment_bucket = var.deployment_bucket
 
-  es_sgs                                = var.es_sgs
+  opensearch_security_group_ids         = var.opensearch_security_group_ids
   data_subnet_ids                       = var.data_subnet_ids
   master_user_credentials_secret_string = module.dashboard_users_credentials["monitoring_admin"].secret_string
+
+  # NginxProxy Module
+  vpc_id             = var.vpc_id
+  task_role_arn      = var.task_role_arn
+  execution_role_arn = var.execution_role_arn
 }
 
 # Creates various methods of sending logs to OpenSearch to be indexed.
@@ -100,7 +117,7 @@ module "logingest" {
   logstash_instance_availability_zone        = var.logstash_instance_availability_zone
   logstash_instance_profile_name             = var.logstash_instance_profile_name
   logstash_instance_subnet_id                = var.logstash_instance_subnet_id
-  logstash_instance_sgs                      = var.logstash_instance_sgs
+  logstash_instance_security_group_ids       = var.logstash_instance_security_group_ids
   deployment_bucket                          = var.deployment_bucket
   saved_objects_s3_key                       = module.opensearch.saved_objects_s3_key
   opensearch_domain_endpoint                 = module.opensearch.domain_endpoint
@@ -110,10 +127,10 @@ module "logingest" {
   internal_route_53_zone                     = var.internal_route_53_zone
 
   # Lambda Module
-  lambda_trigger_functions = var.lambda_trigger_functions
-  opensearch_domain_arn    = module.opensearch.domain_arn
-  es_sgs                   = var.es_sgs
-  data_subnet_ids          = var.data_subnet_ids
+  lambda_trigger_functions            = var.lambda_trigger_functions
+  opensearch_domain_arn               = module.opensearch.domain_arn
+  opensearch_security_group_ids       = var.opensearch_security_group_ids
+  data_subnet_ids                     = var.data_subnet_ids
 
   # S3 Module
   buckets_and_parameters = var.buckets_and_parameters

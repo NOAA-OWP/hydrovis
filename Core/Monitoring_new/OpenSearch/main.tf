@@ -10,7 +10,7 @@ variable "region" {
   type = string
 }
 
-variable "es_sgs" {
+variable "opensearch_security_group_ids" {
   type = list(string)
 }
 
@@ -24,6 +24,34 @@ variable "master_user_credentials_secret_string" {
 
 variable "deployment_bucket" {
   type = string
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "task_role_arn" {
+  type = string
+}
+
+variable "execution_role_arn" {
+  type = string
+}
+
+# Creates an nginx proxy to forward traffic from the public load balancer to the OpenSearch Domain
+module "nginx-proxy" {
+  source = "./NginxProxy"
+
+  environment = var.environment
+  region      = var.region
+
+  domain_endpoint               = aws_opensearch_domain.hydrovis.endpoint
+  deployment_bucket             = var.deployment_bucket
+  data_subnet_ids               = var.data_subnet_ids
+  opensearch_security_group_ids = var.opensearch_security_group_ids
+  vpc_id                        = var.vpc_id
+  task_role_arn                 = var.task_role_arn
+  execution_role_arn            = var.execution_role_arn
 }
 
 
@@ -138,7 +166,7 @@ resource "aws_opensearch_domain" "hydrovis" {
 
   vpc_options {
     subnet_ids         = var.data_subnet_ids
-    security_group_ids = var.es_sgs
+    security_group_ids = var.opensearch_security_group_ids
   }
 
   depends_on = [aws_iam_service_linked_role.os]

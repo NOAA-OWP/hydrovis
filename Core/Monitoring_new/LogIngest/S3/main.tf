@@ -14,7 +14,7 @@ variable "data_subnet_ids" {
   type = list(string)
 }
 
-variable "es_sgs" {
+variable "opensearch_security_group_ids" {
   type = list(string)
 }
 
@@ -72,7 +72,7 @@ resource "aws_lambda_function" "CWS3AlertsToOpenSearch" {
   role = var.lambda_role_arn
   vpc_config {
     subnet_ids         = var.data_subnet_ids
-    security_group_ids = var.es_sgs
+    security_group_ids = var.opensearch_security_group_ids
   }
 }
 

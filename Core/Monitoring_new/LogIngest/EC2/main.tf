@@ -22,7 +22,7 @@ variable "instance_subnet_id" {
   type = string
 }
 
-variable "instance_sgs" {
+variable "instance_security_group_ids" {
   type = list(string)
 }
 
@@ -133,7 +133,7 @@ resource "aws_instance" "logstash" {
   iam_instance_profile   = var.instance_profile_name
   instance_type          = "t3.medium"
   availability_zone      = var.instance_availability_zone
-  vpc_security_group_ids = var.instance_sgs
+  vpc_security_group_ids = var.instance_security_group_ids
   subnet_id              = var.instance_subnet_id
   ebs_optimized          = true
 

@@ -26,7 +26,7 @@ variable "logstash_instance_profile_name" {
   type = string
 }
 
-variable "logstash_instance_sgs" {
+variable "logstash_instance_security_group_ids" {
   type = list(string)
 }
 
@@ -54,7 +54,7 @@ variable "master_user_credentials_secret_string" {
   type = string
 }
 
-variable "es_sgs" {
+variable "opensearch_security_group_ids" {
   type = list(string)
 }
 
@@ -91,10 +91,10 @@ module "ec2" {
   ami_owner_account_id   = var.ami_owner_account_id
   region                 = var.region
 
-  instance_availability_zone = var.logstash_instance_availability_zone
-  instance_profile_name      = var.logstash_instance_profile_name
-  instance_subnet_id         = var.logstash_instance_subnet_id
-  instance_sgs               = var.logstash_instance_sgs
+  instance_availability_zone  = var.logstash_instance_availability_zone
+  instance_profile_name       = var.logstash_instance_profile_name
+  instance_subnet_id          = var.logstash_instance_subnet_id
+  instance_security_group_ids = var.logstash_instance_security_group_ids
 
   deployment_bucket                          = var.deployment_bucket
   saved_objects_s3_key                       = var.saved_objects_s3_key
@@ -114,11 +114,11 @@ module "lambda" {
   account_id             = var.account_id
   region                 = var.region
 
-  data_subnet_ids            = var.data_subnet_ids
-  es_sgs                     = var.es_sgs
-  lambda_trigger_functions   = var.lambda_trigger_functions
-  opensearch_domain_arn      = var.opensearch_domain_arn
-  opensearch_domain_endpoint = var.opensearch_domain_endpoint
+  data_subnet_ids               = var.data_subnet_ids
+  opensearch_security_group_ids = var.opensearch_security_group_ids
+  lambda_trigger_functions      = var.lambda_trigger_functions
+  opensearch_domain_arn         = var.opensearch_domain_arn
+  opensearch_domain_endpoint  = var.opensearch_domain_endpoint
 }
 
 # Creates Lambda Function that reads CloudWatch logs from replicated S3 Buckets and sends them to OpenSearch.
@@ -129,10 +129,10 @@ module "s3" {
   account_id             = var.account_id
   region                 = var.region
 
-  data_subnet_ids            = var.data_subnet_ids
-  es_sgs                     = var.es_sgs
-  opensearch_domain_endpoint = var.opensearch_domain_endpoint
-  lambda_role_arn            = module.lambda.role_arn
+  data_subnet_ids               = var.data_subnet_ids
+  opensearch_security_group_ids = var.opensearch_security_group_ids
+  opensearch_domain_endpoint    = var.opensearch_domain_endpoint
+  lambda_role_arn               = module.lambda.role_arn
 
   buckets_and_parameters = var.buckets_and_parameters
 }
