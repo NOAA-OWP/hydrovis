@@ -214,7 +214,7 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
-  es-sg_id                         = module.security-groups.es-sg.id
+  opensearch-access_id             = module.security-groups.opensearch-access.id
 }
 
 ###################### STAGE 3 ######################
@@ -391,7 +391,7 @@ module "monitoring" {
   environment                   = local.env.environment
   account_id                    = local.env.account_id
   region                        = local.env.region
-  opensearch_security_group_ids = [module.security-groups.es-sg.id]
+  opensearch_security_group_ids = [module.security-groups.opensearch-access.id]
   data_subnet_ids               = [
     module.vpc.subnet_hydrovis-sn-prv-data1a.id,
     module.vpc.subnet_hydrovis-sn-prv-data1b.id
@@ -413,7 +413,7 @@ module "monitoring" {
   logstash_instance_availability_zone  = module.vpc.subnet_hydrovis-sn-prv-app1a.availability_zone
   logstash_instance_profile_name       = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
   logstash_instance_security_group_ids = [
-    module.security-groups.es-sg.id,
+    module.security-groups.opensearch-access.id,
     module.security-groups.ssm-session-manager-sg.id
   ]
   deployment_bucket                    = module.s3.buckets["deployment"].bucket
