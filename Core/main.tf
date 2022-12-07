@@ -214,6 +214,7 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  es-sg_id                         = module.security-groups.es-sg.id
 }
 
 ###################### STAGE 3 ######################
