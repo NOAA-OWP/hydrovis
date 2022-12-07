@@ -1,7 +1,6 @@
-var AWS = require('aws-sdk');
+var https = require('https');
 
-const region = '${region}'; // e.g. us-west-1
-const domain = '${os_endpoint}'; // e.g. search-domain.region.es.amazonaws.com
+const endpoint = '${os_endpoint}'; // e.g. search-domain.region.es.amazonaws.com
 
 exports.handler = async function(event, _context) {
 
@@ -28,50 +27,99 @@ exports.handler = async function(event, _context) {
             "alert_state": newAlertState,
         };
 
-        return indexDocument(json, messageId, domain, region)
+        return indexDocument(json, messageId)
     }
 };
 
-function indexDocument(json, id, domain, region) {
-    var endpoint = new AWS.Endpoint(domain);
-    var request = new AWS.HttpRequest(endpoint, region);
+function indexDocument(json, id) {
 
-    request.method = 'PUT';
-    request.path += 's3_anomaly_detection/_doc/' + id;
-    request.body = JSON.stringify(json);
-    request.headers['host'] = domain;
-    request.headers['Content-Type'] = 'application/json';
-    request.headers['Content-Length'] = Buffer.byteLength(request.body);
+    // post documents to the Amazon OpenSearch Service
+    post(JSON.stringify(json), id, function(error, success, statusCode, failedItems) {
+        console.log('Response: ' + JSON.stringify({
+            "statusCode": statusCode
+        }));
 
-    var credentials = new AWS.EnvironmentCredentials('AWS');
-    var signer = new AWS.Signers.V4(request, 'es');
-    signer.addAuthorization(credentials, new Date());
-
-
-    var client = new AWS.HttpClient();
-    return new Promise((resolve, reject) => {
-        client.handleRequest(
-            request,
-            null,
-            (response) => {
-                const {statusCode, statusMessage, headers} = response;
-                let body = '';
-                response.on('data', (chunk) => {
-                    body += chunk;
-                });
-                response.on('end', () => {
-                    const data = {statusCode, statusMessage, headers};
-                    if (body) {
-                        data.body = body;
-                    }
-                    resolve(data);
-                console.log("Response body:" + body);
-                });
-            },
-            (error) => {
-                reject(error);
-                console.log("Error:" + error)
-            }
-        );
-    })
+        if (error) {
+            logFailure(error, failedItems);
+            context.fail(JSON.stringify(error));
+        } else {
+            console.log('Success: ' + JSON.stringify(success));
+            context.succeed('Success');
+        }
+    });
 };
+
+
+
+function post(body, id, callback) {
+    var requestParams = buildRequest(body, id);
+
+    var request = https.request(requestParams, function(response) {
+        var responseBody = '';
+        response.on('data', function(chunk) {
+            responseBody += chunk;
+        });
+
+        response.on('end', function() {
+            var info = JSON.parse(responseBody);
+            var failedItems;
+            var success;
+            var error;
+
+            if (response.statusCode >= 200 && response.statusCode < 299) {
+                failedItems = info.items.filter(function(x) {
+                    return x.index.status >= 300;
+                });
+
+                success = {
+                    "attemptedItems": info.items.length,
+                    "successfulItems": info.items.length - failedItems.length,
+                    "failedItems": failedItems.length
+                };
+            }
+
+            if (response.statusCode !== 200 || info.errors === true) {
+                // prevents logging of failed entries, but allows logging
+                // of other errors such as access restrictions
+                delete info.items;
+                error = {
+                    statusCode: response.statusCode,
+                    responseBody: info
+                };
+            }
+
+            callback(error, success, response.statusCode, failedItems);
+        });
+    }).on('error', function(e) {
+        callback(e);
+    });
+    request.end(requestParams.body);
+}
+
+function buildRequest(body, id) {
+    var request = {
+        host: endpoint,
+        method: 'PUT',
+        path: '/s3_anomaly_detection/_doc/' + id,
+        body: body,
+        headers: {
+            'Content-Type': 'application/json',
+            'Host': endpoint,
+            'Content-Length': Buffer.byteLength(body)
+        },
+        auth: '${admin_username}:${admin_password}'
+    };
+
+    return request;
+}
+
+function logFailure(error, failedItems) {
+    if (logFailedResponses) {
+        console.log('Error: ' + JSON.stringify(error, null, 2));
+
+        if (failedItems && failedItems.length > 0) {
+            console.log("Failed Items: " +
+                JSON.stringify(failedItems, null, 2));
+        }
+    }
+}

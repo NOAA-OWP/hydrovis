@@ -114,11 +114,12 @@ module "lambda" {
   account_id             = var.account_id
   region                 = var.region
 
-  data_subnet_ids               = var.data_subnet_ids
-  opensearch_security_group_ids = var.opensearch_security_group_ids
-  lambda_trigger_functions      = var.lambda_trigger_functions
-  opensearch_domain_arn         = var.opensearch_domain_arn
-  opensearch_domain_endpoint  = var.opensearch_domain_endpoint
+  data_subnet_ids                            = var.data_subnet_ids
+  opensearch_security_group_ids              = var.opensearch_security_group_ids
+  lambda_trigger_functions                   = var.lambda_trigger_functions
+  opensearch_domain_arn                      = var.opensearch_domain_arn
+  opensearch_domain_endpoint                 = var.opensearch_domain_endpoint
+  master_user_credentials_secret_string      = var.master_user_credentials_secret_string
 }
 
 # Creates Lambda Function that reads CloudWatch logs from replicated S3 Buckets and sends them to OpenSearch.
@@ -129,10 +130,11 @@ module "s3" {
   account_id             = var.account_id
   region                 = var.region
 
-  data_subnet_ids               = var.data_subnet_ids
-  opensearch_security_group_ids = var.opensearch_security_group_ids
-  opensearch_domain_endpoint    = var.opensearch_domain_endpoint
-  lambda_role_arn               = module.lambda.role_arn
+  data_subnet_ids                            = var.data_subnet_ids
+  opensearch_security_group_ids              = var.opensearch_security_group_ids
+  opensearch_domain_endpoint                 = var.opensearch_domain_endpoint
+  lambda_role_arn                            = module.lambda.role_arn
+  master_user_credentials_secret_string      = var.master_user_credentials_secret_string
 
   buckets_and_parameters = var.buckets_and_parameters
 }
