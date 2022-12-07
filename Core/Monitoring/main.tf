@@ -75,7 +75,7 @@ variable "execution_role_arn" {
 
 
 # Creates OpenSearch Dashboards User Credentials and stores them in Secrets Manager.
-module "dashboard_users_credentials" {
+module "dashboard-users-credentials" {
   source = "./DashboardUsersCredentials"
 
   for_each    = merge(var.dashboard_users_and_roles, {monitoring_admin = [""]})
@@ -95,7 +95,7 @@ module "opensearch" {
 
   opensearch_security_group_ids         = var.opensearch_security_group_ids
   data_subnet_ids                       = var.data_subnet_ids
-  master_user_credentials_secret_string = module.dashboard_users_credentials["monitoring_admin"].secret_string
+  master_user_credentials_secret_string = module.dashboard-users-credentials["monitoring_admin"].secret_string
 
   # NginxProxy Module
   vpc_id             = var.vpc_id
@@ -121,9 +121,9 @@ module "logingest" {
   deployment_bucket                          = var.deployment_bucket
   saved_objects_s3_key                       = module.opensearch.saved_objects_s3_key
   opensearch_domain_endpoint                 = module.opensearch.domain_endpoint
-  dashboard_users_credentials_secret_strings = [ for name in keys(var.dashboard_users_and_roles) : module.dashboard_users_credentials[name].secret_string ]
+  dashboard_users_credentials_secret_strings = [ for name in keys(var.dashboard_users_and_roles) : module.dashboard-users-credentials[name].secret_string ]
   dashboard_users_and_roles                  = var.dashboard_users_and_roles
-  master_user_credentials_secret_string      = module.dashboard_users_credentials["monitoring_admin"].secret_string
+  master_user_credentials_secret_string      = module.dashboard-users-credentials["monitoring_admin"].secret_string
   internal_route_53_zone                     = var.internal_route_53_zone
 
   # Lambda Module
