@@ -2,20 +2,27 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.52"
+      version = "4.24"
     }
   }
 }
 
-# See ./sensitive/envs/env.ENV.yaml for list of available variables
+# See ./sensitive/env.yaml for list of available variables
 locals {
-  env = yamldecode(file("./sensitive/envs/env.${terraform.workspace}.yaml"))
+  env = yamldecode(file(".env.yaml"))
 }
 
 provider "aws" {
-  region                  = local.env.region
-  profile                 = local.env.environment
-  shared_credentials_file = "/cloud/aws/credentials"
+  region                   = local.env.region
+  profile                  = local.env.environment
+  shared_credentials_files = ["/cloud/aws/credentials"]
+
+  default_tags {
+    tags = {
+      CreatedBy    = "Terraform"
+      hydrovis-env = "dev"
+    }
+  }
 }
 
 # Example Data Source Block
