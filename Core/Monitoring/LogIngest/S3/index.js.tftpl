@@ -2,6 +2,11 @@ var https = require('https');
 
 const endpoint = '${os_endpoint}'; // e.g. search-domain.region.es.amazonaws.com
 
+// Set this to true if you want to debug why data isn't making it to
+// your OpenSearch cluster. This will enable logging of failed items
+// to CloudWatch Logs.
+var logFailedResponses = true;
+
 exports.handler = async function(event, _context) {
 
     var snsPublishTime = event.Records[0].Sns.Timestamp
