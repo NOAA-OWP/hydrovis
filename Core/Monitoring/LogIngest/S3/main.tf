@@ -30,6 +30,10 @@ variable "buckets_and_parameters" {
   type = map(map(string))
 }
 
+variable "master_user_credentials_secret_string" {
+  type = string
+}
+
 
 module "bucket" {
   source   = "./bucket"
@@ -49,7 +53,8 @@ data "archive_file" "lambda_code" {
   source {
     content  = templatefile("${path.module}/index.js.tftpl", {
       os_endpoint = var.opensearch_domain_endpoint
-      region      = var.region
+      admin_username = jsondecode(var.master_user_credentials_secret_string)["username"]
+      admin_password = jsondecode(var.master_user_credentials_secret_string)["password"]
     })
     filename = "index.js"
   }

@@ -30,13 +30,19 @@ variable "opensearch_domain_endpoint" {
   type = string
 }
 
+variable "master_user_credentials_secret_string" {
+  type = string
+}
+
 
 data "archive_file" "lambda_code" {
   type = "zip"
 
   source {
     content  = templatefile("${path.module}/index.js.tftpl", {
-      os_endpoint = var.opensearch_domain_endpoint
+      os_endpoint    = var.opensearch_domain_endpoint
+      admin_username = jsondecode(var.master_user_credentials_secret_string)["username"]
+      admin_password = jsondecode(var.master_user_credentials_secret_string)["password"]
     })
     filename = "index.js"
   }
