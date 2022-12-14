@@ -29,8 +29,8 @@ variable "subnet_hydrovis-sn-prv-data1b_cidr_block" {
   type = string
 }
 
-resource "aws_security_group" "es-sg" {
-  description = "Allow inbound traffic to ElasticSearch from VPC CIDR"
+resource "aws_security_group" "opensearch-access" {
+  description = "Allow inbound traffic to OpenSearch from VPC CIDR"
   egress = [
     {
       cidr_blocks = [
@@ -50,6 +50,7 @@ resource "aws_security_group" "es-sg" {
     {
       cidr_blocks = [
         var.vpc_main_cidr_block,
+        var.nwave_ip_block,
       ]
       description      = ""
       from_port        = 443
@@ -60,10 +61,24 @@ resource "aws_security_group" "es-sg" {
       self             = false
       to_port          = 443
     },
+    {
+      cidr_blocks = [
+        var.vpc_main_cidr_block,
+        var.nwave_ip_block,
+      ]
+      description      = ""
+      from_port        = 80
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 80
+    },
   ]
-  name = "es-sg"
+  name = "opensearch-access"
   tags = {
-    "Name" = "es-sg"
+    "Name" = "opensearch-access"
   }
   vpc_id = var.vpc_main_id
 }
@@ -517,8 +532,8 @@ output "egis-overlord" {
   value = aws_security_group.egis-overlord
 }
 
-output "es-sg" {
-  value = aws_security_group.es-sg
+output "opensearch-access" {
+  value = aws_security_group.opensearch-access
 }
 
 output "hv-allow-NWC-access" {

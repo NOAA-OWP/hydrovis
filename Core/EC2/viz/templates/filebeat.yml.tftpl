@@ -4,7 +4,7 @@ filebeat.inputs:
   paths:
     - D:\pipeline_workspace\logs\*\*.log
 output.logstash:
-  hosts: ["${LOGSTASH_IP}:5044"]
+  hosts: ["logstash.hydrovis.internal:5044"]
 logging.level: error
 logging.to_files: true
 logging.files:
