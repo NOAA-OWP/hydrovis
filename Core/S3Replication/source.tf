@@ -199,7 +199,10 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-hml-incoming" {
     id       = "HMLReplicationRoleToProdHML"
     priority = 0
     status   = "Enabled"
-    filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       bucket = "arn:aws:s3:::hydrovis-prod-hml-us-east-1"
@@ -209,57 +212,67 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-hml-incoming" {
       }
     }
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
-    }
-  }
-
-  rule {
-    id       = "HMLReplicationRoleToUatHML"
-    priority = 1
-    status   = "Enabled"
     filter {}
 
-    destination {
-      account = "${var.uat_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-hml-us-east-1-s3"
-      }
-
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
-
     source_selection_criteria {
       sse_kms_encrypted_objects {
         status = "Enabled"
       }
     }
   }
-
   rule {
     id       = "HMLReplicationRoleToTiHML"
     priority = 2
     status   = "Enabled"
-    filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       account = "${var.ti_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-hml-us-east-1-s3"
-      }
+      bucket  = "arn:aws:s3:::hydrovis-ti-hml-us-east-1"
 
       access_control_translation {
         owner = "Destination"
       }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-hml-us-east-1-s3"
+      }
     }
+
+    filter {}
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
+  rule {
+    id       = "HMLReplicationRoleToUatHML"
+    priority = 1
+    status   = "Enabled"
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket  = "arn:aws:s3:::hydrovis-uat-hml-us-east-1"
+
+      access_control_translation {
+        owner = "Destination"
+      }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-hml-us-east-1-s3"
+      }
+    }
+
+    filter {}
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
@@ -574,7 +587,10 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-nwm-incoming" {
     id       = "HMLReplicationRoleToProdHML"
     priority = 0
     status   = "Enabled"
-    filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       bucket = "arn:aws:s3:::hydrovis-prod-nwm-us-east-1"
@@ -584,56 +600,67 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-nwm-incoming" {
       }
     }
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
-    }
-  }
-
-  rule {
-    id       = "HMLReplicationRoleToUatHML"
-    priority = 1
-    status   = "Enabled"
     filter {}
 
-    destination {
-      account = "${var.uat_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-nwm-us-east-1-s3"
-      }
-
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
-
     source_selection_criteria {
       sse_kms_encrypted_objects {
         status = "Enabled"
       }
     }
   }
-
   rule {
     id       = "HMLReplicationRoleToTiHML"
     priority = 2
     status   = "Enabled"
-    filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       account = "${var.ti_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-nwm-us-east-1-s3"
-      }
+      bucket  = "arn:aws:s3:::hydrovis-ti-nwm-us-east-1"
 
       access_control_translation {
         owner = "Destination"
       }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-nwm-us-east-1-s3"
+      }
+    }
+
+    filter {}
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
+  rule {
+    id       = "HMLReplicationRoleToUatHML"
+    priority = 1
+    status   = "Enabled"
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket  = "arn:aws:s3:::hydrovis-uat-nwm-us-east-1"
+
+      access_control_translation {
+        owner = "Destination"
+      }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-nwm-us-east-1-s3"
+      }
+    }
+
+    filter {
     }
 
     source_selection_criteria {
@@ -920,10 +947,73 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-pcpanl-incoming" {
   role   = aws_iam_role.pcpanl-replication[0].arn
 
   rule {
+    id       = "pcpanlReplicationRoleToUatPcpanl"
+    priority = 1
+    status   = "Enabled"
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
+    destination {
+      account = "${var.uat_account_id}"
+      bucket  = "arn:aws:s3:::hydrovis-uat-pcpanl-us-east-1"
+
+      access_control_translation {
+        owner = "Destination"
+      }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-pcpanl-us-east-1-s3"
+      }
+    }
+
+    filter {}
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
+  rule {
+    id       = "pcpanlReplicationRoleToTiPcpanl"
+    priority = 2
+    status   = "Enabled"
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
+    destination {
+      account = "${var.ti_account_id}"
+      bucket  = "arn:aws:s3:::hydrovis-ti-pcpanl-us-east-1"
+
+      access_control_translation {
+        owner = "Destination"
+      }
+
+      encryption_configuration {
+        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-pcpanl-us-east-1-s3"
+      }
+    }
+
+    filter {}
+
+    source_selection_criteria {
+      sse_kms_encrypted_objects {
+        status = "Enabled"
+      }
+    }
+  }
+  rule {
     id       = "pcpanlReplicationRoleToProdPcpanl"
     priority = 0
     status   = "Enabled"
-    filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       bucket = "arn:aws:s3:::hydrovis-prod-pcpanl-us-east-1"
@@ -933,57 +1023,7 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis-pcpanl-incoming" {
       }
     }
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
-    }
-  }
-
-  rule {
-    id       = "pcpanlReplicationRoleToUATPcpanl"
-    priority = 1
-    status   = "Enabled"
     filter {}
-
-    destination {
-      account = "${var.uat_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-uat-pcpanl-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-pcpanl-us-east-1-s3"
-      }
-
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
-
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
-      }
-    }
-  }
-
-  rule {
-    id       = "pcpanlReplicationRoleToTiPcpanl"
-    priority = 2
-    status   = "Enabled"
-    filter {}
-
-    destination {
-      account = "${var.ti_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-ti-pcpanl-us-east-1"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-pcpanl-us-east-1-s3"
-      }
-
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
