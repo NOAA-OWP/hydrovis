@@ -29,6 +29,62 @@ variable "subnet_hydrovis-sn-prv-data1b_cidr_block" {
   type = string
 }
 
+variable "public_route_peering_ip_block" {
+  type = string
+}
+
+
+locals {
+  hydrovis-RDS_ingress_default = [
+    {
+      cidr_blocks = [
+        var.vpc_ip_block,
+      ]
+      description      = ""
+      from_port        = 22
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 22
+    },
+    {
+      cidr_blocks = [
+        var.vpc_ip_block,
+      ]
+      description      = ""
+      from_port        = 5432
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 5432
+    },
+  ]
+
+  hydrovis-RDS_ingress = var.public_route_peering_ip_block != "" ? concat(
+    local.hydrovis-RDS_ingress_default,
+    [
+      {
+        cidr_blocks      = [
+            var.public_route_peering_ip_block,
+          ]
+        description      = "Peering from Dev"
+        from_port        = 5432
+        ipv6_cidr_blocks = []
+        prefix_list_ids  = []
+        protocol         = "tcp"
+        security_groups  = []
+        self             = false
+        to_port          = 5432
+      },
+    ]
+  ) : local.hydrovis-RDS_ingress_default
+}
+
+
 resource "aws_security_group" "opensearch-access" {
   description = "Allow inbound traffic to OpenSearch from VPC CIDR"
   egress = [
@@ -256,34 +312,7 @@ resource "aws_security_group" "hydrovis-RDS" {
       to_port          = 0
     },
   ]
-  ingress = [
-    {
-      cidr_blocks = [
-        var.vpc_ip_block,
-      ]
-      description      = ""
-      from_port        = 22
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 22
-    },
-    {
-      cidr_blocks = [
-        var.vpc_ip_block,
-      ]
-      description      = ""
-      from_port        = 5432
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 5432
-    },
-  ]
+  ingress = local.hydrovis-RDS_ingress
   name = "hydrovis-${upper(var.environment)}-RDS"
   tags = {
     "vpc"  = "${var.environment}"
