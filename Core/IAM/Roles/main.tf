@@ -285,6 +285,75 @@ resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
   policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
 }
 
+# hydrovis-sync-wrds-location-db Role
+resource "aws_iam_role" "hydrovis-sync-wrds-location-db" {
+  name = "hydrovis-sync-wrds-location-db"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "events.amazonaws.com"
+            "scheduler.amazonaws.com",
+            "lambda.amazonaws.com",
+            "datasync.amazonaws.com",
+            "states.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "hydrovis-sync-wrds-location-db" {
+  name = "hydrovis-sync-wrds-location-db"
+  role = aws_iam_role.hydrovis-sync-wrds-location-db.name
+}
+
+resource "aws_iam_role_policy" "hydrovis-sync-wrds-location-db-policy" {
+  name   = "HydroVISSyncWrdsLocationDbPolicy"
+  role   = aws_iam_role.hydrovis-sync-wrds-location-db.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "kms:CreateGrant"
+        ],
+        "Resource": "*",
+        "Condition": {
+          "Bool": {
+            "kms:GrantIsForAWSResource": true
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "hydrovis-sync-wrds-location-db" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+    "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+    "arn:aws:iam::aws:policy/AmazonSSMAutomationRole",
+    "arn:aws:iam::aws:policy/AWSLambdaRole",
+    "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
+    "arn:aws:iam::aws:policy/AmazonEventBridgeSchedulerFullAccess",
+    "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+  ])
+  role       = aws_iam_role.hydrovis-sync-wrds-location-db.name
+  policy_arn = each.value
+}
+
 
 output "role_autoscaling" {
   value = aws_iam_service_linked_role.autoscaling
@@ -332,4 +401,20 @@ output "role_hydrovis-ecs-resource-access" {
 
 output "role_hydrovis-ecs-task-execution" {
   value = aws_iam_role.hydrovis-ecs-task-execution
+}
+
+output "role_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_role.hydrovis-sync-wrds-location-db
+}
+
+output "profile_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_instance_profile.hydrovis-sync-wrds-location-db
+}
+
+output "role_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_role.hydrovis-sync-wrds-location-db
+}
+
+output "profile_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_instance_profile.hydrovis-sync-wrds-location-db
 }
