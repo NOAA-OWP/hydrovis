@@ -161,7 +161,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-${var.ec2_instance_availability_zone}-rds-l-dba-1"
+    "Name" = "hv-${var.environment}-rds-bastion"
     "OS"   = "Linux"
   }
 

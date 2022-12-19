@@ -62,7 +62,7 @@ variable "data_services_versions" {
 
 locals {
   ssh_key_filename        = "id_ed25519"
-  instance_name = "hv-${var.environment}-${replace(var.ec2_instance_availability_zone, "-", "")}-data-services"
+  instance_name = "hv-${var.environment}-data-services"
   instance_names = [local.instance_name, format("%s-for-tests", local.instance_name)]
   location_db_names = [var.location_db_name, format("%s_ondeck", var.location_db_name)]
   cloudinit_config_data = {
