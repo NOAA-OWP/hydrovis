@@ -989,12 +989,12 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Wait 30 Seconds",
+            "Next": "Wait 60 Seconds",
             "ResultPath": null
           },
-          "Wait 30 Seconds": {
+          "Wait 60 Seconds": {
             "Type": "Wait",
-            "Seconds": 30,
+            "Seconds": 60,
             "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
@@ -1069,11 +1069,11 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "ResultPath": null,
-                  "Next": "Wait 30 Seconds Again"
+                  "Next": "Wait 60 Seconds Again"
                 },
-                "Wait 30 Seconds Again": {
+                "Wait 60 Seconds Again": {
                   "Type": "Wait",
-                  "Seconds": 30,
+                  "Seconds": 60,
                   "Next": "Update EGIS Data - Summary"
                 },
                 "Update EGIS Data - Summary": {
