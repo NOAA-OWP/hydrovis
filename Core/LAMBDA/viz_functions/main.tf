@@ -1215,7 +1215,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_summary_data"
