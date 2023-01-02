@@ -202,12 +202,14 @@ module "security-groups" {
   vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
   subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
   subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
+  public_route_peering_ip_block            = local.env.public_route_peering_ip_block
 }
 
 # VPCe's
 module "vpces" {
   source = "./VPC/VPCe"
 
+  environment                      = local.env.environment
   region                           = local.env.region
   vpc_main_id                      = module.vpc.vpc_main.id
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id

@@ -334,23 +334,13 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
     }
 
     environment_variable {
-      name  = "FR_FIM_BUCKET"
+      name  = "FIM_BUCKET"
       value = var.fim_data_bucket
     }
 
     environment_variable {
-      name  = "FR_FIM_PREFIX"
-      value = "fim_${replace(var.fim_version, ".", "_")}_fr_c"
-    }
-
-    environment_variable {
-      name  = "MS_FIM_BUCKET"
-      value = var.fim_data_bucket
-    }
-
-    environment_variable {
-      name  = "MS_FIM_PREFIX"
-      value = "fim_${replace(var.fim_version, ".", "_")}_ms_c"
+      name  = "FIM_PREFIX"
+      value = "fim_${replace(var.fim_version, ".", "_")}"
     }
 
     environment_variable {
