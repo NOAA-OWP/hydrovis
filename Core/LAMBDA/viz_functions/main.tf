@@ -687,6 +687,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Input Data Files",
@@ -715,6 +717,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "IntervalSeconds": 120,
                       "MaxAttempts": 20,
                       "Comment": "Missing S3 File"
+                    },
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     },
                     {
                       "ErrorEquals": [
@@ -764,6 +777,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "End": true,
@@ -808,6 +823,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
               }
@@ -873,6 +890,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Map",
@@ -901,6 +920,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
                     }
@@ -948,6 +969,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "MaxAttempts": 6,
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ],
                   "Next": "HUC Processing Map"
@@ -956,12 +979,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   "Type": "Map",
                   "Iterator": {
                     "StartAt": "HUC Processing",
+                    "StartAt": "HUC Processing",
                     "States": {
+                      "HUC Processing": {
                       "HUC Processing": {
                         "Type": "Task",
                         "Resource": "arn:aws:states:::lambda:invoke",
                         "OutputPath": "$.Payload",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "OutputPath": "$.Payload",
                         "Parameters": {
+                          "Payload.$": "$",
+                          "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
                           "Payload.$": "$",
                           "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
                         },
@@ -978,8 +1007,25 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                             "BackoffRate": 2
                           }
                         ],
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException",
+                              "Lambda.TooManyRequestsException"
+                            ],
+                            "IntervalSeconds": 2,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 2
+                          }
+                        ],
                         "End": true
                       }
+                    },
+                    "ProcessorConfig": {
+                      "Mode": "DISTRIBUTED",
+                      "ExecutionType": "EXPRESS"
                     },
                     "ProcessorConfig": {
                       "Mode": "DISTRIBUTED",
@@ -1000,7 +1046,20 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "Bucket.$": "$.huc_processing_bucket",
                       "Key.$": "$.huc_processing_key"
                     }
+                  "End": true,
+                  "Label": "HUCProcessingMap",
+                  "ItemReader": {
+                    "Resource": "arn:aws:states:::s3:getObject",
+                    "ReaderConfig": {
+                      "InputType": "CSV",
+                      "CSVHeaderLocation": "FIRST_ROW"
+                    },
+                    "Parameters": {
+                      "Bucket.$": "$.huc_processing_bucket",
+                      "Key.$": "$.huc_processing_key"
+                    }
                   },
+                  "MaxConcurrency": 400
                   "MaxConcurrency": 400
                 }
               }
@@ -1039,13 +1098,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
+            "Next": "Wait 60 Seconds",
             "Next": "Wait 60 Seconds",
             "ResultPath": null
           },
           "Wait 60 Seconds": {
+          "Wait 60 Seconds": {
             "Type": "Wait",
+            "Seconds": 60,
             "Seconds": 60,
             "Next": "Update EGIS Data - Service"
           },
@@ -1070,9 +1134,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "ResultPath": null,
+            "Next": "Parallelize Summaries",
+            "Catch": [
             "Next": "Parallelize Summaries",
             "Catch": [
               {
@@ -1082,7 +1150,14 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Next": "Parallelize Summaries",
                 "ResultPath": "$.error",
                 "Comment": "Memory Failure"
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Next": "Parallelize Summaries",
+                "ResultPath": "$.error",
+                "Comment": "Memory Failure"
               }
+            ]
             ]
           },
           "Parallelize Summaries": {
@@ -1177,6 +1252,31 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "Default": "Publish Service"
+                  "End": true
+                }
+              }
+            },
+            "ItemsPath": "$.service.postprocess_summary",
+            "Parameters": {
+              "service.$": "$.service",
+              "map_item.$": "$.map_item",
+              "reference_time.$": "$.reference_time",
+              "job_type.$": "$.job_type",
+              "sql_rename_dict.$": "$.sql_rename_dict",
+              "postprocess_summary.$": "$$.Map.Item.Value"
+            },
+            "ResultPath": null
+          },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Pass"
+              }
+            ],
+            "Default": "Publish Service"
           },
           "Publish Service": {
             "Type": "Task",
@@ -1199,11 +1299,22 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Pass",
             "ResultPath": null
+            "Next": "Pass",
+            "ResultPath": null
           },
+          "Pass": {
+            "Type": "Pass",
+            "End": true,
+            "ResultPath": null,
+            "Result": {
+              "ValueEnteredInForm": ""
+            }
           "Pass": {
             "Type": "Pass",
             "End": true,
@@ -1249,6 +1360,33 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
   },
   "TimeoutSeconds": 3600
 }
+      "MaxConcurrency": 15,
+      "Next": "EGIS Update Failure Detection",
+      "ResultSelector": {
+        "error.$": "$[?(@.error)]"
+      }
+    },
+    "EGIS Update Failure Detection": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.error[0]",
+          "IsPresent": true,
+          "Next": "Non-Breaking EGIS Update Memory Failure"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Non-Breaking EGIS Update Memory Failure": {
+      "Type": "Fail",
+      "Error": "Non-Breaking EGIS Update Memory Failure"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  },
+  "TimeoutSeconds": 3600
+}
   EOF
 }
 
@@ -1263,6 +1401,7 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   "detail-type": ["Step Functions Execution Status Change"],
   "detail": {
     "status": ["FAILED", "TIMED_OUT"],
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
