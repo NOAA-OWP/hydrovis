@@ -64,7 +64,7 @@ resource "aws_db_instance" "viz-processing" {
 
 resource "aws_db_instance_role_association" "viz-rds-s3-export" {
   db_instance_identifier = aws_db_instance.viz-processing.id
-  feature_name           = "s3Export"
+  feature_name           = "rds-s3-export-role"
   role_arn               = var.role_hydrovis-rds-s3-export_arn
 }
 
