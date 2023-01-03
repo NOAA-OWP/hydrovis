@@ -4,7 +4,7 @@ echo "Setting up Rsyslog Configuration"
 # Used for Rsyslog to send relevant logs to Logstash
 sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 { echo "[Service]"; 
-  echo "Environment=\"LOGSTASH_IP=${logstash_ip}\"";
+  echo "Environment=\"LOGSTASH_IP=logstash.hydrovis.internal\"";
   echo "Environment=\"HYDROVIS_APPLICATION=data_services\"";
 } | sudo tee /etc/systemd/system/rsyslog.service.d/override.conf
 sudo systemctl daemon-reload

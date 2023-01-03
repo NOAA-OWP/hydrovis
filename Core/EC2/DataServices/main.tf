@@ -46,10 +46,6 @@ variable "forecast_credentials_secret_string" {
   type = string
 }
 
-variable "logstash_ip" {
-  type = string
-}
-
 variable "vlab_repo_prefix" {
   type = string
 }
@@ -168,14 +164,13 @@ data "cloudinit_config" "startup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "startup.sh"
-    content      = templatefile("${path.module}/startup.sh.tftpl", {
+    content      = templatefile("${path.module}/templates/startup.sh.tftpl", {
       vlab_repo_prefix        = var.vlab_repo_prefix
       infrastructure_commit   = var.data_services_versions["infrastructure_commit"]
       location_api_3_0_commit = var.data_services_versions["location_api_3_0_commit"]
       forecast_api_2_0_commit = var.data_services_versions["forecast_api_2_0_commit"]
       forecast_api_1_1_commit = var.data_services_versions["forecast_api_1_1_commit"]
       ssh_key_filename        = local.ssh_key_filename
-      logstash_ip             = var.logstash_ip
       instance                = count.index
     })
   }
