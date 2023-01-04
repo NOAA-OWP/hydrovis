@@ -1,0 +1,41 @@
+#!/bin/bash
+
+db_instance_tag=$1
+s3_uri=$2
+db_name=$3
+task_token=$4
+task_region=$5
+
+if [ "$db_instance_tag" == "egis" ]; then
+  export PGUSER="${EGIS_PGUSER}"
+  export PGPASSWORD="${EGIS_PGPASSWORD}"
+  export PGHOST="${EGIS_PGHOST}"
+  export PGPORT="${EGIS_PGPORT}"
+elif [ "$db_instance_tag" == "ingest" ]; then
+  export PGUSER="${INGEST_PGUSER}"
+  export PGPASSWORD="${INGEST_PGPASSWORD}"
+  export PGHOST="${INGEST_PGHOST}"
+  export PGPORT="${INGEST_PGPORT}"
+elif [ "$db_instance_tag" == "viz" ]; then
+  export PGUSER="${VIZ_PGUSER}"
+  export PGPASSWORD="${VIZ_PGPASSWORD}"
+  export PGHOST="${VIZ_PGHOST}"
+  export PGPORT="${VIZ_PGPORT}"
+fi
+
+aws s3 cp $s3_uri /tmp/db.sql.gz && \
+psql -c "CREATE DATABASE $db_name;" && \
+cat /tmp/db.sql.gz | gunzip | psql $db_name && \
+rm /tmp/db.sql.gz
+
+status=$?
+
+if [ -n "$task_token" ]; then
+  if [ $status -eq 0 ]; then
+    aws stepfunctions send-task-success --region $task_region --task-token "$task_token" --task-output '{"success": true}'
+  else
+    aws stepfunctions send-task-failure --region $task_region --task-token "$task_token"
+  fi
+else
+  return $status
+fi
