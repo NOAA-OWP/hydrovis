@@ -120,7 +120,8 @@ module "s3" {
       module.iam-roles.role_hydrovis-hml-ingest-role.arn,
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
@@ -573,7 +574,7 @@ module "sync_wrds_location_db" {
 
   environment               = local.env.environment
   region                    = local.env.region
-  iam_role                  = module.iam-roles.role_hydrovis-sync-wrds-location-db
+  iam_role_arn              = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
   email_sns_topics          = module.sns.email_sns_topics
   requests_lambda_layer     = module.lambda_layers.requests.arn
   rds_bastion_id            = module.rds-bastion.instance-id

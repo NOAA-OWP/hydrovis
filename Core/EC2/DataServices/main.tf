@@ -227,6 +227,6 @@ output "dataservices-ip" {
   value = aws_instance.data_services[0].private_ip
 }
 
-output "dataservices-test-id" {
+output "dataservices-test-instance-id" {
   value = aws_instance.data_services[1].id
 }

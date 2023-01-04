@@ -8,7 +8,7 @@ variable "region" {
   type        = string
 }
 
-variable "iam_role" {
+variable "iam_role_arn" {
   description = "Role to use for the lambda functions."
   type        = string
 }
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_event_rule" "every_monday_at_2330" {
 resource "aws_cloudwatch_event_target" "sync_wrds_location_db_every_monday_at_2330" {
   rule      = aws_cloudwatch_event_rule.every_monday_at_2330.name
   arn       = aws_sfn_state_machine.sync_wrds_location_db_step_function.arn
-  role_arn  = var.iam_role
+  role_arn  = var.iam_role_arn
 }
 
 ###############################
@@ -78,7 +78,7 @@ resource "aws_lambda_function" "wrds_location_api_tests" {
   source_code_hash = filebase64sha256("${path.module}/wrds_location_api_tests.zip")
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
-  role             = var.iam_role
+  role             = var.iam_role_arn
   layers = [
     var.requests_lambda_layer
   ]
@@ -93,7 +93,7 @@ resource "aws_lambda_function" "wrds_location_api_tests" {
 
 resource "aws_sfn_state_machine" "ensure_ec2_ready_for_use_step_function" {
   name     = "ensure_ec2_ready_for_use_${var.environment}"
-  role_arn = var.iam_role
+  role_arn = var.iam_role_arn
 
   definition = <<EOF
 {
@@ -211,7 +211,7 @@ resource "aws_sfn_state_machine" "ensure_ec2_ready_for_use_step_function" {
 
 resource "aws_sfn_state_machine" "restore_db_from_s3_step_function" {
   name     = "restore_db_from_s3_${var.environment}"
-  role_arn = var.iam_role
+  role_arn = var.iam_role_arn
 
   definition = <<EOF
 {
@@ -259,7 +259,7 @@ resource "aws_sfn_state_machine" "restore_db_from_s3_step_function" {
 
 resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
   name     = "sync_wrds_location_db_${var.environment}"
-  role_arn = var.iam_role
+  role_arn = var.iam_role_arn
 
   definition = <<EOF
 {
