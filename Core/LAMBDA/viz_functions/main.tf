@@ -921,9 +921,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                               "Lambda.SdkClientException",
                               "Lambda.TooManyRequestsException"
                             ],
-                            "IntervalSeconds": 2,
+                            "IntervalSeconds": 20,
                             "MaxAttempts": 6,
-                            "BackoffRate": 2
+                            "BackoffRate": 1
+                          },
+                          {
+                            "ErrorEquals": [
+                              "HANDDatasetReadError"
+                            ],
+                            "BackoffRate": 1,
+                            "IntervalSeconds": 60,
+                            "MaxAttempts": 2,
+                            "Comment": "Issue Reading HAND Datasets"
                           }
                         ],
                         "End": true
@@ -949,7 +958,14 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "Key.$": "$.huc_processing_key"
                     }
                   },
-                  "MaxConcurrency": 400
+                  "ResultWriter": {
+                    "Resource": "arn:aws:states:::s3:putObject",
+                    "Parameters": {
+                      "Bucket": "hydrovis-ti-fim-us-east-1",
+                      "Prefix": "logs/viz_pipeline_ti/"
+                    }
+                  },
+                  "MaxConcurrency": 250
                 }
               }
             },
@@ -1097,9 +1113,9 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "MaxAttempts": 6,
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
-              }
-            ],
-            "ResultPath": null,
+                    }
+                  ],
+                  "ResultPath": null,
                   "End": true
                 }
               }
