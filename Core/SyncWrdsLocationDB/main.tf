@@ -392,7 +392,7 @@ resource "aws_cloudwatch_event_rule" "sync_wrds_location_db_step_function_failur
     "detail-type": ["Step Functions Execution Status Change"],
     "detail": {
       "status": ["FAILED", "TIMED_OUT"],
-      "stateMachineArn": "${aws_sfn_state_machine.sync_wrds_location_db_step_function.arn}"
+      "stateMachineArn": ["${aws_sfn_state_machine.sync_wrds_location_db_step_function.arn}"]
     }
   }
   EOF

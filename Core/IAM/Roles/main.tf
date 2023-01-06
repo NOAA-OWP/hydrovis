@@ -280,9 +280,10 @@ resource "aws_iam_role_policy_attachment" "hydrovis-sync-wrds-location-db" {
     "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
     "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
     "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-    "arn:aws:iam::aws:policy/AmazonSSMAutomationRole",
-    "arn:aws:iam::aws:policy/AWSLambdaRole",
+    "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
+    "arn:aws:iam::aws:policy/service-role/AWSLambdaRole",
     "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchEventsFullAccess",
     "arn:aws:iam::aws:policy/AmazonEventBridgeSchedulerFullAccess",
     "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
   ])
