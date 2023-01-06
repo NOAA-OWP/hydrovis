@@ -517,6 +517,58 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 }
 
 #############################
+##    Update EGIS Data     ##
+#############################
+
+resource "aws_lambda_function" "viz_update_egis_data" {
+  function_name = "viz_update_egis_data_${var.environment}"
+  description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
+  memory_size   = 128
+  timeout       = 900
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE     = var.viz_db_name
+      VIZ_DB_HOST         = var.viz_db_host
+      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      HYDROVIS_ENV        = var.environment
+      CACHE_BUCKET        = var.viz_cache_bucket
+    }
+  }
+  filename         = "${path.module}/viz_update_egis_data.zip"
+  source_code_hash = filebase64sha256("${path.module}/viz_update_egis_data.zip")
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.pandas_layer,
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "viz_update_egis_data_${var.environment}"
+  }
+}
+
+resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destinations" {
+  function_name          = resource.aws_lambda_function.viz_update_egis_data.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
+}
+
+#############################
 ##     Publish Service     ##
 #############################
 
@@ -1005,19 +1057,14 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Wait 60 Seconds",
+            "Next": "Update EGIS Data - Service",
             "ResultPath": null
-          },
-          "Wait 60 Seconds": {
-            "Type": "Wait",
-            "Seconds": 60,
-            "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
@@ -1038,16 +1085,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             ],
             "ResultPath": null,
             "Next": "Parallelize Summaries",
-            "Catch": [
-              {
-                "ErrorEquals": [
-                  "Runtime.ExitError"
-                ],
-                "Next": "Parallelize Summaries",
-                "ResultPath": "$.error",
-                "Comment": "Memory Failure"
-              }
-            ]
           },
           "Parallelize Summaries": {
             "Type": "Map",
@@ -1085,18 +1122,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "ResultPath": null,
-                  "Next": "Wait 60 Seconds Again"
-                },
-                "Wait 60 Seconds Again": {
-                  "Type": "Wait",
-                  "Seconds": 60,
                   "Next": "Update EGIS Data - Summary"
                 },
                 "Update EGIS Data - Summary": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+                    "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "update_summary_data"
@@ -1187,29 +1219,11 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
       "MaxConcurrency": 15,
-      "Next": "EGIS Update Failure Detection",
       "ResultSelector": {
         "error.$": "$[?(@.error)]"
       }
     },
-    "EGIS Update Failure Detection": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.error[0]",
-          "IsPresent": true,
-          "Next": "Non-Breaking EGIS Update Memory Failure"
-        }
-      ],
-      "Default": "Success"
-    },
-    "Non-Breaking EGIS Update Memory Failure": {
-      "Type": "Fail",
-      "Error": "Non-Breaking EGIS Update Memory Failure"
-    },
-    "Success": {
-      "Type": "Succeed"
-    }
+    "End": true
   },
   "TimeoutSeconds": 3600
 }
@@ -1227,6 +1241,7 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   "detail-type": ["Step Functions Execution Status Change"],
   "detail": {
     "status": ["FAILED", "TIMED_OUT"],
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
@@ -1263,6 +1278,10 @@ output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
 
+output "update_egis_data" {
+  value = aws_lambda_function.viz_update_egis_data
+}
+
 output "publish_service" {
   value = aws_lambda_function.viz_publish_service
 }
@@ -1285,8 +1304,4 @@ output "optimize_rasters" {
 
 output "raster_processing" {
   value = module.image_based_lambdas.raster_processing
-}
-
-output "update_egis_data" {
-  value = module.image_based_lambdas.update_egis_data
 }
