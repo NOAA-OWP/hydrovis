@@ -641,7 +641,6 @@ module "image_based_lambdas" {
   egis_db_name = var.egis_db_name
   egis_db_host = var.egis_db_host
   egis_db_user_secret_string = var.egis_db_user_secret_string
-  cache_bucket = var.viz_cache_bucket
 }
 
 ########################################################################################################################################
@@ -1068,7 +1067,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Parallelize Summaries",
+            "Next": "Parallelize Summaries"
           },
           "Parallelize Summaries": {
             "Type": "Map",
@@ -1205,9 +1204,9 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       "MaxConcurrency": 15,
       "ResultSelector": {
         "error.$": "$[?(@.error)]"
-      }
-    },
-    "End": true
+      },
+      "End": true
+    }
   },
   "TimeoutSeconds": 3600
 }
@@ -1221,12 +1220,11 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
 
   event_pattern = <<EOF
   {
-  "source": ["aws.states"],
-  "detail-type": ["Step Functions Execution Status Change"],
-  "detail": {
-    "status": ["FAILED", "TIMED_OUT"],
-    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
-    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
+    "source": ["aws.states"],
+    "detail-type": ["Step Functions Execution Status Change"],
+    "detail": {
+      "status": ["FAILED", "TIMED_OUT"],
+      "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
   EOF
