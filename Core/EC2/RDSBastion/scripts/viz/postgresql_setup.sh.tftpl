@@ -56,7 +56,7 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
 
 # Cleaning up Viz DB
 echo "Cleaning up Viz DB..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS archive CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS archive CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS external CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
 
 # Resoring Viz DB Schema Dumps
 echo "Setting up admin schema in the VIZ DB..."
@@ -78,6 +78,11 @@ echo "Setting up derived schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_derived.dump" "$${HOME}/vizDB_derived.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_derived.dump"
 rm "$${HOME}/vizDB_derived.dump"
+
+echo "Setting up external schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_external.dump" "$${HOME}/vizDB_external.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_external.dump"
+rm "$${HOME}/vizDB_external.dump"
 
 echo "Setting up ingest schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_ingest.dump" "$${HOME}/vizDB_ingest.dump"
