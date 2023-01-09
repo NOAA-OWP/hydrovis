@@ -641,7 +641,6 @@ module "image_based_lambdas" {
   egis_db_name = var.egis_db_name
   egis_db_host = var.egis_db_host
   egis_db_user_secret_string = var.egis_db_user_secret_string
-  cache_bucket = var.viz_cache_bucket
 }
 
 ########################################################################################################################################
