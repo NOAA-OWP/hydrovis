@@ -684,7 +684,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Input Data Files",
@@ -713,6 +714,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "IntervalSeconds": 120,
                       "MaxAttempts": 20,
                       "Comment": "Missing S3 File"
+                    },
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ]
                 }
@@ -749,7 +761,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "End": true,
@@ -794,7 +807,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "End": true
@@ -856,7 +870,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Map",
@@ -885,7 +900,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
-                      "BackoffRate": 2
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ],
                   "End": true
@@ -929,7 +945,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
-                      "BackoffRate": 2
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
                     }
                   ],
                   "Next": "HUC Processing Map"
@@ -1004,7 +1021,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Wait 30 Seconds",
@@ -1034,32 +1052,104 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "ResultPath": null,
-            "Next": "Summary vs. Non-Summary Services",
+            "Next": "Parallelize Summaries",
             "Catch": [
               {
                 "ErrorEquals": [
                   "Runtime.ExitError"
                 ],
-                "Next": "Summary vs. Non-Summary Services",
+                "Next": "Parallelize Summaries",
                 "ResultPath": "$.error",
                 "Comment": "Memory Failure"
               }
             ]
           },
-          "Summary vs. Non-Summary Services": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.service.postprocess_summary",
-                "IsNull": true,
-                "Next": "Auto vs. Past Event Run"
+          "Parallelize Summaries": {
+            "Type": "Map",
+            "Next": "Auto vs. Past Event Run",
+            "Iterator": {
+              "StartAt": "Postprocess SQL - Summary",
+              "States": {
+                "Postprocess SQL - Summary": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
+                    "Payload": {
+                      "args": {
+                        "map.$": "$",
+                        "map_item.$": "$.postprocess_summary",
+                        "reference_time.$": "$.reference_time",
+                        "sql_rename_dict.$": "$.sql_rename_dict"
+                      },
+                      "step": "summaries",
+                      "folder": "summaries"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "Next": "Wait 30 Seconds Again"
+                },
+                "Wait 30 Seconds Again": {
+                  "Type": "Wait",
+                  "Seconds": 30,
+                  "Next": "Update EGIS Data - Summary"
+                },
+                "Update EGIS Data - Summary": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "update_summary_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
               }
             ],
-            "Default": "Postprocess SQL - Summary"
+            "ResultPath": null,
+                  "End": true
+                }
+              }
+            },
+            "ItemsPath": "$.service.postprocess_summary",
+            "Parameters": {
+              "service.$": "$.service",
+              "map_item.$": "$.map_item",
+              "reference_time.$": "$.reference_time",
+              "job_type.$": "$.job_type",
+              "sql_rename_dict.$": "$.sql_rename_dict",
+              "postprocess_summary.$": "$$.Map.Item.Value"
+            },
+            "ResultPath": null
           },
           "Auto vs. Past Event Run": {
             "Type": "Choice",
@@ -1071,77 +1161,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "Default": "Publish Service"
-          },
-          "Postprocess SQL - Summary": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
-              "Payload": {
-                "args": {
-                  "map.$": "$",
-                  "map_item.$": "$.service.postprocess_summary",
-                  "reference_time.$": "$.reference_time",
-                  "sql_rename_dict.$": "$.sql_rename_dict"
-                },
-                "step": "summaries",
-                "folder": "summaries"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
-            "Next": "Wait 30 Seconds Again",
-            "ResultPath": null
-          },
-          "Wait 30 Seconds Again": {
-            "Type": "Wait",
-            "Seconds": 30,
-            "Next": "Update EGIS Data - Summary"
-          },
-          "Update EGIS Data - Summary": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
-              "Payload": {
-                "args.$": "$",
-                "step": "update_summary_data"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2
-              }
-            ],
-            "ResultPath": null,
-            "Next": "Auto vs. Past Event Run",
-            "Catch": [
-              {
-                "ErrorEquals": [
-                  "Runtime.ExitError"
-                ],
-                "Comment": "Memory Failure",
-                "Next": "Auto vs. Past Event Run",
-                "ResultPath": "$.error"
-              }
-            ]
           },
           "Publish Service": {
             "Type": "Task",
@@ -1162,7 +1181,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 ],
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
-                "BackoffRate": 2
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
               }
             ],
             "Next": "Pass",
