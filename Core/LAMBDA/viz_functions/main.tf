@@ -517,58 +517,6 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 }
 
 #############################
-##    Update EGIS Data     ##
-#############################
-
-resource "aws_lambda_function" "viz_update_egis_data" {
-  function_name = "viz_update_egis_data_${var.environment}"
-  description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
-  memory_size   = 128
-  timeout       = 900
-  vpc_config {
-    security_group_ids = var.db_lambda_security_groups
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      EGIS_DB_DATABASE    = var.egis_db_name
-      EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      HYDROVIS_ENV        = var.environment
-      CACHE_BUCKET        = var.viz_cache_bucket
-    }
-  }
-  filename         = "${path.module}/viz_update_egis_data.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_update_egis_data.zip")
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.pandas_layer,
-    var.psycopg2_sqlalchemy_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "viz_update_egis_data_${var.environment}"
-  }
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destinations" {
-  function_name          = resource.aws_lambda_function.viz_update_egis_data.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
-}
-
-#############################
 ##     Publish Service     ##
 #############################
 
@@ -641,6 +589,7 @@ module "image_based_lambdas" {
   egis_db_name = var.egis_db_name
   egis_db_host = var.egis_db_host
   egis_db_user_secret_string = var.egis_db_user_secret_string
+  cache_bucket = var.viz_cache_bucket
 }
 
 ########################################################################################################################################
@@ -954,53 +903,38 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "HUC Processing Map": {
                   "Type": "Map",
                   "Iterator": {
-                    "StartAt": "HUC Processing",
+                    "StartAt": "FIM HUC Processing State Machine",
                     "States": {
-                      "HUC Processing": {
+                      "FIM HUC Processing State Machine": {
                         "Type": "Task",
-                        "Resource": "arn:aws:states:::lambda:invoke",
-                        "OutputPath": "$.Payload",
+                        "Resource": "arn:aws:states:::states:startExecution.sync:2",
                         "Parameters": {
-                          "Payload.$": "$",
-                          "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
-                        },
-                        "Retry": [
-                          {
-                            "ErrorEquals": [
-                              "Lambda.ServiceException",
-                              "Lambda.AWSLambdaException",
-                              "Lambda.SdkClientException",
-                              "Lambda.TooManyRequestsException"
-                            ],
-                            "IntervalSeconds": 2,
-                            "MaxAttempts": 6,
-                            "BackoffRate": 2
+                          "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
+                          "Name.$": "$.state_machine_name",
+                          "Input": {
+                            "huc8s_to_process.$": "$.huc8s_to_process",
+                            "s3_payload_json.$": "$.s3_payload_json",
+                            "data_bucket.$": "$.data_bucket",
+                            "data_prefix.$": "$.data_prefix",
+                            "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
-                        ],
+                        },
                         "End": true
                       }
-                    },
-                    "ProcessorConfig": {
-                      "Mode": "DISTRIBUTED",
-                      "ExecutionType": "EXPRESS"
                     }
                   },
+                  "ItemsPath": "$.huc8s_to_process",
                   "ResultPath": null,
-                  "InputPath": "$.body",
                   "End": true,
-                  "Label": "HUCProcessingMap",
-                  "ItemReader": {
-                    "Resource": "arn:aws:states:::s3:getObject",
-                    "ReaderConfig": {
-                      "InputType": "CSV",
-                      "CSVHeaderLocation": "FIRST_ROW"
-                    },
-                    "Parameters": {
-                      "Bucket.$": "$.huc_processing_bucket",
-                      "Key.$": "$.huc_processing_key"
-                    }
+                  "InputPath": "$.body",
+                  "Parameters": {
+                    "huc8s_to_process.$": "$$.Map.Item.Value",
+                    "s3_payload_json.$": "$.s3_payload_json",
+                    "data_bucket.$": "$.data_bucket",
+                    "data_prefix.$": "$.data_prefix",
+                    "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
                   },
-                  "MaxConcurrency": 400
+                  "MaxConcurrency": 4
                 }
               }
             },
@@ -1040,14 +974,19 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Update EGIS Data - Service",
+            "Next": "Wait 30 Seconds",
             "ResultPath": null
+          },
+          "Wait 30 Seconds": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
@@ -1067,7 +1006,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Parallelize Summaries"
+            "Next": "Parallelize Summaries",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "Runtime.ExitError"
+                ],
+                "Next": "Parallelize Summaries",
+                "ResultPath": "$.error",
+                "Comment": "Memory Failure"
+              }
+            ]
           },
           "Parallelize Summaries": {
             "Type": "Map",
@@ -1105,13 +1054,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "ResultPath": null,
+                  "Next": "Wait 30 Seconds Again"
+                },
+                "Wait 30 Seconds Again": {
+                  "Type": "Wait",
+                  "Seconds": 30,
                   "Next": "Update EGIS Data - Summary"
                 },
                 "Update EGIS Data - Summary": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+                    "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
                     "Payload": {
                       "args.$": "$",
                       "step": "update_summary_data"
@@ -1202,13 +1156,83 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
       "MaxConcurrency": 15,
+      "Next": "EGIS Update Failure Detection",
       "ResultSelector": {
         "error.$": "$[?(@.error)]"
-      },
-      "End": true
+      }
+    },
+    "EGIS Update Failure Detection": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.error[0]",
+          "IsPresent": true,
+          "Next": "Non-Breaking EGIS Update Memory Failure"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Non-Breaking EGIS Update Memory Failure": {
+      "Type": "Fail",
+      "Error": "Non-Breaking EGIS Update Memory Failure"
+    },
+    "Success": {
+      "Type": "Succeed"
     }
   },
   "TimeoutSeconds": 3600
+}
+  EOF
+}
+
+resource "aws_sfn_state_machine" "huc_processing_step_function" {
+  name     = "huc_processing_${var.environment}"
+  role_arn = var.lambda_role
+
+  definition = <<EOF
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "HUC 8 Map",
+  "States": {
+    "HUC 8 Map": {
+      "Type": "Map",
+      "End": true,
+      "Iterator": {
+        "StartAt": "HUC Processing",
+        "States": {
+          "HUC Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
+            },
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 3,
+                "Comment": "Handle insufficient capacity"
+              }
+            ]
+          }
+        }
+      },
+      "MaxConcurrency": 40,
+      "ItemsPath": "$.huc8s_to_process",
+      "Parameters": {
+        "huc.$": "$$.Map.Item.Value",
+        "s3_payload_json.$": "$.s3_payload_json",
+        "data_prefix.$": "$.data_prefix",
+        "data_bucket.$": "$.data_bucket"
+      }
+    }
+  }
 }
   EOF
 }
@@ -1220,11 +1244,11 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
 
   event_pattern = <<EOF
   {
-    "source": ["aws.states"],
-    "detail-type": ["Step Functions Execution Status Change"],
-    "detail": {
-      "status": ["FAILED", "TIMED_OUT"],
-      "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
+  "source": ["aws.states"],
+  "detail-type": ["Step Functions Execution Status Change"],
+  "detail": {
+    "status": ["FAILED", "TIMED_OUT"],
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
     }
   }
   EOF
@@ -1260,10 +1284,6 @@ output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
 
-output "update_egis_data" {
-  value = aws_lambda_function.viz_update_egis_data
-}
-
 output "publish_service" {
   value = aws_lambda_function.viz_publish_service
 }
@@ -1286,4 +1306,8 @@ output "optimize_rasters" {
 
 output "raster_processing" {
   value = module.image_based_lambdas.raster_processing
+}
+
+output "update_egis_data" {
+  value = module.image_based_lambdas.update_egis_data
 }
