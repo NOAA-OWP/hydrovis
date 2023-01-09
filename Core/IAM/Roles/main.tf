@@ -139,35 +139,6 @@ resource "aws_iam_role_policy_attachment" "hydrovis-viz-proc-pipeline-lambda-eve
   policy_arn = "arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess"
 }
 
-# hydrovis-rds-s3-export Role
-resource "aws_iam_role" "hydrovis-rds-s3-export" {
-  name = "hydrovis-rds-s3-export"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "rds.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "hydrovis-rds-s3-export" {
-  name   = "hydrovis-rds-s3-export"
-  role   = aws_iam_role.hydrovis-rds-s3-export.id
-  policy = templatefile("${path.module}/hydrovis-rds-s3-export.json.tftpl", {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
-  })
-}
-
 
 # hydrovis-hml-ingest-role Role
 resource "aws_iam_role" "hydrovis-hml-ingest-role" {
@@ -187,7 +158,6 @@ resource "aws_iam_role" "hydrovis-hml-ingest-role" {
     ]
   })
 }
-
 
 resource "aws_iam_instance_profile" "hydrovis-hml-ingest-role" {
   name = "hydrovis-${var.environment}-hml-ingest-role"
@@ -265,10 +235,6 @@ output "profile_HydrovisESRISSMDeploy" {
 
 output "role_hydrovis-viz-proc-pipeline-lambda" {
   value = aws_iam_role.hydrovis-viz-proc-pipeline-lambda
-}
-
-output "role_hydrovis-rds-s3-export" {
-  value = aws_iam_role.hydrovis-rds-s3-export
 }
 
 output "role_HydrovisSSMInstanceProfileRole" {
