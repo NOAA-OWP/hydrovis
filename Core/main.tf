@@ -125,6 +125,7 @@ module "s3" {
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
+      module.iam-roles.role_hydrovis-rds-s3-export.arn,
       module.iam-users.user_FIMServiceAccount.arn
     ]
     "hml-backup" = [
@@ -249,6 +250,7 @@ module "rds-viz" {
   rds_kms_key                       = module.kms.key_arns["rds-viz"]
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
   viz_db_name                       = local.env.viz_db_name
+  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
 }
 
 # Import EGIS DB
