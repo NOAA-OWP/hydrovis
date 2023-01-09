@@ -29,8 +29,8 @@ aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOM
 psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -f "$${HOME}/postgis_setup.sql"
 rm "$${HOME}/postgis_setup.sql"
 
-# Cleaning up EGIS DB
-echo "Cleaning up EGIS DB..."
+# Cleaning up EGIS DB - Part 1
+echo "Drop EGIS Services Schema"
 psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
 
 echo "Setting up services schema in the EGIS DB..."
@@ -38,23 +38,29 @@ aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_services.d
 pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_services.dump"
 rm "$${HOME}/egisDB_services.dump"
 
+# Setting up Viz DB
 export PGPASSWORD=$${VIZDBPASSWORD}
 
-# Adding postgis extension to Viz DB
+# Adding postgis extension and aws export extentions to Viz DB
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -f "$${HOME}/postgis_setup.sql"
 rm "$${HOME}/postgis_setup.sql"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
 
 # Adding users to Viz DB
 echo "Adding viz proc user..."
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_ADMIN_RW_USER};"
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_ADMIN_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 1000 ENCRYPTED PASSWORD '$${VIZ_PROC_ADMIN_RW_PASS}';"
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_ADMIN_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '$${VIZ_PROC_ADMIN_RW_PASS}';"
 
 echo "Adding viz dev user..."
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_DEV_RW_USER};"
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_DEV_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '$${VIZ_PROC_DEV_RW_PASS}';"
 
-# Cleaning up Viz DB
+# Add permissions for aws_s3 extension to viz user.
+echo "Adding permissions to aws_s3 extension for viz user..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "GRANT USAGE ON schema aws_s3 TO $${VIZ_PROC_ADMIN_RW_USER}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO $${VIZ_PROC_ADMIN_RW_USER};"
+
+# Drop Viz DB Schemas
 echo "Cleaning up Viz DB..."
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS archive CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
 
@@ -101,10 +107,25 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
 
-# Setting up EGIS DB
+# Setting up EGIS DB - Part 2
 export PGPASSWORD=$${EGISDBPASSWORD}
 
-# Cleaning up EGIS DB
+# Adding foreign data wrapper-linked schema to the viz processing publish, for the transfer of published data.
+echo "Setting up vizprc_publish schema in the EGIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" \
+    -tAc "DROP SCHEMA IF EXISTS vizprc_publish;
+            CREATE SCHEMA IF NOT EXISTS vizprc_publish;
+            GRANT ALL ON SCHEMA vizprc_publish TO $${EGISDBUSERNAME};
+            GRANT ALL ON ALL TABLES IN SCHEMA vizprc_publish TO $${EGISDBUSERNAME};
+            ALTER DEFAULT PRIVILEGES IN SCHEMA vizprc_publish GRANT all ON TABLES TO $${EGISDBUSERNAME};
+
+            CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+            DROP SERVER IF EXISTS vizprc_db CASCADE;
+            CREATE SERVER vizprc_db FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${VIZDBHOST}', dbname '$${VIZDBNAME}', port '$${VIZDBPORT}');
+            CREATE USER MAPPING FOR $${EGISDBUSERNAME} SERVER vizprc_db OPTIONS (user '$${VIZ_PROC_ADMIN_RW_USER}', password '$${VIZ_PROC_ADMIN_RW_PASS}');
+            IMPORT FOREIGN SCHEMA publish FROM SERVER vizprc_db INTO vizprc_publish;"
+
+# Drop EGIS Reference Schema
 echo "Cleaning up EGIS DB..."
 psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
 
