@@ -5,18 +5,22 @@ from datetime import datetime, timedelta
 
 ###################################
 def lambda_handler(event, context):
-    hydrovis_env = os.environ['HYDROVIS_ENV']
     cache_bucket = os.environ['CACHE_BUCKET']
     step = event['step']
-    table = event['args']['map_item']
-    
+    job_type = event['args']['job_type']
+    reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
+    service_server = event['args']['service']['egis_server']
+
     # Don't want to run for reference services because they already exist in the EGIS DB
     if event['args']['service']['configuration'] == "reference":
         return
     
-    job_type = event['args']['job_type']
-    reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
-    service_server = event['args']['service']['egis_server']
+    if step == "update_summary_data":
+        table = event['args']['service']['postprocess_summary']
+    else:
+        table = event['args']['map_item']
+        if table == 'raster_metadata':
+            table = event['args']['service']['service']
     
     ################### Vector Services ###################
     if service_server == "server":
@@ -127,11 +131,23 @@ def publish_db_table(db, origin_table, dest_table, stage=True, add_oid=True, add
         if add_geom_index:
             print(f"---> Adding an spatial index to the {dest_table}")
             cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+        
+        ############## TEMP FIX FOR STRM_ORDER INT ISSUE ##############
+        sql = f"""SELECT count(*)
+                 FROM information_schema.columns
+                 WHERE table_schema = 'services' AND table_name = '{dest_table.split('.')[1]}' AND column_name = 'strm_order'
+              """
+        cur.execute(sql)
+        f = cur.fetchone()[0]
+        if f == 1:
+            cur.execute(f'ALTER TABLE {dest_table} ALTER COLUMN strm_order TYPE int;')
+        
+        ################################################################
         if stage:
             print(f"---> Renaming {dest_table} to {dest_final_table}")
             cur.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
             cur.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
-    
+        
         db_connection.commit()
         
 ###################################
