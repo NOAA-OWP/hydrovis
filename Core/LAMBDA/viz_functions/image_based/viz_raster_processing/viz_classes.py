@@ -49,22 +49,22 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         return df
     
     ###################################
-    def load_df_into_db(self, table_name, df):
+    def load_df_into_db(self, table_name, df, drop_first=True):
         import pandas as pd
         schema = table_name.split(".")[0]
         table = table_name.split(".")[-1]
         db_engine = self.get_db_engine()
-        print(table_name)
-        print(f"---> Dropping {table_name} if it exists")
-        db_engine.execute(f'DROP TABLE IF EXISTS {table_name};')  # Drop the stage table if it exists
-        print("---> Getting sql to create table")
-        create_table_statement = pd.io.sql.get_schema(df, table_name)
-        replace_values = {'"geom" TEXT': '"geom" GEOMETRY', "REAL": "DOUBLE PRECISION"}  # Correct data types
-        for a, b in replace_values.items():
-            create_table_statement = create_table_statement.replace(a, b)
-        create_table_statement = create_table_statement.replace(f'"{table_name}"', table_name)
-        print(f"---> Creating {table_name}")
-        db_engine.execute(create_table_statement)  # Create the new empty stage table
+        if drop_first:
+            print(f"---> Dropping {table_name} if it exists")
+            db_engine.execute(f'DROP TABLE IF EXISTS {table_name};')  # Drop the stage table if it exists
+            print("---> Getting sql to create table")
+            create_table_statement = pd.io.sql.get_schema(df, table_name)
+            replace_values = {'"geom" TEXT': '"geom" GEOMETRY', "REAL": "DOUBLE PRECISION"}  # Correct data types
+            for a, b in replace_values.items():
+                create_table_statement = create_table_statement.replace(a, b)
+            create_table_statement = create_table_statement.replace(f'"{table_name}"', table_name)
+            print(f"---> Creating {table_name}")
+            db_engine.execute(create_table_statement)  # Create the new empty stage table
         print(f"---> Adding data to {table_name}")
         df.to_sql(con=db_engine, schema=schema, name=table, index=False, if_exists='append')
         db_engine.dispose()
@@ -96,9 +96,29 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         
         db_engine.dispose()
         return df
+
+    ###################################
+    def get_est_row_count_in_table(self, table):
+        print(f"Getting estimated total rows in {table}.")
+        with self.get_db_connection() as db_connection:
+            try:
+                cur = db_connection.cursor()
+                sql = f"""
+                SELECT (CASE WHEN c.reltuples < 0 THEN NULL -- never vacuumed
+                            WHEN c.relpages = 0 THEN float8 '0' -- empty table
+                            ELSE c.reltuples / c.relpages END
+                    * (pg_catalog.pg_relation_size(c.oid) / pg_catalog.current_setting('block_size')::int))::bigint
+                FROM   pg_catalog.pg_class c
+                WHERE  c.oid = '{table}'::regclass; -- schema-qualified table here
+                """
+                cur.execute(sql)
+                rows = cur.fetchone()[0]
+            except Exception as e:
+                raise e
+        return rows
     
     ###################################
-    def move_data_to_another_db(self, dest_db_type, origin_table, dest_table, stage=True, add_oid=True, add_geom_index=True):
+    def move_data_to_another_db(self, dest_db_type, origin_table, dest_table, stage=True, add_oid=True, add_geom_index=True, chunk_size=200000):
         import pandas as pd
         origin_engine = self.get_db_engine()
         dest_db = self.__class__(dest_db_type)
@@ -107,10 +127,17 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
             dest_final_table = dest_table
             dest_final_table_name = dest_final_table.split(".")[1]
             dest_table = f"{dest_table}_stage"
+        total_rows = self.get_est_row_count_in_table(origin_table) + 50000 #adding 50000 for buffer since this is estimated
         print(f"---> Reading {origin_table} from the {self.type} db")
-        df = pd.read_sql(f'SELECT * FROM {origin_table};', origin_engine)  # Read from the newly created table
-        print(f"---> Loading {origin_table} into {dest_table} in the {dest_db.type} db")
-        dest_db.load_df_into_db(dest_table, df)
+        dest_engine.execute(f'DROP TABLE IF EXISTS {dest_table};')  # Drop the destination table if it exists
+        
+        # Chunk the copy into multiple parts if necessary
+        for x in range(0, total_rows, chunk_size):
+            print(f"Copying Chunk: LIMIT {chunk_size} OFFSET {x}")
+            df = pd.read_sql(f'SELECT * FROM {origin_table} LIMIT {chunk_size} OFFSET {x};', origin_engine)  # Read from the newly created table
+            drop_first = True if x == 0 else False
+            dest_db.load_df_into_db(dest_table, df, drop_first=drop_first)
+        
         if add_oid:
             print(f"---> Adding an OID to the {dest_table}")
             dest_engine.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
@@ -173,6 +200,7 @@ class s3_file:
                 prefix = f"common/data/model/com/nwm/prod/nwm.{date}/{configuration_name}/"
                 
             return prefix
+            
         # Get all S3 files that match the bucket / prefix
         def list_s3_files(bucket, prefix):
             files = []

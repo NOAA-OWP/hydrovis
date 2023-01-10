@@ -14,7 +14,7 @@ es_logger = get_elasticsearch_logger()
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
 WRDS_HOST = os.environ["DATASERVICES_HOST"]
-CACHE_DAYS = os.environ.get('CACHE_DAYS') if os.environ.get('CACHE_DAYS') else 7
+CACHE_DAYS = os.environ.get('CACHE_DAYS') if os.environ.get('CACHE_DAYS') else 30
 INITIALIZE_PIPELINE_FUNCTION = os.environ['INITIALIZE_PIPELINE_FUNCTION']
 
 s3 = boto3.client('s3')
@@ -39,10 +39,9 @@ def lambda_handler(event, context):
     df = get_recent_rfc_forecasts()
 
     missing_locations = df[df['latitude'].isna()].index.tolist()
-
-    df_locations = get_location_metadata(missing_locations)
-
-    df.update(df_locations)
+    if missing_locations:
+        df_locations = get_location_metadata(missing_locations)
+        df.update(df_locations)
 
     df_meta = df.drop(columns=['members'])
     meta_key = f"{PROCESSED_OUTPUT_PREFIX}/{reference_date.strftime('%Y%m%d')}/{reference_date.strftime('%H')}_{reference_date.strftime('%M')}_ahps_metadata.csv"
@@ -77,7 +76,6 @@ def get_recent_rfc_forecasts(hour_range=48):
     df = df.drop(['units'], axis=1)
     df = pd.concat([df.drop(['thresholds'], axis=1), df['thresholds'].apply(pd.Series)], axis=1)
 
-    drop_columns = ['parameterCodes', 'type', 'distributor', 'crs', 'link', 'usgs_coordinates', 'coordinates', 'comId', 0]
     rename_columns = {
         "action": "action_threshold",
         "minor": "minor_threshold",
@@ -91,8 +89,17 @@ def get_recent_rfc_forecasts(hour_range=48):
         "usgsName": "usgs_name",
         "nwm_feature_id": "feature_id"
     }
-    df = df.drop(columns=drop_columns)
     df = df.rename(columns=rename_columns)
+
+    columns_to_keep = [
+        "producer", "issuer", "issuedTime", "generationTime", "members", "nws_lid",
+        "usgs_sitecode", "feature_id", "nws_name", "usgs_name", "latitude",
+        "longitude", "units", "action_threshold", "minor_threshold", "moderate_threshold",
+        "major_threshold", "record_threshold" 
+    ]
+
+    drop_columns = [column for column in df.columns if column not in columns_to_keep]
+    df = df.drop(columns=drop_columns)
 
     df.loc[df['feature_id'].isnull(), 'feature_id'] = -9999
     df['feature_id'] = df['feature_id'].astype(int)
@@ -112,7 +119,6 @@ def get_location_metadata(nws_lid_list):
     nws_lid_list = ",".join(nws_lid_list)
 
     location_url = f"http://{WRDS_HOST}/api/location/v3.0/metadata/nws_lid/{nws_lid_list}"
-    print(location_url)
     location_res = requests.get(location_url, verify=False)
     location_res = location_res.json()
 
