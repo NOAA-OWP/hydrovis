@@ -1,0 +1,6 @@
+rioxarray
+netCDF4
+ecmwflibs
+eccodes==1.2.0
+cfgrib
+requests

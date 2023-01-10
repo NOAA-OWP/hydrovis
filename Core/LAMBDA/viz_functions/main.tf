@@ -187,6 +187,21 @@ locals {
 ###############################
 ## WRDS API Handler Function ##
 ###############################
+data "archive_file" "wrds_api_handler_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
+
+  output_path = "${path.module}/viz_wrds_api_handler_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "wrds_api_handler_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_wrds_api_handler.zip"
+  source      = data.archive_file.wrds_api_handler_zip.output_path
+  source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
+}
+
 resource "aws_lambda_function" "viz_wrds_api_handler" {
   function_name = "viz_wrds_api_handler_${var.environment}"
   description   = "Lambda function to ping WRDS API and format outputs for processing."
@@ -204,8 +219,9 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
       INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
-  filename         = "${path.module}/viz_wrds_api_handler.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_wrds_api_handler.zip")
+  s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
+  s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
+  source_code_hash = aws_s3_object.wrds_api_handler_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -252,6 +268,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
 ########################
 ## Max Flows Function ##
 ########################
+data "archive_file" "max_flows_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_max_flows/lambda_function.py"
+
+  output_path = "${path.module}/viz_max_flows_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "max_flows_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_max_flows.zip"
+  source      = data.archive_file.max_flows_zip.output_path
+  source_hash = filemd5(data.archive_file.max_flows_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_max_flows" {
   function_name = "viz_max_flows_${var.environment}"
@@ -266,9 +296,9 @@ resource "aws_lambda_function" "viz_max_flows" {
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
-
-  filename         = "${path.module}/viz_max_flows.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_max_flows.zip")
+  s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
+  s3_key           = aws_s3_object.max_flows_zip_upload.key
+  source_code_hash = aws_s3_object.max_flows_zip_upload.source_hash
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -314,6 +344,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_max_flows" {
 #############################
 ##   Initialize Pipeline   ##
 #############################
+data "archive_file" "initialize_pipeline_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_initialize_pipeline/lambda_function.py"
+
+  output_path = "${path.module}/viz_initialize_pipeline_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "initialize_pipeline_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_initialize_pipeline.zip"
+  source      = data.archive_file.initialize_pipeline_zip.output_path
+  source_hash = filemd5(data.archive_file.initialize_pipeline_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_initialize_pipeline" {
   function_name = "viz_initialize_pipeline_${var.environment}"
@@ -333,8 +377,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_initialize_pipeline.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_initialize_pipeline.zip")
+  s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
+  s3_key           = aws_s3_object.initialize_pipeline_zip_upload.key
+  source_code_hash = aws_s3_object.initialize_pipeline_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -376,6 +421,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_dest
 #############################
 ##   DB Postprocess SQL    ##
 #############################
+data "archive_file" "db_postprocess_sql_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_db_postprocess_sql"
+
+  output_path = "${path.module}/viz_db_postprocess_sql_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_db_postprocess_sql.zip"
+  source      = data.archive_file.db_postprocess_sql_zip.output_path
+  source_hash = filemd5(data.archive_file.db_postprocess_sql_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_db_postprocess_sql" {
   function_name = "viz_db_postprocess_sql_${var.environment}"
@@ -394,8 +453,9 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_db_postprocess_sql.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_db_postprocess_sql.zip")
+  s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
+  s3_key           = aws_s3_object.db_postprocess_sql_zip_upload.key
+  source_code_hash = aws_s3_object.db_postprocess_sql_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -421,6 +481,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_postprocess_sql_desti
 #############################
 ##        DB Ingest        ##
 #############################
+data "archive_file" "db_ingest_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_db_ingest/lambda_function.py"
+
+  output_path = "${path.module}/viz_db_ingest_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "db_ingest_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_db_ingest.zip"
+  source      = data.archive_file.db_ingest_zip.output_path
+  source_hash = filemd5(data.archive_file.db_ingest_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_db_ingest" {
   function_name = "viz_db_ingest_${var.environment}"
@@ -439,8 +513,9 @@ resource "aws_lambda_function" "viz_db_ingest" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_db_ingest.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_db_ingest.zip")
+  s3_bucket        = aws_s3_object.db_ingest_zip_upload.bucket
+  s3_key           = aws_s3_object.db_ingest_zip_upload.key
+  source_code_hash = aws_s3_object.db_ingest_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -468,6 +543,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 #############################
 ##      FIM Data Prep      ##
 #############################
+data "archive_file" "fim_data_prep_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_fim_data_prep"
+
+  output_path = "${path.module}/viz_fim_data_prep_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "fim_data_prep_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_fim_data_prep.zip"
+  source      = data.archive_file.fim_data_prep_zip.output_path
+  source_hash = filemd5(data.archive_file.fim_data_prep_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_fim_data_prep" {
   function_name = "viz_fim_data_prep_${var.environment}"
@@ -490,8 +579,9 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_fim_data_prep.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_fim_data_prep.zip")
+  s3_bucket        = aws_s3_object.fim_data_prep_zip_upload.bucket
+  s3_key           = aws_s3_object.fim_data_prep_zip_upload.key
+  source_code_hash = aws_s3_object.fim_data_prep_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -517,8 +607,89 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 }
 
 #############################
+##    Update EGIS Data     ##
+#############################
+data "archive_file" "update_egis_data_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_update_egis_data/lambda_function.py"
+
+  output_path = "${path.module}/viz_update_egis_data_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "update_egis_data_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_update_egis_data.zip"
+  source      = data.archive_file.update_egis_data_zip.output_path
+  source_hash = filemd5(data.archive_file.update_egis_data_zip.output_path)
+}
+
+resource "aws_lambda_function" "viz_update_egis_data" {
+  function_name = "viz_update_egis_data_${var.environment}"
+  description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
+  memory_size   = 128
+  timeout       = 900
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE     = var.viz_db_name
+      VIZ_DB_HOST         = var.viz_db_host
+      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      HYDROVIS_ENV        = var.environment
+      CACHE_BUCKET        = var.viz_cache_bucket
+    }
+  }
+  s3_bucket        = aws_s3_object.update_egis_data_zip_upload.bucket
+  s3_key           = aws_s3_object.update_egis_data_zip_upload.key
+  source_code_hash = aws_s3_object.update_egis_data_zip_upload.source_hash
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.pandas_layer,
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "viz_update_egis_data_${var.environment}"
+  }
+}
+
+resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destinations" {
+  function_name          = resource.aws_lambda_function.viz_update_egis_data.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["viz_lambda_errors"].arn
+    }
+  }
+}
+
+#############################
 ##     Publish Service     ##
 #############################
+data "archive_file" "publish_service_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_publish_service/lambda_function.py"
+
+  output_path = "${path.module}/viz_publish_service_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "publish_service_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_publish_service.zip"
+  source      = data.archive_file.publish_service_zip.output_path
+  source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_publish_service" {
   function_name = "viz_publish_service_${var.environment}"
@@ -540,8 +711,9 @@ resource "aws_lambda_function" "viz_publish_service" {
       SERVICE_TAG         = local.service_suffix
     }
   }
-  filename         = "${path.module}/viz_publish_service.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_publish_service.zip")
+  s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
+  s3_key           = aws_s3_object.publish_service_zip_upload.key
+  source_code_hash = aws_s3_object.publish_service_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -589,7 +761,6 @@ module "image_based_lambdas" {
   egis_db_name = var.egis_db_name
   egis_db_host = var.egis_db_host
   egis_db_user_secret_string = var.egis_db_user_secret_string
-  cache_bucket = var.viz_cache_bucket
 }
 
 ########################################################################################################################################
@@ -1005,19 +1176,14 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Wait 60 Seconds",
+            "Next": "Update EGIS Data - Service",
             "ResultPath": null
-          },
-          "Wait 60 Seconds": {
-            "Type": "Wait",
-            "Seconds": 60,
-            "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "update_service_data"
@@ -1037,17 +1203,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Parallelize Summaries",
-            "Catch": [
-              {
-                "ErrorEquals": [
-                  "Runtime.ExitError"
-                ],
-                "Next": "Parallelize Summaries",
-                "ResultPath": "$.error",
-                "Comment": "Memory Failure"
-              }
-            ]
+            "Next": "Parallelize Summaries"
           },
           "Parallelize Summaries": {
             "Type": "Map",
@@ -1085,18 +1241,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "ResultPath": null,
-                  "Next": "Wait 60 Seconds Again"
-                },
-                "Wait 60 Seconds Again": {
-                  "Type": "Wait",
-                  "Seconds": 60,
                   "Next": "Update EGIS Data - Summary"
                 },
                 "Update EGIS Data - Summary": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.update_egis_data}",
+                    "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "update_summary_data"
@@ -1187,28 +1338,10 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
       "MaxConcurrency": 15,
-      "Next": "EGIS Update Failure Detection",
       "ResultSelector": {
         "error.$": "$[?(@.error)]"
-      }
-    },
-    "EGIS Update Failure Detection": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.error[0]",
-          "IsPresent": true,
-          "Next": "Non-Breaking EGIS Update Memory Failure"
-        }
-      ],
-      "Default": "Success"
-    },
-    "Non-Breaking EGIS Update Memory Failure": {
-      "Type": "Fail",
-      "Error": "Non-Breaking EGIS Update Memory Failure"
-    },
-    "Success": {
-      "Type": "Succeed"
+      },
+      "End": true
     }
   },
   "TimeoutSeconds": 3600
@@ -1263,6 +1396,10 @@ output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
 
+output "update_egis_data" {
+  value = aws_lambda_function.viz_update_egis_data
+}
+
 output "publish_service" {
   value = aws_lambda_function.viz_publish_service
 }
@@ -1285,8 +1422,4 @@ output "optimize_rasters" {
 
 output "raster_processing" {
   value = module.image_based_lambdas.raster_processing
-}
-
-output "update_egis_data" {
-  value = module.image_based_lambdas.update_egis_data
 }
