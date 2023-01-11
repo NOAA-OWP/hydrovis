@@ -16,11 +16,9 @@ def lambda_handler(event, context):
         return
     
     if step == "update_summary_data":
-        table = event['args']['service']['postprocess_summary']
+        table = event['args']['postprocess_summary']
     else:
         table = event['args']['map_item']
-        if table == 'raster_metadata':
-            table = event['args']['service']['service']
     
     ################### Vector Services ###################
     if service_server == "server":
