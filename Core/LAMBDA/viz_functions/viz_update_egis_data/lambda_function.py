@@ -130,23 +130,13 @@ def publish_db_table(db, origin_table, dest_table, stage=True, add_oid=True, add
             print(f"---> Adding an spatial index to the {dest_table}")
             cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
         
-        ############## TEMP FIX FOR STRM_ORDER INT ISSUE ##############
-        sql = f"""SELECT count(*)
-                 FROM information_schema.columns
-                 WHERE table_schema = 'services' AND table_name = '{dest_table.split('.')[1]}' AND column_name = 'strm_order'
-              """
-        cur.execute(sql)
-        f = cur.fetchone()[0]
-        if f == 1:
-            cur.execute(f'ALTER TABLE {dest_table} ALTER COLUMN strm_order TYPE int;')
+        db_connection.commit()
         
-        ################################################################
         if stage:
             print(f"---> Renaming {dest_table} to {dest_final_table}")
             cur.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
             cur.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
-        
-        db_connection.commit()
+            db_connection.commit()
         
 ###################################
 # This function drops and recreates a foreign data wrapper schema, so that table and column names are all up-to-date.     
