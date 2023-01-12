@@ -16,7 +16,7 @@ terraform {
 
 # See ./sensitive/envs/env.ENV.yaml for list of available variables
 locals {
-  env = yamldecode(file("./sensitive/envs/env.${terraform.workspace}.yaml"))
+  env = yamldecode(file("./sensitive/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
 }
 
 provider "aws" {
