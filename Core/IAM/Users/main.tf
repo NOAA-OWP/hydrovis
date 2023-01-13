@@ -12,11 +12,11 @@ variable "region" {
 
 # WRDS Service Account
 resource "aws_iam_user" "WRDSServiceAccount" {
-  name = "wrds-service-account"
+  name = "wrds-service-account_${var.region}"
 }
 
 resource "aws_iam_user_policy" "WRDSServiceAccount" {
-  name = "wrds-service-account"
+  name = "wrds-service-account_${var.region}"
   user = aws_iam_user.WRDSServiceAccount.name
 
   policy = templatefile("${path.module}/wrds-service-account-policy.json.tftpl", {})
@@ -34,11 +34,11 @@ resource "local_file" "WRDSServiceAccount" {
 
 # FIM Service Account
 resource "aws_iam_user" "FIMServiceAccount" {
-  name = "fim-service-account"
+  name = "fim-service-account_${var.region}"
 }
 
 resource "aws_iam_user_policy" "FIMServiceAccount" {
-  name = "fim-service-account"
+  name = "fim-service-account_${var.region}"
   user = aws_iam_user.FIMServiceAccount.name
 
   policy = templatefile("${path.module}/fim-service-account-policy.json.tftpl", {})
@@ -56,11 +56,11 @@ resource "local_file" "FIMServiceAccount" {
 
 # ISED Service Account
 resource "aws_iam_user" "ISEDServiceAccount" {
-  name = "ised-service-account"
+  name = "ised-service-account_${var.region}"
 }
 
 resource "aws_iam_user_policy" "ISEDServiceAccount" {
-  name = "ised-service-account"
+  name = "ised-service-account_${var.region}"
   user = aws_iam_user.ISEDServiceAccount.name
 
   policy = templatefile("${path.module}/ised-service-account-policy.json.tftpl", {})

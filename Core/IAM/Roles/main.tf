@@ -14,6 +14,10 @@ variable "region" {
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
   custom_suffix    = "hvegis_${var.region}"
+
+  lifecycle {
+    ignore_changes = [custom_suffix]
+  }
 }
 
 # HydrovisESRISSMDeploy Role
