@@ -282,33 +282,38 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis" {
     }
   }
 
-  rule {
-    id       = "${upper(var.name)}ReplicationRoleToTi${upper(var.name)}"
-    priority = 2
-    status   = "Enabled"
-        
-    filter {}
+  # Only create Ti replication rule for regions that have a Ti environment
+  dynamic rule {
+    for_each = var.ti_account_id != "" ? [1] : []
 
-    delete_marker_replication {
-      status = "Disabled"
-    }
+    content {
+      id       = "${upper(var.name)}ReplicationRoleToTi${upper(var.name)}"
+      priority = 2
+      status   = "Enabled"
+          
+      filter {}
 
-    destination {
-      account = "${var.ti_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-ti-${var.name}-${var.region}"
-
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:${var.region}:${var.ti_account_id}:alias/hydrovis-ti-${var.name}-${var.region}-s3"
+      delete_marker_replication {
+        status = "Disabled"
       }
 
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
+      destination {
+        account = "${var.ti_account_id}"
+        bucket     = "arn:aws:s3:::hydrovis-ti-${var.name}-${var.region}"
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
+        encryption_configuration {
+          replica_kms_key_id = "arn:aws:kms:${var.region}:${var.ti_account_id}:alias/hydrovis-ti-${var.name}-${var.region}-s3"
+        }
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          status = "Enabled"
+        }
       }
     }
   }

@@ -186,6 +186,7 @@ module "s3-replication" {
 #   region                             = local.env.region
 #   vpc_ip_block                       = local.env.vpc_ip_block
 #   nwave_ip_block                     = local.env.nwave_ip_block
+#   transit_gateway_id                 = local.env.transit_gateway_id
 #   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
 #   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 # }
