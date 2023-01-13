@@ -947,20 +947,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     "Services Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "Vector vs Raster",
+        "StartAt": "FIM vs Non-FIM Services",
         "States": {
-          "Vector vs Raster": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.service.egis_server",
-                "StringEquals": "image",
-                "Next": "Raster Processing",
-                "Comment": "Raster Processing"
-              }
-            ],
-            "Default": "FIM vs Non-FIM Services"
-          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
@@ -969,6 +957,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "BooleanEquals": true,
                 "Comment": "FIM Processing",
                 "Next": "FIM Processing"
+              }
+            ],
+            "Default": "Vector vs Raster"
+          },
+          "Vector vs Raster": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.service.egis_server",
+                "StringEquals": "image",
+                "Comment": "Raster Processing",
+                "Next": "Raster Processing"
               }
             ],
             "Default": "Postprocess SQL - Service"
@@ -1040,14 +1040,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
           },
           "FIM Processing": {
             "Type": "Map",
-            "Next": "Postprocess SQL - Service",
+            "Next": "Parallelize Summaries",
             "Iterator": {
               "StartAt": "FIM Data Preparation",
               "States": {
                 "FIM Data Preparation": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
-                  "OutputPath": "$.Payload",
                   "Parameters": {
                     "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
                     "Payload": {
@@ -1068,7 +1067,12 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "HUC Processing Map"
+                  "Next": "HUC Processing Map",
+                  "ResultPath": "$.s3_payload",
+                  "ResultSelector": {
+                    "huc_processing_bucket.$": "$.Payload.huc_processing_bucket",
+                    "huc_processing_key.$": "$.Payload.huc_processing_key"
+                  }
                 },
                 "HUC Processing Map": {
                   "Type": "Map",
@@ -1078,7 +1082,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "HUC Processing": {
                         "Type": "Task",
                         "Resource": "arn:aws:states:::lambda:invoke",
-                        "OutputPath": "$.Payload",
                         "Parameters": {
                           "Payload.$": "$",
                           "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
@@ -1105,7 +1108,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                             "Comment": "Issue Reading HAND Datasets"
                           }
                         ],
-                        "End": true
+                        "End": true,
+                        "ResultPath": null
                       }
                     },
                     "ProcessorConfig": {
@@ -1114,8 +1118,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   },
                   "ResultPath": null,
-                  "InputPath": "$.body",
-                  "End": true,
                   "Label": "HUCProcessingMap",
                   "ItemReader": {
                     "Resource": "arn:aws:states:::s3:getObject",
@@ -1124,8 +1126,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "CSVHeaderLocation": "FIRST_ROW"
                     },
                     "Parameters": {
-                      "Bucket.$": "$.huc_processing_bucket",
-                      "Key.$": "$.huc_processing_key"
+                      "Bucket.$": "$.s3_payload.huc_processing_bucket",
+                      "Key.$": "$.s3_payload.huc_processing_key"
                     }
                   },
                   "ResultWriter": {
@@ -1135,13 +1137,74 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "Prefix": "logs/viz_pipeline_ti/"
                     }
                   },
-                  "MaxConcurrency": 250
+                  "MaxConcurrency": 250,
+                  "Next": "Postprocess SQL - FIM Config"
+                },
+                "Postprocess SQL - FIM Config": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
+                    "Payload": {
+                      "args": {
+                        "map.$": "$",
+                        "map_item.$": "$.fim_config",
+                        "reference_time.$": "$.reference_time",
+                        "sql_rename_dict.$": "$.sql_rename_dict"
+                      },
+                      "step": "fim_config",
+                      "folder": "services"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "Next": "Update EGIS Data - FIM Config"
+                },
+                "Update EGIS Data - FIM Config": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "update_fim_config_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "End": true
                 }
               }
             },
             "ItemsPath": "$.service.fim_configs",
             "Parameters": {
               "fim_config.$": "$$.Map.Item.Value",
+              "map_item.$": "$$.Map.Item.Value",
+              "job_type.$": "$.job_type",
               "service.$": "$.service",
               "reference_time.$": "$.reference_time",
               "sql_rename_dict.$": "$.sql_rename_dict"
@@ -1206,7 +1269,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
           },
           "Parallelize Summaries": {
             "Type": "Map",
-            "Next": "Auto vs. Past Event Run",
+            "Next": "Update EGIS Data - Unstage",
             "Iterator": {
               "StartAt": "Postprocess SQL - Summary",
               "States": {
@@ -1280,6 +1343,32 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               "postprocess_summary.$": "$$.Map.Item.Value"
             },
             "ResultPath": null
+          },
+          "Update EGIS Data - Unstage": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+              "Payload": {
+                "args.$": "$",
+                "step": "unstage"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
+              }
+            ],
+            "ResultPath": null,
+            "Next": "Auto vs. Past Event Run"
           },
           "Auto vs. Past Event Run": {
             "Type": "Choice",

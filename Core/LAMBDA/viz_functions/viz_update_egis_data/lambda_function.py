@@ -20,27 +20,50 @@ def lambda_handler(event, context):
     else:
         table = event['args']['map_item']
     
+    ################### Unstage EGIS Tables ###################
+    if step == "unstage":
+        egis_db = database(db_type="egis")
+        
+        if event['args']['service']['fim_configs']:
+            dest_tables = event['args']['service']['fim_configs'] + event['args']['service']['postprocess_summary']
+        else:
+            dest_tables = [event['args']['service']['service']] + event['args']['service']['postprocess_summary']
+            
+        dest_tables = [f"services.{table}" for table in dest_tables]
+            
+        unstage_db_tables(egis_db, dest_tables)
+        
+        
     ################### Vector Services ###################
-    if service_server == "server":
+    elif service_server == "server":
         viz_db = database(db_type="viz")
         egis_db = database(db_type="egis")
         
         if job_type == 'auto':
             viz_schema = 'publish'
+            
+            # Get columns of the table
+            with viz_db.get_db_connection() as connection:
+                with connection.cursor() as curs:
+                    curs.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+                    column_names = [desc[0] for desc in curs.description]
+                    columns = ', '.join(column_names)
+            
             # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
-                publish_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", stage=True, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
                 egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
             except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                publish_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", stage=True, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
                 egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
-            cached_file = cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket)
+            
+            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
             cleanup_cache(cache_bucket, table, reference_time)
 
         elif job_type == 'past_event':
             viz_schema = 'archive'
-            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket)
+            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
    
    ################### Image Services ###################
     else:
@@ -49,12 +72,20 @@ def lambda_handler(event, context):
             viz_db = database(db_type="viz")
             egis_db = database(db_type="egis")
             service_name = event['args']['service']['service']
+            
+            # Get columns of the table
+            with viz_db.get_db_connection() as connection:
+                with connection.cursor() as curs:
+                    curs.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+                    column_names = [desc[0] for desc in curs.description]
+                    columns = ', '.join(column_names)
+            
             # Copy the 1-row metadata table to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
-                publish_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", stage=True, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
             except Exception as e:  # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                publish_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", stage=True, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
             
         s3 = boto3.resource('s3')
         workspace_rasters = event['args']['output_rasters']
@@ -95,33 +126,29 @@ def lambda_handler(event, context):
 
 ###################################
 # This function uses the aws_s3 postgresql extension to directly write csv files of the specified table to S3. Geometry is stored in WKT.
-def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, retention_days=30):
+def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, columns, retention_days=30):
     ref_day = f"{reference_time.strftime('%Y%m%d')}"
     ref_hour = f"{reference_time.strftime('%H%M')}"
     s3_key = f"viz_cache/{ref_day}/{ref_hour}/{table}.csv"
     with db.get_db_connection() as connection:
         with connection.cursor() as curs:
-            curs.execute(f"SELECT * FROM {schema}.{table} LIMIT 1")
-            column_names = [desc[0] for desc in curs.description]
-            columns_str = ', '.join(column_names).replace('geom', 'ST_AsText(geom) AS geom')
-            curs.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns_str} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','us-east-1'), options :='format csv , HEADER true');")
+            columns = columns.replace('geom', 'ST_AsText(geom) AS geom')
+            curs.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','us-east-1'), options :='format csv , HEADER true');")
             connection.commit()
     print(f"---> Wrote csv cache data from {schema}.{table} to {cache_bucket}/{s3_key}")
     return s3_key
 
 ###################################
-# This function copies a publish data table within a db (or across databases using foreign data wrapper)
-def publish_db_table(db, origin_table, dest_table, stage=True, add_oid=True, add_geom_index=True):
+# This function stages a publish data table within a db (or across databases using foreign data wrapper)
+def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True):
     
-    if stage:
-        dest_final_table = dest_table
-        dest_final_table_name = dest_final_table.split(".")[1]
-        dest_table = f"{dest_table}_stage"
+    dest_table = f"{dest_table}_stage"
     
     with db.get_db_connection() as db_connection:
         cur = db_connection.cursor()
         cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
-        cur.execute(f"SELECT * INTO {dest_table} FROM {origin_table};")
+        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+        print(f"SELECT * INTO {dest_table} FROM {origin_table};")
     
         if add_oid:
             print(f"---> Adding an OID to the {dest_table}")
@@ -131,12 +158,23 @@ def publish_db_table(db, origin_table, dest_table, stage=True, add_oid=True, add
             cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
         
         db_connection.commit()
+
+###################################
+# This function unstages a list of publish data tables within a db (or across databases using foreign data wrapper)
+def unstage_db_tables(db, dest_tables):
+    
+    with db.get_db_connection() as db_connection:
+        cur = db_connection.cursor()
         
-        if stage:
+        for dest_table in dest_tables:
+            dest_final_table = dest_table
+            dest_final_table_name = dest_final_table.split(".")[1]
+            dest_table = f"{dest_table}_stage"
+            
             print(f"---> Renaming {dest_table} to {dest_final_table}")
             cur.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
             cur.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
-            db_connection.commit()
+        db_connection.commit()
         
 ###################################
 # This function drops and recreates a foreign data wrapper schema, so that table and column names are all up-to-date.     

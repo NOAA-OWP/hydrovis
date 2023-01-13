@@ -103,10 +103,8 @@ def lambda_handler(event, context):
     os.remove(tmp_csv)
     
     return_object = {
-        'body': {
-            'huc_processing_key': csv_key,
-            'huc_processing_bucket': PROCESSED_OUTPUT_BUCKET
-        }
+        'huc_processing_key': csv_key,
+        'huc_processing_bucket': PROCESSED_OUTPUT_BUCKET
     }
     
     return return_object
