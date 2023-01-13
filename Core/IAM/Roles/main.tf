@@ -13,12 +13,12 @@ variable "region" {
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
-  custom_suffix    = "hvegis"
+  custom_suffix    = "hvegis_${var.region}"
 }
 
 # HydrovisESRISSMDeploy Role
 resource "aws_iam_role" "HydrovisESRISSMDeploy" {
-  name = "HydrovisESRISSMDeploy"
+  name = "HydrovisESRISSMDeploy_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -36,12 +36,12 @@ resource "aws_iam_role" "HydrovisESRISSMDeploy" {
 }
 
 resource "aws_iam_instance_profile" "HydrovisESRISSMDeploy" {
-  name = "HydrovisESRISSMDeploy"
+  name = "HydrovisESRISSMDeploy_${var.region}"
   role = aws_iam_role.HydrovisESRISSMDeploy.name
 }
 
 resource "aws_iam_role_policy" "HydrovisESRISSMDeploy" {
-  name   = "HydrovisESRISSMDeploy"
+  name   = "HydrovisESRISSMDeploy_${var.region}"
   role   = aws_iam_role.HydrovisESRISSMDeploy.id
   policy = templatefile("${path.module}/HydrovisESRISSMDeploy.json.tftpl", {
     environment = var.environment
@@ -53,7 +53,7 @@ resource "aws_iam_role_policy" "HydrovisESRISSMDeploy" {
 
 # HydrovisSSMInstanceProfileRole Role
 resource "aws_iam_role" "HydrovisSSMInstanceProfileRole" {
-  name = "HydrovisSSMInstanceProfileRole"
+  name = "HydrovisSSMInstanceProfileRole_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -71,12 +71,12 @@ resource "aws_iam_role" "HydrovisSSMInstanceProfileRole" {
 }
 
 resource "aws_iam_instance_profile" "HydrovisSSMInstanceProfileRole" {
-  name = "HydrovisSSMInstanceProfileRole"
+  name = "HydrovisSSMInstanceProfileRole_${var.region}"
   role = aws_iam_role.HydrovisSSMInstanceProfileRole.name
 }
 
 resource "aws_iam_role_policy" "HydroVISSSMPolicy" {
-  name   = "HydroVISSSMPolicy"
+  name   = "HydroVISSSMPolicy_${var.region}"
   role   = aws_iam_role.HydrovisSSMInstanceProfileRole.id
   policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
     environment = var.environment
@@ -86,7 +86,7 @@ resource "aws_iam_role_policy" "HydroVISSSMPolicy" {
 
 # hydrovis-viz-proc-pipeline-lambda Role
 resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {
-  name = "hydrovis-viz-proc-pipeline-lambda"
+  name = "hydrovis-viz-proc-pipeline-lambda_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -111,7 +111,7 @@ resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {
 }
 
 resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
-  name   = "hydrovis-viz-proc-pipeline-lambda"
+  name   = "hydrovis-viz-proc-pipeline-lambda_${var.region}"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
   policy = templatefile("${path.module}/hydrovis-viz-proc-pipeline-lambda.json.tftpl", {
     environment = var.environment
@@ -121,13 +121,13 @@ resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
 }
 
 resource "aws_iam_role_policy" "EventBridge-PassToService-Policy" {
-  name   = "EventBridge-PassToService-Policy"
+  name   = "EventBridge-PassToService-Policy_${var.region}"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
   policy = templatefile("${path.module}/EventBridge-PassToService-Policy.json.tftpl", {})
 }
 
 resource "aws_iam_role_policy" "EventBridge-proc-pipeline-Lambda-Access" {
-  name   = "EventBridge-proc-pipeline-Lambda-Access"
+  name   = "EventBridge-proc-pipeline-Lambda-Access_${var.region}"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
   policy = templatefile("${path.module}/EventBridge-proc-pipeline-Lambda-Access.json.tftpl", {
     account_id  = var.account_id
@@ -141,7 +141,7 @@ resource "aws_iam_role_policy_attachment" "hydrovis-viz-proc-pipeline-lambda-eve
 
 # hydrovis-rds-s3-export Role
 resource "aws_iam_role" "hydrovis-rds-s3-export" {
-  name = "hydrovis-rds-s3-export"
+  name = "hydrovis-rds-s3-export_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -159,7 +159,7 @@ resource "aws_iam_role" "hydrovis-rds-s3-export" {
 }
 
 resource "aws_iam_role_policy" "hydrovis-rds-s3-export" {
-  name   = "hydrovis-rds-s3-export"
+  name   = "hydrovis-rds-s3-export_${var.region}"
   role   = aws_iam_role.hydrovis-rds-s3-export.id
   policy = templatefile("${path.module}/hydrovis-rds-s3-export.json.tftpl", {
     environment = var.environment
@@ -171,7 +171,7 @@ resource "aws_iam_role_policy" "hydrovis-rds-s3-export" {
 
 # hydrovis-hml-ingest-role Role
 resource "aws_iam_role" "hydrovis-hml-ingest-role" {
-  name = "hydrovis-${var.environment}-hml-ingest-role"
+  name = "hydrovis-${var.environment}-hml-ingest-role_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -190,12 +190,12 @@ resource "aws_iam_role" "hydrovis-hml-ingest-role" {
 
 
 resource "aws_iam_instance_profile" "hydrovis-hml-ingest-role" {
-  name = "hydrovis-${var.environment}-hml-ingest-role"
+  name = "hydrovis-hml-ingest-role_${var.region}"
   role = aws_iam_role.hydrovis-hml-ingest-role.name
 }
 
 resource "aws_iam_role_policy" "hydrovis-hml-ingest-role" {
-  name   = "hydrovis-hml-ingest-role"
+  name   = "hydrovis-hml-ingest-role_${var.region}"
   role   = aws_iam_role.hydrovis-hml-ingest-role.id
   policy = templatefile("${path.module}/hydrovis-hml-ingest-role.json.tftpl", {
     environment = var.environment
@@ -205,7 +205,7 @@ resource "aws_iam_role_policy" "hydrovis-hml-ingest-role" {
 }
 
 resource "aws_iam_role_policy" "hydrovis-hml-ingest-role-SSM-policy" {
-  name   = "HydroVISSSMPolicy"
+  name   = "HydroVISSSMPolicy_${var.region}"
   role   = aws_iam_role.hydrovis-hml-ingest-role.id
   policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
     environment = var.environment
@@ -220,7 +220,7 @@ resource "aws_iam_role_policy_attachment" "hydrovis-hml-ingest-role-lambda-execu
 
 # Hydroviz-RnR-EC2-Profile Role
 resource "aws_iam_role" "Hydroviz-RnR-EC2-Profile" {
-  name = "Hydroviz-RnR-EC2-Profile"
+  name = "Hydroviz-RnR-EC2-Profile_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -238,12 +238,12 @@ resource "aws_iam_role" "Hydroviz-RnR-EC2-Profile" {
 }
 
 resource "aws_iam_instance_profile" "Hydroviz-RnR-EC2-Profile" {
-  name = "Hydroviz-RnR-EC2-Profile"
+  name = "Hydroviz-RnR-EC2-Profile_${var.region}"
   role = aws_iam_role.Hydroviz-RnR-EC2-Profile.name
 }
 
 resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
-  name   = "HydroVISSSMPolicy"
+  name   = "HydroVISSSMPolicy_${var.region}"
   role   = aws_iam_role.Hydroviz-RnR-EC2-Profile.id
   policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
     environment = var.environment
