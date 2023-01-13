@@ -147,7 +147,6 @@ def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom
         cur = db_connection.cursor()
         cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
         cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
-        print(f"SELECT * INTO {dest_table} FROM {origin_table};")
     
         if add_oid:
             print(f"---> Adding an OID to the {dest_table}")
