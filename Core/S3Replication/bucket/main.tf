@@ -76,10 +76,31 @@ resource "aws_kms_key" "hydrovis-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, concat(var.access_principal_arns, ["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"]))
+            AWS = concat(var.admin_team_arns, var.access_principal_arns)
           }
           Resource = "*"
           Sid      = "Allow use of the key"
+        },
+        {
+          Action = [
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey",
+            "kms:GenerateDataKeyWithoutPlaintext"
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = var.prod_account_id
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+            }
+          }
+          Resource = "*"
+          Sid      = "Allow use of the key for replication"
         },
       ]
     }
@@ -150,7 +171,12 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+            AWS = var.prod_account_id
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+            }
           }
           Resource = "${aws_s3_bucket.hydrovis.arn}/*"
           Sid      = "PermissionsOnObjects"
@@ -163,7 +189,12 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+            AWS = var.prod_account_id
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+            }
           }
           Resource = aws_s3_bucket.hydrovis.arn
           Sid      = "PermissionsOnBucket"
