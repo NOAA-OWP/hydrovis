@@ -207,7 +207,7 @@ resource "aws_subnet" "hydrovis-sn-pub-1a" {
 resource "aws_subnet" "hydrovis-sn-pub-1b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.pub_subnet_cidr_b[var.environment]
-  availability_zone = "us-east-1b"
+  availability_zone = "${var.region}b"
   tags = {
     Name = "hydrovis-sn-pub-${var.environment}-1b"
   }
