@@ -206,14 +206,29 @@ resource "aws_subnet" "hydrovis-sn-pub-1b" {
   }
 }
 
+resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
+  subnet_ids         = [aws_subnet.hydrovis-sn-pub-1a.id, aws_subnet.hydrovis-sn-pub-1b.id]
+  transit_gateway_id = var.transit_gateway_id
+  vpc_id             = aws_vpc.main.id
+  dns_support        = "disable"
+}
+
 resource "aws_route_table_association" "hydrovis-sn-pub-1a_public" {
   subnet_id      = aws_subnet.hydrovis-sn-pub-1a.id
   route_table_id = aws_route_table.public.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.main
+  ]
 }
 
 resource "aws_route_table_association" "hydrovis-sn-pub-1b_public" {
   subnet_id      = aws_subnet.hydrovis-sn-pub-1b.id
   route_table_id = aws_route_table.public.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.main
+  ]
 }
 
 resource "aws_network_acl" "hydrovis-acl-default" {

@@ -551,9 +551,9 @@ output "es-sg" {
   value = aws_security_group.es-sg
 }
 
-output "hv-allow-NWC-access" {
-  value = aws_security_group.hv-allow-NWC-access
-}
+# output "hv-allow-NWC-access" {
+#   value = aws_security_group.hv-allow-NWC-access
+# }
 
 output "hv-rabbitmq" {
   value = aws_security_group.hv-rabbitmq

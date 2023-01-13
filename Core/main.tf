@@ -178,45 +178,45 @@ module "s3-replication" {
 
 # ###################### STAGE 2 ######################
 
-# # VPC, Subnets, VGW
-# module "vpc" {
-#   source = "./VPC"
+# VPC, Subnets, VGW
+module "vpc" {
+  source = "./VPC"
 
-#   environment                        = local.env.environment
-#   region                             = local.env.region
-#   vpc_ip_block                       = local.env.vpc_ip_block
-#   nwave_ip_block                     = local.env.nwave_ip_block
-#   transit_gateway_id                 = local.env.transit_gateway_id
-#   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
-#   public_route_peering_connection_id = local.env.public_route_peering_connection_id
-# }
+  environment                        = local.env.environment
+  region                             = local.env.region
+  vpc_ip_block                       = local.env.vpc_ip_block
+  nwave_ip_block                     = local.env.nwave_ip_block
+  transit_gateway_id                 = local.env.transit_gateway_id
+  public_route_peering_ip_block      = local.env.public_route_peering_ip_block
+  public_route_peering_connection_id = local.env.public_route_peering_connection_id
+}
 
-# # SGs
-# module "security-groups" {
-#   source = "./SecurityGroups"
+# SGs
+module "security-groups" {
+  source = "./SecurityGroups"
 
-#   environment                              = local.env.environment
-#   nwave_ip_block                           = local.env.nwave_ip_block
-#   vpc_ip_block                             = local.env.vpc_ip_block
-#   #nwc_ip_block                             = local.env.nwc_ip_block
-#   vpc_main_id                              = module.vpc.vpc_main.id
-#   vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
-#   subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
-#   subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
-#   public_route_peering_ip_block            = local.env.public_route_peering_ip_block
-# }
+  environment                              = local.env.environment
+  nwave_ip_block                           = local.env.nwave_ip_block
+  vpc_ip_block                             = local.env.vpc_ip_block
+  #nwc_ip_block                             = local.env.nwc_ip_block
+  vpc_main_id                              = module.vpc.vpc_main.id
+  vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
+  subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
+  subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
+  public_route_peering_ip_block            = local.env.public_route_peering_ip_block
+}
 
-# # VPCe's
-# module "vpces" {
-#   source = "./VPC/VPCe"
+# VPCe's
+module "vpces" {
+  source = "./VPC/VPCe"
 
-#   environment                      = local.env.environment
-#   region                           = local.env.region
-#   vpc_main_id                      = module.vpc.vpc_main.id
-#   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
-#   route_table_private_id           = module.vpc.route_table_private.id
-#   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
-# }
+  environment                      = local.env.environment
+  region                           = local.env.region
+  vpc_main_id                      = module.vpc.vpc_main.id
+  subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  route_table_private_id           = module.vpc.route_table_private.id
+  ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+}
 
 # ###################### STAGE 3 ######################
 
