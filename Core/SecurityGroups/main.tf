@@ -10,9 +10,9 @@ variable "vpc_ip_block" {
   type = string
 }
 
-variable "nwc_ip_block" {
-  type = string
-}
+# variable "nwc_ip_block" {
+#   type = string
+# }
 
 variable "vpc_main_id" {
   type = string
@@ -124,30 +124,31 @@ resource "aws_security_group" "es-sg" {
   vpc_id = var.vpc_main_id
 }
 
-resource "aws_security_group" "hv-allow-NWC-access" {
-  description = "Allow NWC vpn users access to Portal"
-  ingress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-        var.nwc_ip_block,
-      ]
-      description      = ""
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-  ]
-  name = "hv-${var.environment}-allow-NWC-access"
-  tags = {
-    "Name" = "hv-${var.environment}-internet-443-from-NWC"
-  }
-  vpc_id = var.vpc_main_id
-}
+# Not really used?
+# resource "aws_security_group" "hv-allow-NWC-access" {
+#   description = "Allow NWC vpn users access to Portal"
+#   ingress = [
+#     {
+#       cidr_blocks = [
+#         "0.0.0.0/0",
+#         var.nwc_ip_block,
+#       ]
+#       description      = ""
+#       from_port        = 443
+#       ipv6_cidr_blocks = []
+#       prefix_list_ids  = []
+#       protocol         = "tcp"
+#       security_groups  = []
+#       self             = false
+#       to_port          = 443
+#     },
+#   ]
+#   name = "hv-${var.environment}-allow-NWC-access"
+#   tags = {
+#     "Name" = "hv-${var.environment}-internet-443-from-NWC"
+#   }
+#   vpc_id = var.vpc_main_id
+# }
 
 resource "aws_security_group" "hv-rabbitmq" {
   description = "Allows rabbit MQ connection and dashboard"

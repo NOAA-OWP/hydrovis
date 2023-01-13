@@ -198,7 +198,7 @@ module "s3-replication" {
 #   environment                              = local.env.environment
 #   nwave_ip_block                           = local.env.nwave_ip_block
 #   vpc_ip_block                             = local.env.vpc_ip_block
-#   nwc_ip_block                             = local.env.nwc_ip_block
+#   #nwc_ip_block                             = local.env.nwc_ip_block
 #   vpc_main_id                              = module.vpc.vpc_main.id
 #   vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
 #   subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
