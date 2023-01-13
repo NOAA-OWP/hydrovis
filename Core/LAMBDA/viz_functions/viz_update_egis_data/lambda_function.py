@@ -19,6 +19,7 @@ def lambda_handler(event, context):
         table = event['args']['postprocess_summary']
     else:
         table = event['args']['map_item']
+    staged_table = f"{table}_stage"
     
     ################### Unstage EGIS Tables ###################
     if step == "unstage":
@@ -51,12 +52,12 @@ def lambda_handler(event, context):
             
             # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
-                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
-                egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+                egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{staged_table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
             except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
-                egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+                egis_db.run_sql_in_db(f"SELECT UpdateGeometrySRID('services', '{staged_table}', 'geom', 3857);") #Update srid - not sure we need this anymore... but it's fast, so I'm leaving it for now.
             
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
             cleanup_cache(cache_bucket, table, reference_time)
@@ -82,10 +83,10 @@ def lambda_handler(event, context):
             
             # Copy the 1-row metadata table to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
-                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
             except Exception as e:  # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
             
         s3 = boto3.resource('s3')
         workspace_rasters = event['args']['output_rasters']
@@ -141,8 +142,6 @@ def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, columns, r
 ###################################
 # This function stages a publish data table within a db (or across databases using foreign data wrapper)
 def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True):
-    
-    dest_table = f"{dest_table}_stage"
     
     with db.get_db_connection() as db_connection:
         cur = db_connection.cursor()
