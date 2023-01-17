@@ -88,7 +88,7 @@ locals {
 
 resource "aws_s3_object" "owp_hml_ingester" {
   bucket = var.deployment_data_bucket
-  key    = "ingest/owp-hml-ingester.tar.gz"
+  key    = "terraform_artifacts/${path.module}/owp-hml-ingester.tar.gz"
   source = "${path.module}/owp-hml-ingester.tar.gz"
   source_hash = filemd5("${path.module}/owp-hml-ingester.tar.gz")
 }

@@ -76,7 +76,7 @@ variable "egis_db_user_secret_string" {
 
 resource "aws_s3_object" "rp_setup_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_raster_processing.zip"
+  key         = "terraform_artifacts/${path.module}/viz_raster_processing.zip"
   source      = "${path.module}/viz_raster_processing.zip"
   source_hash = filemd5("${path.module}/viz_raster_processing.zip")
 }
@@ -178,7 +178,7 @@ resource "null_resource" "viz_raster_processing_cluster" {
 
 resource "aws_s3_object" "or_setup_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_optimize_rasters.zip"
+  key         = "terraform_artifacts/${path.module}/viz_optimize_rasters.zip"
   source      = "${path.module}/viz_optimize_rasters.zip"
   source_hash = filemd5("${path.module}/viz_optimize_rasters.zip")
 }
@@ -270,7 +270,7 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
 
 resource "aws_s3_object" "huc_processing_setup_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_fim_huc_processing.zip"
+  key         = "terraform_artifacts/${path.module}/viz_fim_huc_processing.zip"
   source      = "${path.module}/viz_fim_huc_processing.zip"
   source_hash = filemd5("${path.module}/viz_fim_huc_processing.zip")
 }

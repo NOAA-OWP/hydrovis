@@ -183,7 +183,7 @@ data "aws_ami" "windows" {
 
 resource "aws_s3_object" "setup_upload" {
   bucket      = var.deployment_data_bucket
-  key         = "viz/viz_ec2_setup.ps1"
+  key         = "terraform_artifacts/${path.module}/scripts/viz_ec2_setup.ps1"
   source      = "${path.module}/scripts/viz_ec2_setup.ps1"
   source_hash = filemd5("${path.module}/scripts/viz_ec2_setup.ps1")
 }
