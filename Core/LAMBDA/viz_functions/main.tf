@@ -1376,7 +1376,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   "UndefinedTable"
                 ],
                 "BackoffRate": 2,
-                "IntervalSeconds": 5,
+                "IntervalSeconds": 10,
                 "MaxAttempts": 4,
                 "Comment": "Stage Table Doesn't Exist"
               }
