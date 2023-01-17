@@ -257,66 +257,40 @@ module "rds-viz" {
   role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
 }
 
+# MQ
+module "mq-ingest" {
+  source = "./MQ/ingest"
+
+  environment               = local.env.environment
+  mq_ingest_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id]
+  mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
+  mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
+}
+
+module "sagemaker" {
+  source = "./Sagemaker"
+
+  environment     = local.env.environment
+  iam_role        = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  subnet          = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  kms_key_id      = module.kms.key_arns["encrypt-ec2"]
+}
+
+# Lambda Layers
+module "lambda_layers" {
+  source = "./LAMBDA/layers"
+
+  environment        = local.env.environment
+  viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
+  lambda_data_bucket = module.s3.buckets["deployment"].bucket
+}
+
+# ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
+
 # # Import EGIS DB
 # data "aws_db_instance" "egis_rds" {
 #   db_instance_identifier = local.env.environment == "prod" ? "hv-prd-egis-rds-pg-egdb" : local.env.environment == "uat" ? "hv-uat-egis-db-pg-egdb" : local.env.environment == "ti" ? "hv-ti-egis-rds-pg-egdb" : ""
-# }
-
-# # Lambda Layers
-# module "lambda_layers" {
-#   source = "./LAMBDA/layers"
-
-#   environment        = local.env.environment
-#   viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
-#   lambda_data_bucket = module.s3.buckets["deployment"].bucket
-# }
-
-# # Lambda Functions
-# module "viz_lambda_functions" {
-#   source = "./LAMBDA/viz_functions"
-
-#   environment                   = local.env.environment
-#   account_id                    = local.env.account_id
-#   region                        = local.env.region
-#   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
-#   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
-#   fim_data_bucket               = module.s3.buckets["deployment"].bucket
-#   fim_output_bucket             = module.s3.buckets["fim"].bucket
-#   max_flows_bucket              = module.s3.buckets["fim"].bucket
-#   lambda_data_bucket            = module.s3.buckets["deployment"].bucket
-#   viz_cache_bucket              = module.s3.buckets["fim"].bucket
-#   fim_version                   = local.env.fim_version
-#   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-#   sns_topics                    = module.sns.sns_topics
-#   email_sns_topics              = module.sns.email_sns_topics
-#   es_logging_layer              = module.lambda_layers.es_logging.arn
-#   xarray_layer                  = module.lambda_layers.xarray.arn
-#   pandas_layer                  = module.lambda_layers.pandas.arn
-#   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
-#   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
-#   requests_layer                = module.lambda_layers.requests.arn
-#   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
-#   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
-#   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
-#   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-#   viz_db_host                   = module.rds-viz.rds-viz-processing.address
-#   viz_db_name                   = local.env.viz_db_name
-#   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-#   egis_db_host                  = data.aws_db_instance.egis_rds.address
-#   egis_db_name                  = local.env.egis_db_name
-#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-#   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
-#   dataservices_ip               = module.data-services.dataservices-ip
-# }
-
-# # MQ
-# module "mq-ingest" {
-#   source = "./MQ/ingest"
-
-#   environment               = local.env.environment
-#   mq_ingest_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id]
-#   mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
-#   mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
 # }
 
 # module "rds-bastion" {
@@ -360,6 +334,44 @@ module "rds-viz" {
 #   egis_db_port                    = data.aws_db_instance.egis_rds.port
 #   egis_db_name                    = local.env.egis_db_name
 #   fim_version                     = local.env.fim_version
+# }
+
+# # Lambda Functions
+# module "viz_lambda_functions" {
+#   source = "./LAMBDA/viz_functions"
+
+#   environment                   = local.env.environment
+#   account_id                    = local.env.account_id
+#   region                        = local.env.region
+#   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
+#   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
+#   fim_data_bucket               = module.s3.buckets["deployment"].bucket
+#   fim_output_bucket             = module.s3.buckets["fim"].bucket
+#   max_flows_bucket              = module.s3.buckets["fim"].bucket
+#   lambda_data_bucket            = module.s3.buckets["deployment"].bucket
+#   viz_cache_bucket              = module.s3.buckets["fim"].bucket
+#   fim_version                   = local.env.fim_version
+#   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+#   sns_topics                    = module.sns.sns_topics
+#   email_sns_topics              = module.sns.email_sns_topics
+#   es_logging_layer              = module.lambda_layers.es_logging.arn
+#   xarray_layer                  = module.lambda_layers.xarray.arn
+#   pandas_layer                  = module.lambda_layers.pandas.arn
+#   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
+#   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
+#   requests_layer                = module.lambda_layers.requests.arn
+#   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
+#   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+#   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
+#   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+#   viz_db_host                   = module.rds-viz.rds-viz-processing.address
+#   viz_db_name                   = local.env.viz_db_name
+#   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+#   egis_db_host                  = data.aws_db_instance.egis_rds.address
+#   egis_db_name                  = local.env.egis_db_name
+#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+#   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
+#   dataservices_ip               = module.data-services.dataservices-ip
 # }
 
 # module "ingest_lambda_functions" {
@@ -520,7 +532,7 @@ module "rds-viz" {
 #   ec2_kms_key               = module.kms.key_arns["egis"]
 # }
 
-# ###################### STAGE 4 ######################
+# ###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
 
 # module "viz_ec2" {
 #   source = "./EC2/viz"
@@ -560,14 +572,4 @@ module "rds-viz" {
 #   egis_db_host                = data.aws_db_instance.egis_rds.address
 #   egis_db_name                = local.env.egis_db_name
 #   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-# }
-
-# module "sagemaker" {
-#   source = "./Sagemaker"
-
-#   environment     = local.env.environment
-#   iam_role        = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-#   subnet          = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-#   security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
-#   kms_key_id      = module.kms.key_arns["encrypt-ec2"]
 # }
