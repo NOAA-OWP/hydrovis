@@ -3,6 +3,11 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  description = "Hydrovis region"
+  type        = string
+}
+
 variable "nwm_data_bucket" {
   description = "S3 bucket for NWM data"
   type        = string
@@ -66,10 +71,10 @@ locals {
 
 resource "aws_sns_topic" "sns_topics" {
   for_each     = local.sns_topics
-  name         = "${lower(var.environment)}_${each.key}"
-  display_name = "${lower(var.environment)}_${each.key}"
+  name         = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
+  display_name = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
   tags = {
-    Name = "${lower(var.environment)}_${each.key}"
+    Name = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
   }
 }
 

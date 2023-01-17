@@ -91,7 +91,7 @@ locals {
 ###########################
 
 resource "aws_lambda_function" "hml_reciever" {
-  function_name = "HML_Receiver__${var.environment}"
+  function_name = "HML_Receiver_${var.environment}"
   description   = "HML receiver function that updates PostgreSQL and RabbitMQ about incoming file"
   memory_size   = 128
   timeout       = 300
@@ -139,7 +139,7 @@ resource "aws_lambda_function" "hml_reciever" {
   }
 
   tags = {
-    "Name" = "HML_Receiver__${var.environment}"
+    "Name" = "HML_Receiver_${var.environment}"
   }
 }
 

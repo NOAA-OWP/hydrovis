@@ -26,7 +26,7 @@ resource "aws_db_subnet_group" "ingest" {
   subnet_ids = [var.subnet-data1a, var.subnet-data1b]
 
   tags = {
-    Name = "My DB subnet group"
+    Name = "Data Ingest Subnet Group"
   }
 }
 
@@ -49,9 +49,6 @@ resource "aws_db_instance" "ingest" {
   backup_retention_period      = 7
   skip_final_snapshot          = true
   auto_minor_version_upgrade   = false
-  tags = {
-    "hydrovis-${var.environment}-data-ingest-rdsdbtag" : "hydrovis-${var.environment}-data-ingest-rdsdbtag"
-  }
 }
 
 output "rds-ingest" {

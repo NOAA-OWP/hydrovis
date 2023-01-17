@@ -220,41 +220,42 @@ module "vpces" {
 
 # ###################### STAGE 3 ######################
 
-# # Simple Service Notifications
-# module "sns" {
-#   source = "./SNS"
+# Simple Service Notifications
+module "sns" {
+  source = "./SNS"
 
-#   environment               = local.env.environment
-#   nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
-#   nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
-#   rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
-#   error_email_list          = local.env.sns_email_lists
-# }
+  environment               = local.env.environment
+  region                    = local.env.region
+  nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
+  nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
+  rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
+  error_email_list          = local.env.sns_email_lists
+}
 
-# # RDS
-# module "rds-ingest" {
-#   source = "./RDS/ingest"
+# RDS
+module "rds-ingest" {
+  source = "./RDS/ingest"
 
-#   environment               = local.env.environment
-#   subnet-data1a             = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-#   subnet-data1b             = module.vpc.subnet_hydrovis-sn-prv-data1b.id
-#   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-#   rds_kms_key               = module.kms.key_arns["rds-ingest"]
-#   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
-# }
+  environment               = local.env.environment
+  subnet-data1a             = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  subnet-data1b             = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  rds_kms_key               = module.kms.key_arns["rds-ingest"]
+  db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
+}
 
-# module "rds-viz" {
-#   source = "./RDS/viz"
+module "rds-viz" {
+  source = "./RDS/viz"
 
-#   environment                       = local.env.environment
-#   subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
-#   subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
-#   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-#   rds_kms_key                       = module.kms.key_arns["rds-viz"]
-#   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
-#   viz_db_name                       = local.env.viz_db_name
-#   role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
-# }
+  environment                       = local.env.environment
+  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+  viz_db_name                       = local.env.viz_db_name
+  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
+}
 
 # # Import EGIS DB
 # data "aws_db_instance" "egis_rds" {

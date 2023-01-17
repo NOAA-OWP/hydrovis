@@ -57,9 +57,6 @@ resource "aws_db_instance" "viz-processing" {
   backup_retention_period      = 7
   skip_final_snapshot          = true
   auto_minor_version_upgrade   = false
-  tags = {
-    "hydrovis-${var.environment}-viz-processing-rdsdbtag" : "hydrovis-${var.environment}-viz-processing-rdsdbtag"
-  }
 }
 
 resource "aws_db_instance_role_association" "viz-rds-s3-export" {
