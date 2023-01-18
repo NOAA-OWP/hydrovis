@@ -1344,11 +1344,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             },
             "ResultPath": null
           },
-          "Wait 5 Seconds": {
-            "Type": "Wait",
-            "Seconds": 5,
-            "Next": "Update EGIS Data - Unstage"
-          },
           "Update EGIS Data - Unstage": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
@@ -1376,8 +1371,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                   "UndefinedTable"
                 ],
                 "BackoffRate": 2,
-                "IntervalSeconds": 10,
-                "MaxAttempts": 4,
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
                 "Comment": "Stage Table Doesn't Exist"
               }
             ],
