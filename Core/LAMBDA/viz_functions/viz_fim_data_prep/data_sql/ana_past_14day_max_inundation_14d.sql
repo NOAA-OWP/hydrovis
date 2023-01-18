@@ -2,7 +2,7 @@ SELECT
     max_forecast.feature_id,
     max_forecast.MAX_FLOW_14DAY_cms AS streamflow_cms,
     CONCAT(LPAD(crosswalk.huc8::text, 8, '0'), '-', crosswalk.branch_id) as huc8_branch,
-    LPAD(crosswalk.huc8::text, 8, '0') as huc8,
+    LPAD(crosswalk.huc8::text, 8, '0') as huc,
     crosswalk.hydro_id
 FROM CACHE.MAX_FLOWS_ANA_14DAY max_forecast
 JOIN derived.recurrence_flows_conus rf ON rf.feature_id=max_forecast.feature_id
