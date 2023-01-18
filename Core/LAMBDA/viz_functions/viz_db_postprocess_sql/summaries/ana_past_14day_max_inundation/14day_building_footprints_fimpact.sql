@@ -19,8 +19,7 @@ SELECT
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.ana_past_14day_max_inundation_14day_building_footprints
 FROM external.building_footprints_fema as buildings
-JOIN publish.ana_past_14day_max_inundation fim ON ST_INTERSECTS(fim.geom, buildings.geom)
-WHERE config = 'ana_past_14day';
+JOIN publish.ana_past_14day_max_inundation_14d fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
 DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation_14day_counties;
@@ -50,9 +49,8 @@ SELECT
 INTO publish.ana_past_14day_max_inundation_14day_counties
 FROM derived.counties AS counties
 JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswalk.geoid
-JOIN publish.ana_past_14day_max_inundation AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.ana_past_14day_max_inundation_14d AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_past_14day_max_inundation_14day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
-WHERE config = 'ana_past_14day'
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
 
 -------------- HUCS Summary ---------------
@@ -82,7 +80,6 @@ SELECT
 INTO publish.ana_past_14day_max_inundation_14day_hucs
 FROM derived.huc8s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc8 = crosswalk.huc8
-JOIN publish.ana_past_14day_max_inundation AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.ana_past_14day_max_inundation_14d AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_past_14day_max_inundation_14day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
-WHERE config = 'ana_past_14day'
 GROUP BY hucs.huc8, hucs.geom
