@@ -33,42 +33,43 @@ def lambda_handler(event, context):
                              and runtime environment
     """
     # Parse the event argument to get the necessary arguments for the function
-    huc_branch = event['huc8_branch']
+    huc8_branch = event['huc8_branch']
     db_fim_table = event['db_fim_table']
     reference_time = event['reference_time']
     service = event['service']
     fim_config = event['fim_config']
     data_bucket = event['data_bucket']
     data_prefix = event['data_prefix']
+    huc = event['huc']
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
-    huc = huc_branch.split("-")[0]
-    branch = huc_branch.split("-")[1]
+    huc8 = huc8_branch.split("-")[0]
+    branch = huc8_branch.split("-")[1]
     
-    print(f"Processing FIM for huc {huc} and branch {branch}")
+    print(f"Processing FIM for huc {huc8} and branch {branch}")
 
     subsetted_streams = f"{data_prefix}/{service}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
 
-    print(f"Processing HUC {huc} for {fim_config} for {date}T{hour}:00:00Z")
+    print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
 
     # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-    catchment_key = f'{FIM_PREFIX}/{huc}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
     catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
 
-    hand_key = f'{FIM_PREFIX}/{huc}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
     hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
 
-    rating_curve_key = f'{FIM_PREFIX}/{huc}/branches/{branch}/hydroTable_{branch}.csv'
+    rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
     rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
 
     stage_lookup = pd.DataFrame()
     if catch_exists and hand_exists and rating_curve_exists:
         print("->Calculating flood depth")
-        stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc_branch)  # get stages
+        stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc8_branch)  # get stages
     else:
-        print(f"catchment, hand, or rating curve are missing for huc {huc} and branch {branch}")
+        print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}")
         
     # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
     if stage_lookup.empty:
@@ -76,7 +77,7 @@ def lambda_handler(event, context):
         return
 
     # Run the desired configuration
-    df_inundation = create_inundation_output(huc, branch, stage_lookup, reference_time)
+    df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time)
 
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     db_schema = db_fim_table.split(".")[0]
@@ -90,21 +91,21 @@ def lambda_handler(event, context):
         df_inundation.to_postgis(db_table, con=process_db.engine, schema=db_schema, if_exists='append')
     except Exception as e:
         process_db.engine.dispose()
-        raise Exception(f"Failed to add inundation data to DB for {huc}-{branch} - ({e})")
+        raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
     
     process_db.engine.dispose()
     
-    print(f"Successfully processed tif for HUC {huc} and branch {branch} for {service} for {reference_time}")
+    print(f"Successfully processed tif for HUC {huc8} and branch {branch} for {service} for {reference_time}")
 
     return
 
 
-def create_inundation_output(huc, branch, stage_lookup, reference_time):
+def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
 
         Args:
-            huc(str): HUC that is being processed
+            huc8(str): HUC that is being processed
             fr_stage_lookup(str): list of lists that have a feature id with its corresponding stage for full resolution
             ms_stage_lookup(str): list of lists that have a feature id with its corresponding stage for main stem
             inundation_raster(str): local tif output for inundation
@@ -112,11 +113,11 @@ def create_inundation_output(huc, branch, stage_lookup, reference_time):
                                   a flood extent. depth will create depth grids
     """
     # join metadata to get path to FIM datasets
-    catchment_key = f'{FIM_PREFIX}/{huc}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-    hand_key = f'{FIM_PREFIX}/{huc}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
     
     try:
-        print(f"Creating inundation for huc {huc} and branch {branch}")
+        print(f"Creating inundation for huc {huc8} and branch {branch}")
         
         # Create a folder for the local tif outputs
         if not os.path.exists('/tmp/raw_rasters/'):
@@ -292,7 +293,7 @@ def create_inundation_output(huc, branch, stage_lookup, reference_time):
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_PREFIX.split("fim_")[-1]
     df_final['reference_time'] = reference_time
-    df_final['huc8'] = huc
+    df_final['huc8'] = huc8
     df_final['branch'] = branch
     df_final['hand_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
@@ -306,7 +307,7 @@ def create_inundation_output(huc, branch, stage_lookup, reference_time):
                 
     return df_final
 
-def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_streams, huc_branch):
+def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_streams, huc8_branch):
     """
         Converts streamflow values to stage using the rating curve and linear interpolation because rating curve intervals
         
@@ -336,7 +337,7 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
 
     df_forecast = pd.read_csv(local_data)
     os.remove(local_data)
-    df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc_branch]
+    df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
     df_forecast['hand_stage_m'] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1)
     
     print(f"Removing {len(df_forecast[df_forecast['hand_stage_m'].isna()])} reaches with a NaN interpolated stage")

@@ -2,7 +2,7 @@ SELECT
     max_forecast.feature_id,
     round(max_forecast.streamflow::numeric, 2) as streamflow_cms,
     CONCAT(LPAD(crosswalk.huc8::text, 8, '0'), '-', crosswalk.branch_id) as huc8_branch,
-    LPAD(crosswalk.huc8::text, 8, '0') as huc8,
+    LPAD(crosswalk.huc8::text, 8, '0') as huc,
     crosswalk.hydro_id
 FROM ingest.rnr_max_flows max_forecast
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON max_forecast.feature_id = crosswalk.feature_id

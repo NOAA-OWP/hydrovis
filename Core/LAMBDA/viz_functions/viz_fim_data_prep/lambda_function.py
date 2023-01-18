@@ -47,13 +47,13 @@ def lambda_handler(event, context):
 
     table = fim_config
     target_schema = "ingest"
-    if len(sql_replace) > 0: #past events
-        target_schema = "archive"
-        target_table = sql_replace[f"ingest.{fim_config}"]
-    elif fim_config.startswith("rf_"): #recurrence flow fim
+    if fim_config.startswith("rf_"): #recurrence flow fim
         target_schema = "reference"
         db_type = "egis"
         target_table = f"{target_schema}.{table}"
+    elif len(sql_replace) > 0: #past events
+        target_schema = "archive"
+        target_table = sql_replace[f"ingest.{fim_config}"]
     else: #everything else
         target_table = f"{target_schema}.{table}"
 
@@ -62,12 +62,12 @@ def lambda_handler(event, context):
     if one_off:
         hucs_to_process = one_off
     else:
-        hucs_to_process = df_streamflows['huc8'].unique()
+        hucs_to_process = df_streamflows['huc'].unique()
         
     print(f"Kicking off {len(hucs_to_process)} hucs for {service} for {reference_time}")
 
     for huc in hucs_to_process:
-        huc_data = df_streamflows[df_streamflows['huc8'] == huc]  # get data for this huc only
+        huc_data = df_streamflows[df_streamflows['huc'] == huc]  # get data for this huc only
         
         if huc_data.empty:
             continue
@@ -76,7 +76,7 @@ def lambda_handler(event, context):
         
     print(f"Creating file for huc processing for {service} for {reference_time}")
     df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
-    df_streamflows = df_streamflows[["huc8_branch"]]
+    df_streamflows = df_streamflows[["huc8_branch", "huc"]]
     df_streamflows['db_fim_table'] = target_table
     df_streamflows['reference_time'] = reference_time
     df_streamflows['service'] = service

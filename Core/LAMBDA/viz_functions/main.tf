@@ -569,6 +569,10 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
   }
   environment {
     variables = {
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
       FIM_DATA_BUCKET             = var.fim_data_bucket
       FIM_VERSION                 = var.fim_version
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
