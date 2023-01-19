@@ -26,6 +26,10 @@ variable "viz_db_name" {
   type = string
 }
 
+variable "role_hydrovis-rds-s3-export_arn" {
+  type = string
+}
+
 resource "aws_db_subnet_group" "viz-processing" {
   name       = "rds_viz-processing_${var.environment}"
   subnet_ids = [var.subnet-app1a, var.subnet-app1b]
@@ -56,6 +60,12 @@ resource "aws_db_instance" "viz-processing" {
   tags = {
     "hydrovis-${var.environment}-viz-processing-rdsdbtag" : "hydrovis-${var.environment}-viz-processing-rdsdbtag"
   }
+}
+
+resource "aws_db_instance_role_association" "viz-rds-s3-export" {
+  db_instance_identifier = aws_db_instance.viz-processing.id
+  feature_name           = "s3Export"
+  role_arn               = var.role_hydrovis-rds-s3-export_arn
 }
 
 output "rds-viz-processing" {

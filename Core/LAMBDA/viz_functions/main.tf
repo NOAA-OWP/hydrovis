@@ -1457,11 +1457,11 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
 
   event_pattern = <<EOF
   {
-  "source": ["aws.states"],
-  "detail-type": ["Step Functions Execution Status Change"],
-  "detail": {
-    "status": ["FAILED", "TIMED_OUT"],
-    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
+    "source": ["aws.states"],
+    "detail-type": ["Step Functions Execution Status Change"],
+    "detail": {
+      "status": ["FAILED", "TIMED_OUT"],
+      "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
   EOF

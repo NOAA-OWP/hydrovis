@@ -251,7 +251,7 @@ Set-Location -Path $AWS_SERVICE_REPO
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz typing_extensions=4.1.1 dask=2021.10.0
 & $python_exe -m pip install--upgrade setuptools
-& $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42
+& $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42 shapely==1.8.5.post1
 
 LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
 $s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "authoritative_data/"
@@ -308,14 +308,14 @@ $PATH += ";C:\Programs"
 [Environment]::SetEnvironmentVariable("PATH", $PATH, "2")
 
 CreateUTF8File $FILEBEAT_YML_CONTENT "C:\Users\$PIPELINE_USER\Desktop" filebeat.yml
-$Url = "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.2.3-windows-x86_64.zip"
+$Url = "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.4.0-windows-x86_64.zip"
 $DownloadZipFile = "C:\Users\$PIPELINE_USER\Downloads\" + $(Split-Path -Path $Url -Leaf)
 $ExtractPath = "C:\Program Files"
 Invoke-WebRequest -Uri $Url -OutFile $DownloadZipFile
 $ExtractShell = New-Object -ComObject Shell.Application
 $ExtractFiles = $ExtractShell.Namespace($DownloadZipFile).Items()
 $ExtractShell.NameSpace($ExtractPath).CopyHere($ExtractFiles)
-Rename-Item -Path "$ExtractPath\filebeat-8.2.3-windows-x86_64" -NewName "Filebeat"
+Rename-Item -Path "$ExtractPath\filebeat-8.4.0-windows-x86_64" -NewName "Filebeat"
 Copy-Item "C:\Users\$PIPELINE_USER\Desktop\filebeat.yml" -Destination "$ExtractPath\Filebeat"
 & "C:\Program Files\Filebeat\install-service-filebeat.ps1"
 START-SERVICE filebeat
