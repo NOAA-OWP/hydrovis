@@ -33,7 +33,7 @@ variable "fim_output_bucket" {
   type        = string
 }
 
-variable "lambda_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 buckets where the lambda zip files will live."
   type        = string
 }
@@ -749,7 +749,7 @@ module "image_based_lambdas" {
   environment = var.environment
   account_id  = var.account_id
   region      = var.region
-  deployment_bucket = var.lambda_data_bucket
+  deployment_bucket = var.deployment_bucket
   raster_output_bucket = var.fim_output_bucket
   raster_output_prefix = local.raster_output_prefix
   lambda_role = var.lambda_role
@@ -1369,7 +1369,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
-              }
+              },
               {
                 "ErrorEquals": [
                   "UndefinedTable"

@@ -8,7 +8,7 @@ variable "viz_environment" {
   type        = string
 }
 
-variable "lambda_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 buckets where the lambda zip files will live."
   type        = string
 }
@@ -61,7 +61,7 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 #############################
 
 resource "aws_s3_object" "arcgis_python_api" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/arcgis_python_api.zip"
   source = "${path.module}/arcgis_python_api.zip"
   source_hash = filemd5("${path.module}/arcgis_python_api.zip")
@@ -97,7 +97,7 @@ resource "aws_lambda_layer_version" "pandas" {
 
 
 resource "aws_s3_object" "geopandas" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/geopandas.zip"
   source = "${path.module}/geopandas.zip"
   source_hash = filemd5("${path.module}/geopandas.zip")
@@ -132,7 +132,7 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 ##########################
 
 resource "aws_s3_object" "huc_proc_combo" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/huc_proc_combo.zip"
   source = "${path.module}/huc_proc_combo.zip"
   source_hash = filemd5("${path.module}/huc_proc_combo.zip")
