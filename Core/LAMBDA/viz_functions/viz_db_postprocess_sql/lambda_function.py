@@ -9,7 +9,6 @@ def lambda_handler(event, context):
     sql_replace = event['args']['sql_rename_dict']
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     
-    
     if step == "services":
         if event['args']['map']['service']['configuration'] == "reference":
             return
@@ -17,14 +16,17 @@ def lambda_handler(event, context):
     if folder == 'admin':
          run_admin_tasks(event, folder, step, sql_replace)
     else:
-        if 'map_item' in event['args']:
+        # TODO: Clean up this conditional logic to be more readable.
+        if step == 'summaries':
+                sql_file = f"{event['args']['map']['map_item']}/{next(iter(event['args']['map_item']))}"
+        elif 'map_item' in event['args']:
             sql_file = event['args']['map_item']
         else:
             sql_file = event['args']['map']['map_item']
-
         sql_path = f"{folder}/{sql_file}.sql"
-            
+        
         run_sql_file(sql_path, sql_replace)
+   
     return True
 
 # Special function to handle admin-only sql tasks

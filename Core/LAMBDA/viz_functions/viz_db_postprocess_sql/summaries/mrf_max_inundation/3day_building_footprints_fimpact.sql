@@ -57,7 +57,7 @@ GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
 DROP TABLE IF EXISTS publish.mrf_max_inundation_3day_hucs;
 SELECT
 	hucs.huc8,
-	TO_CHAR(hucs.huc10, 'fm0000000000') AS huc10_str,
+	TO_CHAR(hucs.huc8, 'fm0000000000') AS huc8_str,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
 	max(fim.hand_stage_ft) AS max_interpolated_stage_ft,
