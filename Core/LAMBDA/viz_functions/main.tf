@@ -1492,6 +1492,15 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
                 "IntervalSeconds": 60,
                 "MaxAttempts": 3,
                 "Comment": "Handle insufficient capacity"
+              },
+              {
+                "ErrorEquals": [
+                  "HANDDatasetReadError"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 2,
+                "Comment": "Issue Reading HAND Datasets"
               }
             ]
           }
