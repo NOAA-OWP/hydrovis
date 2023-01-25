@@ -66,7 +66,7 @@ def setup_branch_iteration(event):
     else: #everything else
         target_table = f"{target_schema}.{table}"
 
-    #setup_db_table(target_table, reference_time, db_type, sql_replace)
+    setup_db_table(target_table, reference_time, db_type, sql_replace)
     
     if one_off:
         hucs_to_process = one_off
