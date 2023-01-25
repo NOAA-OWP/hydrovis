@@ -5,6 +5,7 @@ import datetime
 import time
 import json
 import numpy as np
+import pandas as pd
 
 from viz_classes import database
 
@@ -27,6 +28,14 @@ def lambda_handler(event, context):
             context(object): Provides methods and properties that provide information about the invocation, function,
                              and runtime environment
     """
+    
+    if event['step'] == "setup_branch_iteration":
+        return setup_branch_iteration(event)
+    else:
+        return get_branch_iteration(event)
+        
+    
+def setup_branch_iteration(event):
     fim_config = event['args']['fim_config']
     service_data = event['args']['service']
     reference_time = event['args']['reference_time']
@@ -57,7 +66,7 @@ def lambda_handler(event, context):
     else: #everything else
         target_table = f"{target_schema}.{table}"
 
-    setup_db_table(target_table, reference_time, db_type, sql_replace)
+    #setup_db_table(target_table, reference_time, db_type, sql_replace)
     
     if one_off:
         hucs_to_process = one_off
@@ -66,45 +75,63 @@ def lambda_handler(event, context):
         
     print(f"Kicking off {len(hucs_to_process)} hucs for {service} for {reference_time}")
 
+    df_streamflows['data_key'] = None
     for huc in hucs_to_process:
         huc_data = df_streamflows[df_streamflows['huc'] == huc]  # get data for this huc only
         
         if huc_data.empty:
             continue
         
-        write_data_csv_file(service, fim_config, huc, reference_date, huc_data)
+        csv_key = write_data_csv_file(service, fim_config, huc, reference_date, huc_data)
+        df_streamflows.loc[df_streamflows['huc'] == huc, 'data_key'] = csv_key
         
-    print(f"Creating file for huc processing for {service} for {reference_time}")
-    df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
-    df_streamflows = df_streamflows[["huc8_branch", "huc"]]
-    df_streamflows['db_fim_table'] = target_table
-    df_streamflows['reference_time'] = reference_time
-    df_streamflows['service'] = service
-    df_streamflows['fim_config'] = fim_config
-    df_streamflows['data_bucket'] = PROCESSED_OUTPUT_BUCKET
-    df_streamflows['data_prefix'] = PROCESSED_OUTPUT_PREFIX
-    
     s3 = boto3.client('s3')
 
     # Parses the forecast key to get the necessary metadata for the output file
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
+    
+    s3_keys = []
+    df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
+    df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
+    for index, df in enumerate(df_streamflows_split):
+        # Key for the csv file that will be stored in S3
+        csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{service}/{fim_config}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
+        s3_keys.append(csv_key)
+    
+        # Save the dataframe as a local netcdf file
+        tmp_csv = f'/tmp/{service}.csv'
+        df.to_csv(tmp_csv, index=False)
+    
+        # Upload the csv file into S3
+        print(f"Uploading {csv_key}")
+        s3.upload_file(tmp_csv, PROCESSED_OUTPUT_BUCKET, csv_key)
+        os.remove(tmp_csv)
 
-    # Key for the csv file that will be stored in S3
-    csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{service}/{fim_config}/workspace/{date}/{hour}/hucs_to_process.csv"
-
-    # Save the dataframe as a local netcdf file
-    tmp_csv = f'/tmp/{service}.csv'
-    df_streamflows.to_csv(tmp_csv, index=False)
-
-    # Upload the csv file into S3
-    print(f"Uploading {csv_key}")
-    s3.upload_file(tmp_csv, PROCESSED_OUTPUT_BUCKET, csv_key)
-    os.remove(tmp_csv)
+    return_object = {
+        'huc_branches_to_process': s3_keys,
+        'db_fim_table': target_table,
+        'data_bucket': PROCESSED_OUTPUT_BUCKET,
+        'data_prefix': PROCESSED_OUTPUT_PREFIX,
+        'reference_time': reference_time,
+        'fim_config': fim_config,
+        'service': service,
+    }
+    
+    return return_object
+    
+    
+def get_branch_iteration(event):
+    s3 = boto3.client("s3")
+    print(event)
+    local_data_file = os.path.join("/tmp", os.path.basename(event['args']['huc_branches_to_process']))
+    s3.download_file(event['args']['data_bucket'], event['args']['huc_branches_to_process'], local_data_file)
+    df = pd.read_csv(local_data_file)
+    df['huc'] = df['huc'].astype(str).str.zfill(6)
+    os.remove(local_data_file)
     
     return_object = {
-        'huc_processing_key': csv_key,
-        'huc_processing_bucket': PROCESSED_OUTPUT_BUCKET
+        "huc_branches_to_process": df[["huc8_branch", "huc"]].to_dict("records")
     }
     
     return return_object
