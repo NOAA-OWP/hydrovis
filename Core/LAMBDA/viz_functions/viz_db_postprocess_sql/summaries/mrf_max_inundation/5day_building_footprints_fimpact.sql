@@ -1,3 +1,6 @@
+-- Create a spatial index on the fim table to help with RAM usage on spatial joins
+CREATE INDEX IF NOT EXISTS mrf_max_inundation_5day_geom_idx ON publish.mrf_max_inundation_5day USING GIST (geom);
+
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.mrf_max_inundation_5day_building_footprints;
 SELECT

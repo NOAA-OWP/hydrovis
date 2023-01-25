@@ -1,3 +1,6 @@
+-- Create a spatial index on the fim table to help with RAM usage on spatial joins
+CREATE INDEX IF NOT EXISTS ana_inundation_hi_geom_idx ON publish.ana_inundation_hi USING GIST (geom);
+
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.ana_inundation_building_footprints_hi;
 SELECT
