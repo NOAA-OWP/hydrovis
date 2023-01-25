@@ -147,6 +147,19 @@ module "s3" {
     ]
   }
 }
+output "bucket_rnr" {
+  value = module.s3.buckets["rnr"]
+}
+output "key_rnr" {
+  value = module.s3.keys["rnr"]
+}
+output "bucket_session-manager-logs" {
+  value = module.s3.buckets["session-manager-logs"]
+}
+output "key_session-manager-logs" {
+  value = module.s3.keys["session-manager-logs"]
+}
+
 
 module "egis" {
   source = "./eGIS"
@@ -189,6 +202,12 @@ module "vpc" {
   transit_gateway_id                 = local.env.transit_gateway_id
   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
+}
+output "vpc_main" {
+  value = module.vpc.vpc_main
+}
+output "subnet_data1b" {
+  value = module.vpc.subnet_hydrovis-sn-prv-data1b
 }
 
 # SGs
@@ -278,7 +297,7 @@ module "sagemaker" {
 }
 
 # Lambda Layers
-module "lambda_layers" {
+module "lambda-layers" {
   source = "./LAMBDA/layers"
 
   environment        = local.env.environment
@@ -337,7 +356,7 @@ module "lambda_layers" {
 # }
 
 # # Lambda Functions
-# module "viz_lambda_functions" {
+# module "viz-lambda-functions" {
 #   source = "./LAMBDA/viz_functions"
 
 #   environment                   = local.env.environment
@@ -354,13 +373,13 @@ module "lambda_layers" {
 #   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
 #   sns_topics                    = module.sns.sns_topics
 #   email_sns_topics              = module.sns.email_sns_topics
-#   es_logging_layer              = module.lambda_layers.es_logging.arn
-#   xarray_layer                  = module.lambda_layers.xarray.arn
-#   pandas_layer                  = module.lambda_layers.pandas.arn
-#   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
-#   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
-#   requests_layer                = module.lambda_layers.requests.arn
-#   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
+#   es_logging_layer              = module.lambda-layers.es_logging.arn
+#   xarray_layer                  = module.lambda-layers.xarray.arn
+#   pandas_layer                  = module.lambda-layers.pandas.arn
+#   arcgis_python_api_layer       = module.lambda-layers.arcgis_python_api.arn
+#   psycopg2_sqlalchemy_layer     = module.lambda-layers.psycopg2_sqlalchemy.arn
+#   requests_layer                = module.lambda-layers.requests.arn
+#   viz_lambda_shared_funcs_layer = module.lambda-layers.viz_lambda_shared_funcs.arn
 #   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
 #   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
 #   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
@@ -370,19 +389,19 @@ module "lambda_layers" {
 #   egis_db_host                  = data.aws_db_instance.egis_rds.address
 #   egis_db_name                  = local.env.egis_db_name
 #   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-#   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
+#   egis_portal_password          = local.env.viz-ec2_hydrovis_egis_pass
 #   dataservices_ip               = module.data-services.dataservices-ip
 # }
 
-# module "ingest_lambda_functions" {
+# module "ingest-lambda-functions" {
 #   source = "./LAMBDA/ingest_functions"
 
 #   environment                 = local.env.environment
 #   region                      = local.env.region
 #   deployment_bucket           = module.s3.buckets["deployment"].bucket
 #   lambda_role                 = module.iam-roles.role_hydrovis-hml-ingest-role.arn
-#   psycopg2_sqlalchemy_layer   = module.lambda_layers.psycopg2_sqlalchemy.arn
-#   pika_layer                  = module.lambda_layers.pika.arn
+#   psycopg2_sqlalchemy_layer   = module.lambda-layers.psycopg2_sqlalchemy.arn
+#   pika_layer                  = module.lambda-layers.pika.arn
 #   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
 #   mq_ingest_id                = module.mq-ingest.mq-ingest.id
 #   db_ingest_name              = local.env.forecast_db_name
@@ -421,13 +440,13 @@ module "lambda_layers" {
 #   deployment_bucket         = module.s3.buckets["deployment"].bucket
 
 #   lambda_trigger_functions = [
-#     module.viz_lambda_functions.max_flows.function_name,
-#     # module.viz_lambda_functions.inundation_parent.function_name,
-#     # module.viz_lambda_functions.huc_processing.function_name,
-#     # module.viz_lambda_functions.optimize_rasters.function_name,
-#     module.ingest_lambda_functions.hml_reciever.function_name,
-#     module.viz_lambda_functions.db_ingest.function_name,
-#     # module.viz_lambda_functions.db_postprocess.function_name
+#     module.viz-lambda-functions.max_flows.function_name,
+#     # module.viz-lambda-functions.inundation_parent.function_name,
+#     # module.viz-lambda-functions.huc_processing.function_name,
+#     # module.viz-lambda-functions.optimize_rasters.function_name,
+#     module.ingest-lambda-functions.hml_reciever.function_name,
+#     module.viz-lambda-functions.db_ingest.function_name,
+#     # module.viz-lambda-functions.db_postprocess.function_name
 #   ]
 # }
 
@@ -482,7 +501,7 @@ module "lambda_layers" {
 #   data_services_versions             = local.env.data_services_versions
 # }
 
-# module "rnr_ec2" {
+# module "rnr" {
 #   source = "./EC2/rnr"
 
 #   ami_owner_account_id           = local.env.ami_owner_account_id
@@ -501,7 +520,7 @@ module "lambda_layers" {
 #   rnr_versions                   = local.env.rnr_versions
 # }
 
-# module "egis_license_manager" {
+# module "egis-license-manager" {
 #   source = "./EC2/LicenseManager"
 
 #   environment                    = local.env.environment
@@ -517,7 +536,7 @@ module "lambda_layers" {
 #   ec2_kms_key               = module.kms.key_arns["egis"]
 # }
 
-# module "egis_monitor" {
+# module "egis-monitor" {
 #   source = "./EC2/ArcGIS_Monitor"
 
 #   environment          = local.env.environment
@@ -534,7 +553,7 @@ module "lambda_layers" {
 
 # ###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
 
-# module "viz_ec2" {
+# module "viz-ec2" {
 #   source = "./EC2/viz"
 
 #   environment                    = local.env.environment
@@ -556,16 +575,16 @@ module "lambda_layers" {
 #   kms_key_arn                 = module.kms.key_arns["egis"]
 #   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name
 #   fim_version                 = local.env.fim_version
-#   windows_service_status      = local.env.viz_ec2_windows_service_status
-#   windows_service_startup     = local.env.viz_ec2_windows_service_startup
-#   license_server_ip           = module.egis_license_manager.license_manager_ip
+#   windows_service_status      = local.env.viz-ec2_windows_service_status
+#   windows_service_startup     = local.env.viz-ec2_windows_service_startup
+#   license_server_ip           = module.egis-license-manager.license_manager_ip
 #   pipeline_user_secret_string = module.secrets-manager.secret_strings["egis-service-account"]
-#   hydrovis_egis_pass          = local.env.viz_ec2_hydrovis_egis_pass
+#   hydrovis_egis_pass          = local.env.viz-ec2_hydrovis_egis_pass
 #   logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
-#   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
-#   vlab_host                   = local.env.viz_ec2_vlab_host
-#   github_repo_prefix          = local.env.viz_ec2_github_repo_prefix
-#   github_host                 = local.env.viz_ec2_github_host
+#   vlab_repo_prefix            = local.env.viz-ec2_vlab_repo_prefix
+#   vlab_host                   = local.env.viz-ec2_vlab_host
+#   github_repo_prefix          = local.env.viz-ec2_github_repo_prefix
+#   github_host                 = local.env.viz-ec2_github_host
 #   viz_db_host                 = module.rds-viz.rds-viz-processing.address
 #   viz_db_name                 = local.env.viz_db_name
 #   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]

@@ -1,11 +1,3 @@
-variable "name" {
-  type = string
-}
-
-variable "environment" {
-  type = string
-}
-
 variable "account_id" {
   type = string
 }
@@ -14,20 +6,21 @@ variable "region" {
   type = string
 }
 
+variable "builder_role_arn" {
+  type = string
+}
+
 variable "admin_team_arns" {
   type = list(string)
 }
 
-variable "access_principal_arns" {
-  type = list(string)
-}
 
 resource "aws_kms_key" "hydrovis-s3" {
-  description         = "Used for hydrovis-${var.environment}-${var.name}-${var.region} bucket encryption"
+  description         = "Used for hydrovis-imagebuilder-artifacts-${var.region} bucket encryption"
   enable_key_rotation = true
   policy = jsonencode(
     {
-      Statement = concat([
+      Statement = [
         {
           Action = "kms:*"
           Effect = "Allow"
@@ -36,28 +29,6 @@ resource "aws_kms_key" "hydrovis-s3" {
           }
           Resource = "*"
           Sid      = "Enable IAM User Permissions"
-        },
-        {
-          Action = [
-            "kms:Create*",
-            "kms:Describe*",
-            "kms:Enable*",
-            "kms:List*",
-            "kms:Put*",
-            "kms:Update*",
-            "kms:Revoke*",
-            "kms:Disable*",
-            "kms:Get*",
-            "kms:Delete*",
-            "kms:ScheduleKeyDeletion",
-            "kms:CancelKeyDeletion",
-          ]
-          Effect = "Allow"
-          Principal = {
-            AWS = var.admin_team_arns
-          }
-          Resource = "*"
-          Sid      = "Allow administration of the key"
         },
         {
           Action = [
@@ -73,41 +44,30 @@ resource "aws_kms_key" "hydrovis-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, var.access_principal_arns)
+            AWS = "*"
           }
-          Resource = "*"
-          Sid      = "Allow use of the key"
-        }
-        ],
-        [ # This is specifically for the buckets that use the autoscaling role
-          for arn in var.access_principal_arns : {
-            "Sid" : "Allow attachment of persistent resources",
-            "Effect" : "Allow",
-            "Principal" : {
-              "AWS" = arn
-            },
-            "Action" = "kms:CreateGrant",
-            "Resource" : "*",
-            "Condition" : {
-              "Bool" : {
-                "kms:GrantIsForAWSResource" : true
-              }
+          Resource  = "*"
+          Condition = {
+            "StringEquals" = {
+              "kms:ViaService" = "s3.${var.region}.amazonaws.com"
+              "kms:CallerAccount" = var.account_id
             }
           }
-          if contains(split("/", arn), "autoscaling.amazonaws.com")
-      ])
+          Sid = "Allow use of the key"
+        }
+      ]
       Version = "2012-10-17"
     }
   )
 }
 
 resource "aws_kms_alias" "hydrovis-s3" {
-  name          = "alias/hydrovis-${var.environment}-${var.name}-${var.region}-s3"
+  name          = "alias/hydrovis-imagebuilder-artifacts-${var.region}-s3"
   target_key_id = aws_kms_key.hydrovis-s3.key_id
 }
 
 resource "aws_s3_bucket" "hydrovis" {
-  bucket = "hydrovis-${var.environment}-${var.name}-${var.region}"
+  bucket = "hydrovis-imagebuilder-artifacts-${var.region}"
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis" {
@@ -120,6 +80,14 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "hydrovis" {
       kms_master_key_id = aws_kms_key.hydrovis-s3.arn
       sse_algorithm     = "aws:kms"
     }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "hydrovis" {
+  bucket = aws_s3_bucket.hydrovis.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
@@ -147,7 +115,8 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, var.access_principal_arns)
+            AWS     = var.builder_role_arn
+            Service = "imagebuilder.amazonaws.com"
           }
           Resource = [
             "${aws_s3_bucket.hydrovis.arn}/*",
@@ -161,9 +130,5 @@ resource "aws_s3_bucket_policy" "hydrovis" {
 }
 
 output "bucket" {
-  value = aws_s3_bucket.hydrovis
-}
-
-output "key" {
-  value = aws_kms_key.hydrovis-s3
+  value = aws_s3_bucket.hydrovis.bucket
 }
