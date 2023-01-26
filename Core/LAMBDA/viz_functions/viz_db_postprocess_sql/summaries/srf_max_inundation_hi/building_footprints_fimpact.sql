@@ -1,3 +1,6 @@
+-- Create a spatial index on the fim table to help with RAM usage on spatial joins
+CREATE INDEX IF NOT EXISTS srf_max_inundation_hi_geom_idx ON publish.srf_max_inundation_hi USING GIST (geom);
+
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.srf_max_inundation_building_footprints_hi;
 SELECT
@@ -12,7 +15,9 @@ SELECT
     buildings.source,
     buildings.val_method,
     fim.hydro_id,
+	fim.hydro_id_str::TEXT AS hydro_id_str,
 	fim.feature_id,
+	fim.feature_id_str::TEXT AS feature_id_str,
 	fim.streamflow_cfs,
 	fim.hand_stage_ft,
     buildings.geom,
@@ -29,8 +34,8 @@ SELECT
 	buildings.prop_st as state,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
-	max(fim.hand_stage_ft) AS max_interpolated_stage_ft,
-	avg(fim.hand_stage_ft) AS avg_interpolated_stage_ft,
+	max(fim.hand_stage_ft) AS max_hand_stage_ft,
+	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
 	sum(st_area(fim.geom))* 0.00000038610 AS flooded_area_sqmi,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,

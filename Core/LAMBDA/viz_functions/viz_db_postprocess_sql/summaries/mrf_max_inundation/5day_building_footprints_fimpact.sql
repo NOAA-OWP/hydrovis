@@ -1,3 +1,6 @@
+-- Create a spatial index on the fim table to help with RAM usage on spatial joins
+CREATE INDEX IF NOT EXISTS mrf_max_inundation_5day_geom_idx ON publish.mrf_max_inundation_5day USING GIST (geom);
+
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.mrf_max_inundation_5day_building_footprints;
 SELECT
@@ -12,7 +15,9 @@ SELECT
     buildings.source,
     buildings.val_method,
     fim.hydro_id,
+	fim.hydro_id_str::TEXT AS hydro_id_str,
 	fim.feature_id,
+	fim.feature_id_str::TEXT AS feature_id_str,
 	fim.streamflow_cfs,
 	fim.hand_stage_ft,
     buildings.geom,
@@ -29,8 +34,8 @@ SELECT
 	buildings.prop_st as state,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
-	max(fim.hand_stage_ft) AS max_interpolated_stage_ft,
-	avg(fim.hand_stage_ft) AS avg_interpolated_stage_ft,
+	max(fim.hand_stage_ft) AS max_hand_stage_ft,
+	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
 	sum(st_area(fim.geom))* 0.00000038610 AS flooded_area_sqmi,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
@@ -60,8 +65,8 @@ SELECT
 	TO_CHAR(hucs.huc8, 'fm0000000000') AS huc8_str,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
-	max(fim.hand_stage_ft) AS max_interpolated_stage_ft,
-	avg(fim.hand_stage_ft) AS avg_interpolated_stage_ft,
+	max(fim.hand_stage_ft) AS max_hand_stage_ft,
+	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
 	sum(st_area(fim.geom))* 0.00000038610 AS flooded_area_sqmi,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
@@ -82,4 +87,4 @@ FROM derived.huc8s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc8 = crosswalk.huc8
 JOIN publish.mrf_max_inundation_5day AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.mrf_max_inundation_5day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
-GROUP BY hucs.huc8, hucs.geom
+GROUP BY hucs.huc8, hucs.geom;

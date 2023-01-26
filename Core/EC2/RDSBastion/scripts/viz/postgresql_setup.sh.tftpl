@@ -136,12 +136,21 @@ psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDB
 
 # Restoring EGIS Reference Schema Dumps
 echo "Setting up reference schema in the EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_reference.dump" "$${HOME}/egisDB_reference.dump"
 pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
 rm "$${HOME}/egisDB_reference.dump"
 
+# Restoring AEP FIM Schema Dump
+echo "Setting up aep_fim schema in the EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS aep_fim CASCADE;"
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_aep_fim.dump" "$${HOME}/egisDB_aep_fim.dump"
+pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_aep_fim.dump"
+rm "$${HOME}/egisDB_aep_fim.dump"
+
 # Restoring FIM Catchments Schema Dumps
 echo "Setting up fim_catchments schema in the EGIS DB..."
+psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS fim_catchments CASCADE;"
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/egisDB_fim_catchments.dump" "$${HOME}/egisDB_fim_catchments.dump"
 pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_fim_catchments.dump"
 rm "$${HOME}/egisDB_fim_catchments.dump"
