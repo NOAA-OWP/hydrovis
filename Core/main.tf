@@ -147,19 +147,6 @@ module "s3" {
     ]
   }
 }
-output "bucket_rnr" {
-  value = module.s3.buckets["rnr"]
-}
-output "key_rnr" {
-  value = module.s3.keys["rnr"]
-}
-output "bucket_session-manager-logs" {
-  value = module.s3.buckets["session-manager-logs"]
-}
-output "key_session-manager-logs" {
-  value = module.s3.keys["session-manager-logs"]
-}
-
 
 module "egis" {
   source = "./eGIS"
@@ -196,18 +183,13 @@ module "vpc" {
   source = "./VPC"
 
   environment                        = local.env.environment
+  account_id                         = local.env.account_id
   region                             = local.env.region
   vpc_ip_block                       = local.env.vpc_ip_block
   nwave_ip_block                     = local.env.nwave_ip_block
   transit_gateway_id                 = local.env.transit_gateway_id
   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
-}
-output "vpc_main" {
-  value = module.vpc.vpc_main
-}
-output "subnet_data1b" {
-  value = module.vpc.subnet_hydrovis-sn-prv-data1b
 }
 
 # SGs
@@ -235,6 +217,28 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+}
+
+# Image Builder Pipelines
+module "image-builder" {
+  source = "./ImageBuilder"
+
+  # Only build the Image Builder Pipelines in the one specific environment, then the AMIs are shared to the other environments
+  count = local.env.environment == local.env.image_builder_environment ? 1 : 0
+
+  environment                     = local.env.environment
+  account_id                      = local.env.account_id
+  region                          = local.env.region
+  uat_account_id                  = local.env.uat_account_id
+  prod_account_id                 = local.env.prod_account_id
+  vpc_ip_block                    = local.env.vpc_ip_block
+  vpc_main_id                     = module.vpc.vpc_main.id
+  admin_team_arns                 = local.env.admin_team_arns
+  session_manager_logs_bucket_arn = module.s3.buckets["session-manager-logs"].arn
+  session_manager_logs_kms_arn    = module.s3.keys["session-manager-logs"].arn
+  rnr_bucket_arn                  = module.s3.buckets["rnr"].arn
+  rnr_kms_arn                     = module.s3.keys["rnr"].arn
+  builder_subnet_id               = module.vpc.subnet_hydrovis-sn-prv-data1b.id
 }
 
 # ###################### STAGE 3 ######################

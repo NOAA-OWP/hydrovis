@@ -22,6 +22,10 @@ variable "environment" {
   type = string
 }
 
+variable "account_id" {
+  type = string
+}
+
 variable "region" {
   type = string
 }
@@ -92,6 +96,10 @@ resource "aws_route_table" "private" {
   route {
     cidr_block                 = "0.0.0.0/0"
     nat_gateway_id             = aws_nat_gateway.hv-pub-nat-gw-a.id
+  }
+
+  tags = {
+    Name = "hydrovis-${var.environment}-private"
   }
 }
 
@@ -186,6 +194,10 @@ resource "aws_route_table" "public" {
       vpc_peering_connection_id = route.value["vpc_peering_connection_id"]
     }
   }
+
+  tags = {
+    Name = "hydrovis-${var.environment}-public"
+  }
 }
 
 resource "aws_subnet" "hydrovis-sn-pub-1a" {
@@ -211,6 +223,9 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
   transit_gateway_id = var.transit_gateway_id
   vpc_id             = aws_vpc.main.id
   dns_support        = "disable"
+  tags = {
+    Name = "nws-diss-hydrovis-${var.environment}-${var.account_id}-hydrovis-${var.environment}-vpc-attach-01"
+  }
 }
 
 resource "aws_route_table_association" "hydrovis-sn-pub-1a_public" {
