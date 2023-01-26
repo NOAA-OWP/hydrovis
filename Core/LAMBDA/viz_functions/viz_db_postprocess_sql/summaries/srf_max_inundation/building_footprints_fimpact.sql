@@ -87,4 +87,4 @@ FROM derived.huc10s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc10 = crosswalk.huc10
 JOIN publish.srf_max_inundation AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.srf_max_inundation_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
-GROUP BY hucs.huc10, hucs.geom
+GROUP BY hucs.huc10, hucs.geom;

@@ -87,4 +87,4 @@ FROM derived.huc8s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc8 = crosswalk.huc8
 JOIN publish.ana_past_14day_max_inundation_7d AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_past_14day_max_inundation_7day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
-GROUP BY hucs.huc8, hucs.geom
+GROUP BY hucs.huc8, hucs.geom;
