@@ -42,6 +42,8 @@ resource "aws_imagebuilder_image_recipe" "linux" {
   parent_image = "arn:aws:imagebuilder:${var.region}:aws:image/amazon-linux-2-x86/x.x.x"
   version      = "1.0.0"
 
+  working_directory = "/tmp"
+
   block_device_mapping {
     device_name = "/dev/xvda"
 
@@ -92,6 +94,7 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
+                echo "Adding Postgres YUM Repo"
                 sudo tee /etc/yum.repos.d/pgdg.repo<<EOF
                 [pgdg12]
                 name=PostgreSQL 12 for RHEL/CentOS 7 - x86_64
@@ -104,20 +107,11 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
             }
           },
           {
-            name = "update_rsyslog"
-            action = "ExecuteBash"
-            inputs = {
-              commands = [
-                "sudo wget http://rpms.adiscon.com/v8-stable-nightly/rsyslog-nightly-rhel7.repo -P /etc/yum.repos.d",
-                "yum upgrade rsyslog --disablerepo=amzn2-core -y"
-              ]
-            }
-          },
-          {
             name = "add_docker_log_driver"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
+                echo "Adding Docker Logger Driver to Docker Daemon Config"
                 sudo tee /etc/docker/daemon.json<<EOF
                 {
                   "log-driver": "syslog",
@@ -136,6 +130,7 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
+                echo "Adding Rsyslog Log Template"
                 sudo tee /etc/rsyslog.d/01-json-template.conf<<EOF
                 template(name="json-template" type="list") {
                   constant(value="{")
@@ -156,45 +151,45 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
+                echo "Adding Rsyslog Destination Config"
                 sudo tee /etc/rsyslog.d/60-output.conf<<EOF
-                action(type="omfwd" template="json-template" target=\`echo \$LOGSTASH_IP\` port="5001" protocol="udp")
+                action(type="omfwd" template="json-template" target="logstash.hydrovis.internal" port="5001" protocol="udp")
                 EOF
                 EOT
               ]
             }
-          }
-        ]
-      },
-      {
-        name = "validate"
-        steps = [
+          },
           {
             name = "grab_docker-compose"
             action = "ExecuteBash"
             inputs = {
               commands = [
+                "echo \"Configuring docker-compose\"",
                 "curl -L https://github.com/docker/compose/releases/download/1.28.5/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose",
                 "chmod +x /usr/local/bin/docker-compose"
               ]
             }
-          }
-        ]
-      },
-      {
-        name = "test"
-        steps = [
+          },
           {
             name = "install_git_and_pgsql"
             action = "ExecuteBash"
             inputs = {
-              commands = ["yum install -y git postgresql12"]
+              commands = [
+                "echo \"Installing Git and Postgres\"",
+                "yum install -y git postgresql12"
+              ]
             }
           },
           {
             name = "restart_docker_and_rsyslog"
             action = "ExecuteBash"
             inputs = {
-              commands = ["sudo service docker restart;sudo service rsyslog restart"]
+              commands = [
+                "echo \"Restarting Docker\"",
+                "sudo service docker restart",
+                "echo \"Restarting Rsyslog\"",
+                "sudo service rsyslog restart"
+              ]
             }
           }
         ]
