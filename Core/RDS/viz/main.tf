@@ -38,6 +38,16 @@ resource "aws_db_subnet_group" "viz-processing" {
   }
 }
 
+resource "aws_db_parameter_group" "viz-processing-db-param-group" {
+  name   = "viz-processing-db-param-group"
+  family = "postgres12"
+
+  parameter {
+    name  = "shared_buffers"
+    value = "{DBInstanceClassMemory/10923}"
+  }
+}
+
 resource "aws_db_instance" "viz-processing" {
   identifier                   = "hydrovis-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
@@ -51,6 +61,7 @@ resource "aws_db_instance" "viz-processing" {
   db_subnet_group_name         = aws_db_subnet_group.viz-processing.name
   vpc_security_group_ids       = var.db_viz_processing_security_groups
   kms_key_id                   = var.rds_kms_key
+  parameter_group_name         = aws_db_parameter_group.viz-processing-db-param-group.name
   storage_encrypted            = true
   copy_tags_to_snapshot        = true
   performance_insights_enabled = true
