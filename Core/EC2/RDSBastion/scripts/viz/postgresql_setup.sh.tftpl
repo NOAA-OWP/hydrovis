@@ -85,11 +85,6 @@ aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_derived.dum
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_derived.dump"
 rm "$${HOME}/vizDB_derived.dump"
 
-echo "Setting up external schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_external.dump" "$${HOME}/vizDB_external.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_external.dump"
-rm "$${HOME}/vizDB_external.dump"
-
 echo "Setting up ingest schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_ingest.dump" "$${HOME}/vizDB_ingest.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_ingest.dump"
@@ -99,6 +94,11 @@ echo "Setting up publish schema in the VIZ DB..."
 aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_publish.dump" "$${HOME}/vizDB_publish.dump"
 pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_publish.dump"
 rm "$${HOME}/vizDB_publish.dump"
+
+echo "Setting up external schema in the VIZ DB..."
+aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/vizDB_external.dump" "$${HOME}/vizDB_external.dump"
+pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_external.dump"
+rm "$${HOME}/vizDB_external.dump"
 
 # Adding Dev Schema to Viz DB #ToDo: Only do this in Dev / TI environments.
 echo "Setting up dev schema in the VIZ DB and grant full permissions to both viz proc and dev users..."
@@ -129,10 +129,6 @@ psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDB
             CREATE SERVER vizprc_db FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${VIZDBHOST}', dbname '$${VIZDBNAME}', port '$${VIZDBPORT}');
             CREATE USER MAPPING FOR $${EGISDBUSERNAME} SERVER vizprc_db OPTIONS (user '$${VIZ_PROC_ADMIN_RW_USER}', password '$${VIZ_PROC_ADMIN_RW_PASS}');
             IMPORT FOREIGN SCHEMA publish FROM SERVER vizprc_db INTO vizprc_publish;"
-
-# Drop EGIS Reference Schema
-echo "Cleaning up EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
 
 # Restoring EGIS Reference Schema Dumps
 echo "Setting up reference schema in the EGIS DB..."
