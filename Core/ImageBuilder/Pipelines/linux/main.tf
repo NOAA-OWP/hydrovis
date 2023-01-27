@@ -32,9 +32,9 @@ resource "aws_imagebuilder_image_pipeline" "linux" {
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.linux.arn
   name                             = "amazon-linux-2-git-docker-psql-stig"
 
-  # schedule {
-  #   schedule_expression = "cron(0 0 * * ? *)"
-  # }
+  schedule {
+    schedule_expression = "cron(0 0 * * ? *)"
+  }
 }
 
 resource "aws_imagebuilder_image_recipe" "linux" {
