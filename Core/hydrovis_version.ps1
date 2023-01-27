@@ -1,0 +1,1 @@
+echo "{""version"": ""$(git describe --tags --abbrev=0)""}"

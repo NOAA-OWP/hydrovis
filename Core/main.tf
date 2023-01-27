@@ -19,6 +19,11 @@ locals {
   env = yamldecode(file("./sensitive/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
 }
 
+data "external" "hydrovis" {
+  program = ["powershell", "-windowstyle hidden","-command ./hydrovis_version.ps1"]
+  working_dir = path.root
+}
+
 provider "aws" {
   region                  = local.env.region
   profile                 = local.env.environment
@@ -27,6 +32,7 @@ provider "aws" {
   default_tags {
     tags = merge(local.env.tags, {
       CreatedBy            = "Terraform"
+      HydroVIS_Version     = data.external.hydrovis.result["version"]
     })
   }
 }
