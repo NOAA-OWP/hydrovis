@@ -51,7 +51,7 @@ resource "aws_db_parameter_group" "viz-processing-db-param-group" {
 resource "aws_db_instance" "viz-processing" {
   identifier                   = "hydrovis-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.m6g.xlarge"
+  instance_class               = "db.m6g.2xlarge"
   allocated_storage            = 500
   storage_type                 = "gp2"
   engine                       = "postgres"
