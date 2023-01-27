@@ -1086,11 +1086,11 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "HUC Processing Map": {
                   "Type": "Map",
                   "Iterator": {
-                    "StartAt": "FIM HUC Processing State Machine",
+                    "StartAt": "HUC Processing",
                     "States": {
-                      "FIM HUC Processing State Machine": {
+                      "HUC Processing": {
                         "Type": "Task",
-                        "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                        "Resource": "arn:aws:states:::lambda:invoke",
                         "Parameters": {
                           "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
                           "Name.$": "$.state_machine_name",
@@ -1105,8 +1105,35 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                             "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
                         },
-                        "End": true
+                        "Retry": [
+                          {
+                            "ErrorEquals": [
+                              "Lambda.ServiceException",
+                              "Lambda.AWSLambdaException",
+                              "Lambda.SdkClientException",
+                              "Lambda.TooManyRequestsException"
+                            ],
+                            "IntervalSeconds": 20,
+                            "MaxAttempts": 6,
+                            "BackoffRate": 1
+                          },
+                          {
+                            "ErrorEquals": [
+                              "HANDDatasetReadError"
+                            ],
+                            "BackoffRate": 1,
+                            "IntervalSeconds": 60,
+                            "MaxAttempts": 2,
+                            "Comment": "Issue Reading HAND Datasets"
+                          }
+                        ],
+                        "End": true,
+                        "ResultPath": null
                       }
+                    },
+                    "ProcessorConfig": {
+                      "Mode": "DISTRIBUTED",
+                      "ExecutionType": "EXPRESS"
                     }
                   },
                   "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
@@ -1535,7 +1562,7 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   "detail-type": ["Step Functions Execution Status Change"],
   "detail": {
     "status": ["FAILED", "TIMED_OUT"],
-    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
   EOF
