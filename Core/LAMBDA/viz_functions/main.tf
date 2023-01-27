@@ -960,7 +960,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Variable": "$.service.fim_service",
                 "BooleanEquals": true,
                 "Comment": "FIM Processing",
-                "Next": "FIM Processing"
+                "Next": "FIM Config Processing"
               }
             ],
             "Default": "Vector vs Raster"
@@ -1042,20 +1042,20 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             },
             "ResultPath": null
           },
-          "FIM Processing": {
+          "FIM Config Processing": {
             "Type": "Map",
             "Next": "Parallelize Summaries",
             "Iterator": {
-              "StartAt": "FIM Data Preparation",
+              "StartAt": "FIM Data Preparation - Setup HUC Branch Data",
               "States": {
-                "FIM Data Preparation": {
+                "FIM Data Preparation - Setup HUC Branch Data": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
                     "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
                     "Payload": {
                       "args.$": "$",
-                      "step": "fim_prep"
+                      "step": "setup_branch_iteration"
                     }
                   },
                   "Retry": [
@@ -1072,10 +1072,15 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "Next": "HUC Processing Map",
-                  "ResultPath": "$.s3_payload",
+                  "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
-                    "huc_processing_bucket.$": "$.Payload.huc_processing_bucket",
-                    "huc_processing_key.$": "$.Payload.huc_processing_key"
+                    "huc_branches_to_process.$": "$.Payload.huc_branches_to_process",
+                    "db_fim_table.$": "$.Payload.db_fim_table",
+                    "data_bucket.$": "$.Payload.data_bucket",
+                    "data_prefix.$": "$.Payload.data_prefix",
+                    "reference_time.$": "$.Payload.reference_time",
+                    "fim_config.$": "$.Payload.fim_config",
+                    "service.$": "$.Payload.service"
                   }
                 },
                 "HUC Processing Map": {
@@ -1087,8 +1092,18 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                         "Type": "Task",
                         "Resource": "arn:aws:states:::lambda:invoke",
                         "Parameters": {
-                          "Payload.$": "$",
-                          "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
+                          "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
+                          "Name.$": "$.state_machine_name",
+                          "Input": {
+                            "huc_branches_to_process.$": "$.huc_branches_to_process",
+                            "db_fim_table.$": "$.db_fim_table",
+                            "data_bucket.$": "$.data_bucket",
+                            "data_prefix.$": "$.data_prefix",
+                            "reference_time.$": "$.reference_time",
+                            "fim_config.$": "$.fim_config",
+                            "service.$": "$.service.service",
+                            "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
+                          }
                         },
                         "Retry": [
                           {
@@ -1121,28 +1136,20 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "ExecutionType": "EXPRESS"
                     }
                   },
+                  "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
                   "ResultPath": null,
-                  "Label": "HUCProcessingMap",
-                  "ItemReader": {
-                    "Resource": "arn:aws:states:::s3:getObject",
-                    "ReaderConfig": {
-                      "InputType": "CSV",
-                      "CSVHeaderLocation": "FIRST_ROW"
-                    },
-                    "Parameters": {
-                      "Bucket.$": "$.s3_payload.huc_processing_bucket",
-                      "Key.$": "$.s3_payload.huc_processing_key"
-                    }
+                  "Next": "Postprocess SQL - FIM Config",
+                  "ItemSelector": {
+                    "huc_branches_to_process.$": "$$.Map.Item.Value",
+                    "db_fim_table.$": "$.huc_processing_payload.db_fim_table",
+                    "data_bucket.$": "$.huc_processing_payload.data_bucket",
+                    "data_prefix.$": "$.huc_processing_payload.data_prefix",
+                    "reference_time.$": "$.huc_processing_payload.reference_time",
+                    "fim_config.$": "$.huc_processing_payload.fim_config",
+                    "service.$": "$.service",
+                    "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
                   },
-                  "ResultWriter": {
-                    "Resource": "arn:aws:states:::s3:putObject",
-                    "Parameters": {
-                      "Bucket": "hydrovis-ti-fim-us-east-1",
-                      "Prefix": "logs/viz_pipeline_ti/"
-                    }
-                  },
-                  "MaxConcurrency": 250,
-                  "Next": "Postprocess SQL - FIM Config"
+                  "MaxConcurrency": 4
                 },
                 "Postprocess SQL - FIM Config": {
                   "Type": "Task",
@@ -1446,6 +1453,100 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     }
   },
   "TimeoutSeconds": 3600
+}
+  EOF
+}
+
+resource "aws_sfn_state_machine" "huc_processing_step_function" {
+  name     = "huc_processing_${var.environment}"
+  role_arn = var.lambda_role
+
+  definition = <<EOF
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "FIM Data Prep - Get HUC Branch Processes",
+  "States": {
+    "FIM Data Prep - Get HUC Branch Processes": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
+        "Payload": {
+          "args.$": "$",
+          "step": "get_branch_iteration"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "HUC 8 Map",
+      "ResultPath": "$.huc_branch_data",
+      "ResultSelector": {
+        "huc_branches_to_process.$": "$.Payload.huc_branches_to_process"
+      }
+    },
+    "HUC 8 Map": {
+      "Type": "Map",
+      "End": true,
+      "Iterator": {
+        "StartAt": "HUC Processing",
+        "States": {
+          "HUC Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.fim_huc_processing}"
+            },
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 3,
+                "Comment": "Handle insufficient capacity"
+              },
+              {
+                "ErrorEquals": [
+                  "HANDDatasetReadError"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 2,
+                "Comment": "Issue Reading HAND Datasets"
+              }
+            ]
+          }
+        }
+      },
+      "MaxConcurrency": 40,
+      "ItemsPath": "$.huc_branch_data.huc_branches_to_process",
+      "Parameters": {
+        "huc.$": "$$.Map.Item.Value.huc",
+        "huc8_branch.$": "$$.Map.Item.Value.huc8_branch",
+        "data_prefix.$": "$.data_prefix",
+        "data_bucket.$": "$.data_bucket",
+        "fim_config.$": "$.fim_config",
+        "service.$": "$.service",
+        "reference_time.$": "$.reference_time",
+        "db_fim_table.$": "$.db_fim_table"
+      }
+    }
+  }
 }
   EOF
 }
