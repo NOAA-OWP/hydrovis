@@ -266,7 +266,7 @@ module "lambda_layers" {
 
   environment        = local.env.environment
   viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
-  lambda_data_bucket = module.s3.buckets["deployment"].bucket
+  deployment_bucket = module.s3.buckets["deployment"].bucket
 }
 
 # Lambda Functions
@@ -281,7 +281,7 @@ module "viz_lambda_functions" {
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
   fim_output_bucket             = module.s3.buckets["fim"].bucket
   max_flows_bucket              = module.s3.buckets["fim"].bucket
-  lambda_data_bucket            = module.s3.buckets["deployment"].bucket
+  deployment_bucket            = module.s3.buckets["deployment"].bucket
   viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn

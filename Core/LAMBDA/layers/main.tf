@@ -8,7 +8,7 @@ variable "viz_environment" {
   type        = string
 }
 
-variable "lambda_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 buckets where the lambda zip files will live."
   type        = string
 }
@@ -31,9 +31,24 @@ resource "aws_lambda_layer_version" "es_logging" {
 ## Viz Lambda Shared Functions Layer ##
 #######################################
 
+data "archive_file" "viz_lambda_shared_funcs_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_lambda_shared_funcs"
+
+  output_path = "${path.module}/viz_lambda_shared_funcs_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "viz_lambda_shared_funcs_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_lambda_shared_funcs.zip"
+  source      = data.archive_file.viz_lambda_shared_funcs_zip.output_path
+  source_hash = filemd5(data.archive_file.viz_lambda_shared_funcs_zip.output_path)
+}
+
 resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
-  filename         = "${path.module}/viz_lambda_shared_funcs.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_lambda_shared_funcs.zip")
+  s3_bucket = aws_s3_object.viz_lambda_shared_funcs_zip_upload.bucket
+  s3_key = aws_s3_object.viz_lambda_shared_funcs_zip_upload.key
 
   layer_name = "viz_lambda_shared_funcs_${var.environment}"
 
@@ -46,7 +61,7 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 #############################
 
 resource "aws_s3_object" "arcgis_python_api" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/arcgis_python_api.zip"
   source = "${path.module}/arcgis_python_api.zip"
   source_hash = filemd5("${path.module}/arcgis_python_api.zip")
@@ -82,7 +97,7 @@ resource "aws_lambda_layer_version" "pandas" {
 
 
 resource "aws_s3_object" "geopandas" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/geopandas.zip"
   source = "${path.module}/geopandas.zip"
   source_hash = filemd5("${path.module}/geopandas.zip")
@@ -117,7 +132,7 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 ##########################
 
 resource "aws_s3_object" "huc_proc_combo" {
-  bucket = var.lambda_data_bucket
+  bucket = var.deployment_bucket
   key    = "lambda_layers/huc_proc_combo.zip"
   source = "${path.module}/huc_proc_combo.zip"
   source_hash = filemd5("${path.module}/huc_proc_combo.zip")

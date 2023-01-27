@@ -74,11 +74,19 @@ variable "egis_db_user_secret_string" {
 ## RASTER PROCESSING LAMBDA ##
 ##############################
 
-resource "aws_s3_object" "rp_setup_upload" {
+data "archive_file" "raster_processing_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_raster_processing"
+
+  output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "raster_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_raster_processing.zip"
-  source      = "${path.module}/viz_raster_processing.zip"
-  source_hash = filemd5("${path.module}/viz_raster_processing.zip")
+  source      = data.archive_file.raster_processing_zip.output_path
+  source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
 }
 
 resource "aws_ecr_repository" "viz_raster_processing_image" {
@@ -157,14 +165,14 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
 
   source {
     type            = "S3"
-    location        = "${aws_s3_object.rp_setup_upload.bucket}/${aws_s3_object.rp_setup_upload.key}"
+    location        = "${aws_s3_object.raster_processing_zip_upload.bucket}/${aws_s3_object.raster_processing_zip_upload.key}"
   }
 }
 
 resource "null_resource" "viz_raster_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5("${path.module}/viz_raster_processing.zip")
+    source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
   }
 
   provisioner "local-exec" {
@@ -176,11 +184,19 @@ resource "null_resource" "viz_raster_processing_cluster" {
 ## OPTIMIZE RASTERS LAMBDA ##
 ##############################
 
-resource "aws_s3_object" "or_setup_upload" {
+data "archive_file" "optimize_rasters_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_optimize_rasters"
+
+  output_path = "${path.module}/viz_optimize_rasters_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "optimize_rasters_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_optimize_rasters.zip"
-  source      = "${path.module}/viz_optimize_rasters.zip"
-  source_hash = filemd5("${path.module}/viz_optimize_rasters.zip")
+  source      = data.archive_file.optimize_rasters_zip.output_path
+  source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
 }
 
 resource "aws_ecr_repository" "viz_optimize_rasters_image" {
@@ -249,14 +265,14 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
 
   source {
     type            = "S3"
-    location        = "${aws_s3_object.or_setup_upload.bucket}/${aws_s3_object.or_setup_upload.key}"
+    location        = "${aws_s3_object.optimize_rasters_zip_upload.bucket}/${aws_s3_object.optimize_rasters_zip_upload.key}"
   }
 }
 
 resource "null_resource" "viz_optimize_rasters_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5("${path.module}/viz_optimize_rasters.zip")
+    source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
   }
 
   provisioner "local-exec" {
@@ -268,11 +284,19 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
 ## HUC PROCESSING LAMBDA ##
 ##############################
 
-resource "aws_s3_object" "huc_processing_setup_upload" {
+data "archive_file" "huc_processing_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_fim_huc_processing"
+
+  output_path = "${path.module}/viz_fim_huc_processing_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "huc_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_fim_huc_processing.zip"
-  source      = "${path.module}/viz_fim_huc_processing.zip"
-  source_hash = filemd5("${path.module}/viz_fim_huc_processing.zip")
+  source      = data.archive_file.huc_processing_zip.output_path
+  source_hash = filemd5(data.archive_file.huc_processing_zip.output_path)
 }
 
 resource "aws_ecr_repository" "viz_fim_huc_processing_image" {
@@ -334,23 +358,13 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
     }
 
     environment_variable {
-      name  = "FR_FIM_BUCKET"
+      name  = "FIM_BUCKET"
       value = var.fim_data_bucket
     }
 
     environment_variable {
-      name  = "FR_FIM_PREFIX"
-      value = "fim_${replace(var.fim_version, ".", "_")}_fr_c"
-    }
-
-    environment_variable {
-      name  = "MS_FIM_BUCKET"
-      value = var.fim_data_bucket
-    }
-
-    environment_variable {
-      name  = "MS_FIM_PREFIX"
-      value = "fim_${replace(var.fim_version, ".", "_")}_ms_c"
+      name  = "FIM_PREFIX"
+      value = "fim_${replace(var.fim_version, ".", "_")}"
     }
 
     environment_variable {
@@ -416,14 +430,14 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
 
   source {
     type            = "S3"
-    location        = "${aws_s3_object.huc_processing_setup_upload.bucket}/${aws_s3_object.huc_processing_setup_upload.key}"
+    location        = "${aws_s3_object.huc_processing_zip_upload.bucket}/${aws_s3_object.huc_processing_zip_upload.key}"
   }
 }
 
 resource "null_resource" "viz_fim_huc_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5("${path.module}/viz_fim_huc_processing.zip")
+    source_hash = filemd5(data.archive_file.huc_processing_zip.output_path)
   }
 
   provisioner "local-exec" {
