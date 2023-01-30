@@ -112,6 +112,14 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
 
+echo "Setting up external.usgs_gage table in the EVIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
+    -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+            DROP SERVER IF EXISTS wrds_location CASCADE;
+            CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${LOCATIONDBHOST}', dbname '$${LOCATIONDBNAME}', port '$${LOCATIONDBPORT}');
+            CREATE USER MAPPING FOR $${VIZDBUSERNAME} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
+            IMPORT FOREIGN SCHEMA public LIMIT TO (usgs_gage) FROM SERVER wrds_location INTO external;"
+
 # Setting up EGIS DB - Part 2
 export PGPASSWORD=$${EGISDBPASSWORD}
 
