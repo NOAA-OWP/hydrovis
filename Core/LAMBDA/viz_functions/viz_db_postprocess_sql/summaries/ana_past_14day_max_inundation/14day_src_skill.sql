@@ -17,7 +17,7 @@ SELECT
 INTO publish.ana_past_14day_max_inundation_14day_src_skill
 FROM cache.max_flows_ana_14day AS ana
 JOIN derived.recurrence_flows_conus thresholds ON ana.feature_id = thresholds.feature_id AND ana.max_flow_14day_cfs >= thresholds.high_water_threshold
-JOIN derived.hydrotable_ms_staggered AS ht ON ht.feature_id = ana.feature_id AND ana.max_flow_14day_cfs >= ht.discharge_cfs AND ana.max_flow_14day_cfs <= ht.next_discharge_cfs
+JOIN derived.hydrotable_staggered AS ht ON ht.feature_id = ana.feature_id AND ana.max_flow_14day_cfs >= ht.discharge_cfs AND ana.max_flow_14day_cfs <= ht.next_discharge_cfs
 JOIN derived.usgs_rating_curves_staggered AS urc ON urc.location_id = ht.location_id AND ana.max_flow_14day_cfs >= urc.discharge_cfs AND ana.max_flow_14day_cfs <= urc.next_discharge_cfs
 JOIN external.usgs_gage AS gage ON LPAD(gage.usgs_gage_id::text, 8, '0') = LPAD(ht.location_id::text, 8, '0')
 GROUP BY urc.location_id, ht.feature_id, max_flow_14day_cfs;
