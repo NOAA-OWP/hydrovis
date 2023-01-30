@@ -45,6 +45,7 @@ resource "aws_db_parameter_group" "viz-processing-db-param-group" {
   parameter {
     name  = "shared_buffers"
     value = "{DBInstanceClassMemory/10923}"
+    apply_method = "pending-reboot"
   }
 }
 
