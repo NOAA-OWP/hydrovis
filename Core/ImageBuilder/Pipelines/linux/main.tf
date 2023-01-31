@@ -30,6 +30,7 @@ variable "ami_sharing_account_ids" {
 resource "aws_imagebuilder_image_pipeline" "linux" {
   image_recipe_arn                 = aws_imagebuilder_image_recipe.linux.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.linux.arn
+  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
   name                             = "amazon-linux-2-git-docker-psql-stig"
 
   schedule {
@@ -202,6 +203,8 @@ data "aws_key_pair" "ec2" {
   key_name = "hv-${var.environment}-ec2-key-pair-${var.region}"
 }
 
+data "aws_default_tags" "default" {}
+
 resource "aws_imagebuilder_infrastructure_configuration" "linux" {
   name                          = "amazon-linux-2-git-docker-psql-stig"
   description                   = "amazon-linux-2-git-docker-psql-stig"
@@ -218,6 +221,8 @@ resource "aws_imagebuilder_infrastructure_configuration" "linux" {
       s3_key_prefix  = "logs"
     }
   }
+
+  resource_tags = { for k, v in data.aws_default_tags.default.tags: k => v if k != "CreatedBy" }
 }
 
 resource "aws_imagebuilder_distribution_configuration" "linux" {
@@ -225,7 +230,7 @@ resource "aws_imagebuilder_distribution_configuration" "linux" {
 
   distribution {
     ami_distribution_configuration {
-      name = "${aws_imagebuilder_image_pipeline.linux.name}-{{ imagebuilder:buildDate }}"
+      name = "${aws_imagebuilder_image_recipe.linux.name}-{{ imagebuilder:buildDate }}"
       target_account_ids = var.ami_sharing_account_ids
     }
 
