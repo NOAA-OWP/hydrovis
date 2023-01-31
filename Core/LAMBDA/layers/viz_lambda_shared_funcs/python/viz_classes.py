@@ -188,6 +188,43 @@ class s3_file:
 
     ###################################
     @classmethod
+    def from_eventbridge(cls, event):
+        configuration = event['resources'][0].split("/")[-1]
+        eventbridge_time = datetime.datetime.strptime(event['time'], '%Y-%m-%dT%H:%M:%SZ')
+
+        if "analysis_assim" in configuration:
+            base_config = "analysis_assim"
+        elif "short_range" in configuration:
+            base_config = "short_range"
+        elif "medium_range" in configuration:
+            base_config = "medium_range"
+
+        nwm_file_type = configuration.split(base_config)[0][:-1]
+        domain = configuration.split(base_config)[-1]
+        if domain:
+            domain = domain[1:]
+            configuration = f"{base_config}_{domain}"
+        else:
+            domain = "conus"
+            configuration = base_config
+
+        if base_config == "analysis_assim":
+            if domain == "hawaii":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
+        elif base_config == "short_range":
+            if domain != "conus":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=12)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+        elif base_config == "medium_range":
+            reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
+        
+        return configuration, reference_time, "nomads"
+
+    ###################################
+    @classmethod
     def get_most_recent_from_configuration(cls, configuration_name, bucket):
         s3 = boto3.client('s3')
         # Set the S3 prefix based on the confiuration

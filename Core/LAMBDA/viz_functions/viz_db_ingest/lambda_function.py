@@ -55,7 +55,7 @@ def lambda_handler(event, context):
         try:
             download_path = f'/tmp/{os.path.basename(file)}'
             print(f"--> Downloading {file} to {download_path}")
-            if 'https://storage.googleapis.com/national-water-model' in file:
+            if 'https' in file:
                 open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
             else:
                 s3.download_file(bucket, file, download_path)

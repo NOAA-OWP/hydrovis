@@ -146,6 +146,8 @@ class viz_lambda_pipeline:
     def __init__(self, start_event, print_init=True):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
+        if self.start_event.get("detail-type") == "Scheduled Event":
+            self.invocation_type = "eventbridge" 
         if "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
         elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
@@ -155,9 +157,12 @@ class viz_lambda_pipeline:
         self.keep_raw = True if self.job_type == "past_event" and self.start_event.get('keep_raw') else False # Keep_raw will determine if a past_event run preserves the raw ingest data tables in the archive schema, or recycles them.
         self.start_time = datetime.datetime.fromtimestamp(time.time())
 
+        if self.start_event.get("detail-type") == "Scheduled Event":
+            config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
-        if self.invocation_type == "sns" or self.start_event.get('data_key'):
+        elif self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
             self.configuration = configuration.from_s3_file(self.start_file)
         # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
