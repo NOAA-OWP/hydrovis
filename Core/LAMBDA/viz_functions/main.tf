@@ -375,6 +375,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       VIZ_DB_HOST         = var.viz_db_host
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket

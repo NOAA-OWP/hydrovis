@@ -114,7 +114,7 @@ def lambda_handler(event, context):
             ref_time_short = pipeline.configuration.reference_time.strftime("%Y-%m-%d-%H-%M")
             short_config = pipeline.configuration.name.replace("puertorico", "prvi").replace("hawaii", "hi")
             short_config = short_config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf").replace("replace_route", "rnr")
-            short_invoke = pipeline.invocation_type.replace("manual", "man")
+            short_invoke = pipeline.invocation_type.replace("manual", "man").replace("eventbridge", "bdg")
             pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
             client.start_execution(
                 stateMachineArn = step_function_arn,

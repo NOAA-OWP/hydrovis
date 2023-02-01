@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     reference_time = event['reference_time']
     keep_flows_at_or_above = event['keep_flows_at_or_above']
     
-    print(f"Checking existance of {file} on S3 / Google Cloud.")
+    print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
     file = check_if_file_exists(bucket, file)
     
     if not target_table:
@@ -57,6 +57,11 @@ def lambda_handler(event, context):
             print(f"--> Downloading {file} to {download_path}")
             if 'https' in file:
                 open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
+                
+                if "para" in file:
+                    s3_file = file.replace("https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para", "common/data/model/com/nwm/para")
+                    print(f"Saving {s3_file} to {bucket} for archiving")
+                    s3.upload_file(download_path, bucket, s3_file)
             else:
                 s3.download_file(bucket, file, download_path)
     
@@ -116,19 +121,26 @@ def lambda_handler(event, context):
     return json.dumps(dump_dict)    # Return some info on the import
 
 def check_if_file_exists(bucket, file):
-    file_source = 'Google' if 'https://storage.googleapis.com/national-water-model' in file else 'S3'
-    if file_source == 'S3':
+    if "https" in file:
+        if requests.head(file).status_code == 200:
+            print(f"{file} exists.")
+            return file
+        else:
+            raise Exception(f"https file doesn't seem to exist: {file}")
+        
+    else:
         if s3_file(bucket, file).check_existence():
             print("File exists on S3.")
             return file
-        elif requests.head(file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')).status_code == 200:
-            print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-            return file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-        else:
-            raise MissingS3FileException(f"{file} does not exist on S3.")
-    elif file_source == 'Google':
-        if requests.head(file).status_code == 200:
-            print("File exists on Google Cloud.")
-            return file
-        else:
-            raise Exception(f"Google Cloud file doesn't seem to exist: {file}")
+        elif "/prod" in file:
+            google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+            if requests.head(google_file).status_code == 200:
+                print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+                return google_file
+        elif "/para" in file:
+            para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+            if requests.head(para_nomads_file).status_code == 200:
+                print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
+                return para_nomads_file
+
+        raise MissingS3FileException(f"{file} does not exist on S3.")

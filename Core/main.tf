@@ -307,6 +307,13 @@ module "viz_lambda_functions" {
   dataservices_ip               = module.data-services.dataservices-ip
 }
 
+# Simple Service Notifications
+module "sns" {
+  source = "./EventBridge"
+
+  viz_initialize_pipeline_lambda = module.viz_lambda_functions.initialize_pipeline
+}
+
 # MQ
 module "mq-ingest" {
   source = "./MQ/ingest"

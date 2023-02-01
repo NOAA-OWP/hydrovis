@@ -207,21 +207,32 @@ class s3_file:
         else:
             domain = "conus"
             configuration = base_config
-
+            
+        if nwm_file_type == "forcing":
+            configuration = f"{nwm_file_type}_{configuration}"
+            
         if base_config == "analysis_assim":
-            if domain == "hawaii":
-                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
-            else:
-                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
+            reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
         elif base_config == "short_range":
-            if domain != "conus":
-                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=12)
+            if domain in ["hawaii", "puertorico"]:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=3)
+            elif domain == "alaska":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
         elif base_config == "medium_range":
-            reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
+            if nwm_file_type == "forcing":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=5)
+            elif "alaska" in domain:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
+
+        reference_time = reference_time - datetime.timedelta(hours=1)  # Adding additional hour delay for getting data to para. May need to revisit this when para data is on prod
+
+        bucket = os.environ.get("DATA_BUCKET_UPLOAD") if os.environ.get("DATA_BUCKET_UPLOAD") else "nomads"
         
-        return configuration, reference_time, "nomads"
+        return configuration, reference_time, bucket
 
     ###################################
     @classmethod
