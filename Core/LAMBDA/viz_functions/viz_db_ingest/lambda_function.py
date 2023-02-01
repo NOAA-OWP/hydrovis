@@ -57,11 +57,6 @@ def lambda_handler(event, context):
             print(f"--> Downloading {file} to {download_path}")
             if 'https' in file:
                 open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
-                
-                if "para" in file:
-                    s3_file = file.replace("https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para", "common/data/model/com/nwm/para")
-                    print(f"Saving {s3_file} to {bucket} for archiving")
-                    s3.upload_file(download_path, bucket, s3_file)
             else:
                 s3.download_file(bucket, file, download_path)
     
@@ -141,6 +136,13 @@ def check_if_file_exists(bucket, file):
             para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
             if requests.head(para_nomads_file).status_code == 200:
                 print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
-                return para_nomads_file
+                
+                download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
+                open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
+                
+                print(f"Saving {file} to {bucket} for archiving")
+                s3.upload_file(download_path, bucket, file)
+                os.remove(download_path)
+                return file
 
         raise MissingS3FileException(f"{file} does not exist on S3.")

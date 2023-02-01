@@ -148,11 +148,12 @@ class viz_lambda_pipeline:
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
             self.invocation_type = "eventbridge" 
-        if "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
+        elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
         elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
-        else: self.invocation_type = "manual"
+        else: 
+            self.invocation_type = "manual"
         self.job_type = "auto" if not self.start_event.get('reference_time') else "past_event" # We assume that the specification of a reference_time in the payload correlates to a past_event run.
         self.keep_raw = True if self.job_type == "past_event" and self.start_event.get('keep_raw') else False # Keep_raw will determine if a past_event run preserves the raw ingest data tables in the archive schema, or recycles them.
         self.start_time = datetime.datetime.fromtimestamp(time.time())
