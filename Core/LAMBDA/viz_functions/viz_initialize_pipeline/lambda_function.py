@@ -181,7 +181,8 @@ class viz_lambda_pipeline:
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
         self.pipeline_services = self.configuration.services_to_run
-        self.pipeline_max_flows =  [{"max_flows" : name for name in self.configuration.max_flows}] if len(self.configuration.max_flows) > 0 else [] # Max_Flows will post-process BEFORE service post-processing
+        self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE service post-processing
+        
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
         
@@ -302,7 +303,9 @@ class configuration:
         self.service_metadata = self.get_service_metadata()
         self.db_data_flow_metadata = self.get_db_data_flow_metadata()
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
-        self.max_flows = list(set([service['postprocess_max_flows'] for service in self.services_to_run if service['postprocess_max_flows'] is not None])) #Unique list of max_flows
+        self.max_flows = []
+        for service in self.services_to_run:
+            self.max_flows.extend([max_flow for max_flow in service['postprocess_max_flows'] if max_flow not in self.max_flows])
 
         self.data_type = 'channel'
         if 'forcing' in name:

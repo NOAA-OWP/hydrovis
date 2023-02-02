@@ -942,7 +942,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       "ResultPath": null,
       "ItemsPath": "$.pipeline_info.max_flows",
       "Parameters": {
-        "map_item.$": "$$.Map.Item.Value.max_flows",
+        "map_item.$": "$$.Map.Item.Value",
         "max_flows.$": "$$.Map.Item.Value",
         "reference_time.$": "$.pipeline_info.reference_time",
         "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
