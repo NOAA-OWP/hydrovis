@@ -1,5 +1,5 @@
 -- HUC8 Hotpsot Layer for Rapid Onset Flooding
-DROP TABLE IF EXISTS PUBLISH.mrf_nbm_rapid_onset_flooding_hucs;
+DROP TABLE IF EXISTS publish.mrf_nbm_rapid_onset_flooding_hucs;
 SELECT
 	hucs.huc8,
 	TO_CHAR(hucs.huc8, 'fm00000000') AS huc8_str,

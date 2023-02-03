@@ -1,11 +1,12 @@
-DROP TABLE IF EXISTS CACHE.MAX_FLOWS_ANA_14DAY;
+DROP TABLE IF EXISTS cache.max_flows_ana_14day;
 
-SELECT MAX_7DAY_FORECAST.FEATURE_ID,
-	'1900-01-01 00:00:00'::timestamp without time zone AS reference_time,
-	ROUND(MAX_7DAY_FORECAST.STREAMFLOW::numeric, 2)  AS MAX_FLOW_7DAY_cms,
-	ROUND(MAX_14DAY_FORECAST.STREAMFLOW::numeric, 2) AS MAX_FLOW_14DAY_cms,
-	ROUND((MAX_7DAY_FORECAST.STREAMFLOW * 35.315)::numeric, 2)  AS MAX_FLOW_7DAY_cfs,
-	ROUND((MAX_14DAY_FORECAST.STREAMFLOW * 35.315)::numeric, 2) AS MAX_FLOW_14DAY_cfs
-INTO CACHE.MAX_FLOWS_ANA_14DAY
-FROM INGEST.NWM_CHANNEL_RT_ANA_7DAY_MAX AS MAX_7DAY_FORECAST
-JOIN INGEST.NWM_CHANNEL_RT_ANA_14DAY_MAX AS MAX_14DAY_FORECAST ON (MAX_7DAY_FORECAST.FEATURE_ID = MAX_14DAY_FORECAST.FEATURE_ID);
+SELECT max_7day_forecast.feature_id,
+	max_7day_forecast.reference_time,
+	max_7day_forecast.nwm_vers,
+	ROUND(max_7day_forecast.streamflow::numeric, 2)  AS max_flow_7day_cms,
+	ROUND(max_14day_forecast.streamflow::numeric, 2) AS max_flow_14day_cms,
+	ROUND((max_7day_forecast.streamflow * 35.315)::numeric, 2)  AS max_flow_7day_cfs,
+	ROUND((max_14day_forecast.streamflow * 35.315)::numeric, 2) AS max_flow_14day_cfs
+INTO cache.max_flows_ana_14day
+FROM ingest.nwm_channel_rt_ana_7day_max AS max_7day_forecast
+JOIN ingest.nwm_channel_rt_ana_14day_max AS max_14day_forecast ON (max_7day_forecast.feature_id = max_14day_forecast.feature_id);

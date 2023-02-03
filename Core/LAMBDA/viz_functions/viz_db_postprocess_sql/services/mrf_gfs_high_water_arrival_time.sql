@@ -1,13 +1,16 @@
 DROP TABLE IF EXISTS publish.mrf_gfs_high_water_arrival_time;
 WITH arrival_time AS (
-     SELECT forecasts.feature_id, min(forecasts.forecast_hour) AS t_high_water_threshold,
-            CASE WHEN max(forecasts.forecast_hour) >= 240 THEN '> 10 days'::text
-			           ELSE (max(forecasts.forecast_hour)+3)::text
-                 END AS t_normal,
-            CASE
-                WHEN max(forecasts.forecast_hour) >= 240 THEN 'Outside MRF Forecast Window'::text
-                ELSE ((max(forecasts.forecast_hour)+3) - min(forecasts.forecast_hour))::text
-                END AS duration,
+     SELECT forecasts.feature_id, 
+        min(forecasts.forecast_hour) AS t_high_water_threshold,
+        forecasts.nwm_vers,
+        forecasts.reference_time,
+        CASE WHEN max(forecasts.forecast_hour) >= 240 THEN '> 10 days'::text
+              ELSE (max(forecasts.forecast_hour)+3)::text
+              END AS t_normal,
+        CASE
+            WHEN max(forecasts.forecast_hour) >= 240 THEN 'Outside MRF Forecast Window'::text
+            ELSE ((max(forecasts.forecast_hour)+3) - min(forecasts.forecast_hour))::text
+            END AS duration,
         thresholds.high_water_threshold AS high_water_threshold,
         round((max(forecasts.streamflow) * 35.315::double precision)::numeric, 2) AS max_flow,
         to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time
@@ -22,8 +25,8 @@ channels.feature_id::TEXT AS feature_id_str,
 channels.name,
 channels.strm_order,
 channels.huc6,
-channels.nwm_vers,
-to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
+arrival_time.nwm_vers,
+arrival_time.reference_time,
 arrival_time.t_high_water_threshold,
 arrival_time.t_normal,
 arrival_time.duration,

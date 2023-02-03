@@ -7,3 +7,6 @@ DROP INDEX IF EXISTS {target_schema}.{index_name};
 
 --> Truncate target table
 TRUNCATE TABLE {target_table};
+
+--> Remove reference time column
+ALTER TABLE {target_table} DROP COLUMN IF EXISTS reference_time;
