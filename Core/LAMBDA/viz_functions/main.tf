@@ -33,7 +33,7 @@ variable "fim_output_bucket" {
   type        = string
 }
 
-variable "lambda_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 buckets where the lambda zip files will live."
   type        = string
 }
@@ -187,6 +187,21 @@ locals {
 ###############################
 ## WRDS API Handler Function ##
 ###############################
+data "archive_file" "wrds_api_handler_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
+
+  output_path = "${path.module}/viz_wrds_api_handler_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "wrds_api_handler_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_wrds_api_handler.zip"
+  source      = data.archive_file.wrds_api_handler_zip.output_path
+  source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
+}
+
 resource "aws_lambda_function" "viz_wrds_api_handler" {
   function_name = "viz_wrds_api_handler_${var.environment}"
   description   = "Lambda function to ping WRDS API and format outputs for processing."
@@ -204,8 +219,9 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
       INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
-  filename         = "${path.module}/viz_wrds_api_handler.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_wrds_api_handler.zip")
+  s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
+  s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
+  source_code_hash = aws_s3_object.wrds_api_handler_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -252,6 +268,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
 ########################
 ## Max Flows Function ##
 ########################
+data "archive_file" "max_flows_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_max_flows/lambda_function.py"
+
+  output_path = "${path.module}/viz_max_flows_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "max_flows_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_max_flows.zip"
+  source      = data.archive_file.max_flows_zip.output_path
+  source_hash = filemd5(data.archive_file.max_flows_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_max_flows" {
   function_name = "viz_max_flows_${var.environment}"
@@ -266,9 +296,9 @@ resource "aws_lambda_function" "viz_max_flows" {
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
-
-  filename         = "${path.module}/viz_max_flows.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_max_flows.zip")
+  s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
+  s3_key           = aws_s3_object.max_flows_zip_upload.key
+  source_code_hash = aws_s3_object.max_flows_zip_upload.source_hash
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -314,6 +344,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_max_flows" {
 #############################
 ##   Initialize Pipeline   ##
 #############################
+data "archive_file" "initialize_pipeline_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_initialize_pipeline/lambda_function.py"
+
+  output_path = "${path.module}/viz_initialize_pipeline_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "initialize_pipeline_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_initialize_pipeline.zip"
+  source      = data.archive_file.initialize_pipeline_zip.output_path
+  source_hash = filemd5(data.archive_file.initialize_pipeline_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_initialize_pipeline" {
   function_name = "viz_initialize_pipeline_${var.environment}"
@@ -333,8 +377,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_initialize_pipeline.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_initialize_pipeline.zip")
+  s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
+  s3_key           = aws_s3_object.initialize_pipeline_zip_upload.key
+  source_code_hash = aws_s3_object.initialize_pipeline_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -376,6 +421,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_dest
 #############################
 ##   DB Postprocess SQL    ##
 #############################
+data "archive_file" "db_postprocess_sql_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_db_postprocess_sql"
+
+  output_path = "${path.module}/viz_db_postprocess_sql_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_db_postprocess_sql.zip"
+  source      = data.archive_file.db_postprocess_sql_zip.output_path
+  source_hash = filemd5(data.archive_file.db_postprocess_sql_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_db_postprocess_sql" {
   function_name = "viz_db_postprocess_sql_${var.environment}"
@@ -394,8 +453,9 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_db_postprocess_sql.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_db_postprocess_sql.zip")
+  s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
+  s3_key           = aws_s3_object.db_postprocess_sql_zip_upload.key
+  source_code_hash = aws_s3_object.db_postprocess_sql_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -421,6 +481,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_postprocess_sql_desti
 #############################
 ##        DB Ingest        ##
 #############################
+data "archive_file" "db_ingest_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_db_ingest/lambda_function.py"
+
+  output_path = "${path.module}/viz_db_ingest_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "db_ingest_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_db_ingest.zip"
+  source      = data.archive_file.db_ingest_zip.output_path
+  source_hash = filemd5(data.archive_file.db_ingest_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_db_ingest" {
   function_name = "viz_db_ingest_${var.environment}"
@@ -439,8 +513,9 @@ resource "aws_lambda_function" "viz_db_ingest" {
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_db_ingest.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_db_ingest.zip")
+  s3_bucket        = aws_s3_object.db_ingest_zip_upload.bucket
+  s3_key           = aws_s3_object.db_ingest_zip_upload.key
+  source_code_hash = aws_s3_object.db_ingest_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -468,6 +543,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 #############################
 ##      FIM Data Prep      ##
 #############################
+data "archive_file" "fim_data_prep_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_fim_data_prep"
+
+  output_path = "${path.module}/viz_fim_data_prep_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "fim_data_prep_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_fim_data_prep.zip"
+  source      = data.archive_file.fim_data_prep_zip.output_path
+  source_hash = filemd5(data.archive_file.fim_data_prep_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_fim_data_prep" {
   function_name = "viz_fim_data_prep_${var.environment}"
@@ -480,6 +569,10 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
   }
   environment {
     variables = {
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
       FIM_DATA_BUCKET             = var.fim_data_bucket
       FIM_VERSION                 = var.fim_version
       PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
@@ -490,8 +583,9 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
-  filename         = "${path.module}/viz_fim_data_prep.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_fim_data_prep.zip")
+  s3_bucket        = aws_s3_object.fim_data_prep_zip_upload.bucket
+  s3_key           = aws_s3_object.fim_data_prep_zip_upload.key
+  source_code_hash = aws_s3_object.fim_data_prep_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -519,6 +613,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_fim_data_prep_destinatio
 #############################
 ##    Update EGIS Data     ##
 #############################
+data "archive_file" "update_egis_data_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_update_egis_data/lambda_function.py"
+
+  output_path = "${path.module}/viz_update_egis_data_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "update_egis_data_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_update_egis_data.zip"
+  source      = data.archive_file.update_egis_data_zip.output_path
+  source_hash = filemd5(data.archive_file.update_egis_data_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_update_egis_data" {
   function_name = "viz_update_egis_data_${var.environment}"
@@ -539,12 +647,12 @@ resource "aws_lambda_function" "viz_update_egis_data" {
       VIZ_DB_HOST         = var.viz_db_host
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      HYDROVIS_ENV        = var.environment
       CACHE_BUCKET        = var.viz_cache_bucket
     }
   }
-  filename         = "${path.module}/viz_update_egis_data.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_update_egis_data.zip")
+  s3_bucket        = aws_s3_object.update_egis_data_zip_upload.bucket
+  s3_key           = aws_s3_object.update_egis_data_zip_upload.key
+  source_code_hash = aws_s3_object.update_egis_data_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -571,6 +679,20 @@ resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destina
 #############################
 ##     Publish Service     ##
 #############################
+data "archive_file" "publish_service_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/viz_publish_service/lambda_function.py"
+
+  output_path = "${path.module}/viz_publish_service_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "publish_service_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_publish_service.zip"
+  source      = data.archive_file.publish_service_zip.output_path
+  source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
+}
 
 resource "aws_lambda_function" "viz_publish_service" {
   function_name = "viz_publish_service_${var.environment}"
@@ -592,8 +714,9 @@ resource "aws_lambda_function" "viz_publish_service" {
       SERVICE_TAG         = local.service_suffix
     }
   }
-  filename         = "${path.module}/viz_publish_service.zip"
-  source_code_hash = filebase64sha256("${path.module}/viz_publish_service.zip")
+  s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
+  s3_key           = aws_s3_object.publish_service_zip_upload.key
+  source_code_hash = aws_s3_object.publish_service_zip_upload.source_hash
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -626,7 +749,7 @@ module "image_based_lambdas" {
   environment = var.environment
   account_id  = var.account_id
   region      = var.region
-  deployment_bucket = var.lambda_data_bucket
+  deployment_bucket = var.deployment_bucket
   raster_output_bucket = var.fim_output_bucket
   raster_output_prefix = local.raster_output_prefix
   lambda_role = var.lambda_role
@@ -828,20 +951,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     "Services Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "Vector vs Raster",
+        "StartAt": "FIM vs Non-FIM Services",
         "States": {
-          "Vector vs Raster": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.service.egis_server",
-                "StringEquals": "image",
-                "Next": "Raster Processing",
-                "Comment": "Raster Processing"
-              }
-            ],
-            "Default": "FIM vs Non-FIM Services"
-          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
@@ -849,7 +960,19 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Variable": "$.service.fim_service",
                 "BooleanEquals": true,
                 "Comment": "FIM Processing",
-                "Next": "FIM Processing"
+                "Next": "FIM Config Processing"
+              }
+            ],
+            "Default": "Vector vs Raster"
+          },
+          "Vector vs Raster": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.service.egis_server",
+                "StringEquals": "image",
+                "Comment": "Raster Processing",
+                "Next": "Raster Processing"
               }
             ],
             "Default": "Postprocess SQL - Service"
@@ -919,21 +1042,20 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             },
             "ResultPath": null
           },
-          "FIM Processing": {
+          "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Postprocess SQL - Service",
+            "Next": "Parallelize Summaries",
             "Iterator": {
-              "StartAt": "FIM Data Preparation",
+              "StartAt": "FIM Data Preparation - Setup HUC Branch Data",
               "States": {
-                "FIM Data Preparation": {
+                "FIM Data Preparation - Setup HUC Branch Data": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
-                  "OutputPath": "$.Payload",
                   "Parameters": {
                     "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
                     "Payload": {
                       "args.$": "$",
-                      "step": "fim_prep"
+                      "step": "setup_branch_iteration"
                     }
                   },
                   "Retry": [
@@ -949,7 +1071,17 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "HUC Processing Map"
+                  "Next": "HUC Processing Map",
+                  "ResultPath": "$.huc_processing_payload",
+                  "ResultSelector": {
+                    "huc_branches_to_process.$": "$.Payload.huc_branches_to_process",
+                    "db_fim_table.$": "$.Payload.db_fim_table",
+                    "data_bucket.$": "$.Payload.data_bucket",
+                    "data_prefix.$": "$.Payload.data_prefix",
+                    "reference_time.$": "$.Payload.reference_time",
+                    "fim_config.$": "$.Payload.fim_config",
+                    "service.$": "$.Payload.service"
+                  }
                 },
                 "HUC Processing Map": {
                   "Type": "Map",
@@ -963,10 +1095,13 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                           "StateMachineArn": "${aws_sfn_state_machine.huc_processing_step_function.arn}",
                           "Name.$": "$.state_machine_name",
                           "Input": {
-                            "huc8s_to_process.$": "$.huc8s_to_process",
-                            "s3_payload_json.$": "$.s3_payload_json",
+                            "huc_branches_to_process.$": "$.huc_branches_to_process",
+                            "db_fim_table.$": "$.db_fim_table",
                             "data_bucket.$": "$.data_bucket",
                             "data_prefix.$": "$.data_prefix",
+                            "reference_time.$": "$.reference_time",
+                            "fim_config.$": "$.fim_config",
+                            "service.$": "$.service.service",
                             "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
                         },
@@ -974,24 +1109,86 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       }
                     }
                   },
-                  "ItemsPath": "$.huc8s_to_process",
+                  "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
                   "ResultPath": null,
-                  "End": true,
-                  "InputPath": "$.body",
-                  "Parameters": {
-                    "huc8s_to_process.$": "$$.Map.Item.Value",
-                    "s3_payload_json.$": "$.s3_payload_json",
-                    "data_bucket.$": "$.data_bucket",
-                    "data_prefix.$": "$.data_prefix",
+                  "Next": "Postprocess SQL - FIM Config",
+                  "ItemSelector": {
+                    "huc_branches_to_process.$": "$$.Map.Item.Value",
+                    "db_fim_table.$": "$.huc_processing_payload.db_fim_table",
+                    "data_bucket.$": "$.huc_processing_payload.data_bucket",
+                    "data_prefix.$": "$.huc_processing_payload.data_prefix",
+                    "reference_time.$": "$.huc_processing_payload.reference_time",
+                    "fim_config.$": "$.huc_processing_payload.fim_config",
+                    "service.$": "$.service",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
                   },
                   "MaxConcurrency": 4
+                },
+                "Postprocess SQL - FIM Config": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${aws_lambda_function.viz_db_postprocess_sql.arn}",
+                    "Payload": {
+                      "args": {
+                        "map.$": "$",
+                        "map_item.$": "$.fim_config",
+                        "reference_time.$": "$.reference_time",
+                        "sql_rename_dict.$": "$.sql_rename_dict"
+                      },
+                      "step": "fim_config",
+                      "folder": "services"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "Next": "Update EGIS Data - FIM Config"
+                },
+                "Update EGIS Data - FIM Config": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "update_fim_config_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "End": true
                 }
               }
             },
             "ItemsPath": "$.service.fim_configs",
             "Parameters": {
               "fim_config.$": "$$.Map.Item.Value",
+              "map_item.$": "$$.Map.Item.Value",
+              "job_type.$": "$.job_type",
               "service.$": "$.service",
               "reference_time.$": "$.reference_time",
               "sql_rename_dict.$": "$.sql_rename_dict"
@@ -1025,13 +1222,8 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Wait 30 Seconds",
+            "Next": "Update EGIS Data - Service",
             "ResultPath": null
-          },
-          "Wait 30 Seconds": {
-            "Type": "Wait",
-            "Seconds": 30,
-            "Next": "Update EGIS Data - Service"
           },
           "Update EGIS Data - Service": {
             "Type": "Task",
@@ -1057,21 +1249,11 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               }
             ],
             "ResultPath": null,
-            "Next": "Parallelize Summaries",
-            "Catch": [
-              {
-                "ErrorEquals": [
-                  "Runtime.ExitError"
-                ],
-                "Next": "Parallelize Summaries",
-                "ResultPath": "$.error",
-                "Comment": "Memory Failure"
-              }
-            ]
+            "Next": "Parallelize Summaries"
           },
           "Parallelize Summaries": {
             "Type": "Map",
-            "Next": "Auto vs. Past Event Run",
+            "Next": "Update EGIS Data - Unstage",
             "Iterator": {
               "StartAt": "Postprocess SQL - Summary",
               "States": {
@@ -1105,11 +1287,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                     }
                   ],
                   "ResultPath": null,
-                  "Next": "Wait 30 Seconds Again"
-                },
-                "Wait 30 Seconds Again": {
-                  "Type": "Wait",
-                  "Seconds": 30,
                   "Next": "Update EGIS Data - Summary"
                 },
                 "Update EGIS Data - Summary": {
@@ -1133,9 +1310,9 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       "MaxAttempts": 6,
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
-              }
-            ],
-            "ResultPath": null,
+                    }
+                  ],
+                  "ResultPath": null,
                   "End": true
                 }
               }
@@ -1150,6 +1327,41 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
               "postprocess_summary.$": "$$.Map.Item.Value"
             },
             "ResultPath": null
+          },
+          "Update EGIS Data - Unstage": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+              "Payload": {
+                "args.$": "$",
+                "step": "unstage"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2,
+                "Comment": "Lambda Service Errors"
+              },
+              {
+                "ErrorEquals": [
+                  "UndefinedTable"
+                ],
+                "BackoffRate": 2,
+                "IntervalSeconds": 5,
+                "MaxAttempts": 3,
+                "Comment": "Stage Table Doesn't Exist"
+              }
+            ],
+            "ResultPath": null,
+            "Next": "Auto vs. Past Event Run"
           },
           "Auto vs. Past Event Run": {
             "Type": "Choice",
@@ -1207,28 +1419,10 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       },
       "ItemsPath": "$.pipeline_info.pipeline_services",
       "MaxConcurrency": 15,
-      "Next": "EGIS Update Failure Detection",
       "ResultSelector": {
         "error.$": "$[?(@.error)]"
-      }
-    },
-    "EGIS Update Failure Detection": {
-      "Type": "Choice",
-      "Choices": [
-        {
-          "Variable": "$.error[0]",
-          "IsPresent": true,
-          "Next": "Non-Breaking EGIS Update Memory Failure"
-        }
-      ],
-      "Default": "Success"
-    },
-    "Non-Breaking EGIS Update Memory Failure": {
-      "Type": "Fail",
-      "Error": "Non-Breaking EGIS Update Memory Failure"
-    },
-    "Success": {
-      "Type": "Succeed"
+      },
+      "End": true
     }
   },
   "TimeoutSeconds": 3600
@@ -1243,8 +1437,37 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
   definition = <<EOF
 {
   "Comment": "A description of my state machine",
-  "StartAt": "HUC 8 Map",
+  "StartAt": "FIM Data Prep - Get HUC Branch Processes",
   "States": {
+    "FIM Data Prep - Get HUC Branch Processes": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${aws_lambda_function.viz_fim_data_prep.arn}",
+        "Payload": {
+          "args.$": "$",
+          "step": "get_branch_iteration"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "HUC 8 Map",
+      "ResultPath": "$.huc_branch_data",
+      "ResultSelector": {
+        "huc_branches_to_process.$": "$.Payload.huc_branches_to_process"
+      }
+    },
     "HUC 8 Map": {
       "Type": "Map",
       "End": true,
@@ -1269,18 +1492,31 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
                 "IntervalSeconds": 60,
                 "MaxAttempts": 3,
                 "Comment": "Handle insufficient capacity"
+              },
+              {
+                "ErrorEquals": [
+                  "HANDDatasetReadError"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 2,
+                "Comment": "Issue Reading HAND Datasets"
               }
             ]
           }
         }
       },
       "MaxConcurrency": 40,
-      "ItemsPath": "$.huc8s_to_process",
+      "ItemsPath": "$.huc_branch_data.huc_branches_to_process",
       "Parameters": {
-        "huc.$": "$$.Map.Item.Value",
-        "s3_payload_json.$": "$.s3_payload_json",
+        "huc.$": "$$.Map.Item.Value.huc",
+        "huc8_branch.$": "$$.Map.Item.Value.huc8_branch",
         "data_prefix.$": "$.data_prefix",
-        "data_bucket.$": "$.data_bucket"
+        "data_bucket.$": "$.data_bucket",
+        "fim_config.$": "$.fim_config",
+        "service.$": "$.service",
+        "reference_time.$": "$.reference_time",
+        "db_fim_table.$": "$.db_fim_table"
       }
     }
   }
@@ -1299,7 +1535,7 @@ resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
   "detail-type": ["Step Functions Execution Status Change"],
   "detail": {
     "status": ["FAILED", "TIMED_OUT"],
-    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}", "${aws_sfn_state_machine.huc_processing_step_function.arn}"]
+    "stateMachineArn": ["${aws_sfn_state_machine.viz_pipeline_step_function.arn}"]
     }
   }
   EOF

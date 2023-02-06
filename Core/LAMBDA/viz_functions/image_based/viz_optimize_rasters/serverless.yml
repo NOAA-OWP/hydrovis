@@ -1,0 +1,19 @@
+service: viz-optimize-rasters
+provider:
+  name: aws
+  deploymentBucket: 
+    name: ${env:DEPLOYMENT_BUCKET}
+    serverSideEncryption: AES256
+  region: ${env:AWS_DEFAULT_REGION}
+functions:
+  lambda:
+    name: viz_optimize_rasters_${env:ENVIRONMENT}
+    image: ${env:AWS_ACCOUNT_ID}.dkr.ecr.${env:AWS_DEFAULT_REGION}.amazonaws.com/${env:IMAGE_REPO_NAME}:${env:IMAGE_TAG}
+    role: ${env:LAMBDA_ROLE_ARN}
+    memorySize: 1024
+    timeout: 900
+    ephemeralStorageSize: 1024
+    environment:
+      GDAL_DATA: /var/task/share/gdal
+      PROJ_LIB: /var/task/share/proj
+

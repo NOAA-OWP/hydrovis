@@ -5,7 +5,9 @@
             "Sid": "s3export",
             "Action": [
                 "s3:PutObject",
-                "s3:AbortMultipartUpload"
+                "s3:AbortMultipartUpload",
+                "s3:GetObject",
+                "s3:ListBucket"
             ],
             "Effect": "Allow",
             "Resource": [
