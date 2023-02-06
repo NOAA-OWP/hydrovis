@@ -79,7 +79,7 @@ data "archive_file" "raster_processing_zip" {
 
   source_dir = "${path.module}/viz_raster_processing"
 
-  output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_raster_processing_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
@@ -189,7 +189,7 @@ data "archive_file" "optimize_rasters_zip" {
 
   source_dir = "${path.module}/viz_optimize_rasters"
 
-  output_path = "${path.module}/viz_optimize_rasters_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_optimize_rasters_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "optimize_rasters_zip_upload" {
@@ -289,7 +289,7 @@ data "archive_file" "huc_processing_zip" {
 
   source_dir = "${path.module}/viz_fim_huc_processing"
 
-  output_path = "${path.module}/viz_fim_huc_processing_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_fim_huc_processing_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "huc_processing_zip_upload" {

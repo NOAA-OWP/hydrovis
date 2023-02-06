@@ -313,6 +313,7 @@ module "lambda-layers" {
   source = "./LAMBDA/layers"
 
   environment        = local.env.environment
+  region             = local.env.region
   viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
   deployment_bucket  = module.s3.buckets["deployment"].bucket
 }

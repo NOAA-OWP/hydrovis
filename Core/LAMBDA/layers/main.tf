@@ -3,6 +3,11 @@ variable "environment" {
   type        = string
 }
 
+variable "regiom" {
+  description = "Hydrovis environment"
+  type        = string
+}
+
 variable "viz_environment" {
   description = "Visualization environment for code that should be used."
   type        = string
@@ -17,9 +22,16 @@ variable "deployment_bucket" {
 ## ES Logging Layer ##
 ######################
 
+resource "aws_s3_object" "es_logging" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/es_logging.zip"
+  source = "${path.module}/es_logging.zip"
+  source_hash = filemd5("${path.module}/es_logging.zip")
+}
+
 resource "aws_lambda_layer_version" "es_logging" {
-  filename         = "${path.module}/es_logging.zip"
-  source_code_hash = filebase64sha256("${path.module}/es_logging.zip")
+  s3_bucket = aws_s3_object.es_logging.bucket
+  s3_key = aws_s3_object.es_logging.key
 
   layer_name = "es_logging_${var.environment}"
 
@@ -36,7 +48,7 @@ data "archive_file" "viz_lambda_shared_funcs_zip" {
 
   source_dir = "${path.module}/viz_lambda_shared_funcs"
 
-  output_path = "${path.module}/viz_lambda_shared_funcs_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_lambda_shared_funcs_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "viz_lambda_shared_funcs_zip_upload" {
@@ -81,9 +93,16 @@ resource "aws_lambda_layer_version" "arcgis_python_api" {
 ## Pandas Layer ##
 ##################
 
+resource "aws_s3_object" "pandas" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/pandas.zip"
+  source = "${path.module}/pandas.zip"
+  source_hash = filemd5("${path.module}/pandas.zip")
+}
+
 resource "aws_lambda_layer_version" "pandas" {
-  filename         = "${path.module}/pandas.zip"
-  source_code_hash = filebase64sha256("${path.module}/pandas.zip")
+  s3_bucket = aws_s3_object.pandas.bucket
+  s3_key = aws_s3_object.pandas.key
 
   layer_name = "pandas_${var.environment}"
 
@@ -117,9 +136,16 @@ resource "aws_lambda_layer_version" "geopandas" {
 ## Psycopg2 & SQL Alchemy Layer ##
 ##################################
 
+resource "aws_s3_object" "psycopg2_sqlalchemy" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/psycopg2_sqlalchemy.zip"
+  source = "${path.module}/psycopg2_sqlalchemy.zip"
+  source_hash = filemd5("${path.module}/psycopg2_sqlalchemy.zip")
+}
+
 resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
-  filename         = "${path.module}/psycopg2_sqlalchemy.zip"
-  source_code_hash = filebase64sha256("${path.module}/psycopg2_sqlalchemy.zip")
+  s3_bucket = aws_s3_object.psycopg2_sqlalchemy.bucket
+  s3_key = aws_s3_object.psycopg2_sqlalchemy.key
 
   layer_name = "psycopg2_sqlalchemy_${var.environment}"
 
@@ -152,9 +178,16 @@ resource "aws_lambda_layer_version" "huc_proc_combo" {
 ## Xarray Layer ##
 ##################
 
+resource "aws_s3_object" "xarray" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/xarray.zip"
+  source = "${path.module}/xarray.zip"
+  source_hash = filemd5("${path.module}/xarray.zip")
+}
+
 resource "aws_lambda_layer_version" "xarray" {
-  filename         = "${path.module}/xarray.zip"
-  source_code_hash = filebase64sha256("${path.module}/xarray.zip")
+  s3_bucket = aws_s3_object.xarray.bucket
+  s3_key = aws_s3_object.xarray.key
 
   layer_name = "xarray_${var.environment}"
 
@@ -166,9 +199,16 @@ resource "aws_lambda_layer_version" "xarray" {
 ## Pika Layer ##
 ################
 
+resource "aws_s3_object" "pika" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/pika.zip"
+  source = "${path.module}/pika.zip"
+  source_hash = filemd5("${path.module}/pika.zip")
+}
+
 resource "aws_lambda_layer_version" "pika" {
-  filename         = "${path.module}/pika.zip"
-  source_code_hash = filebase64sha256("${path.module}/pika.zip")
+  s3_bucket = aws_s3_object.pika.bucket
+  s3_key = aws_s3_object.pika.key
 
   layer_name = "pika_${var.environment}"
 
@@ -180,9 +220,16 @@ resource "aws_lambda_layer_version" "pika" {
 ## Requests Layer ##
 ####################
 
+resource "aws_s3_object" "requests" {
+  bucket = var.deployment_bucket
+  key    = "terraform_artifacts/${path.module}/requests.zip"
+  source = "${path.module}/requests.zip"
+  source_hash = filemd5("${path.module}/requests.zip")
+}
+
 resource "aws_lambda_layer_version" "requests" {
-  filename         = "${path.module}/requests.zip"
-  source_code_hash = filebase64sha256("${path.module}/requests.zip")
+  s3_bucket = aws_s3_object.requests.bucket
+  s3_key = aws_s3_object.requests.key
 
   layer_name = "requests_${var.environment}"
 

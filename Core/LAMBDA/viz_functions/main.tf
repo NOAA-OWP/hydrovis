@@ -192,12 +192,12 @@ data "archive_file" "wrds_api_handler_zip" {
 
   source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
 
-  output_path = "${path.module}/viz_wrds_api_handler_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_wrds_api_handler_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "wrds_api_handler_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_wrds_api_handler.zip"
+  key         = "terraform_artifacts/${path.module}/viz_wrds_api_handler.zip"
   source      = data.archive_file.wrds_api_handler_zip.output_path
   source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
 }
@@ -273,12 +273,12 @@ data "archive_file" "max_flows_zip" {
 
   source_file = "${path.module}/viz_max_flows/lambda_function.py"
 
-  output_path = "${path.module}/viz_max_flows_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_max_flows_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "max_flows_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_max_flows.zip"
+  key         = "terraform_artifacts/${path.module}/viz_max_flows.zip"
   source      = data.archive_file.max_flows_zip.output_path
   source_hash = filemd5(data.archive_file.max_flows_zip.output_path)
 }
@@ -349,12 +349,12 @@ data "archive_file" "initialize_pipeline_zip" {
 
   source_file = "${path.module}/viz_initialize_pipeline/lambda_function.py"
 
-  output_path = "${path.module}/viz_initialize_pipeline_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_initialize_pipeline_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "initialize_pipeline_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_initialize_pipeline.zip"
+  key         = "terraform_artifacts/${path.module}/viz_initialize_pipeline.zip"
   source      = data.archive_file.initialize_pipeline_zip.output_path
   source_hash = filemd5(data.archive_file.initialize_pipeline_zip.output_path)
 }
@@ -426,12 +426,12 @@ data "archive_file" "db_postprocess_sql_zip" {
 
   source_dir = "${path.module}/viz_db_postprocess_sql"
 
-  output_path = "${path.module}/viz_db_postprocess_sql_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_db_postprocess_sql_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_db_postprocess_sql.zip"
+  key         = "terraform_artifacts/${path.module}/viz_db_postprocess_sql.zip"
   source      = data.archive_file.db_postprocess_sql_zip.output_path
   source_hash = filemd5(data.archive_file.db_postprocess_sql_zip.output_path)
 }
@@ -486,12 +486,12 @@ data "archive_file" "db_ingest_zip" {
 
   source_file = "${path.module}/viz_db_ingest/lambda_function.py"
 
-  output_path = "${path.module}/viz_db_ingest_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_db_ingest_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "db_ingest_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_db_ingest.zip"
+  key         = "terraform_artifacts/${path.module}/viz_db_ingest.zip"
   source      = data.archive_file.db_ingest_zip.output_path
   source_hash = filemd5(data.archive_file.db_ingest_zip.output_path)
 }
@@ -548,12 +548,12 @@ data "archive_file" "fim_data_prep_zip" {
 
   source_dir = "${path.module}/viz_fim_data_prep"
 
-  output_path = "${path.module}/viz_fim_data_prep_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_fim_data_prep_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "fim_data_prep_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_fim_data_prep.zip"
+  key         = "terraform_artifacts/${path.module}/viz_fim_data_prep.zip"
   source      = data.archive_file.fim_data_prep_zip.output_path
   source_hash = filemd5(data.archive_file.fim_data_prep_zip.output_path)
 }
@@ -618,12 +618,12 @@ data "archive_file" "update_egis_data_zip" {
 
   source_file = "${path.module}/viz_update_egis_data/lambda_function.py"
 
-  output_path = "${path.module}/viz_update_egis_data_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_update_egis_data_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "update_egis_data_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_update_egis_data.zip"
+  key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
   source      = data.archive_file.update_egis_data_zip.output_path
   source_hash = filemd5(data.archive_file.update_egis_data_zip.output_path)
 }
@@ -684,12 +684,12 @@ data "archive_file" "publish_service_zip" {
 
   source_file = "${path.module}/viz_publish_service/lambda_function.py"
 
-  output_path = "${path.module}/viz_publish_service_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_publish_service_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "publish_service_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_publish_service.zip"
+  key         = "terraform_artifacts/${path.module}/viz_publish_service.zip"
   source      = data.archive_file.publish_service_zip.output_path
   source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
 }
