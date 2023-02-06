@@ -6,6 +6,10 @@ variable "account_id" {
   type = string
 }
 
+variable "ami_owner_account_id" {
+  type = string
+}
+
 variable "region" {
   type = string
 }
@@ -19,6 +23,32 @@ resource "aws_iam_service_linked_role" "autoscaling" {
     ignore_changes = [custom_suffix]
   }
 }
+
+# EC2ImageBuilderDistributionCrossAccountRole Role
+resource "aws_iam_role" "EC2ImageBuilderDistributionCrossAccountRole" {
+  name = "EC2ImageBuilderDistributionCrossAccountRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+          AWS     = "arn:aws:iam::${var.ami_owner_account_id}:root"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "EC2ImageBuilderDistributionCrossAccountRole" {
+  role       = aws_iam_role.EC2ImageBuilderDistributionCrossAccountRole.name
+  policy_arn = "arn:aws:iam::aws:policy/Ec2ImageBuilderCrossAccountDistributionAccess"
+}
+
 
 # HydrovisESRISSMDeploy Role
 resource "aws_iam_role" "HydrovisESRISSMDeploy" {

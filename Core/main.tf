@@ -33,13 +33,19 @@ provider "aws" {
 
 ###################### STAGE 1 ######################
 
+# IAM Settings
+module "iam" {
+  source = "./IAM"
+}
+
 # IAM Roles
 module "iam-roles" {
   source = "./IAM/Roles"
 
-  environment = local.env.environment
-  account_id  = local.env.account_id
-  region      = local.env.region
+  environment          = local.env.environment
+  account_id           = local.env.account_id
+  ami_owner_account_id = local.env.ami_owner_account_id
+  region               = local.env.region
 }
 
 # IAM Users
@@ -224,7 +230,7 @@ module "image-builder" {
   source = "./ImageBuilder"
 
   # Only build the Image Builder Pipelines in the one specific environment, then the AMIs are shared to the other environments
-  count = local.env.environment == local.env.image_builder_environment ? 1 : 0
+  count = local.env.account_id == local.env.ami_owner_account_id ? 1 : 0
 
   environment                     = local.env.environment
   account_id                      = local.env.account_id
@@ -239,6 +245,7 @@ module "image-builder" {
   rnr_bucket_arn                  = module.s3.buckets["rnr"].arn
   rnr_kms_arn                     = module.s3.keys["rnr"].arn
   builder_subnet_id               = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  egis_service_account_password   = local.env.egis-service-account_password
 }
 
 # ###################### STAGE 3 ######################

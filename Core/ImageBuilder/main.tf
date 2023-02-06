@@ -50,6 +50,10 @@ variable "builder_subnet_id" {
   type = string
 }
 
+variable "egis_service_account_password" {
+  type = string
+}
+
 
 module "builder-security-group" {
   source = "./BuilderSecurityGroup"
@@ -94,4 +98,6 @@ module "pipelines" {
     var.uat_account_id,
     var.prod_account_id
   ]
+
+  egis_service_account_password = var.egis_service_account_password
 }

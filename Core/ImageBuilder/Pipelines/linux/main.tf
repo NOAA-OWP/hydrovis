@@ -27,11 +27,15 @@ variable "ami_sharing_account_ids" {
 }
 
 
+locals {
+  name = "amazon-linux-2-git-docker-psql-stig"
+}
+
 resource "aws_imagebuilder_image_pipeline" "linux" {
   image_recipe_arn                 = aws_imagebuilder_image_recipe.linux.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.linux.arn
-  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
-  name                             = "amazon-linux-2-git-docker-psql-stig"
+  # distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
+  name                             = local.name
 
   schedule {
     schedule_expression = "cron(0 0 * * ? *)"
@@ -39,7 +43,7 @@ resource "aws_imagebuilder_image_pipeline" "linux" {
 }
 
 resource "aws_imagebuilder_image_recipe" "linux" {
-  name         = "amazon-linux-2-git-docker-psql-stig"
+  name         = local.name
   parent_image = "arn:aws:imagebuilder:${var.region}:aws:image/amazon-linux-2-x86/x.x.x"
   version      = "1.0.0"
 
@@ -56,36 +60,42 @@ resource "aws_imagebuilder_image_recipe" "linux" {
   }
 
   component {
-    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/docker-ce-linux/1.0.0/1"
+    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/docker-ce-linux/x.x.x"
   }
 
   component {
-    component_arn = aws_imagebuilder_component.docker_git_psql_rsyslog_setup.arn
+    component_arn = aws_imagebuilder_component.postgres_setup.arn
   }
 
   component {
-    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/stig-build-linux-high/2022.3.2/1"
+    component_arn = aws_imagebuilder_component.git_setup.arn
   }
 
   component {
-    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/reboot-linux/1.0.1/1"
+    component_arn = aws_imagebuilder_component.docker-compose_setup.arn
+  }
+  
+  component {
+    component_arn = aws_imagebuilder_component.logging_setup.arn
+  }
+
+  component {
+    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/stig-build-linux-high/x.x.x"
+  }
+
+  component {
+    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/reboot-linux/x.x.x"
   }
 }
 
-resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
-  name        = "docker_git_psql_rsyslog_setup"
-  description = "Install and configure psql, git, docker-compose and rsyslog"
+resource "aws_imagebuilder_component" "postgres_setup" {
+  name        = "postgres_setup"
+  description = "Install and configure Postgres"
   platform    = "Linux"
   version     = "1.0.0"
   
   data = yamlencode({
     schemaVersion = 1.0
-    constants = [{
-      "Name" = {
-        type = "string"
-        value = "{{.Name}}"
-      }
-    }]
     phases = [
       {
         name = "build"
@@ -107,6 +117,97 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
               ]
             }
           },
+          {
+            name = "install_postgres"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [
+                "echo \"Installing Postgres\"",
+                "yum install -y postgresql12"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_imagebuilder_component" "git_setup" {
+  name        = "git_setup"
+  description = "Install and configure git"
+  platform    = "Linux"
+  version     = "1.0.0"
+  
+  data = yamlencode({
+    schemaVersion = 1.0
+    phases = [
+      {
+        name = "build"
+        steps = [
+          {
+            name = "install_git"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [
+                "echo \"Installing Git\"",
+                "yum install -y git"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_imagebuilder_component" "docker-compose_setup" {
+  name        = "docker-compose_setup"
+  description = "Install and configure docker-compose"
+  platform    = "Linux"
+  version     = "1.0.0"
+  
+  data = yamlencode({
+    schemaVersion = 1.0
+    phases = [
+      {
+        name = "build"
+        steps = [
+          {
+            name = "grab_docker-compose"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [
+                "echo \"Configuring docker-compose\"",
+                "curl -L https://github.com/docker/compose/releases/download/1.28.5/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose",
+                "chmod +x /usr/local/bin/docker-compose"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_imagebuilder_component" "logging_setup" {
+  name        = "logging_setup"
+  description = "Configure Docker and Rsyslog to send logs to Logstash"
+  platform    = "Linux"
+  version     = "1.0.0"
+  
+  data = yamlencode({
+    schemaVersion = 1.0
+    constants = [{
+      "Name" = {
+        type = "string"
+        value = "{{.Name}}"
+      }
+    }]
+    phases = [
+      {
+        name = "build"
+        steps = [
           {
             name = "add_docker_log_driver"
             action = "ExecuteBash"
@@ -161,27 +262,6 @@ resource "aws_imagebuilder_component" "docker_git_psql_rsyslog_setup" {
             }
           },
           {
-            name = "grab_docker-compose"
-            action = "ExecuteBash"
-            inputs = {
-              commands = [
-                "echo \"Configuring docker-compose\"",
-                "curl -L https://github.com/docker/compose/releases/download/1.28.5/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose",
-                "chmod +x /usr/local/bin/docker-compose"
-              ]
-            }
-          },
-          {
-            name = "install_git_and_pgsql"
-            action = "ExecuteBash"
-            inputs = {
-              commands = [
-                "echo \"Installing Git and Postgres\"",
-                "yum install -y git postgresql12"
-              ]
-            }
-          },
-          {
             name = "restart_docker_and_rsyslog"
             action = "ExecuteBash"
             inputs = {
@@ -206,8 +286,8 @@ data "aws_key_pair" "ec2" {
 data "aws_default_tags" "default" {}
 
 resource "aws_imagebuilder_infrastructure_configuration" "linux" {
-  name                          = "amazon-linux-2-git-docker-psql-stig"
-  description                   = "amazon-linux-2-git-docker-psql-stig"
+  name                          = local.name
+  description                   = local.name
   instance_profile_name         = var.builder_role_instance_profile_name
   instance_types                = ["t2.xlarge", "m5.large", "m5.xlarge"]
   key_pair                      = data.aws_key_pair.ec2.key_name
@@ -218,7 +298,7 @@ resource "aws_imagebuilder_infrastructure_configuration" "linux" {
   logging {
     s3_logs {
       s3_bucket_name = var.artifact_bucket_name
-      s3_key_prefix  = "logs"
+      s3_key_prefix  = "logs/${local.name}"
     }
   }
 
@@ -226,12 +306,13 @@ resource "aws_imagebuilder_infrastructure_configuration" "linux" {
 }
 
 resource "aws_imagebuilder_distribution_configuration" "linux" {
-  name = "linux"
+  name = local.name
 
   distribution {
     ami_distribution_configuration {
-      name = "${aws_imagebuilder_image_recipe.linux.name}-{{ imagebuilder:buildDate }}"
+      name = "${local.name}-{{ imagebuilder:buildDate }}"
       target_account_ids = var.ami_sharing_account_ids
+      ami_tags = data.aws_default_tags.default.tags
     }
 
     region = var.region
