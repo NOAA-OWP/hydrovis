@@ -3,7 +3,7 @@ variable "environment" {
   type        = string
 }
 
-variable "regiom" {
+variable "region" {
   description = "Hydrovis environment"
   type        = string
 }

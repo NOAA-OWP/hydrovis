@@ -320,10 +320,10 @@ module "lambda-layers" {
 
 # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
-# # Import EGIS DB
-# data "aws_db_instance" "egis_rds" {
-#   db_instance_identifier = local.env.environment == "prod" ? "hv-prd-egis-rds-pg-egdb" : local.env.environment == "uat" ? "hv-uat-egis-db-pg-egdb" : local.env.environment == "ti" ? "hv-ti-egis-rds-pg-egdb" : ""
-# }
+# Import EGIS DB
+data "aws_db_instance" "egis_rds" {
+  db_instance_identifier = local.env.environment == "prod" ? "hv-prd-egis-rds-pg-egdb" : local.env.environment == "uat" ? "hv-uat-egis-db-pg-egdb" : local.env.environment == "ti" ? "hv-ti-egis-rds-pg-egdb" : ""
+}
 
 # module "rds-bastion" {
 #   source = "./EC2/RDSBastion"
