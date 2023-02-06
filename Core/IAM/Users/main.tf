@@ -10,6 +10,30 @@ variable "region" {
   type = string
 }
 
+# S3 Replication Incoming Data Service Account
+resource "aws_iam_user" "S3ReplicationDataServiceAccount" {
+  name = "hydrovis-data-prod-ingest-service-user_${var.region}"
+}
+
+resource "aws_iam_user_policy" "S3ReplicationDataServiceAccount" {
+  name = "hydrovis-data-prod-ingest-service-user_${var.region}"
+  user = aws_iam_user.S3ReplicationDataServiceAccount.name
+
+  policy = templatefile("${path.module}/s3-replication-data-service-account-policy.json.tftpl", {
+    region = var.region
+  })
+}
+
+resource "aws_iam_access_key" "S3ReplicationDataServiceAccount" {
+  user = aws_iam_user.S3ReplicationDataServiceAccount.name
+}
+
+resource "local_file" "S3ReplicationDataServiceAccount" {
+  content  = "ID: ${aws_iam_access_key.S3ReplicationDataServiceAccount.id}\nSecret: ${aws_iam_access_key.S3ReplicationDataServiceAccount.secret}"
+  filename = "${path.root}/sensitive/Certs/${aws_iam_user.S3ReplicationDataServiceAccount.name}-${var.environment}"
+}
+
+
 # WRDS Service Account
 resource "aws_iam_user" "WRDSServiceAccount" {
   name = "wrds-service-account_${var.region}"
@@ -78,6 +102,10 @@ resource "local_file" "ISEDServiceAccount" {
 
 output "user_WRDSServiceAccount" {
   value = aws_iam_user.WRDSServiceAccount
+}
+
+output "user_S3ReplicationDataServiceAccount" {
+  value = aws_iam_user.S3ReplicationDataServiceAccount
 }
 
 output "user_FIMServiceAccount" {

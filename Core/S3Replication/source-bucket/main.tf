@@ -14,7 +14,7 @@ variable "account_id" {
   type = string
 }
 
-variable "source_access_user_name" {
+variable "source_service_account_arn" {
   type = string
 }
 
@@ -40,7 +40,7 @@ resource "aws_kms_key" "hydrovis" {
   policy = jsonencode(
     {
       Version = "2012-10-17"
-      Id      = "hydrovis-${var.environment}-${var.name}-${var.region}-s3-policy"
+      Id      = "hydrovis-${var.environment}-${var.name}-incoming-${var.region}-s3-policy"
       Statement = [
         {
           Action = "kms:*"
@@ -86,10 +86,15 @@ resource "aws_kms_key" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, [
-              "arn:aws:iam::${var.prod_account_id}:user/${var.source_access_user_name}",
-              "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}",
-            ])
+            AWS = var.prod_account_id
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = concat(var.admin_team_arns, [
+                var.source_service_account_arn,
+                "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}",
+              ])
+            }
           }
           Resource = "*"
           Sid      = "Allow use of the key"
@@ -100,7 +105,7 @@ resource "aws_kms_key" "hydrovis" {
 }
 
 resource "aws_kms_alias" "hydrovis" {
-  name          = "alias/hydrovis-${var.environment}-${var.name}-${var.region}-s3"
+  name          = "alias/hydrovis-${var.environment}-${var.name}-incoming-${var.region}-s3"
   target_key_id = aws_kms_key.hydrovis.key_id
 }
 

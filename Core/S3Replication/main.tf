@@ -26,6 +26,10 @@ variable "admin_team_arns" {
   type = list(string)
 }
 
+variable "user_S3ReplicationDataServiceAccount_arn" {
+  type = string
+}
+
 variable "user_data-ingest-service-user_arn" {
   type = string
 }
@@ -41,20 +45,17 @@ variable "role_Hydroviz-RnR-EC2-Profile_arn" {
 locals {
   buckets_and_bucket_users = {
     "hml" = {
-      source_access_user_name = "hydrovis-data-prod-ingest-service-user"
       access_principal_arns = [
         var.user_data-ingest-service-user_arn
       ]
     }
     "nwm" = {
-      source_access_user_name = "hydrovis-data-prod-ingest-service-user"
       access_principal_arns = [
         var.role_hydrovis-viz-proc-pipeline-lambda_arn,
         var.role_Hydroviz-RnR-EC2-Profile_arn
       ]
     }
     "pcpanl" = {
-      source_access_user_name = "hydrovis-data-prod-ingest-service-user"
       access_principal_arns = [
         var.user_data-ingest-service-user_arn
       ]
@@ -84,12 +85,12 @@ module "source-bucket" {
   account_id  = var.account_id
   region      = var.region
 
-  name                    = each.key
-  source_access_user_name = each.value["source_access_user_name"]
-  ti_account_id           = var.ti_account_id
-  uat_account_id          = var.uat_account_id
-  prod_account_id         = var.prod_account_id
-  admin_team_arns         = var.admin_team_arns
+  name                       = each.key
+  source_service_account_arn = var.user_S3ReplicationDataServiceAccount_arn
+  ti_account_id              = var.ti_account_id
+  uat_account_id             = var.uat_account_id
+  prod_account_id            = var.prod_account_id
+  admin_team_arns            = var.admin_team_arns
 }
 
 output "buckets" {

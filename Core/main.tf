@@ -177,6 +177,7 @@ module "s3-replication" {
   ti_account_id                              = local.env.ti_account_id
   region                                     = local.env.region
   admin_team_arns                            = local.env.admin_team_arns
+  user_S3ReplicationDataServiceAccount_arn   = module.iam-users.user_S3ReplicationDataServiceAccount.arn
   user_data-ingest-service-user_arn          = module.iam-roles.role_hydrovis-hml-ingest-role.arn
   role_hydrovis-viz-proc-pipeline-lambda_arn = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   role_Hydroviz-RnR-EC2-Profile_arn          = module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn

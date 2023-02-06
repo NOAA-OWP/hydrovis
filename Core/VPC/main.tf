@@ -69,9 +69,7 @@ resource "aws_vpc" "main" {
   }
 }
 
-# This is only created if the environment is not prod
 resource "aws_vpc_ipv4_cidr_block_association" "public_cidr" {
-  count      = var.environment != "prod" ? 1 : 0
   vpc_id     = aws_vpc.main.id
   cidr_block = var.nwave_ip_block
 }
@@ -181,6 +179,43 @@ resource "aws_subnet" "hydrovis-sn-prv-web1b" {
 }
 
 
+resource "aws_subnet" "hydrovis-sn-pub-1a" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = local.pub_subnet_cidr_a[var.environment]
+  availability_zone = "${var.region}a"
+
+  depends_on = [
+    aws_vpc_ipv4_cidr_block_association.public_cidr
+  ]
+
+  tags = {
+    Name = "hydrovis-sn-pub-${var.environment}-1a"
+  }
+}
+
+resource "aws_subnet" "hydrovis-sn-pub-1b" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = local.pub_subnet_cidr_b[var.environment]
+  availability_zone = "${var.region}b"
+
+  depends_on = [
+    aws_vpc_ipv4_cidr_block_association.public_cidr
+  ]
+
+  tags = {
+    Name = "hydrovis-sn-pub-${var.environment}-1b"
+  }
+}
+
+resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
+  subnet_ids         = [aws_subnet.hydrovis-sn-pub-1a.id, aws_subnet.hydrovis-sn-pub-1b.id]
+  transit_gateway_id = var.transit_gateway_id
+  vpc_id             = aws_vpc.main.id
+  dns_support        = "disable"
+  tags = {
+    Name = "nws-diss-hydrovis-${var.environment}-${var.account_id}-hydrovis-${var.environment}-vpc-attach-01"
+  }
+}
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -195,36 +230,12 @@ resource "aws_route_table" "public" {
     }
   }
 
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.main
+  ]
+
   tags = {
     Name = "hydrovis-${var.environment}-public"
-  }
-}
-
-resource "aws_subnet" "hydrovis-sn-pub-1a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = local.pub_subnet_cidr_a[var.environment]
-  availability_zone = "${var.region}a"
-  tags = {
-    Name = "hydrovis-sn-pub-${var.environment}-1a"
-  }
-}
-
-resource "aws_subnet" "hydrovis-sn-pub-1b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = local.pub_subnet_cidr_b[var.environment]
-  availability_zone = "${var.region}b"
-  tags = {
-    Name = "hydrovis-sn-pub-${var.environment}-1b"
-  }
-}
-
-resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
-  subnet_ids         = [aws_subnet.hydrovis-sn-pub-1a.id, aws_subnet.hydrovis-sn-pub-1b.id]
-  transit_gateway_id = var.transit_gateway_id
-  vpc_id             = aws_vpc.main.id
-  dns_support        = "disable"
-  tags = {
-    Name = "nws-diss-hydrovis-${var.environment}-${var.account_id}-hydrovis-${var.environment}-vpc-attach-01"
   }
 }
 
