@@ -47,7 +47,7 @@ WITH rapid_onset AS (
 		((forecasts.streamflow * 35.315) >= thresholds.high_water_threshold) AND -- Only show reaches that hit high_water_threshold in the forecast window
 		((forecasts.forecast_hour - floodstart.forecast_hour) <= 6) AND -- At least 100% increase and high_water_threshold within 6 hours of rapid onset
 		floodstart.rnk = 1 -- This ensures that we're only looking the start of the flood based on the rank function used above.
-	GROUP BY forecasts.feature_id)
+	GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers)
 
 -- Put it all together with geometry
 SELECT channels.feature_id,

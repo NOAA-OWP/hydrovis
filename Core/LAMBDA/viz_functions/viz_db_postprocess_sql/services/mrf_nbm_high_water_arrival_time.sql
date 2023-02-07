@@ -17,7 +17,7 @@ WITH arrival_time AS (
       FROM ingest.nwm_channel_rt_mrf_nbm AS forecasts
       JOIN derived.recurrence_flows_conus thresholds ON forecasts.feature_id = thresholds.feature_id
       WHERE thresholds.high_water_threshold > 0::double precision AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
-      GROUP BY forecasts.feature_id, thresholds.high_water_threshold
+      GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, thresholds.high_water_threshold
     )
 
 SELECT channels.feature_id,
