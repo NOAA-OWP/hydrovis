@@ -12,4 +12,4 @@ SELECT forecasts.feature_id,
 	ROUND((MAX(forecasts.streamflow) * 35.315)::numeric, 2) AS maxflow_1hour_cfs
 INTO cache.max_flows_ana
 FROM ingest.nwm_channel_rt_ana forecasts
-GROUP BY forecasts.feature_id;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;

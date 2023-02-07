@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_max_high_flow_magnitude_hi;
+DROP TABLE IF EXISTS publish.srf_max_high_flow_magnitude_prvi_para;
 
 WITH high_flow_mag AS
 	(SELECT maxflows.feature_id,
@@ -22,8 +22,8 @@ WITH high_flow_mag AS
 		thresholds.rf_25_0 AS flow_25yr,
 		thresholds.rf_50_0 AS flow_50yr,
 		thresholds.rf_100_0 AS flow_100yr
-	FROM cache.max_flows_srf_hi maxflows
-	JOIN derived.recurrence_flows_hi thresholds ON maxflows.feature_id = thresholds.feature_id
+	FROM cache.max_flows_srf_prvi_para maxflows
+	JOIN derived.recurrence_flows_prvi thresholds ON maxflows.feature_id = thresholds.feature_id
 	WHERE (thresholds.high_water_threshold > 0::double precision
 		OR thresholds.high_water_threshold = '-10'::integer::double precision)
 		AND maxflows.maxflow_48hour_cfs >= thresholds.high_water_threshold )
@@ -31,8 +31,8 @@ WITH high_flow_mag AS
 SELECT channels.feature_id,
 	channels.feature_id::TEXT AS feature_id_str,
 	channels.strm_order,
-	channels.name,
-	channels.huc6,
+	name,
+	huc6,
     high_flow_mag.nwm_vers,
     high_flow_mag.reference_time,
 	high_flow_mag.max_flow,
@@ -46,6 +46,6 @@ SELECT channels.feature_id,
 	high_flow_mag.flow_100yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	channels.geom
-INTO publish.srf_max_high_flow_magnitude_hi
-FROM derived.channels_hi channels
+INTO publish.srf_max_high_flow_magnitude_prvi_para
+FROM derived.channels_prvi channels
 JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_past_14day_max_high_flow_magnitude;
+DROP TABLE IF EXISTS publish.ana_past_14day_max_high_flow_magnitude_para;
 
 SELECT channels.feature_id,
 	channels.feature_id::TEXT AS feature_id_str,
@@ -36,9 +36,9 @@ SELECT channels.feature_id,
 	thresholds.rf_50_0_17C AS flow_50yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	channels.geom
-INTO publish.ana_past_14day_max_high_flow_magnitude
+INTO publish.ana_past_14day_max_high_flow_magnitude_para
 FROM derived.channels_CONUS channels
 JOIN derived.recurrence_flows_CONUS thresholds ON (channels.feature_id = thresholds.feature_id)
-JOIN cache.max_flows_ana_14day hfm_14day ON (channels.feature_id = hfm_14day.feature_id)
+JOIN cache.max_flows_ana_14day_para hfm_14day ON (channels.feature_id = hfm_14day.feature_id)
 WHERE (thresholds.high_water_threshold > 0)
 				AND hfm_14day.max_flow_14day_cfs >= thresholds.high_water_threshold

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_high_water_arrival_time_prvi;
+DROP TABLE IF EXISTS publish.srf_high_water_arrival_time_prvi_para;
 
 WITH arrival_time AS
 	(SELECT forecasts.feature_id,
@@ -16,7 +16,7 @@ WITH arrival_time AS
 			thresholds.high_water_threshold AS high_water_threshold,
 			ROUND((MAX(forecasts.streamflow) * 35.315::double precision)::numeric,
 				2) AS max_flow
-		FROM ingest.nwm_channel_rt_srf_prvi forecasts
+		FROM ingest.nwm_channel_rt_srf_prvi_para forecasts
 		JOIN derived.recurrence_flows_prvi thresholds ON forecasts.feature_id = thresholds.feature_id
 		JOIN derived.channels_prvi geo ON forecasts.feature_id = geo.feature_id
 		WHERE (thresholds.high_water_threshold > 0::double precision
@@ -39,6 +39,6 @@ SELECT channels.feature_id,
 	arrival_time.max_flow,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	channels.geom
-INTO publish.srf_high_water_arrival_time_prvi
+INTO publish.srf_high_water_arrival_time_prvi_para
 FROM derived.channels_prvi channels
 JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;

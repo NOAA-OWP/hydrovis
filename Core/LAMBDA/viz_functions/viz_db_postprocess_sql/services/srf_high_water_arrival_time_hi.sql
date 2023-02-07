@@ -22,14 +22,14 @@ WITH arrival_time AS
 							WHEN thresholds.high_water_threshold = -10 THEN -9999
 							ELSE thresholds.high_water_threshold
 			END AS high_water_threshold,
-			ROUND((MAX(forecasts.strEAMFLOW) * 35.315::double precision)::numeric,
+			ROUND((MAX(forecasts.streamflow) * 35.315::double precision)::numeric,
 				2) AS max_flow
 		FROM ingest.nwm_channel_rt_srf_hi forecasts
 		JOIN derived.recurrence_flows_hi thresholds ON forecasts.feature_id = thresholds.feature_id
 		JOIN derived.channels_hi geo ON forecasts.feature_id = geo.feature_id
 		WHERE (thresholds.high_water_threshold > 0::double precision
 									OR thresholds.high_water_threshold = '-10'::integer::double precision)
-			AND (forecasts.strEAMFLOW * 35.315::double precision) >= thresholds.high_water_threshold
+			AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
 		GROUP BY forecasts.feature_id,
 			thresholds.high_water_threshold)
 

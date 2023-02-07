@@ -11,4 +11,4 @@ SELECT forecasts.feature_id,
     round((max(forecasts.streamflow) * 35.315)::numeric, 2) AS maxflow_10day_cfs
 INTO cache.mrf_nbm_max_flows
 FROM ingest.nwm_channel_rt_mrf_nbm forecasts
-GROUP BY forecasts.feature_id;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;
