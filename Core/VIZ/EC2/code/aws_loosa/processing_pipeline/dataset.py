@@ -20,7 +20,7 @@ import _strptime  # Fixes issue with calling dt.datetime.strptime in thread # no
 import filelock
 from requests.compat import urlparse
 
-from processing_pipeline import fetchers
+from aws_loosa.processing_pipeline import fetchers
 from aws_loosa.processing_pipeline.pipeline_logging import get_logger
 from aws_loosa.processing_pipeline.utils import UTCNOW
 from aws_loosa.processing_pipeline.utils.mixins import FileHandlerMixin
