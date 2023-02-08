@@ -322,7 +322,7 @@ module "lambda-layers" {
 
 # # Import EGIS DB
 # data "aws_db_instance" "egis_rds" {
-#   db_instance_identifier = local.env.environment == "prod" ? "hv-prd-egis-rds-pg-egdb" : local.env.environment == "uat" ? "hv-uat-egis-db-pg-egdb" : local.env.environment == "ti" ? "hv-ti-egis-rds-pg-egdb" : ""
+#   db_instance_identifier = "hv-${local.env.environment == "prod" ? "prd" : local.env.environment}-egis-data-pg-egdb"
 # }
 
 # module "rds-bastion" {

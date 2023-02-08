@@ -132,7 +132,6 @@ locals {
   ingest_db_users             = "rfc_fcst, rfc_fcst_ro"
   location_db_users           = "rfc_fcst_ro, location_ro_user_grp"
   viz_db_users                = "viz_proc_admin_rw_user"
-  home_dir                    = "/home/ec2-user"
 
   mq_vhost = {
     "dev" : "development",
@@ -176,6 +175,42 @@ resource "aws_instance" "rds-bastion" {
   user_data_replace_on_change = true
 }
 
+###############
+## ARTIFACTS ##
+###############
+
+resource "aws_s3_object" "ingest_postgis_setup" {
+  bucket = var.deployment_data_bucket
+  key    = "terraform_artifacts/${path.module}/ingest/postgis_setup.sql"
+  source = "${path.module}/data/ingest/postgis_setup.sql"
+  source_hash = filemd5("${path.module}/data/ingest/postgis_setup.sql")
+}
+
+resource "aws_s3_object" "ingest_rfcfcst_base" {
+  bucket = var.deployment_data_bucket
+  key    = "terraform_artifacts/${path.module}/ingest/rfcfcst_base.sql.gz"
+  source = "${path.module}/data/ingest/rfcfcst_base.sql.gz"
+  source_hash = filemd5("${path.module}/data/ingest/rfcfcst_base.sql.gz")
+}
+
+resource "aws_s3_object" "ingest_ingest_users" {
+  bucket  = var.deployment_data_bucket
+  key     = "terraform_artifacts/${path.module}/ingest/ingest_users.sql"
+  content = templatefile("${path.module}/data/ingest/ingest_users.sql.tftpl", {
+              nwm_viz_ro_username       = jsondecode(var.nwm_viz_ro_secret_string)["username "]
+              nwm_viz_ro_password       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
+              rfc_fcst_username          = jsondecode(var.rfc_fcst_secret_string)["username "]
+              rfc_fcst_password         = jsondecode(var.rfc_fcst_secret_string)["password"]
+              rfc_fcst_ro_user_username  = jsondecode(var.rfc_fcst_ro_user_secret_string)["username "]
+              rfc_fcst_ro_user_password = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
+              rfc_fcst_user_username     = jsondecode(var.rfc_fcst_user_secret_string)["username "]
+              rfc_fcst_user_password    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
+              location_ro_user_username = jsondecode(var.location_ro_user_secret_string)["username "]
+              location_ro_user_password = jsondecode(var.location_ro_user_secret_string)["password"]
+            })
+  source_hash = filemd5("${path.module}/data/ingest/ingest_users.sql.tftpl")
+}
+
 #################
 ## DATA BLOCKS ##
 #################
@@ -193,6 +228,68 @@ data "aws_ami" "linux" {
   owners = [var.ami_owner_account_id]
 }
 
+
+data "aws_s3_object" "wrds_location3" {
+  bucket = var.deployment_data_bucket
+  key    = "location_db_dumps/wrds_location3.dump"
+}
+
+data "aws_s3_object" "egisDB_fim_catchments" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/egisDB_fim_catchments.dump"
+}
+
+data "aws_s3_object" "egisDB_aep_fim" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/egisDB_aep_fim.dump"
+}
+
+data "aws_s3_object" "egisDB_reference" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/egisDB_reference.dump"
+}
+
+data "aws_s3_object" "egisDB_services" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/egisDB_services.dump"
+}
+
+data "aws_s3_object" "vizDB_external" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_external.dump"
+}
+
+data "aws_s3_object" "vizDB_derived" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_derived.dump"
+}
+
+data "aws_s3_object" "vizDB_admin" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_admin.dump"
+}
+
+data "aws_s3_object" "vizDB_publish" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_publish.dump"
+}
+
+data "aws_s3_object" "vizDB_cache" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_cache.dump"
+}
+
+data "aws_s3_object" "vizDB_ingest" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_ingest.dump"
+}
+
+data "aws_s3_object" "vizDB_archive" {
+  bucket = var.deployment_data_bucket
+  key    = "viz_db_dumps/vizDB_archive.dump"
+}
+
+
 data "cloudinit_config" "startup" {
   gzip          = true
   base64_encode = true
@@ -201,27 +298,29 @@ data "cloudinit_config" "startup" {
     content_type = "text/x-shellscript"
     filename     = "viz_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
-      VIZDBNAME              = var.viz_db_name
-      VIZDBHOST              = var.viz_db_address
-      VIZDBPORT              = var.viz_db_port
-      VIZDBUSERNAME          = jsondecode(var.viz_db_secret_string)["username"]
-      VIZDBPASSWORD          = jsondecode(var.viz_db_secret_string)["password"]
-      EGISDBNAME             = var.egis_db_name
-      EGISDBHOST             = var.egis_db_address
-      EGISDBPORT             = var.egis_db_port
-      EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
-      EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
-      LOCATIONDBHOST         = var.location_db_name
-      LOCATIONDBNAME         = var.ingest_db_address
-      LOCATIONDBPORT         = var.ingest_db_port
-      LOCATIONDBUSER         = jsondecode(var.ingest_db_secret_string)["username"]
-      LOCATIONDBPASS         = jsondecode(var.ingest_db_secret_string)["password"]
-      DEPLOYMENT_BUCKET      = var.data_deployment_bucket
-      HOME                   = local.home_dir
-      VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-      VIZ_PROC_ADMIN_RW_PASS = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-      VIZ_PROC_DEV_RW_USER   = jsondecode(var.viz_proc_dev_rw_secret_string)["username"]
-      VIZ_PROC_DEV_RW_PASS   = jsondecode(var.viz_proc_dev_rw_secret_string)["password"]
+      deployment_bucket          = var.data_deployment_bucket
+      postgis_setup_s3_key       = aws_s3_object.ingest_postgis_setup.key
+      viz_db_name                = var.viz_db_name
+      viz_db_host                = var.viz_db_address
+      viz_db_port                = var.viz_db_port
+      viz_db_username            = jsondecode(var.viz_db_secret_string)["username"]
+      viz_db_password            = jsondecode(var.viz_db_secret_string)["password"]
+      egis_db_name               = var.egis_db_name
+      egis_db_host               = var.egis_db_address
+      egis_db_port               = var.egis_db_port
+      egis_db_username           = jsondecode(var.egis_db_secret_string)["username"]
+      egis_db_password           = jsondecode(var.egis_db_secret_string)["password"]
+      location_db_name           = var.ingest_db_address
+      location_db_host           = var.location_db_name
+      location_db_port           = var.ingest_db_port
+      location_db_username       = jsondecode(var.ingest_db_secret_string)["username"]
+      location_db_password       = jsondecode(var.ingest_db_secret_string)["password"]
+      viz_proc_admin_rw_username = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
+      viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+      viz_proc_dev_rw_username   = jsondecode(var.viz_proc_dev_rw_secret_string)["username"]
+      viz_proc_dev_rw_password   = jsondecode(var.viz_proc_dev_rw_secret_string)["password"]
+
+      
     })
   }
 
@@ -229,15 +328,18 @@ data "cloudinit_config" "startup" {
     content_type = "text/x-shellscript"
     filename     = "ingest_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/ingest/postgresql_setup.sh.tftpl", {
-      FORECASTDB        = var.forecast_db_name
-      LOCATIONDB        = var.location_db_name
-      INGESTDBUSERS     = local.ingest_db_users
-      LOCATIONDBUSERS   = local.location_db_users
-      DBHOST            = var.ingest_db_address
-      DBPORT            = var.ingest_db_port
-      DBUSERNAME        = jsondecode(var.ingest_db_secret_string)["username"]
-      DBPASSWORD        = jsondecode(var.ingest_db_secret_string)["password"]
-      DEPLOYMENT_BUCKET = var.data_deployment_bucket
+      forecast_db_name     = var.forecast_db_name
+      location_db_name     = var.location_db_name
+      ingest_db_users      = local.ingest_db_users
+      location_db_users    = local.location_db_users
+      db_host              = var.ingest_db_address
+      db_port              = var.ingest_db_port
+      db_username          = jsondecode(var.ingest_db_secret_string)["username"]
+      db_password          = jsondecode(var.ingest_db_secret_string)["password"]
+      deployment_bucket    = var.data_deployment_bucket
+      postgis_setup_s3_key = aws_s3_object.ingest_postgis_setup.key
+      rfcfcst_base_s3_key  = aws_s3_object.ingest_rfcfcst_base.key
+      ingest_user_s3_key   = aws_s3_object.ingest_ingest_users.key
     })
   }
 
@@ -245,36 +347,12 @@ data "cloudinit_config" "startup" {
     content_type = "text/x-shellscript"
     filename     = "rabbitmq_setup.sh"
     content      = templatefile("${path.module}/scripts/rabbitmq/rabbitmq_setup.sh.tftpl", {
-      MQINGESTENDPOINT       = var.ingest_mq_endpoint
-      MQUSERNAME             = jsondecode(var.ingest_mq_secret_string)["username"]
-      MQPASSWORD             = jsondecode(var.ingest_mq_secret_string)["password"]
-      RFC_FCST_USER          = jsondecode(var.rfc_fcst_user_secret_string)["username"]
-      RFC_FCST_USER_PASSWORD = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-      MQVHOST                = local.mq_vhost[var.environment]
+      mq_ingest_endpoint = var.ingest_mq_endpoint
+      mq_vhost           = local.mq_vhost[var.environment]
+      mq_username        = jsondecode(var.ingest_mq_secret_string)["username"]
+      mq_password        = jsondecode(var.ingest_mq_secret_string)["password"]
+      rfcfcst_username   = jsondecode(var.rfc_fcst_user_secret_string)["username"]
+      rfcfcst_password   = jsondecode(var.rfc_fcst_user_secret_string)["password"]
     })
-  }
-
-  part {
-    content_type = "text/cloud-config"
-    filename     = "cloud-config.yaml"
-    content = <<-END
-      #cloud-config
-      ${jsonencode({
-        write_files = [
-          {
-            path        = "/deploy_files/ingest_users.sql"
-            permissions = "0400"
-            owner       = "ec2-user:ec2-user"
-            content     = templatefile("${path.module}/scripts/ingest/ingest_users.sql.tftpl", {
-              NWM_VIZ_RO       = jsondecode(var.nwm_viz_ro_secret_string)["password"]
-              RFC_FCST         = jsondecode(var.rfc_fcst_secret_string)["password"]
-              RFC_FCST_RO_USER = jsondecode(var.rfc_fcst_ro_user_secret_string)["password"]
-              RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
-              LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
-            })
-          }
-        ]
-      })}
-    END
   }
 }
