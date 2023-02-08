@@ -19,7 +19,7 @@ function Create_Service {
     Write-Host "Creating Windows Service for $service_name"
     & $nssm_path install $service_name $python_path
     & $nssm_path set $service_name AppDirectory "$viz_path\aws_loosa\ec2\pipelines"
-    & $nssm_path set $service_name AppParameters "$viz_path\aws_loosa\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
+    & $nssm_path set $service_name AppParameters "$viz_path\aws_loosa\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\pipelines\$service_name\pipeline.yml"
     & $nssm_path set $service_name DisplayName $service_name
     & $nssm_path set $service_name Description "$viz_path\aws_loosa\ec2\pipelines"
     & $nssm_path set $service_name Start $service_startup_type
@@ -50,7 +50,7 @@ function Update_Service {
     Write-Host "Creating Windows Service for $service_name"
     & $nssm_path set $service_name Application $python_path
     & $nssm_path set $service_name AppDirectory "$viz_path\aws_loosa\ec2\pipelines"
-    & $nssm_path set $service_name AppParameters "$viz_path\aws_loosa\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
+    & $nssm_path set $service_name AppParameters "$viz_path\aws_loosa\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\pipelines\$service_name\pipeline.yml"
     & $nssm_path set $service_name DisplayName $service_name
     & $nssm_path set $service_name Description "$viz_path\aws_loosa\ec2\pipelines"
     & $nssm_path set $service_name Start $service_startup_type

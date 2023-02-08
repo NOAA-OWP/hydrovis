@@ -10,7 +10,7 @@ CODE. DO NOT MODIFY THIS FILE
 *************************************************
 """
 import datetime
-import aws_loosa.processing_pipeline.pipeline_logging as pipeline_logging
+import logging
 import logging.handlers
 import os
 import threading
@@ -42,7 +42,7 @@ def run():
     formatter = logging.Formatter("%(asctime)s::%(name)s::%(levelname)s::%(message)s")
     file_handler.setFormatter(formatter)
     stream_handler = logging.StreamHandler()
-    log = pipeline_logging.getLogger(PIPELINE_NAME)
+    log = logging.getLogger(PIPELINE_NAME)
     log.setLevel(GLOBAL_LOG_LEVEL)
     log.addHandler(file_handler)
     log.addHandler(stream_handler)
