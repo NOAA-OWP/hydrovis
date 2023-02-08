@@ -17,7 +17,7 @@ import argparse
 import os
 import yaml
 
-from processing_pipeline.cli.run_pipelines import run_pipelines
+from aws_loosa.processing_pipeline.cli.run_pipelines import run_pipelines
 from aws_loosa.consts.paths import PIPELINES_DIR
 from aws_loosa.consts import TOTAL_PROCESSES_ENV_VAR
 

@@ -16,8 +16,8 @@ import re
 import xml.dom.minidom as DOM
 from inspect import getframeinfo, stack
 
-from processing_pipeline.utils.process import PipelineProcess
-from processing_pipeline.cli import validation
+from aws_loosa.processing_pipeline.utils.process import PipelineProcess
+from aws_loosa.processing_pipeline.cli import validation
 
 from aws_loosa.consts import egis as consts, paths,  monitoring as mon_consts, TOTAL_PROCESSES_ENV_VAR
 from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH

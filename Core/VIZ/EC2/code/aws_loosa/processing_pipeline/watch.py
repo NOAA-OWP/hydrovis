@@ -5,7 +5,7 @@ Created on Wed May 03 12:36:07 2018
 @author: Shawn.Crawley
 """
 from queue import Queue
-from processing_pipeline.utils import UTCNOW, monitoring_consts as mon_consts
+from aws_loosa.processing_pipeline.utils import UTCNOW, monitoring_consts as mon_consts
 import os
 import time
 from math import ceil

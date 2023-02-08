@@ -3,7 +3,7 @@ import os
 from requests.compat import urlparse
 import time
 
-from processing_pipeline.fetchers.data_fetcher import DataFetcher
+from aws_loosa.processing_pipeline.fetchers.data_fetcher import DataFetcher
 
 
 class FtpFetcher(DataFetcher):

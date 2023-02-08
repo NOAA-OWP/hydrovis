@@ -21,10 +21,10 @@ import filelock
 from requests.compat import urlparse
 
 from processing_pipeline import fetchers
-from processing_pipeline.logging import get_logger
-from processing_pipeline.utils import UTCNOW
-from processing_pipeline.utils.mixins import FileHandlerMixin
-from processing_pipeline.cli import consts
+from aws_loosa.processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.utils import UTCNOW
+from aws_loosa.processing_pipeline.utils.mixins import FileHandlerMixin
+from aws_loosa.processing_pipeline.cli import consts
 
 
 class DataSet(FileHandlerMixin):

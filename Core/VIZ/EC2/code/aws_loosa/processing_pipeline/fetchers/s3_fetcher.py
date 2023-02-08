@@ -3,7 +3,7 @@ import boto3
 import botocore
 
 
-from processing_pipeline.fetchers.data_fetcher import DataFetcher
+from aws_loosa.processing_pipeline.fetchers.data_fetcher import DataFetcher
 
 
 class S3Fetcher(DataFetcher):

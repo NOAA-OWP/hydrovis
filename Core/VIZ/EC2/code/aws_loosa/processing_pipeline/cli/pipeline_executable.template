@@ -15,9 +15,9 @@ import logging.handlers
 import os
 import threading
 
-from processing_pipeline.manager import Manager
-from processing_pipeline.watcher import Watcher
-from processing_pipeline.dataset import DataSet
+from aws_loosa.processing_pipeline.manager import Manager
+from aws_loosa.processing_pipeline.watcher import Watcher
+from aws_loosa.processing_pipeline.dataset import DataSet
 
 def run():
     PIPELINE_NAME = '{{ name }}'

@@ -2,7 +2,7 @@ import shutil
 import time
 import os
 
-from processing_pipeline.fetchers.data_fetcher import DataFetcher
+from aws_loosa.processing_pipeline.fetchers.data_fetcher import DataFetcher
 
 
 class FilesystemFetcher(DataFetcher):

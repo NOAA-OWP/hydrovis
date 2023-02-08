@@ -2,7 +2,7 @@ import os
 import traceback
 import argparse
 
-from processing_pipeline.cli.run_pipelines import run_pipelines
+from aws_loosa.processing_pipeline.cli.run_pipelines import run_pipelines
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

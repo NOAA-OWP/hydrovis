@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from processing_pipeline.utils.mixins import FileHandlerMixin
-from processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.utils.mixins import FileHandlerMixin
+from aws_loosa.processing_pipeline.logging import get_logger
 
 
 class DataFetcher(FileHandlerMixin):

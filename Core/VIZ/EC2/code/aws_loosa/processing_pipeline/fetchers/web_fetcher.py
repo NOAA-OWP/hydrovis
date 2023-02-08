@@ -4,7 +4,7 @@ import os
 import requests
 import time
 
-from processing_pipeline.fetchers.data_fetcher import DataFetcher
+from aws_loosa.processing_pipeline.fetchers.data_fetcher import DataFetcher
 
 from requests.adapters import HTTPAdapter
 import ssl

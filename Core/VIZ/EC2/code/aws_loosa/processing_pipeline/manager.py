@@ -8,7 +8,7 @@ import time
 import datetime as dt
 import threading
 
-from processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.logging import get_logger
 
 
 class Manager(object):

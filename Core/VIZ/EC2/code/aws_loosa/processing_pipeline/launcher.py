@@ -13,8 +13,8 @@ from threading import Lock, ThreadError
 
 import filelock
 
-from processing_pipeline.logging import get_logger
-from processing_pipeline.utils import monitoring_consts as mon_consts
+from aws_loosa.processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.utils import monitoring_consts as mon_consts
 
 
 class Launcher(object):

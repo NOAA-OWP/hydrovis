@@ -1,5 +1,5 @@
 import os
-from processing_pipeline.utils.monitoring_consts import (DATE_FORMAT, EXECUTE_CALLED_TEXT, EXECUTING_PROCESSING_TEXT,
+from aws_loosa.processing_pipeline.utils.monitoring_consts import (DATE_FORMAT, EXECUTE_CALLED_TEXT, EXECUTING_PROCESSING_TEXT,
                                                          EXECUTE_SUCCESS_TEXT)
 
 DATE_FORMAT = DATE_FORMAT
