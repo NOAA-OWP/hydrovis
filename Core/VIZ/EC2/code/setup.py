@@ -25,6 +25,7 @@ setup(
         'boto3 == 1.18.43',
         'botocore == 1.13.50',
         'jmespath == 0.10.0',
+        's3transfer == 0.2.1',
         'filelock == 3.0.12',
         'requests == 2.19.1',
         'numpy == 1.15.1',

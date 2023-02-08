@@ -10,7 +10,8 @@ NWM_MAX_FLOWS_DATA_BUCKET = os.environ.get('NWM_MAX_FLOWS_DATA_BUCKET')
 
 # REPOSITORY PATHS
 AWS_LOOSA_DIR = os.path.dirname(aws_loosa.__file__)
-PIPELINES_DIR = os.path.join(AWS_LOOSA_DIR, 'ec2', 'pipelines')
+PIPELINES_DIR = os.path.join(AWS_LOOSA_DIR, 'pipelines')
+PRO_PROJECT_DIR = os.path.join(AWS_LOOSA_DIR, 'pro_projects')
 
 # Connection Files
 CONNECTION_FILES_DIR = f"{PUBLISHED_ROOT}\\connection_files"

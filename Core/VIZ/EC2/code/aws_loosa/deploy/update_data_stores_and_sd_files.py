@@ -98,8 +98,8 @@ def update_db_sd_files():
     if not os.path.exists(sd_folder):
         os.makedirs(sd_folder)
 
-    mapx_dpath = f"C:\\Users\\{os.environ['VIZ_USER']}\\NWC\\viz\\hydrovis-visualization\\pro_projects\\db_pipeline"
-    baseline_aprx_path = f"C:\\Users\\{os.environ['VIZ_USER']}\\NWC\\viz\\hydrovis-visualization\\pro_projects\\Empty_Project.aprx"
+    mapx_dpath = os.path.join(paths.PRO_PROJECT_DIR, "db_pipeline")
+    baseline_aprx_path = os.path.join(paths.PRO_PROJECT_DIR, "Empty_Project.aprx")
     mapx_fpaths = [os.path.join(mapx_dpath, file) for file in os.listdir(mapx_dpath)]
 
     services_data = get_service_metadata(include_ingest_sources=False, include_latest_ref_time=False)
