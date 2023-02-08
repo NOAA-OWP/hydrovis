@@ -1,4 +1,4 @@
-from aws_loosa.processing_pipeline.logging import INFO, VALID_LEVELS, INVALID_LEVEL_ERROR  # noqa
+from aws_loosa.processing_pipeline.pipeline_logging import INFO, VALID_LEVELS, INVALID_LEVEL_ERROR  # noqa
 
 GLOBAL_NAME_KEY = 'name'
 GLOBAL_TRANSFERS_KEY = 'transfers'

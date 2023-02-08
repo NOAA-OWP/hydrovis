@@ -11,7 +11,7 @@ import datetime as dt
 import inspect
 import traceback
 
-from aws_loosa.processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.pipeline_logging import get_logger
 from aws_loosa.processing_pipeline.utils.mixins import FileHandlerMixin
 from aws_loosa.processing_pipeline.utils import monitoring_consts as mon_consts
 

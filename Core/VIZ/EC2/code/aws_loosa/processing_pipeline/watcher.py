@@ -15,7 +15,7 @@ import sys
 from smtplib import SMTP
 
 from aws_loosa.processing_pipeline.launcher import Launcher
-from aws_loosa.processing_pipeline.logging import get_logger, INFO
+from aws_loosa.processing_pipeline.pipeline_logging import get_logger, INFO
 from aws_loosa.processing_pipeline.signal import Signal
 from aws_loosa.processing_pipeline.utils import UTCNOW, monitoring_consts as mon_consts
 from aws_loosa.processing_pipeline.watch import Watch

@@ -21,7 +21,7 @@ import filelock
 from requests.compat import urlparse
 
 from processing_pipeline import fetchers
-from aws_loosa.processing_pipeline.logging import get_logger
+from aws_loosa.processing_pipeline.pipeline_logging import get_logger
 from aws_loosa.processing_pipeline.utils import UTCNOW
 from aws_loosa.processing_pipeline.utils.mixins import FileHandlerMixin
 from aws_loosa.processing_pipeline.cli import consts
