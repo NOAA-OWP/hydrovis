@@ -3,14 +3,14 @@ import time
 import os
 import arcpy
 
-from aws_loosa.ec2.processes.base.aws_egis_process import AWSEgisPublishingProcess
-from aws_loosa.ec2.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
-from aws_loosa.ec2.products.rapid_onset_probability import mrf_rapid_onset_probability
-from aws_loosa.ec2.utils.shared_funcs import create_service_db_tables
+from aws_loosa.processes.base.aws_egis_process import AWSEgisPublishingProcess
+from aws_loosa.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
+from aws_loosa.products.rapid_onset_probability import mrf_rapid_onset_probability
+from aws_loosa.utils.shared_funcs import create_service_db_tables
 
 
 class MrfRapidOnsetFloodingProbability(AWSEgisPublishingProcess):
-    service_name = 'mrf_rapid_onset_flooding_probability'
+    service_name = 'mrf_gfs_rapid_onset_flooding_probability_para'
 
     def _process(self, a_event_time, a_input_files, a_output_location, *args, **kwargs):
         """
@@ -39,11 +39,11 @@ class MrfRapidOnsetFloodingProbability(AWSEgisPublishingProcess):
         df_rofp['reference_time'] = a_event_time.strftime("%Y-%m-%d %H:%M:%S UTC")
 
         sql_files = [
-            os.path.join(os.path.dirname(__file__), "mrf_rapid_onset_flooding_probability.sql"),
-            os.path.join(os.path.dirname(__file__), "mrf_rapid_onset_flooding_probability_hucs.sql")
+            os.path.join(os.path.dirname(__file__), "mrf_gfs_rapid_onset_flooding_probability_para.sql"),
+            os.path.join(os.path.dirname(__file__), "mrf_gfs_rapid_onset_flooding_probability_hucs_para.sql")
         ]
 
-        service_table_names = ["mrf_rapid_onset_flooding_probability", "mrf_rapid_onset_flooding_probability_hucs"]
+        service_table_names = ["mrf_gfs_rapid_onset_flooding_probability_para", "mrf_gfs_rapid_onset_flooding_probability_hucs_para"]
 
         create_service_db_tables(df_rofp, self.service_name, sql_files, service_table_names, self.process_event_time, past_run=self.one_off)
 

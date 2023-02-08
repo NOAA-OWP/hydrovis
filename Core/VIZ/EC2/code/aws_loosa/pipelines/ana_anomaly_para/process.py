@@ -6,14 +6,14 @@ import xarray
 from datetime import datetime
 import arcpy
 
-from aws_loosa.ec2.processes.base.aws_egis_process import AWSEgisPublishingProcess
-from aws_loosa.ec2.consts.egis import PRIMARY_SERVER, NWM_FOLDER, VALID_TIME
-from aws_loosa.ec2.products.anomaly import anomaly
-from aws_loosa.ec2.utils.shared_funcs import create_service_db_tables
+from aws_loosa.processes.base.aws_egis_process import AWSEgisPublishingProcess
+from aws_loosa.consts.egis import PRIMARY_SERVER, NWM_FOLDER, VALID_TIME
+from aws_loosa.products.anomaly import anomaly
+from aws_loosa.utils.shared_funcs import create_service_db_tables
 
 
 class AnaAnomaly(AWSEgisPublishingProcess):
-    service_name = 'ana_anomaly'
+    service_name = 'ana_anomaly_para'
 
     def _process(self, a_event_time, a_input_files, a_output_location, *args, **kwargs):
         """
@@ -82,9 +82,9 @@ class AnaAnomaly(AWSEgisPublishingProcess):
         df = df.loc[~((df['anom_cat_7day'] == 'Normal (26th - 75th)') & (df['anom_cat_14day'] == 'Normal (26th - 75th)'))]  # noqa: E501
         df = df.reset_index()
 
-        sql_files = [os.path.join(os.path.dirname(__file__), "ana_anomaly.sql")]
+        sql_files = [os.path.join(os.path.dirname(__file__), "ana_anomaly_para.sql")]
 
-        service_table_names = ["ana_anomaly"]
+        service_table_names = ["ana_anomaly_para"]
 
         create_service_db_tables(df, self.service_name, sql_files, service_table_names, self.process_event_time, past_run=self.one_off)
 
