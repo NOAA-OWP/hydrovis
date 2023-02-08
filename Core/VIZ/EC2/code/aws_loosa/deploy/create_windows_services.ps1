@@ -18,10 +18,10 @@ function Create_Service {
 
     Write-Host "Creating Windows Service for $service_name"
     & $nssm_path install $service_name $python_path
-    & $nssm_path set $service_name AppDirectory "$viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines"
-    & $nssm_path set $service_name AppParameters "$viz_path\owp-viz-proc-pipeline\run_pipelines.py $viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
+    & $nssm_path set $service_name AppDirectory "$viz_path\aws_loosa\ec2\pipelines"
+    & $nssm_path set $service_name AppParameters "$viz_path\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
     & $nssm_path set $service_name DisplayName $service_name
-    & $nssm_path set $service_name Description "$viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines"
+    & $nssm_path set $service_name Description "$viz_path\aws_loosa\ec2\pipelines"
     & $nssm_path set $service_name Start $service_startup_type
     & $nssm_path set $service_name ObjectName ".\$servce_account_username" $service_account_password
 
@@ -49,10 +49,10 @@ function Update_Service {
 
     Write-Host "Creating Windows Service for $service_name"
     & $nssm_path set $service_name Application $python_path
-    & $nssm_path set $service_name AppDirectory "$viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines"
-    & $nssm_path set $service_name AppParameters "$viz_path\owp-viz-proc-pipeline\run_pipelines.py $viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
+    & $nssm_path set $service_name AppDirectory "$viz_path\aws_loosa\ec2\pipelines"
+    & $nssm_path set $service_name AppParameters "$viz_path\processing_pipeline\run_pipelines.py $viz_path\aws_loosa\ec2\pipelines\$service_name\pipeline.yml"
     & $nssm_path set $service_name DisplayName $service_name
-    & $nssm_path set $service_name Description "$viz_path\hydrovis-visualization\aws_loosa\ec2\pipelines"
+    & $nssm_path set $service_name Description "$viz_path\aws_loosa\ec2\pipelines"
     & $nssm_path set $service_name Start $service_startup_type
     & $nssm_path set $service_name ObjectName ".\$servce_account_username" $service_account_password
 
@@ -90,8 +90,9 @@ if (Test-Path -Path $USER_PYTHON) {
 } 
 
 $VIZ_DIR="C:\Users\$SERVICE_ACCOUNT\NWC\viz"
-$PIPELINES_CONFIG="$VIZ_DIR\hydrovis-visualization\aws_loosa\ec2\deploy\pipelines_config.yml"
-$NSSM="C:\Programs\nssm.exe"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Core\VIZ\EC2\code"
+$PIPELINES_CONFIG = "$AWS_SERVICE_REPO\aws_loosa\ec2\deploy\pipelines_config.yml"
+$NSSM = "C:\Programs\nssm.exe"
 
 Write-Host $PIPELINES_CONFIG
 
@@ -102,7 +103,7 @@ $yaml = ConvertFrom-YAML $content
 $TOTAL_PROCESSES=$yaml.ADDED.count
 
 Foreach ($service in $yaml.ADDED) {
-  Create_Service -service_name $service -python_path $PYTHONW_PATH -nssm_path $NSSM -viz_path $VIZ_DIR -service_startup_type $WINDOWS_SERVICE_STARTUP -service_start $WINDOWS_SERVICE_STATUS -servce_account_username $SERVICE_ACCOUNT -service_account_password $SERVICE_ACCOUNT_PASSWORD
+  Create_Service -service_name $service -python_path $PYTHONW_PATH -nssm_path $NSSM -viz_path $AWS_SERVICE_REPO -service_startup_type $WINDOWS_SERVICE_STARTUP -service_start $WINDOWS_SERVICE_STATUS -servce_account_username $SERVICE_ACCOUNT -service_account_password $SERVICE_ACCOUNT_PASSWORD
 }
 
 Foreach ($service in $yaml.REMOVED) {
@@ -110,5 +111,5 @@ Foreach ($service in $yaml.REMOVED) {
 }
 
 Foreach ($service in $yaml.UNCHANGED) {
-  Update_Service -service_name $service -python_path $PYTHONW_PATH -nssm_path $NSSM -viz_path $VIZ_DIR -service_startup_type $WINDOWS_SERVICE_STARTUP -service_start $WINDOWS_SERVICE_STATUS -servce_account_username $SERVICE_ACCOUNT -service_account_password $SERVICE_ACCOUNT_PASSWORD
+  Update_Service -service_name $service -python_path $PYTHONW_PATH -nssm_path $NSSM -viz_path $AWS_SERVICE_REPO -service_startup_type $WINDOWS_SERVICE_STARTUP -service_start $WINDOWS_SERVICE_STATUS -servce_account_username $SERVICE_ACCOUNT -service_account_password $SERVICE_ACCOUNT_PASSWORD
 }
