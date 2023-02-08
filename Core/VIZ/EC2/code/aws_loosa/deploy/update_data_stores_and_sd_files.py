@@ -9,7 +9,7 @@ import boto3
 import xml.dom.minidom as DOM
 
 from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
-from aws_loosa.lambdas.layers.viz_lambda_shared_funcs.python.viz_lambda_shared_funcs import get_service_metadata
+from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata
 
 s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')

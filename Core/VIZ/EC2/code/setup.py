@@ -23,6 +23,8 @@ setup(
         'psycopg2 == 2.9.1',
         'sqlalchemy == 1.4.23',
         'boto3 == 1.18.43',
+        'botocore == 1.13.50',
+        'jmespath == 0.10.0',
         'filelock == 3.0.12',
         'requests == 2.19.1',
         'numpy == 1.15.1',
