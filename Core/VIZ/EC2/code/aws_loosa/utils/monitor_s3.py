@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import time
 import re
-import logging
+import aws_loosa.processing_pipeline.pipeline_logging as pipeline_logging
 
 from botocore.exceptions import ClientError
 from aws_loosa.utils.shared_funcs import get_db_values
@@ -27,7 +27,7 @@ def monitor_s3(forecast_date, max_flows_file, service_name, logger=None):
             logger(logging.logger): service specific Logger that should be used for logging
     """
     if not logger:
-        logger = logging.getLogger()
+        logger = pipeline_logging.getLogger()
 
     print("Configuring setup for S3 FIM monitoring")
 
