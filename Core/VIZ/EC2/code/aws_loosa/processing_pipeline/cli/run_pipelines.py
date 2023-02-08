@@ -6,7 +6,7 @@ import time
 from subprocess import Popen, STDOUT
 
 from jinja2 import Template
-from processing_pipeline.cli import validation
+from aws_loosa.processing_pipeline.cli import validation
 
 FNULL = open(os.devnull, 'w')
 
