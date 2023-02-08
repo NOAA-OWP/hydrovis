@@ -1,0 +1,128 @@
+/**
+
+* @OnlyCurrentDoc
+
+*/
+
+function timedTrigger() {
+  // get the spreadsheet by it's id
+  var spreadsheet = SpreadsheetApp.getActive();
+  var sheet = SpreadsheetApp.getActiveSheet( )
+
+  sheet.getRange('A3:C').activate();
+  var currentCell = sheet.getCurrentCell();
+  currentCell.activateAsCurrentCell();
+  sheet.getActiveRangeList().clear();
+
+  var images = sheet.getImages()
+  for (var counter = 0; counter < images.length; counter = counter + 1) {
+    images[counter].remove();
+  }
+
+  var environment = sheet.getRange("B1").getDisplayValue();
+  var service_name = sheet.getRange("B2").getDisplayValue();
+
+  if (environment == "testing") {
+    var service_name = service_name + "_alpha"
+  } else if (environment == "staging") {
+    var service_name = service_name + "_beta"
+  }
+  
+  var fields_insert_row = 5
+
+  layer_number = 0
+  layer_exists = true
+  while (layer_exists) {
+    var layer_name_number = service_name + '_' + layer_number + '_fields.csv'
+    var ServiceCSVFiles = DriveApp.getFilesByName(layer_name_number);
+
+    if (ServiceCSVFiles.hasNext()) {
+      var ServiceCSV = ServiceCSVFiles.next();
+      var ServiceCSVId = ServiceCSV.getId();
+      Logger.log(ServiceCSV.getName())
+      if (ServiceCSV.getName().startsWith(layer_name_number)) {
+        Logger.log(ServiceCSV.getName())
+        var layer_data = ServiceCSV.getName().replace(service_name + "_", "").replace("_fields.csv", "")
+
+        try {
+          parseInt(layer_data[0])
+        }
+        catch(err) {
+          Logger.log(ServiceCSV.getName() + " does not match " + service_name)
+          continue
+        }
+        
+        // print the data to the first row first columnscript
+        printCsvData(ServiceCSVId, sheet, fields_insert_row+1, 1);
+
+        sheet.getRange(fields_insert_row+1,1).activate();
+        var currentCell = sheet.getCurrentCell();
+        sheet.getSelection().getNextDataRange(SpreadsheetApp.Direction.NEXT).activate();
+        currentCell.activateAsCurrentCell();
+        currentCell = sheet.getCurrentCell();
+        sheet.getSelection().getNextDataRange(SpreadsheetApp.Direction.DOWN).activate();
+        currentCell.activateAsCurrentCell();
+        sheet.getActiveRange().applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
+        sheet.getActiveRange().setHorizontalAlignment('left');
+        sheet.autoResizeColumns(1, 1);
+        sheet.autoResizeColumns(3, 1);
+
+        var ServiceLegend = service_name + '_' + layer_number + '_legend.png'
+        var ServiceLegendFiles = DriveApp.getFilesByName(ServiceLegend); 
+
+        if (ServiceLegendFiles.hasNext()) {
+          var ServiceLegend = ServiceLegendFiles.next();
+          Logger.log(ServiceLegend.getName())
+          var ServiceLegendId = ServiceLegend.getId();
+          var ServiceLegendBlob = DriveApp.getFileById(ServiceLegendId).getBlob()
+          Logger.log("putting image at " + fields_insert_row)
+          sheet.insertImage(ServiceLegendBlob, 5, fields_insert_row + 1);
+        }
+
+        fields_insert_row = 2 + sheet.getActiveRange().getLastRow()
+      }
+      layer_number = layer_number + 1
+    } else {
+      layer_exists = false
+    }
+  }
+
+  var MetadataQuery = service_name + "_metadata.json"
+  var ServiceMetadataFiles = DriveApp.getFilesByName(MetadataQuery);
+
+  var ServiceMetadata = ServiceMetadataFiles.next();
+  var ServiceMetadataId = ServiceMetadata.getId();
+  printJsonData(ServiceMetadataId, sheet)
+
+}
+
+function printCsvData(fileId, sheet, row, col) {
+  // get data from file
+  var data = DriveApp.getFileById(fileId).getBlob().getDataAsString();
+
+  // parse the csv string into two dimensional array
+  var values = Utilities.parseCsv(data);
+
+  // print the values into the range starting at row, col
+  sheet.getRange(row, col, values.length, values[0].length).setValues(values);
+}
+
+function printJsonData(fileId, sheet) {
+  // get data from file
+  var data = DriveApp.getFileById(fileId).getBlob().getDataAsString();
+  data = JSON.parse(data);
+  Logger.log(data)
+  sheet.insertRowsBefore(3, Object.entries(data).length);
+
+  counter = 0
+  for (var [key,val] of Object.entries(data)) {
+    sheet.getRange(counter + 4,1).setValue(key).setFontWeight('bold').setFontSize(12);
+    sheet.getRange(counter + 4,2).setValue(val);
+    counter = counter + 1
+  }
+  
+  sheet.getRange('B:B').activate();
+  sheet.getActiveRangeList().setHorizontalAlignment('left');
+  sheet.getRange('B4').activate();
+  sheet.getActiveRangeList().setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+}

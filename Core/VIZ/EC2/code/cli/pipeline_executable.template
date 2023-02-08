@@ -1,0 +1,263 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 03 12:43:51 2017
+
+@author: Nathan.Swain, Shawn.Crawley
+
+********************ATTENTION********************
+THIS FILE IS A TEMPLATE THAT IS USED TO GENERATE
+CODE. DO NOT MODIFY THIS FILE
+*************************************************
+"""
+import datetime
+import logging
+import logging.handlers
+import os
+import threading
+
+from processing_pipeline.manager import Manager
+from processing_pipeline.watcher import Watcher
+from processing_pipeline.dataset import DataSet
+
+def run():
+    PIPELINE_NAME = '{{ name }}'
+
+    {%- for env in req_envs %}
+    {{ env }} = os.environ.get('{{ env }}', '')
+    if not {{ env }}:
+        raise Exception(
+            'Could not find environment variable {{ env }}. '
+            'Please set this environment variable and try again.'
+        )
+    {%- endfor %}
+
+    # -- Setup logging -- #
+    LOGS_DIR = {{ logging.directory }}
+    GLOBAL_LOG_LEVEL = {{ logging.level}}
+
+    if not os.path.exists(LOGS_DIR):
+        os.makedirs(LOGS_DIR)
+    log_path = os.path.join(LOGS_DIR, PIPELINE_NAME + '.log')
+    file_handler = logging.handlers.RotatingFileHandler(log_path, maxBytes=100000, backupCount=3)
+    formatter = logging.Formatter("%(asctime)s::%(name)s::%(levelname)s::%(message)s")
+    file_handler.setFormatter(formatter)
+    stream_handler = logging.StreamHandler()
+    log = logging.getLogger(PIPELINE_NAME)
+    log.setLevel(GLOBAL_LOG_LEVEL)
+    log.addHandler(file_handler)
+    log.addHandler(stream_handler)
+    log.info("Initializing pipeline components...")
+
+    {%- if datasets %}
+    # ########################## #
+    # ### PIPELINE MANAGER ##### #
+    # ########################## #
+    log.info("Creating Pipeline Manager...")
+
+    pipeline_manager = Manager(
+        a_name=PIPELINE_NAME,
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL,
+    )
+    {%- endif %}
+
+    # ########################## #
+    # ######## DATASETS ######## #
+    # ########################## #
+
+    log.info("Configuring Datasets...")
+    {%- if dataset %}
+    {{ dataset.name }}_dataset = DataSet(
+        a_name='{{ dataset.name }}',
+        a_uris={{ dataset.uris.primary }},
+        a_failover_uris={{ dataset.uris.failover }},
+        a_window={{ dataset.window }},
+        a_window_step={{ dataset.window_step }},
+        a_repeat={{ dataset.repeat }},
+        a_repeat_ref_time={{ dataset.repeat_ref_time }},
+        a_delay={{ dataset.delay }},
+        a_expiration={{ dataset.expire }},
+        a_expect={{ dataset.expect }},
+        a_transfer_data={{ dataset.transfer }},
+        a_clean_data={{ dataset.clean }},
+        a_max_service_lag={{ dataset.max_service_lag }},
+        a_transfers_dir={{ dataset.transfers }},
+        a_transfer_format={{ dataset.transfer_format }},
+        a_start={{ dataset.start or start }},
+        a_end={{ dataset.stop or stop }},
+        a_seed_times={{ seed_times }},
+        a_variables={{ dataset.variables }},
+        a_fallback={{ dataset.fallback }},
+        a_credentials={{ dataset.credentials }},
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL,
+        a_acceptable_uris_missing = {{ dataset.acceptable_uris_missing }}
+    )
+    {%- endif %}
+
+    {%- for dataset in datasets %}
+    {{ dataset.name }}_dataset = DataSet(
+        a_name='{{ dataset.name }}',
+        a_uris={{ dataset.uris.primary }},
+        a_failover_uris={{ dataset.uris.failover }},
+        a_window={{ dataset.window }},
+        a_window_step={{ dataset.window_step }},
+        a_repeat={{ dataset.repeat }},
+        a_repeat_ref_time={{ dataset.repeat_ref_time }},
+        a_delay={{ dataset.delay }},
+        a_expiration={{ dataset.expire }},
+        a_transfer_data={{ dataset.transfer }},
+        a_clean_data={{ dataset.clean }},
+        a_max_service_lag={{ dataset.max_service_lag }},
+        a_transfers_dir={{ dataset.transfers }},
+        a_transfer_format={{ dataset.transfer_format }},
+        a_start={{ dataset.start or start }},
+        a_end={{ dataset.stop or stop }},
+        a_seed_times={{ seed_times }},
+        a_variables={{ dataset.variables }},
+        a_fallback={{ dataset.fallback }},
+        a_credentials={{ dataset.credentials }},
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL,
+        a_acceptable_uris_missing = {{ dataset.acceptable_uris_missing }}
+    )
+    {%- endfor %}
+
+    {%- for dataset in datasets %}
+    {%- for subset in dataset.subsets %}
+    {{ dataset.name }}_subset{{ loop.index }} = DataSet(
+        a_name='{{ dataset.name }}',
+        a_base_dataset={{ dataset.name}}_dataset,
+        a_uris={{ subset.uris.primary or dataset.uris.primary }},
+        a_failover_uris={{ subset.uris.failover or dataset.uris.failover }},
+        a_window={{ subset.window or dataset.window }},
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL
+    )
+    {%- endfor %}
+    {%- endfor %}
+
+    # ########################## #
+    # ######## WATCHERS ######## #
+    # ########################## #
+
+    log.info("Configuring Watchers...")
+
+    {%- if dataset %}
+    {{ dataset.name}}_watcher = Watcher(
+        a_name='{{ dataset.name}}',
+        a_dataset={{ dataset.name}}_dataset,
+        a_ping_interval={{ dataset.ping }},
+        watch_cap=1,
+        skip={{ dataset.skip }},
+        a_fetch_timeout={{ dataset.fetch_timeout }},
+        a_max_pull_workers={{ dataset.concurrent_transfers }},
+        a_dataset_cache={{ dataset.cache }},
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL
+    )
+    {%- endif %}
+
+    {%- for dataset in datasets %}
+    {{ dataset.name}}_watcher = Watcher(
+        a_name='{{ dataset.name}}',
+        a_dataset={{ dataset.name}}_dataset,
+        a_ping_interval={{ dataset.ping }},
+        watch_cap=1,
+        skip={{ dataset.skip }},
+        a_fetch_timeout={{ dataset.fetch_timeout }},
+        a_max_pull_workers={{ dataset.concurrent_transfers }},
+        a_dataset_cache={{ dataset.cache }},
+        a_log_directory=LOGS_DIR,
+        a_logstash_socket={{ logging.logstash }},
+        a_log_level=GLOBAL_LOG_LEVEL
+    )
+    {%- endfor %}
+
+    # ########################### #
+    # ### PROCESSES SCRIPTS ##### #
+    # ########################### #
+
+    log.info("Connecting Processes to Watchers...")
+
+    {%- if dataset and process %}
+    {{ dataset.name}}_watcher.connect(
+        {{ process.script }},
+        a_process_switchboard_file=None,
+        a_process_args={{ process.args }},
+        a_process_interval={{ process.interval }},
+        a_process_interval_ref_time={{ process.interval_ref_time }},
+        a_process_timeout={{ process.timeout }}
+    )
+    {%- endif %}
+
+    {% for dataset in datasets %}
+
+    {%- for process in dataset.processes %}
+
+    {{ dataset.name}}_watcher.connect(
+        {{ process.script }},
+        a_process_switchboard_file={{ switchboards }},
+        a_process_args={{ process.args }},
+        a_process_interval={{ process.interval }},
+        a_process_interval_ref_time={{ process.interval_ref_time }},
+        a_process_timeout={{ process.timeout }}
+    )
+    {%- endfor %}
+
+    {%- for subset in dataset.subsets %}
+    {% set subset_loop = loop %}
+    {%- for process in subset.processes %}
+    {{ dataset.name}}_watcher.connect(
+        {{ process.script }},
+        a_process_dataset={{ dataset.name }}_subset{{ subset_loop.index }},
+        a_process_switchboard_file={{ switchboards }},
+        a_process_args={{ process.args }},
+        a_process_interval={{ process.interval }},
+        a_process_interval_ref_time={{ process.interval_ref_time }},
+        a_process_timeout={{ process.timeout }}
+    )
+    {%- endfor %}
+    {%- endfor %}
+    {%- endfor -%}
+
+
+    # ##################################### #
+    # ### WATCHER/MANAGER CONNECTIONS ##### #
+    # ##################################### #
+    {% if dataset %}
+    log.info(f"Starting pipeline {PIPELINE_NAME}")
+    {{ dataset.name}}_watcher.watch(threading.Event())
+
+    {%- else %}
+    log.info("Adding Watchers to Pipeline Manager...")
+
+    {%- for dataset in datasets %}
+    pipeline_manager.add_watcher({{ dataset.name }}_watcher)
+    {%- endfor %}
+
+    # ##################################### #
+    # ##### START PIPELINE MANAGER ######## #
+    # ##################################### #
+
+    log.info(f"Starting pipeline {PIPELINE_NAME}...")
+    pipeline_manager.start()
+    {%- endif %}
+    log.info(f"Pipeline {PIPELINE_NAME} was terminated.")
+
+    {%- if require_keypress_to_close %}
+    input("Press enter to close.\n")
+    log.info("Closing...")
+    {%- endif %}
+
+
+if __name__ == '__main__':
+    try:
+        run()
+    except Exception as e:
+        log.error(f"Pipeline failed to run:\n{e}")
