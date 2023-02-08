@@ -18,3 +18,4 @@
 *.zip binary
 *.tgz binary
 *.tar.gz binary
+*.gz binary
