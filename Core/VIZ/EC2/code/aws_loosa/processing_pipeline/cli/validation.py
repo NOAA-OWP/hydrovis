@@ -9,10 +9,10 @@ import tempfile
 import yaml
 import voluptuous as v
 
-from processing_pipeline.utils.extract_list_from_file import extract_list_from_file
-from processing_pipeline.watcher import Watcher
-from processing_pipeline.dataset import DataSet
-from processing_pipeline.cli import consts
+from aws_loosa.processing_pipeline.utils.extract_list_from_file import extract_list_from_file
+from aws_loosa.processing_pipeline.watcher import Watcher
+from aws_loosa.processing_pipeline.dataset import DataSet
+from aws_loosa.processing_pipeline.cli import consts
 
 
 class PipelineConfigValidator(object):
