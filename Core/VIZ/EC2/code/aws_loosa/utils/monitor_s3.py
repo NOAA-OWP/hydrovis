@@ -8,10 +8,10 @@ import re
 import logging
 
 from botocore.exceptions import ClientError
-from aws_loosa.ec2.utils.shared_funcs import get_db_values
+from aws_loosa.utils.shared_funcs import get_db_values
 
-from aws_loosa.ec2.consts import consts
-from aws_loosa.ec2.consts.paths import (PROCESSED_OUTPUT_BUCKET, PROCESSED_OUTPUT_PREFIX, TRIGGER_FILES_PREFIX,
+from aws_loosa.consts import consts
+from aws_loosa.consts.paths import (PROCESSED_OUTPUT_BUCKET, PROCESSED_OUTPUT_PREFIX, TRIGGER_FILES_PREFIX,
                                         FIM_DATA_BUCKET)
 
 

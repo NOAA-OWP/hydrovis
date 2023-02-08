@@ -5,8 +5,8 @@ import xarray as xr
 from warnings import filterwarnings
 
 # Import Authoritative Datasets and Constants
-from aws_loosa.ec2.consts import (INSUFFICIENT_DATA_ERROR_CODE)
-from aws_loosa.ec2.consts.paths import (PERCENTILE_TABLE_5TH, PERCENTILE_TABLE_10TH,
+from aws_loosa.consts import (INSUFFICIENT_DATA_ERROR_CODE)
+from aws_loosa.consts.paths import (PERCENTILE_TABLE_5TH, PERCENTILE_TABLE_10TH,
                                         PERCENTILE_TABLE_25TH, PERCENTILE_TABLE_75TH,
                                         PERCENTILE_TABLE_90TH, PERCENTILE_TABLE_95TH,
                                         PERCENTILE_14_TABLE_5TH, PERCENTILE_14_TABLE_10TH,

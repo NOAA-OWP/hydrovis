@@ -18,10 +18,10 @@ import os
 import yaml
 
 from processing_pipeline.cli.run_pipelines import run_pipelines
-from aws_loosa.ec2.consts.paths import PIPELINES_DIR
-from aws_loosa.ec2.consts import TOTAL_PROCESSES_ENV_VAR
+from aws_loosa.consts.paths import PIPELINES_DIR
+from aws_loosa.consts import TOTAL_PROCESSES_ENV_VAR
 
-from aws_loosa.ec2.deploy.validate_config import CONFIG_SCHEMA, ADDED, UPDATED, UNCHANGED, validate_multimachine_config
+from aws_loosa.deploy.validate_config import CONFIG_SCHEMA, ADDED, UPDATED, UNCHANGED, validate_multimachine_config
 
 
 def start_pipelines(config_fpath, manage=False):

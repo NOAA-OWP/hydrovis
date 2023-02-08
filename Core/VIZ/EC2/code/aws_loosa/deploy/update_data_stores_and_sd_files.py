@@ -2,13 +2,13 @@ import uuid
 import arcgis
 import arcpy
 import os
-from aws_loosa.ec2.consts import egis as consts
-from aws_loosa.ec2.consts import paths
+from aws_loosa.consts import egis as consts
+from aws_loosa.consts import paths
 import re
 import boto3
 import xml.dom.minidom as DOM
 
-from aws_loosa.ec2.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
+from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
 from aws_loosa.lambdas.layers.viz_lambda_shared_funcs.python.viz_lambda_shared_funcs import get_service_metadata
 
 s3 = boto3.resource('s3')

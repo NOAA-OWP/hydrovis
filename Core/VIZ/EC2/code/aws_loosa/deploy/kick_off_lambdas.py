@@ -1,7 +1,7 @@
 import boto3
 from datetime import datetime
 import json
-from aws_loosa.ec2 import consts
+from aws_loosa import consts
 import os
 
 def kickoff_viz_lambdas():

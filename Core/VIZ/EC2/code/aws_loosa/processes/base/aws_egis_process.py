@@ -19,9 +19,9 @@ from inspect import getframeinfo, stack
 from processing_pipeline.utils.process import PipelineProcess
 from processing_pipeline.cli import validation
 
-from aws_loosa.ec2.consts import egis as consts, paths,  monitoring as mon_consts, TOTAL_PROCESSES_ENV_VAR
-from aws_loosa.ec2.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
-from aws_loosa.ec2.utils.shared_funcs import add_update_time, add_ref_time, update_field_name, get_db_values
+from aws_loosa.consts import egis as consts, paths,  monitoring as mon_consts, TOTAL_PROCESSES_ENV_VAR
+from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
+from aws_loosa.utils.shared_funcs import add_update_time, add_ref_time, update_field_name, get_db_values
 
 import arcgis
 import arcpy

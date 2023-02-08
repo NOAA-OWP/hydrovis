@@ -18,8 +18,8 @@ import re
 from datetime import datetime, timedelta
 from itertools import cycle, islice
 
-from aws_loosa.ec2.consts import CFS_FROM_CMS
-from aws_loosa.ec2.utils.shared_funcs import get_db_values
+from aws_loosa.consts import CFS_FROM_CMS
+from aws_loosa.utils.shared_funcs import get_db_values
 
 pd.options.mode.chained_assignment = None
 

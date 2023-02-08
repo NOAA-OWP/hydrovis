@@ -11,7 +11,7 @@ import os
 import shutil
 import boto3
 
-from aws_loosa.ec2.consts.paths import PROCESSED_OUTPUT_BUCKET, PROCESSED_OUTPUT_PREFIX
+from aws_loosa.consts.paths import PROCESSED_OUTPUT_BUCKET, PROCESSED_OUTPUT_PREFIX
 arcpy.env.overwriteOutput = True
 
 

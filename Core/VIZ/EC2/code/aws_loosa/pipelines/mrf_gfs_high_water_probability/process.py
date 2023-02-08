@@ -5,10 +5,10 @@ import time
 import re
 import arcpy
 
-from aws_loosa.ec2.processes.base.aws_egis_process import AWSEgisPublishingProcess
-from aws_loosa.ec2.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
-from aws_loosa.ec2.products.high_water_probability import mrf_high_water_probability
-from aws_loosa.ec2.utils.shared_funcs import get_db_values, create_service_db_tables
+from aws_loosa.processes.base.aws_egis_process import AWSEgisPublishingProcess
+from aws_loosa.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
+from aws_loosa.products.high_water_probability import mrf_high_water_probability
+from aws_loosa.utils.shared_funcs import get_db_values, create_service_db_tables
 
 
 class MrfHighWaterProbabilityForecast(AWSEgisPublishingProcess):

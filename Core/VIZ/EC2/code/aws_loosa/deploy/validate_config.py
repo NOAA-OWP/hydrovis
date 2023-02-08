@@ -1,8 +1,8 @@
 import os
 import voluptuous as v
 
-from aws_loosa.ec2.consts.paths import PIPELINES_DIR
-from aws_loosa.ec2.consts import PIPELINE_MACHINE_ENV_VAR
+from aws_loosa.consts.paths import PIPELINES_DIR
+from aws_loosa.consts import PIPELINE_MACHINE_ENV_VAR
 
 ADDED = 'ADDED'
 REMOVED = 'REMOVED'
