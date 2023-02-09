@@ -4,6 +4,7 @@ locals {
 
   scheduled_rules = {
     channel_rt_analysis_assim_para       = tomap({ "description" = "AnA Channel CONUS at 45M Past hour", "schedule_expression" = "cron(45 0-23 * * ? *)"})
+    channel_rt_analysis_assim_14day_para       = tomap({ "description" = "AnA 14Day Channel CONUS at 45M Past hour", "schedule_expression" = "cron(45 1 * * ? *)"})  # Adding additional hour delay for getting data to para. May need to revisit this when para data is on prod
     forcing_analysis_assim_para       = tomap({ "description" = "AnA Forcing CONUS at 35M Past hour", "schedule_expression" = "cron(35 0-23 * * ? *)"})
     channel_rt_analysis_assim_hawaii_para       = tomap({ "description" = "AnA Channel Hawaii at 35M Past hour", "schedule_expression" = "cron(35 0-23 * * ? *)"})
     forcing_analysis_assim_hawaii_para       = tomap({ "description" = "AnA Forcing Hawaii at 30M Past hour", "schedule_expression" = "cron(30 0-23 * * ? *)"})
