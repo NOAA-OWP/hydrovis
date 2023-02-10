@@ -106,7 +106,7 @@ def lambda_handler(event, context):
         print(f"Successfully created max flows file for {output_netcdf}")
 
         # If analysis_assim, trigger the db ingest function
-        if 'ana_14day' in short_hand_config:
+        if 'ana_14day' in short_hand_config or 'ana_para_14day' in short_hand_config:
             trigger_db_ingest(configuration, 14, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
 
         # If max calcs will run more than once, remove duplicates and
