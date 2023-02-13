@@ -1,4 +1,4 @@
-name: ana_anomaly
+name: ana_anomaly_para
 dataset:
     uris:
         - s3-https://$FIM_OUTPUT_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
