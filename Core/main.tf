@@ -308,7 +308,7 @@ module "viz_lambda_functions" {
 }
 
 # Simple Service Notifications
-module "sns" {
+module "eventbridge" {
   source = "./EventBridge"
 
   viz_initialize_pipeline_lambda = module.viz_lambda_functions.initialize_pipeline
