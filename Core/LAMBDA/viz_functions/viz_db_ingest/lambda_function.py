@@ -60,6 +60,7 @@ def lambda_handler(event, context):
             else:
                 s3.download_file(bucket, file, download_path)
     
+            nwm_version = 0
             if file[-12:] == 'max_flows.nc':
                 # Load the NetCDF file into a dataframe
                 ds = xr.open_dataset(download_path)
@@ -72,13 +73,14 @@ def lambda_handler(event, context):
                 drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
                 ds = xr.open_dataset(download_path, drop_variables=drop_vars)
                 ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
+                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
                 df = ds.to_dataframe().reset_index()
                 ds.close()
     
                 # Only include reference time in the insert if specified
-                df_toLoad = df[['feature_id', 'time_step', 'streamflow']]
+                df_toLoad = df[['feature_id', 'time_step', 'streamflow', 'nwm_vers']]
                 cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (feature_id integer, forecast_hour integer, "
-                                "streamflow double precision)")
+                                "streamflow double precision, nwm_vers double precision)")
     
                 # Filter out any streamflow data below the specificed threshold
                 df_toLoad = df_toLoad.loc[df_toLoad['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
@@ -111,7 +113,8 @@ def lambda_handler(event, context):
                         "file": file,
                         "target_table": target_table,
                         "reference_time": reference_time,
-                        "rows_imported": len(df_toLoad)
+                        "rows_imported": len(df_toLoad),
+                        "nwm_version": nwm_version
                     }
     return json.dumps(dump_dict)    # Return some info on the import
 
