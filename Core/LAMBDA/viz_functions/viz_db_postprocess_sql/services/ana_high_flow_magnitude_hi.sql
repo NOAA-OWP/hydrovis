@@ -1,50 +1,52 @@
-DROP TABLE IF EXISTS PUBLISH.ANA_HIGH_FLOW_MAGNITUDE_HI;
+DROP TABLE IF EXISTS publish.ana_high_flow_magnitude_hi;
 
-WITH HIGH_FLOW_MAG AS
-	(SELECT MAXFLOWS.FEATURE_ID,
-			MAXFLOWS.MAXFLOW_1HOUR_CFS AS MAX_FLOW,
+WITH high_flow_mag AS
+	(SELECT maxflows.feature_id,
+			maxflows.maxflow_1hour_cfs AS max_flow,
+			maxflows.reference_time,
+			maxflows.nwm_vers,
 			CASE
-							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::integer::double precision THEN 'Not Available'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.RF_100_0 THEN '1'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.RF_50_0 THEN '2'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.RF_25_0 THEN '4'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.RF_10_0 THEN '10'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.RF_5_0 THEN '20'::text
-							WHEN MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.HIGH_WATER_THRESHOLD THEN '>20'::text
+							WHEN thresholds.high_water_threshold = '-10'::integer::double precision THEN 'Not Available'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_100_0 THEN '1'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_50_0 THEN '2'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_25_0 THEN '4'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_10_0 THEN '10'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_5_0 THEN '20'::text
+							WHEN maxflows.maxflow_1hour_cfs >= thresholds.high_water_threshold THEN '>20'::text
 							ELSE NULL::text
-			END AS RECUR_CAT,
-			THRESHOLDS.HIGH_WATER_THRESHOLD AS HIGH_WATER_THRESHOLD,
-			THRESHOLDS.RF_2_0 AS FLOW_2YR,
-			THRESHOLDS.RF_5_0 AS FLOW_5YR,
-			THRESHOLDS.RF_10_0 AS FLOW_10YR,
-			THRESHOLDS.RF_25_0 AS FLOW_25YR,
-			THRESHOLDS.RF_50_0 AS FLOW_50YR,
-			THRESHOLDS.RF_100_0 AS FLOW_100YR
-		FROM CACHE.MAX_FLOWS_ANA_HI MAXFLOWS
-		JOIN DERIVED.RECURRENCE_FLOWS_HI THRESHOLDS ON MAXFLOWS.FEATURE_ID = THRESHOLDS.FEATURE_ID
-		WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0::double precision
-									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::integer::double precision)
-			AND MAXFLOWS.MAXFLOW_1HOUR_CFS >= THRESHOLDS.HIGH_WATER_THRESHOLD )
+			END AS recur_cat,
+			thresholds.high_water_threshold AS high_water_threshold,
+			thresholds.rf_2_0 AS flow_2yr,
+			thresholds.rf_5_0 AS flow_5yr,
+			thresholds.rf_10_0 AS flow_10yr,
+			thresholds.rf_25_0 AS flow_25yr,
+			thresholds.rf_50_0 AS flow_50yr,
+			thresholds.rf_100_0 AS flow_100yr
+		FROM cache.max_flows_ana_hi maxflows
+		JOIN derived.recurrence_flows_hi thresholds ON maxflows.feature_id = thresholds.feature_id
+		WHERE (thresholds.high_water_threshold > 0::double precision
+									OR thresholds.high_water_threshold = '-10'::integer::double precision)
+			AND maxflows.maxflow_1hour_cfs >= thresholds.high_water_threshold )
 
-SELECT CHANNELS.FEATURE_ID,
-	CHANNELS.FEATURE_ID::TEXT AS FEATURE_ID_STR,
-	CHANNELS.STRM_ORDER,
-	CHANNELS.NAME,
-	CHANNELS.HUC6,
-	CHANNELS.NWM_VERS,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS valid_time,
-	HIGH_FLOW_MAG.MAX_FLOW,
-	HIGH_FLOW_MAG.RECUR_CAT,
-	HIGH_FLOW_MAG.HIGH_WATER_THRESHOLD AS HIGH_WATER_THRESHOLD,
-	HIGH_FLOW_MAG.FLOW_2YR,
-	HIGH_FLOW_MAG.FLOW_5YR,
-	HIGH_FLOW_MAG.FLOW_10YR,
-	HIGH_FLOW_MAG.FLOW_25YR,
-	HIGH_FLOW_MAG.FLOW_50YR,
-	HIGH_FLOW_MAG.FLOW_100YR,
+SELECT channels.feature_id,
+	channels.feature_id::TEXT AS feature_id_str,
+	channels.strm_order,
+	channels.name,
+	channels.huc6,
+	high_flow_mag.nwm_vers,
+	high_flow_mag.reference_time,
+	high_flow_mag.reference_time AS valid_time,
+	high_flow_mag.max_flow,
+	high_flow_mag.recur_cat,
+	high_flow_mag.high_water_threshold AS high_water_threshold,
+	high_flow_mag.flow_2yr,
+	high_flow_mag.flow_5yr,
+	high_flow_mag.flow_10yr,
+	high_flow_mag.flow_25yr,
+	high_flow_mag.flow_50yr,
+	high_flow_mag.flow_100yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
-	CHANNELS.GEOM
-INTO PUBLISH.ANA_HIGH_FLOW_MAGNITUDE_HI
-FROM DERIVED.CHANNELS_HI CHANNELS
-JOIN HIGH_FLOW_MAG ON CHANNELS.FEATURE_ID = HIGH_FLOW_MAG.FEATURE_ID;
+	channels.geom
+INTO publish.ana_high_flow_magnitude_hi
+FROM derived.channels_hi channels
+JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;

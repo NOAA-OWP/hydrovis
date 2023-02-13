@@ -114,7 +114,7 @@ def lambda_handler(event, context):
             ref_time_short = pipeline.configuration.reference_time.strftime("%Y-%m-%d-%H-%M")
             short_config = pipeline.configuration.name.replace("puertorico", "prvi").replace("hawaii", "hi")
             short_config = short_config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf").replace("replace_route", "rnr")
-            short_invoke = pipeline.invocation_type.replace("manual", "man")
+            short_invoke = pipeline.invocation_type.replace("manual", "man").replace("eventbridge", "bdg")
             pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
             client.start_execution(
                 stateMachineArn = step_function_arn,
@@ -143,39 +143,47 @@ def lambda_handler(event, context):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True):
+    def __init__(self, start_event, print_init=True, max_flow_method="db"):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
-        if "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
+        if self.start_event.get("detail-type") == "Scheduled Event":
+            self.invocation_type = "eventbridge" 
+        elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
         elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
-        else: self.invocation_type = "manual"
+        else: 
+            self.invocation_type = "manual"
         self.job_type = "auto" if not self.start_event.get('reference_time') else "past_event" # We assume that the specification of a reference_time in the payload correlates to a past_event run.
         self.keep_raw = True if self.job_type == "past_event" and self.start_event.get('keep_raw') else False # Keep_raw will determine if a past_event run preserves the raw ingest data tables in the archive schema, or recycles them.
         self.start_time = datetime.datetime.fromtimestamp(time.time())
 
+        if self.start_event.get("detail-type") == "Scheduled Event":
+            config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
-        if self.invocation_type == "sns" or self.start_event.get('data_key'):
+        elif self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
-            self.configuration = configuration.from_s3_file(self.start_file)
+            configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
+            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
         # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
         elif self.invocation_type == "manual":
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
-                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
+                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), max_flow_method=max_flow_method)
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
                 self.start_file = most_recent_file
-                self.configuration = configuration.from_s3_file(self.start_file)
-                self.reference_time = self.configuration.reference_time
+                configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
+                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
         
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
         self.pipeline_services = self.configuration.services_to_run
-        self.pipeline_max_flows =  [{"max_flows" : name for name in self.configuration.max_flows}] if len(self.configuration.max_flows) > 0 else [] # Max_Flows will post-process BEFORE service post-processing
+        self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE service post-processing
+        
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
         
@@ -211,7 +219,7 @@ class viz_lambda_pipeline:
     # This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
     # It produces one new pipeline class attribute: ingest_files, which is the list of S3 file paths and their respective db destination tables.
     # TODO: Find someway to use an actual map to figure this all out - sooooo much looping and redundant assignments happening here. This is very messy
-    def organize_db_import(self, run_only = True): 
+    def organize_db_import(self, run_only=True): 
         self.ingest_files = []
         db_prefix = ""
         self.db_data_flow_metadata = self.configuration.db_data_flow_metadata # copy the configuration db import metadata to a pipeline attribute
@@ -243,7 +251,7 @@ class viz_lambda_pipeline:
         for service_name, flow_id_data in self.configuration.service_input_files.items():
             for flow_id, s3_keys in flow_id_data.items():
                 service_metadata = [service for service in self.db_data_flow_metadata if service['service'] == service_name and service['flow_id'] == flow_id][0]
-
+                
                 original_table = service_metadata['original_table'] if self.job_type == "past_event" else service_metadata['target_table']
                 ingest_table = service_metadata['target_table']
                 ingest_keys = service_metadata['target_keys']
@@ -289,14 +297,16 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="db"): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
-        self.service_metadata = self.get_service_metadata()
+        self.service_metadata = self.get_service_metadata(max_flow_method=max_flow_method)
         self.db_data_flow_metadata = self.get_db_data_flow_metadata()
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
-        self.max_flows = list(set([service['postprocess_max_flows'] for service in self.services_to_run if service['postprocess_max_flows'] is not None])) #Unique list of max_flows
+        self.max_flows = []
+        for service in self.services_to_run:
+            self.max_flows.extend([max_flow for max_flow in service['postprocess_max_flows'] if max_flow not in self.max_flows])
 
         self.data_type = 'channel'
         if 'forcing' in name:
@@ -343,8 +353,7 @@ class configuration:
             hour = matches[3]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
             
-        configuration = cls(configuration_name, reference_time=reference_time, input_bucket=s3_file.bucket)
-        return configuration
+        return configuration_name, reference_time, s3_file.bucket
     
     ###################################
     # This method generates a complete list of files based on the file pattern data in the admin.db_data_flows_metadata db table.
@@ -504,16 +513,21 @@ class configuration:
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     # TODO: Encapsulate this into a view within the database.
-    def get_service_metadata(self, specific_service=None, run_only=True):
+    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="db"):
         import psycopg2.extras
         service_filter = run_filter = ""
+        
         if specific_service:
             service_filter = f"AND service = {specific_service}"
+            
         if run_only:
-            run_filter = " AND run is True"
+            run_filter = "AND run is True"
+            
+        max_flow_method_filter = f"AND max_flow_method = '{max_flow_method}'"
+            
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter};")
+            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter} {max_flow_method_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()

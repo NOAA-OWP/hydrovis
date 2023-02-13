@@ -1,50 +1,52 @@
-DROP TABLE IF EXISTS PUBLISH.SRF_HIGH_WATER_ARRIVAL_TIME_HI;
+DROP TABLE IF EXISTS publish.srf_high_water_arrival_time_hi;
 
-WITH ARRIVAL_TIME AS
-	(SELECT FORECASTS.FEATURE_ID,
+WITH arrival_time AS
+	(SELECT forecasts.feature_id,
+			forecasts.nwm_vers,
+			forecasts.reference_time,
 			CASE
-							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::double precision OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::double precision  THEN NULL
-							ELSE MIN(FORECASTS.FORECAST_HOUR)
-			END AS T_HIGH_WATER_THRESHOLD,
+							WHEN thresholds.high_water_threshold = '-10'::double precision OR thresholds.high_water_threshold = '-9999'::double precision  THEN NULL
+							ELSE MIN(forecasts.forecast_hour)
+			END AS t_high_water_threshold,
 			CASE
-							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::integer::double precision THEN 'Insufficient Data'::text
-							WHEN MAX(FORECASTS.FORECAST_HOUR) >= 48 THEN '> 48 hours'::text
+							WHEN thresholds.high_water_threshold = '-10'::integer::double precision THEN 'Insufficient Data'::text
+							WHEN MAX(forecasts.forecast_hour) >= 48 THEN '> 48 hours'::text
 							ELSE (max(forecasts.forecast_hour)+1)::text
-			END AS T_NORMAL,
+			END AS t_normal,
 			CASE
-							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::integer::double precision THEN 'Insufficient Data'::text
-							WHEN MAX(FORECASTS.FORECAST_HOUR) >= 48 THEN 'Outside SRF Forecast Window'::text
-							ELSE ((max(forecasts.forecast_hour)+1) - MIN(FORECASTS.FORECAST_HOUR))::text
-			END AS DURATION,
+							WHEN thresholds.high_water_threshold = '-10'::integer::double precision THEN 'Insufficient Data'::text
+							WHEN MAX(forecasts.forecast_hour) >= 48 THEN 'Outside SRF Forecast Window'::text
+							ELSE ((max(forecasts.forecast_hour)+1) - MIN(forecasts.forecast_hour))::text
+			END AS duration,
 			CASE
-							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = -10 THEN -9999
-							ELSE THRESHOLDS.HIGH_WATER_THRESHOLD
-			END AS HIGH_WATER_THRESHOLD,
-			ROUND((MAX(FORECASTS.STREAMFLOW) * 35.315::double precision)::numeric,
-				2) AS MAX_FLOW
-		FROM INGEST.NWM_CHANNEL_RT_SRF_HI FORECASTS
-		JOIN DERIVED.RECURRENCE_FLOWS_HI THRESHOLDS ON FORECASTS.FEATURE_ID = THRESHOLDS.FEATURE_ID
-		JOIN DERIVED.CHANNELS_HI GEO ON FORECASTS.FEATURE_ID = GEO.FEATURE_ID
-		WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0::double precision
-									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-10'::integer::double precision)
-			AND (FORECASTS.STREAMFLOW * 35.315::double precision) >= THRESHOLDS.HIGH_WATER_THRESHOLD
-		GROUP BY FORECASTS.FEATURE_ID,
-			THRESHOLDS.HIGH_WATER_THRESHOLD)
+							WHEN thresholds.high_water_threshold = -10 THEN -9999
+							ELSE thresholds.high_water_threshold
+			END AS high_water_threshold,
+			ROUND((MAX(forecasts.streamflow) * 35.315::double precision)::numeric,
+				2) AS max_flow
+		FROM ingest.nwm_channel_rt_srf_hi forecasts
+		JOIN derived.recurrence_flows_hi thresholds ON forecasts.feature_id = thresholds.feature_id
+		JOIN derived.channels_hi geo ON forecasts.feature_id = geo.feature_id
+		WHERE (thresholds.high_water_threshold > 0::double precision
+									OR thresholds.high_water_threshold = '-10'::integer::double precision)
+			AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
+		GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers,
+			thresholds.high_water_threshold)
 
-SELECT CHANNELS.FEATURE_ID,
-	CHANNELS.FEATURE_ID::TEXT AS FEATURE_ID_STR,
-	CHANNELS.NAME,
-	CHANNELS.STRM_ORDER,
-	CHANNELS.HUC6,
-	CHANNELS.NWM_VERS,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
-	ARRIVAL_TIME.T_HIGH_WATER_THRESHOLD,
-	ARRIVAL_TIME.T_NORMAL,
-	ARRIVAL_TIME.DURATION,
-	ARRIVAL_TIME.HIGH_WATER_THRESHOLD,
-	ARRIVAL_TIME.MAX_FLOW,
+SELECT channels.feature_id,
+	channels.feature_id::TEXT AS feature_id_str,
+	channels.name,
+	channels.strm_order,
+	channels.huc6,
+	arrival_time.nwm_vers,
+	arrival_time.reference_time,
+	arrival_time.t_high_water_threshold,
+	arrival_time.t_normal,
+	arrival_time.duration,
+	arrival_time.high_water_threshold,
+	arrival_time.max_flow,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
-	CHANNELS.GEOM
-INTO PUBLISH.SRF_HIGH_WATER_ARRIVAL_TIME_HI
-FROM DERIVED.CHANNELS_HI CHANNELS
-JOIN ARRIVAL_TIME ON CHANNELS.FEATURE_ID = ARRIVAL_TIME.FEATURE_ID;
+	channels.geom
+INTO publish.srf_high_water_arrival_time_hi
+FROM derived.channels_hi channels
+JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;
