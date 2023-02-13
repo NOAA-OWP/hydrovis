@@ -219,11 +219,9 @@ $VIZ_DIR = "C:\Users\$PIPELINE_USER\NWC\viz"
 New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 
 Set-Location -Path $VIZ_DIR
-LogWrite "CLONING PIPELINE REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo master $VLAB_REPO_PREFIX owp-viz-proc-pipeline})
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis-visualization.git})
+Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
@@ -239,18 +237,12 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
     $python_exe = $user_python_exe
 }
 
-LogWrite "INSTALLING PROCESSING PIPELINE REPO"
-$PIPELINE_REPO = $VIZ_DIR + "\owp-viz-proc-pipeline"
-Set-Location -Path $PIPELINE_REPO
-& $python_exe setup.py develop
-
 LogWrite "INSTALLING AWS SERVICE REPO"
-$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis-visualization"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Core\VIZ\EC2\code"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz typing_extensions=4.1.1 dask=2021.10.0
-& $python_exe -m pip install--upgrade setuptools
 & $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42 shapely==1.8.5.post1
 
 LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
@@ -262,8 +254,8 @@ $s3_pristine = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + 
 aws s3 cp $s3_pristine $PRISTINE_ROOT --recursive
 
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
-Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\create_s3_connection_files.py
+Set-Location -Path $AWS_SERVICE_REPO
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\create_s3_connection_files.py"
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -278,8 +270,8 @@ $ACL.SetAccessRule($AccessRule)
 $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
-Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\update_data_stores_and_sd_files.py
+Set-Location -Path $AWS_SERVICE_REPO
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\update_data_stores_and_sd_files.py"
 
 LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
 $EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
@@ -289,8 +281,8 @@ if ($EXISTING_PUBLISHED_FLAGS) {
 }
 
 LogWrite "Kicking of viz lambdas"
-Set-Location -Path $VIZ_DIR
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" .\hydrovis-visualization\aws_loosa\ec2\deploy\kick_off_lambdas.py
+Set-Location -Path $AWS_SERVICE_REPO
+& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\kick_off_lambdas.py"
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
@@ -321,7 +313,7 @@ Copy-Item "C:\Users\$PIPELINE_USER\Desktop\filebeat.yml" -Destination "$ExtractP
 START-SERVICE filebeat
 
 LogWrite "SETTING UP WINDOWS SERVICES"
-Set-Location -Path $VIZ_DIR
-& .\hydrovis-visualization\aws_loosa\ec2\deploy\create_windows_services.ps1 $WINDOWS_SERVICE_STARTUP $WINDOWS_SERVICE_STATUS $PIPELINE_USER $PIPELINE_USER_ACCOUNT_PASSWORD
+Set-Location -Path $AWS_SERVICE_REPO
+& .\aws_loosa\deploy\create_windows_services.ps1 $WINDOWS_SERVICE_STARTUP $WINDOWS_SERVICE_STATUS $PIPELINE_USER $PIPELINE_USER_ACCOUNT_PASSWORD
 
 LogWrite "DONE SETTING UP PIPELINE"
