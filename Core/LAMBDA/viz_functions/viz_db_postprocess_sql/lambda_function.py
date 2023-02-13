@@ -2,7 +2,6 @@ import re
 from viz_classes import database
 
 def lambda_handler(event, context):
-    print(event)
     step = event['step']
     folder = event['folder']
     reference_time = event['args']['map']['reference_time']

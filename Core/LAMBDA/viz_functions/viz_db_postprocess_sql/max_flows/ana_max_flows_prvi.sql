@@ -1,10 +1,11 @@
-DROP TABLE IF EXISTS CACHE.MAX_FLOWS_ANA_PRVI;
+DROP TABLE IF EXISTS cache.max_flows_ana_prvi;
 
 
-SELECT FORECASTS.FEATURE_ID,
-	'1900-01-01 00:00:00'::timestamp without time zone AS reference_time,
-	ROUND(MAX(FORECASTS.STREAMFLOW)::numeric, 2) AS MAXFLOW_1HOUR_cms,
-	ROUND((MAX(FORECASTS.STREAMFLOW) * 35.315)::numeric, 2) AS MAXFLOW_1HOUR_cfs
-INTO CACHE.MAX_FLOWS_ANA_PRVI
-FROM INGEST.NWM_CHANNEL_RT_ANA_PRVI FORECASTS
-GROUP BY FORECASTS.FEATURE_ID;
+SELECT forecasts.feature_id,
+	forecasts.reference_time,
+	forecasts.nwm_vers,
+	ROUND(MAX(forecasts.streamflow)::numeric, 2) AS maxflow_1hour_cms,
+	ROUND((MAX(forecasts.streamflow) * 35.315)::numeric, 2) AS maxflow_1hour_cfs
+INTO cache.max_flows_ana_prvi
+FROM ingest.nwm_channel_rt_ana_prvi forecasts
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;
