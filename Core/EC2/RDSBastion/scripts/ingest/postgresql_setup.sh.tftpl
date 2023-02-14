@@ -33,15 +33,15 @@ psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}"
 echo "Downloading s3://${deployment_bucket}/${rfcfcst_base_s3_key}..."
 aws s3 cp s3://${deployment_bucket}/${rfcfcst_base_s3_key} $${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz
 gzip -d "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz"
-echo "Setting up HML ingest on ${PGHOST}..."
+echo "Setting up HML ingest on ${db_host}..."
 psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql"
 
 
 # Dump WRDS Location
+psql -h "${db_host}" -U "${db_username}" -d "${forecast_db_name}" -c "\c" -c "create database ${location_db_name};"
 echo "Downloading s3://${deployment_bucket}/location/database/wrds_location3.dump..."
 aws s3 cp s3://${deployment_bucket}/location_db_dumps/wrds_location3.dump $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
-echo "Setting up WRDS Location on ${PGHOST}..."
-psql -h "${db_host}" -U "${db_username}" -d "${forecast_db_name}" -c "\c" -c "create database ${location_db_name};"
+echo "Setting up WRDS Location on ${db_host}..."
 pg_restore -h "${db_host}" -p ${db_port} -d "${location_db_name}" -U ${db_username} -v $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
 
 

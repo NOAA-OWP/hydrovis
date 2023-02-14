@@ -12,12 +12,16 @@ variable "region" {
 
 # S3 Replication Incoming Data Service Account
 resource "aws_iam_user" "S3ReplicationDataServiceAccount" {
+  count = var.environment == "prod" ? 1 : 0
+
   name = "hydrovis-data-prod-ingest-service-user_${var.region}"
 }
 
 resource "aws_iam_user_policy" "S3ReplicationDataServiceAccount" {
+  count = var.environment == "prod" ? 1 : 0
+  
   name = "hydrovis-data-prod-ingest-service-user_${var.region}"
-  user = aws_iam_user.S3ReplicationDataServiceAccount.name
+  user = aws_iam_user.S3ReplicationDataServiceAccount[0].name
 
   policy = templatefile("${path.module}/s3-replication-data-service-account-policy.json.tftpl", {
     region = var.region
@@ -25,12 +29,16 @@ resource "aws_iam_user_policy" "S3ReplicationDataServiceAccount" {
 }
 
 resource "aws_iam_access_key" "S3ReplicationDataServiceAccount" {
-  user = aws_iam_user.S3ReplicationDataServiceAccount.name
+  count = var.environment == "prod" ? 1 : 0
+  
+  user = aws_iam_user.S3ReplicationDataServiceAccount[0].name
 }
 
 resource "local_file" "S3ReplicationDataServiceAccount" {
-  content  = "ID: ${aws_iam_access_key.S3ReplicationDataServiceAccount.id}\nSecret: ${aws_iam_access_key.S3ReplicationDataServiceAccount.secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.S3ReplicationDataServiceAccount.name}-${var.environment}"
+  count = var.environment == "prod" ? 1 : 0
+  
+  content  = "ID: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].id}\nSecret: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].secret}"
+  filename = "${path.root}/sensitive/Certs/${aws_iam_user.S3ReplicationDataServiceAccount[0].name}-${var.environment}"
 }
 
 
@@ -105,7 +113,7 @@ output "user_WRDSServiceAccount" {
 }
 
 output "user_S3ReplicationDataServiceAccount" {
-  value = aws_iam_user.S3ReplicationDataServiceAccount
+  value = var.environment == "prod" ? aws_iam_user.S3ReplicationDataServiceAccount[0] : { arn = "" }
 }
 
 output "user_FIMServiceAccount" {

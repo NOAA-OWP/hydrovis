@@ -13,7 +13,7 @@ echo "Removing default vhost to $${RHOST}"
 curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X DELETE "https://$${RHOST}/api/vhosts/%2f"
 
 echo "Adding ${rfcfcst_username} to $${RHOST}"
-curl --trace-ascii /dev/stdout -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
      -d '{"password":"'"${rfcfcst_password}"'","tags":"none"}' \
      "https://$${RHOST}/api/users/${rfcfcst_username}"
 

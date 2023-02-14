@@ -34,7 +34,7 @@ locals {
 resource "aws_imagebuilder_image_pipeline" "linux" {
   image_recipe_arn                 = aws_imagebuilder_image_recipe.linux.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.linux.arn
-  # distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
+  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
   name                             = local.name
 
   schedule {

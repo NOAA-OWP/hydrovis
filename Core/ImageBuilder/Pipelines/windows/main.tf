@@ -38,7 +38,7 @@ locals {
 resource "aws_imagebuilder_image_pipeline" "windows" {
   image_recipe_arn                 = aws_imagebuilder_image_recipe.windows.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.windows.arn
-  # distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.windows.arn 
+  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.windows.arn 
   name                             = local.name
 
   schedule {

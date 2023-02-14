@@ -320,53 +320,56 @@ module "lambda-layers" {
 
 # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
-# # Import EGIS DB
-# data "aws_db_instance" "egis_rds" {
-#   db_instance_identifier = "hv-${local.env.environment == "prod" ? "prd" : local.env.environment}-egis-data-pg-egdb"
-# }
+# Import EGIS DB
+data "aws_db_instance" "egis_rds" {
+  db_instance_identifier = "hv-${local.env.environment == "prod" ? "prd" : local.env.environment}-egis-data-pg-egdb"
+}
 
-# module "rds-bastion" {
-#   source = "./EC2/RDSBastion"
+module "rds-bastion" {
+  source = "./EC2/RDSBastion"
 
-#   environment                    = local.env.environment
-#   ami_owner_account_id           = local.env.ami_owner_account_id
-#   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-hml-ingest-role.name
-#   ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-#   ec2_instance_availability_zone = module.vpc.subnet_hydrovis-sn-prv-data1a.availability_zone
-#   ec2_instance_sgs = [
-#     module.security-groups.hydrovis-RDS.id,
-#     module.security-groups.hv-rabbitmq.id,
-#     module.security-groups.ssm-session-manager-sg.id
-#   ]
-#   kms_key_arn            = module.kms.key_arns["encrypt-ec2"]
-#   data_deployment_bucket = module.s3.buckets["deployment"].bucket
+  environment                    = local.env.environment
+  region                         = local.env.region
+  ami_owner_account_id           = local.env.ami_owner_account_id
+  ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-hml-ingest-role.name
+  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  ec2_instance_availability_zone = module.vpc.subnet_hydrovis-sn-prv-data1a.availability_zone
+  ec2_instance_sgs               = [
+    module.security-groups.hydrovis-RDS.id,
+    module.security-groups.hv-rabbitmq.id,
+    module.security-groups.ssm-session-manager-sg.id
+  ]
+  kms_key_arn                    = module.kms.key_arns["encrypt-ec2"]
 
-#   ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-#   ingest_db_address              = module.rds-ingest.rds-ingest.address
-#   ingest_db_port                 = module.rds-ingest.rds-ingest.port
-#   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
-#   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
-#   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
-#   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
-#   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
-#   location_db_name               = local.env.location_db_name
-#   forecast_db_name               = local.env.forecast_db_name
+  data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
-#   ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
-#   ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+  ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  ingest_db_address              = module.rds-ingest.rds-ingest.address
+  ingest_db_port                 = module.rds-ingest.rds-ingest.port
+  nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
+  rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
+  rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
+  rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
+  location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
+  location_db_name               = local.env.location_db_name
+  forecast_db_name               = local.env.forecast_db_name
 
-#   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-#   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
-#   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-#   viz_db_address                  = module.rds-viz.rds-viz-processing.address
-#   viz_db_port                     = module.rds-viz.rds-viz-processing.port
-#   viz_db_name                     = local.env.viz_db_name
-#   egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-#   egis_db_address                 = data.aws_db_instance.egis_rds.address
-#   egis_db_port                    = data.aws_db_instance.egis_rds.port
-#   egis_db_name                    = local.env.egis_db_name
-#   fim_version                     = local.env.fim_version
-# }
+  ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
+  ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
+
+  viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
+  viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_address                  = module.rds-viz.rds-viz-processing.address
+  viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  viz_db_name                     = local.env.viz_db_name
+  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_address                 = data.aws_db_instance.egis_rds.address
+  egis_db_port                    = data.aws_db_instance.egis_rds.port
+  egis_db_name                    = local.env.egis_db_name
+
+  fim_version = local.env.fim_version
+}
 
 # # Lambda Functions
 # module "viz_lambda_functions" {
