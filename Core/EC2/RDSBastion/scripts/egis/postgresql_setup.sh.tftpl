@@ -2,21 +2,27 @@
 
 POSTGRES_DATA_FOLDER="/home/ec2-user/postgres_data"
 
+echo ""
 echo "---- SETTING UP EGIS DB ----"
 
-# Setting up EGIS DB
 export PGPASSWORD=${egis_db_password}
 
+
+# Create EGIS DB
+echo "Creating EGIS DB..."
+psql -h "${egis_db_host}" -U "${egis_db_username}" -c "CREATE DATABASE ${egis_db_name}"
+
+
+# Setting up EGIS DB
+echo "Setting up postgis..."
 aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -f "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 rm "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 
 
 # Cleaning up EGIS DB
-echo "Drop EGIS Services Schema"
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
-
 echo "Setting up services schema in the EGIS DB..."
+psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/egis_db_dumps/egisDB_services.dump" "$${POSTGRES_DATA_FOLDER}/egisDB_services.dump"
 pg_restore -h "${egis_db_host}" -p ${egis_db_port} -d "${egis_db_name}" -U ${egis_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/egisDB_services.dump"
 rm "$${POSTGRES_DATA_FOLDER}/egisDB_services.dump"

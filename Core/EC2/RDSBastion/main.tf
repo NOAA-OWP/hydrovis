@@ -214,11 +214,11 @@ resource "aws_instance" "rds-bastion" {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_object" "ingest_postgis_setup" {
+resource "aws_s3_object" "postgis_setup" {
   bucket = var.data_deployment_bucket
-  key    = "terraform_artifacts/${path.module}/ingest/postgis_setup.sql"
-  source = "${path.module}/data/ingest/postgis_setup.sql"
-  source_hash = filemd5("${path.module}/data/ingest/postgis_setup.sql")
+  key    = "terraform_artifacts/${path.module}/postgis_setup.sql"
+  source = "${path.module}/data/postgis_setup.sql"
+  source_hash = filemd5("${path.module}/data/postgis_setup.sql")
 }
 
 resource "aws_s3_object" "ingest_rfcfcst_base" {
@@ -272,7 +272,7 @@ data "cloudinit_config" "startup" {
     filename     = "0_ingest_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/ingest/postgresql_setup.sh.tftpl", {
       deployment_bucket    = var.data_deployment_bucket
-      postgis_setup_s3_key = aws_s3_object.ingest_postgis_setup.key
+      postgis_setup_s3_key = aws_s3_object.postgis_setup.key
       rfcfcst_base_s3_key  = aws_s3_object.ingest_rfcfcst_base.key
       ingest_user_s3_key   = aws_s3_object.ingest_ingest_users.key
       ingest_db_users      = local.ingest_db_users
@@ -304,7 +304,7 @@ data "cloudinit_config" "startup" {
     filename     = "2_viz_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
       deployment_bucket          = var.data_deployment_bucket
-      postgis_setup_s3_key       = aws_s3_object.ingest_postgis_setup.key
+      postgis_setup_s3_key       = aws_s3_object.postgis_setup.key
       viz_db_name                = local.dbs["viz"]["db_name"]
       viz_db_host                = local.dbs["viz"]["db_host"]
       viz_db_port                = local.dbs["viz"]["db_port"]
@@ -325,9 +325,9 @@ data "cloudinit_config" "startup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "3_egis_postgresql_setup.sh"
-    content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
+    content      = templatefile("${path.module}/scripts/egis/postgresql_setup.sh.tftpl", {
       deployment_bucket          = var.data_deployment_bucket
-      postgis_setup_s3_key       = aws_s3_object.ingest_postgis_setup.key
+      postgis_setup_s3_key       = aws_s3_object.postgis_setup.key
       viz_db_name                = local.dbs["viz"]["db_name"]
       viz_db_host                = local.dbs["viz"]["db_host"]
       viz_db_port                = local.dbs["viz"]["db_port"]

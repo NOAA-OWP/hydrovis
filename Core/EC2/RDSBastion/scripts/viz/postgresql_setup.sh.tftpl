@@ -2,6 +2,7 @@
 
 POSTGRES_DATA_FOLDER="/home/ec2-user/postgres_data"
 
+echo ""
 echo "---- SETTING UP VIZ DB ----"
 
 # Setting up Viz DB
@@ -9,9 +10,13 @@ export PGPASSWORD=${viz_db_password}
 
 
 # Adding postgis extension and aws export extentions to Viz DB
+echo "Setting up postgis..."
 aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -f "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 rm "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
+
+
+echo "Setting up aws_s3..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
 
 
@@ -30,43 +35,50 @@ echo "Adding permissions to aws_s3 extension for viz user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
 
 
-# Drop Viz DB Schemas
+# TODO: Not sure if there is a fim schema at this point...
 echo "Cleaning up Viz DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS archive CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS external CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS fim CASCADE;"
 
 
 # Resoring Viz DB Schema Dumps
 echo "Setting up admin schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS admin CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_admin.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_admin.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_admin.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_admin.dump"
 
 echo "Setting up archive schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS archive CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_archive.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_archive.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_archive.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_archive.dump"
 
 echo "Setting up cache schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS cache CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_cache.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_cache.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_cache.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_cache.dump"
 
 echo "Setting up derived schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS derived CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_derived.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_derived.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_derived.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_derived.dump"
 
 echo "Setting up ingest schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS ingest CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_ingest.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_ingest.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_ingest.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_ingest.dump"
 
 echo "Setting up publish schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS publish CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_publish.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_publish.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_publish.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_publish.dump"
 
 echo "Setting up external schema in the VIZ DB..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS external CASCADE;"
 aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/vizDB_external.dump" "$${POSTGRES_DATA_FOLDER}/vizDB_external.dump"
 pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${POSTGRES_DATA_FOLDER}/vizDB_external.dump"
 rm "$${POSTGRES_DATA_FOLDER}/vizDB_external.dump"

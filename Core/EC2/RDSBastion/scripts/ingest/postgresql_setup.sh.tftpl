@@ -2,22 +2,23 @@
 
 POSTGRES_DATA_FOLDER="/home/ec2-user/postgres_data"
 
-echo "---- SETTING UP INGEST DB ----"
+echo ""
+echo "---- SETTING UP FORECAST DB ----"
 
 export PGPASSWORD=${db_password}
 
 # Setting up DB
-echo "Downloading s3://${deployment_bucket}/${postgis_setup_s3_key}..."
+echo "Setting up postgis..."
 aws s3 cp s3://${deployment_bucket}/${postgis_setup_s3_key} $${POSTGRES_DATA_FOLDER}/postgis_setup.sql
-echo "Setting up postgis.."
 psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
+rm "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
 
 
 # Update users
-echo "Downloading s3://${deployment_bucket}/${ingest_user_s3_key}..."
+echo "Setting up forecast users..."
 aws s3 cp s3://${deployment_bucket}/${ingest_user_s3_key} $${POSTGRES_DATA_FOLDER}/ingest_users.sql
-echo "Creating users..."
 psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/ingest_users.sql"
+rm "$${POSTGRES_DATA_FOLDER}/ingest_users.sql"
 
 
 # Updating permissions
@@ -30,19 +31,20 @@ psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}"
 
 
 # Create table schemas for HML Ingest
-echo "Downloading s3://${deployment_bucket}/${rfcfcst_base_s3_key}..."
+echo "Setting up forecast tables..."
 aws s3 cp s3://${deployment_bucket}/${rfcfcst_base_s3_key} $${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz
 gzip -d "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz"
-echo "Setting up HML ingest on ${db_host}..."
 psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql"
+rm "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql"
 
 
-# Dump WRDS Location
-psql -h "${db_host}" -U "${db_username}" -d "${forecast_db_name}" -c "\c" -c "create database ${location_db_name};"
-echo "Downloading s3://${deployment_bucket}/location/database/wrds_location3.dump..."
+echo ""
+echo "---- SETTING UP LOCATION DB ----"
+echo "Setting up location tables..."
+psql -h "${db_host}" -U "${db_username}" -c "CREATE DATABASE ${location_db_name};"
 aws s3 cp s3://${deployment_bucket}/location_db_dumps/wrds_location3.dump $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
-echo "Setting up WRDS Location on ${db_host}..."
 pg_restore -h "${db_host}" -p ${db_port} -d "${location_db_name}" -U ${db_username} -v $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
+rm "$${POSTGRES_DATA_FOLDER}/wrds_location3.dump"
 
 
 # Updating permissions

@@ -312,7 +312,7 @@ resource "aws_imagebuilder_distribution_configuration" "linux" {
     ami_distribution_configuration {
       name = "${local.name}-{{ imagebuilder:buildDate }}"
       target_account_ids = var.ami_sharing_account_ids
-      ami_tags = data.aws_default_tags.default.tags
+      ami_tags = merge(data.aws_default_tags.default.tags, { Name = local.name })
     }
 
     region = var.region
