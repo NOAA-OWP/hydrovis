@@ -267,22 +267,9 @@ data "cloudinit_config" "startup" {
               RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
               LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
             })
-          }
-        ]
-      })}
-    END
-  }
-}
-
-part {
-    content_type = "text/x-shellscript"
-    filename                 = "restore_db_from_s3.sh"
-    content = <<-END
-      #cloud-config
-      ${jsonencode({
-        write_files = [
+          },
           {
-            path        = "/deploy_files/restore_db_from_s3.sql"
+            path        = "/deploy_files/restore_db_from_s3.sh"
             permissions = "0700"
             owner       = "ec2-user:ec2-user"
             content                  = templatefile("${path.module}/scripts/restore_db_from_s3.sh.tftpl", {
@@ -299,21 +286,9 @@ part {
               VIZ_PGHOST             = var.viz_db_address
               VIZ_PGPORT             = var.viz_db_port
             })
-          }
-        ]
-      })}
-    END
-  }
-
-  part {
-    content_type = "text/x-shellscript"
-    filename                 = "swap_dbs.sh"
-    content = <<-END
-      #cloud-config
-      ${jsonencode({
-        write_files = [
+          },
           {
-            path        = "/deploy_files/swap_dbs.sql"
+            path        = "/deploy_files/swap_dbs.sh"
             permissions = "0700"
             owner       = "ec2-user:ec2-user"
             content                  = templatefile("${path.module}/scripts/swap_dbs.sh.tftpl", {
@@ -335,6 +310,7 @@ part {
       })}
     END
   }
+}
 
 output "instance-id" {
   value = aws_instance.rds-bastion.id
