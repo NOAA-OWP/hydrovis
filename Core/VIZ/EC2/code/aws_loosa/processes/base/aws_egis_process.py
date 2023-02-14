@@ -144,8 +144,8 @@ class AWSEgisPublishingProcess(PipelineProcess):
             if not os.path.exists(self.proproject_location):
                 if not os.path.exists(os.path.dirname(self.proproject_location)):
                     os.makedirs(os.path.dirname(self.proproject_location))
-                
-                repo_aprx = os.path.join(__file__.split("aws_loosa")[0], "pro_projects", "ec2", f"{self.service_name}.mapx")
+
+                repo_aprx = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "ec2", f"{self.service_name}.mapx")
                 shutil.copy(repo_aprx, self.proproject_location)
 
         # DYNAMIC LOCATIONS
