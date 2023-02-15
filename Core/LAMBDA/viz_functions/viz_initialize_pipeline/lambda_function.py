@@ -143,7 +143,7 @@ def lambda_handler(event, context):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, max_flow_method="db"):
+    def __init__(self, start_event, print_init=True, max_flow_method="pipeline"):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -297,12 +297,12 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="db"): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="pipeline"): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
         self.service_metadata = self.get_service_metadata(max_flow_method=max_flow_method)
-        self.db_data_flow_metadata = self.get_db_data_flow_metadata()
+        self.db_data_flow_metadata = self.get_db_data_flow_metadata(max_flow_method=max_flow_method)
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
         self.max_flows = []
         for service in self.services_to_run:
@@ -331,9 +331,6 @@ class configuration:
             hour = matches[3]
             configuration_name = matches[0]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
-            days_match = re.findall(r"(\d+day)", filename)
-            if days_match:
-                configuration_name = f"{configuration_name}_{days_match[0]}"
         elif 'max_stage' in filename:
             matches = re.findall(r"max_stage/(.*)/(\d{8})/(\d{2})_(\d{2})_ahps_(.*).csv", filename)[0]
             date = matches[1]
@@ -513,7 +510,7 @@ class configuration:
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     # TODO: Encapsulate this into a view within the database.
-    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="db"):
+    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
         import psycopg2.extras
         service_filter = run_filter = ""
         
@@ -537,17 +534,20 @@ class configuration:
     ###################################
     # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True):
+    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
         if run_only:
             run_filter = " AND run is True"
+            
+        max_flow_method_filter = f"AND max_flow_method = '{max_flow_method}'"
+        
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             cur.execute(f"""
                 SELECT admin.services.service, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.services
                 JOIN admin.pipeline_data_flows ON admin.services.service = admin.pipeline_data_flows.service
-                WHERE configuration = '{self.name}'{run_filter};
+                WHERE configuration = '{self.name}'{run_filter}  {max_flow_method_filter};
                 """)
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()

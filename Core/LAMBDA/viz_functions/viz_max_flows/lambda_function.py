@@ -107,7 +107,7 @@ def lambda_handler(event, context):
 
         # If analysis_assim, trigger the db ingest function
         if 'ana_14day' in short_hand_config or 'ana_para_14day' in short_hand_config:
-            trigger_db_ingest(configuration, 14, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
+            trigger_db_ingest(config, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
 
         # If max calcs will run more than once, remove duplicates and
         # update the second set of input files to include the just created max file.
@@ -259,7 +259,7 @@ def cleanup_cache(configuration, forecast_date, short_hand_config, buffer_days=3
             pass
 
 
-def trigger_db_ingest(configuration, days, reference_time, bucket, s3_file_path):
+def trigger_db_ingest(configuration, reference_time, bucket, s3_file_path):
     """
         Triggers the db_ingest lambda function to ingest a specific file into the vizprocessing db.
 
@@ -272,7 +272,7 @@ def trigger_db_ingest(configuration, days, reference_time, bucket, s3_file_path)
     lambda_config = botocore.client.Config(max_pool_connections=1, connect_timeout=60, read_timeout=600)
     lambda_client = boto3.client('lambda', config=lambda_config)
 
-    dump_dict = {"data_key": s3_file_path, "configuration": f"{configuration}_{days}day",
+    dump_dict = {"data_key": s3_file_path, "configuration": configuration,
                  "data_bucket": bucket, "invocation_type": "event"}
     lambda_client.invoke(FunctionName=INITIALIZE_PIPELINE_FUNCTION, InvocationType='Event', Payload=json.dumps(dump_dict))
     print(f"Invoked db_ingest function with payload: {dump_dict}.")
@@ -326,7 +326,7 @@ def check_if_file_exists(bucket, file):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, max_flow_method="db"):
+    def __init__(self, start_event, print_init=True, max_flow_method="pipeline"):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -480,12 +480,12 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="db"): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="pipeline"): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
         self.service_metadata = self.get_service_metadata(max_flow_method=max_flow_method)
-        self.db_data_flow_metadata = self.get_db_data_flow_metadata()
+        self.db_data_flow_metadata = self.get_db_data_flow_metadata(max_flow_method=max_flow_method)
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
         self.max_flows = []
         for service in self.services_to_run:
@@ -696,7 +696,7 @@ class configuration:
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     # TODO: Encapsulate this into a view within the database.
-    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="db"):
+    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
         import psycopg2.extras
         service_filter = run_filter = ""
         
@@ -720,17 +720,20 @@ class configuration:
     ###################################
     # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True):
+    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
         if run_only:
             run_filter = " AND run is True"
+            
+        max_flow_method_filter = f"AND max_flow_method = '{max_flow_method}'"
+        
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             cur.execute(f"""
                 SELECT admin.services.service, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.services
                 JOIN admin.pipeline_data_flows ON admin.services.service = admin.pipeline_data_flows.service
-                WHERE configuration = '{self.name}'{run_filter};
+                WHERE configuration = '{self.name}'{run_filter}  {max_flow_method_filter};
                 """)
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
