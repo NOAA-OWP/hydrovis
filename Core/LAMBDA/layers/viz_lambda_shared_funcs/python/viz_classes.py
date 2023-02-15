@@ -191,6 +191,10 @@ class s3_file:
     def from_eventbridge(cls, event):
         configuration = event['resources'][0].split("/")[-1]
         eventbridge_time = datetime.datetime.strptime(event['time'], '%Y-%m-%dT%H:%M:%SZ')
+    
+        para = False
+        if "_para" in configuration:
+            para = True
 
         if "analysis_assim" in configuration:
             base_config = "analysis_assim"
@@ -205,6 +209,7 @@ class s3_file:
         domain = configuration.split(base_config)[-1]
         if domain:
             domain = domain[1:]
+            domain = domain.replace("_para", "")
             configuration = f"{base_config}_{domain}"
         else:
             domain = "conus"
@@ -233,10 +238,10 @@ class s3_file:
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
 
-        if "14day" not in configuration:
-            reference_time = reference_time - datetime.timedelta(hours=1)  # Adding additional hour delay for getting data to para. May need to revisit this when para data is on prod
-
         bucket = os.environ.get("DATA_BUCKET_UPLOAD") if os.environ.get("DATA_BUCKET_UPLOAD") else "nomads"
+            
+        if para and "_para" not in configuration:
+            configuration = f"{configuration}_para"
         
         return configuration, reference_time, bucket
 

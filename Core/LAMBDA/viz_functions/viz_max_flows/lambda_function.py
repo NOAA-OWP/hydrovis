@@ -107,7 +107,7 @@ def lambda_handler(event, context):
 
         # If analysis_assim, trigger the db ingest function
         if 'ana_14day' in short_hand_config or 'ana_para_14day' in short_hand_config:
-            trigger_db_ingest(configuration, 14, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
+            trigger_db_ingest(config, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
 
         # If max calcs will run more than once, remove duplicates and
         # update the second set of input files to include the just created max file.
@@ -259,7 +259,7 @@ def cleanup_cache(configuration, forecast_date, short_hand_config, buffer_days=3
             pass
 
 
-def trigger_db_ingest(configuration, days, reference_time, bucket, s3_file_path):
+def trigger_db_ingest(configuration, reference_time, bucket, s3_file_path):
     """
         Triggers the db_ingest lambda function to ingest a specific file into the vizprocessing db.
 
@@ -272,7 +272,7 @@ def trigger_db_ingest(configuration, days, reference_time, bucket, s3_file_path)
     lambda_config = botocore.client.Config(max_pool_connections=1, connect_timeout=60, read_timeout=600)
     lambda_client = boto3.client('lambda', config=lambda_config)
 
-    dump_dict = {"data_key": s3_file_path, "configuration": f"{configuration}_{days}day",
+    dump_dict = {"data_key": s3_file_path, "configuration": configuration,
                  "data_bucket": bucket, "invocation_type": "event"}
     lambda_client.invoke(FunctionName=INITIALIZE_PIPELINE_FUNCTION, InvocationType='Event', Payload=json.dumps(dump_dict))
     print(f"Invoked db_ingest function with payload: {dump_dict}.")

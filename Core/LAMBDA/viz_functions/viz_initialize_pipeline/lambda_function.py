@@ -331,9 +331,6 @@ class configuration:
             hour = matches[3]
             configuration_name = matches[0]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
-            days_match = re.findall(r"(\d+day)", filename)
-            if days_match:
-                configuration_name = f"{configuration_name}_{days_match[0]}"
         elif 'max_stage' in filename:
             matches = re.findall(r"max_stage/(.*)/(\d{8})/(\d{2})_(\d{2})_ahps_(.*).csv", filename)[0]
             date = matches[1]

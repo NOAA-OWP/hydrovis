@@ -847,7 +847,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "BackoffRate": 1,
                       "IntervalSeconds": 120,
-                      "MaxAttempts": 20,
+                      "MaxAttempts": 35,
                       "Comment": "Missing S3 File"
                     },
                     {
@@ -1437,7 +1437,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       "End": true
     }
   },
-  "TimeoutSeconds": 3600
+  "TimeoutSeconds": 4500
 }
   EOF
 }

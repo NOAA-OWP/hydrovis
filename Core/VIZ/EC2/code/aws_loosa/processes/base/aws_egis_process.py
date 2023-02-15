@@ -703,8 +703,8 @@ class AWSEgisPublishingProcess(PipelineProcess):
             if not os.path.exists(sd_folder):
                 os.makedirs(sd_folder)
 
-            mapx_dpath = f"C:\\Users\\{os.environ['VIZ_USER']}\\NWC\\viz\\hydrovis-visualization\\pro_projects\\ec2"
-            baseline_aprx_path = f"C:\\Users\\{os.environ['VIZ_USER']}\\NWC\\viz\\hydrovis-visualization\\pro_projects\\Empty_Project.aprx"
+            mapx_dpath = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "ec2")
+            baseline_aprx_path = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "Empty_Project.aprx")
             mapx_fpath = os.path.join(mapx_dpath, f"{self.service_name}.mapx")
 
             if self.service_type == 'MapService':
