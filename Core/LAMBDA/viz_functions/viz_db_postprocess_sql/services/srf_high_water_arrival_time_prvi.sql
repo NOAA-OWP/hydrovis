@@ -1,29 +1,30 @@
 DROP TABLE IF EXISTS publish.srf_high_water_arrival_time_prvi;
 
-WITH arrival_time AS
-	(SELECT forecasts.feature_id,
-			forecasts.nwm_vers,
-			forecasts.reference_time,
-			MIN(forecasts.forecast_hour) AS t_high_water_threshold,
+WITH ARRIVAL_TIME AS
+	(SELECT FORECASTS.FEATURE_ID,
+			CASE
+							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::double precision  THEN NULL
+							ELSE MIN(FORECASTS.FORECAST_HOUR)
+			END AS T_HIGH_WATER_THRESHOLD,
 			CASE
 							WHEN MAX(forecasts.forecast_hour) >= 48 THEN '> 48 hours'::text
 							ELSE (MAX(forecasts.forecast_hour)+1)::text
 			END AS t_normal,
 			CASE
-							WHEN MAX(forecasts.forecast_hour) >= 48 THEN 'Outside SRF Forecast Window'::text
-							ELSE ((MAX(forecasts.forecast_hour)+1) - MIN(forecasts.forecast_hour))::text
-			END AS duration,
-			thresholds.high_water_threshold AS high_water_threshold,
-			ROUND((MAX(forecasts.streamflow) * 35.315::double precision)::numeric,
-				2) AS max_flow
-		FROM ingest.nwm_channel_rt_srf_prvi forecasts
-		JOIN derived.recurrence_flows_prvi thresholds ON forecasts.feature_id = thresholds.feature_id
-		JOIN derived.channels_prvi geo ON forecasts.feature_id = geo.feature_id
-		WHERE (thresholds.high_water_threshold > 0::double precision
-									OR thresholds.high_water_threshold = '-10'::integer::double precision)
-			AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
-		GROUP BY forecasts.feature_i, forecasts.reference_time, forecasts.nwm_versd,
-			thresholds.high_water_threshold)
+							WHEN MAX(FORECASTS.FORECAST_HOUR) >= 48 THEN 'Outside SRF Forecast Window'::text
+							ELSE ((MAX(FORECASTS.FORECAST_HOUR)+1) - MIN(FORECASTS.FORECAST_HOUR))::text
+			END AS DURATION,
+			THRESHOLDS.HIGH_WATER_THRESHOLD AS HIGH_WATER_THRESHOLD,
+			ROUND((MAX(FORECASTS.STREAMFLOW) * 35.315::double precision)::numeric,
+				2) AS MAX_FLOW
+		FROM INGEST.NWM_CHANNEL_RT_SRF_PRVI FORECASTS
+		JOIN DERIVED.RECURRENCE_FLOWS_PRVI THRESHOLDS ON FORECASTS.FEATURE_ID = THRESHOLDS.FEATURE_ID
+		JOIN DERIVED.CHANNELS_PRVI GEO ON FORECASTS.FEATURE_ID = GEO.FEATURE_ID
+		WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0::double precision
+									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision)
+			AND (FORECASTS.STREAMFLOW * 35.315::double precision) >= THRESHOLDS.HIGH_WATER_THRESHOLD
+		GROUP BY FORECASTS.FEATURE_ID,
+			THRESHOLDS.HIGH_WATER_THRESHOLD)
 
 SELECT channels.feature_id,
 	channels.feature_id::TEXT AS feature_id_str,

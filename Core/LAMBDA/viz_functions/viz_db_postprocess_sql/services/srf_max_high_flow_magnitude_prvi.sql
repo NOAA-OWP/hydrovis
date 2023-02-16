@@ -1,32 +1,30 @@
 DROP TABLE IF EXISTS publish.srf_max_high_flow_magnitude_prvi;
 
-WITH high_flow_mag AS
-	(SELECT maxflows.feature_id,
-		maxflows.maxflow_48hour_cfs AS max_flow,
-        maxflows.nwm_vers,
-        maxflows.reference_time,
-		CASE
-			WHEN thresholds.high_water_threshold = '-10'::integer::double precision THEN 'Not Available'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_100_0 THEN '1'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_50_0 THEN '2'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_25_0 THEN '4'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_10_0 THEN '10'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_5_0 THEN '20'::text
-			WHEN maxflows.maxflow_48hour_cfs >= thresholds.high_water_threshold THEN '>20'::text
-			ELSE NULL::text
-		END AS recur_cat,
-		thresholds.high_water_threshold AS high_water_threshold,
-		thresholds.rf_2_0 AS flow_2yr,
-		thresholds.rf_5_0 AS flow_5yr,
-		thresholds.rf_10_0 AS flow_10yr,
-		thresholds.rf_25_0 AS flow_25yr,
-		thresholds.rf_50_0 AS flow_50yr,
-		thresholds.rf_100_0 AS flow_100yr
-	FROM cache.max_flows_srf_prvi maxflows
-	JOIN derived.recurrence_flows_prvi thresholds ON maxflows.feature_id = thresholds.feature_id
-	WHERE (thresholds.high_water_threshold > 0::double precision
-		OR thresholds.high_water_threshold = '-10'::integer::double precision)
-		AND maxflows.maxflow_48hour_cfs >= thresholds.high_water_threshold )
+WITH HIGH_FLOW_MAG AS
+	(SELECT MAXFLOWS.FEATURE_ID,
+			MAXFLOWS.maxflow_48hour_cfs AS MAX_FLOW,
+			CASE
+							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision THEN 'Not Available'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.RF_100_0 THEN '1'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.RF_50_0 THEN '2'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.RF_25_0 THEN '4'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.RF_10_0 THEN '10'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.RF_5_0 THEN '20'::text
+							WHEN MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.HIGH_WATER_THRESHOLD THEN '>20'::text
+							ELSE NULL::text
+			END AS RECUR_CAT,
+			THRESHOLDS.HIGH_WATER_THRESHOLD AS HIGH_WATER_THRESHOLD,
+			THRESHOLDS.RF_2_0 AS FLOW_2YR,
+			THRESHOLDS.RF_5_0 AS FLOW_5YR,
+			THRESHOLDS.RF_10_0 AS FLOW_10YR,
+			THRESHOLDS.RF_25_0 AS FLOW_25YR,
+			THRESHOLDS.RF_50_0 AS FLOW_50YR,
+			THRESHOLDS.RF_100_0 AS FLOW_100YR
+		FROM CACHE.MAX_FLOWS_SRF_PRVI MAXFLOWS
+		JOIN DERIVED.RECURRENCE_FLOWS_PRVI THRESHOLDS ON MAXFLOWS.FEATURE_ID = THRESHOLDS.FEATURE_ID
+		WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0::double precision
+									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision)
+			AND MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.HIGH_WATER_THRESHOLD )
 
 SELECT channels.feature_id,
 	channels.feature_id::TEXT AS feature_id_str,
