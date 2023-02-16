@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS PUBLISH.srf_peak_flow_arrival_time;
+DROP TABLE IF EXISTS publish.srf_peak_flow_arrival_time;
 
 WITH arrival_time AS (
      SELECT 
@@ -24,7 +24,7 @@ SELECT
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
     
-INTO PUBLISH.srf_peak_flow_arrival_time
+INTO publish.srf_peak_flow_arrival_time
 FROM ingest.nwm_channel_rt_srf AS forecasts 
 
 -- Join in max flows on max streamflow to only get peak flows
@@ -41,4 +41,4 @@ JOIN derived.recurrence_flows_conus as rf ON forecasts.feature_id = rf.feature_i
 JOIN arrival_time ON forecasts.feature_id = arrival_time.feature_id
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, channels.name, channels.strm_order, channels.huc6, channels.nwm_vers, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_18hour_cms, channels.geom
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_18hour_cms, channels.geom

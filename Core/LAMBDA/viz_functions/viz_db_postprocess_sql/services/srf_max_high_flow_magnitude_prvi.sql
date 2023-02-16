@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS PUBLISH.SRF_MAX_HIGH_FLOW_MAGNITUDE_PRVI;
+DROP TABLE IF EXISTS publish.srf_max_high_flow_magnitude_prvi;
 
 WITH HIGH_FLOW_MAG AS
 	(SELECT MAXFLOWS.FEATURE_ID,
@@ -26,24 +26,24 @@ WITH HIGH_FLOW_MAG AS
 									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision)
 			AND MAXFLOWS.maxflow_48hour_cfs >= THRESHOLDS.HIGH_WATER_THRESHOLD )
 
-SELECT CHANNELS.FEATURE_ID,
-	CHANNELS.FEATURE_ID::TEXT AS FEATURE_ID_STR,
-	CHANNELS.STRM_ORDER,
-	NAME,
-	HUC6,
-	CHANNELS.NWM_VERS,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
-	HIGH_FLOW_MAG.MAX_FLOW,
-	HIGH_FLOW_MAG.RECUR_CAT,
-	HIGH_FLOW_MAG.HIGH_WATER_THRESHOLD,
-	HIGH_FLOW_MAG.FLOW_2YR,
-	HIGH_FLOW_MAG.FLOW_5YR,
-	HIGH_FLOW_MAG.FLOW_10YR,
-	HIGH_FLOW_MAG.FLOW_25YR,
-	HIGH_FLOW_MAG.FLOW_50YR,
-	HIGH_FLOW_MAG.FLOW_100YR,
+SELECT channels.feature_id,
+	channels.feature_id::TEXT AS feature_id_str,
+	channels.strm_order,
+	name,
+	huc6,
+    high_flow_mag.nwm_vers,
+    high_flow_mag.reference_time,
+	high_flow_mag.max_flow,
+	high_flow_mag.recur_cat,
+	high_flow_mag.high_water_threshold,
+	high_flow_mag.flow_2yr,
+	high_flow_mag.flow_5yr,
+	high_flow_mag.flow_10yr,
+	high_flow_mag.flow_25yr,
+	high_flow_mag.flow_50yr,
+	high_flow_mag.flow_100yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
-	CHANNELS.GEOM
-INTO PUBLISH.SRF_MAX_HIGH_FLOW_MAGNITUDE_PRVI
-FROM DERIVED.CHANNELS_PRVI CHANNELS
-JOIN HIGH_FLOW_MAG ON CHANNELS.FEATURE_ID = HIGH_FLOW_MAG.FEATURE_ID;
+	channels.geom
+INTO publish.srf_max_high_flow_magnitude_prvi
+FROM derived.channels_prvi channels
+JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;

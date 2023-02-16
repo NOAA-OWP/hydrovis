@@ -289,11 +289,21 @@ resource "aws_lambda_function" "viz_max_flows" {
   memory_size   = 512
   timeout       = 900
 
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+
   environment {
     variables = {
       CACHE_DAYS         = 1
       MAX_FLOWS_BUCKET   = var.max_flows_bucket
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
+      VIZ_DB_DATABASE     = var.viz_db_name
+      VIZ_DB_HOST         = var.viz_db_host
+      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
     }
   }
   s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
@@ -307,8 +317,9 @@ resource "aws_lambda_function" "viz_max_flows" {
 
   layers = [
     var.xarray_layer,
-    var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer,
+    var.requests_layer,
   ]
 
   tags = {
@@ -375,6 +386,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       VIZ_DB_HOST         = var.viz_db_host
       VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
@@ -835,7 +847,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
                       ],
                       "BackoffRate": 1,
                       "IntervalSeconds": 120,
-                      "MaxAttempts": 20,
+                      "MaxAttempts": 35,
                       "Comment": "Missing S3 File"
                     },
                     {
@@ -941,7 +953,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       "ResultPath": null,
       "ItemsPath": "$.pipeline_info.max_flows",
       "Parameters": {
-        "map_item.$": "$$.Map.Item.Value.max_flows",
+        "map_item.$": "$$.Map.Item.Value",
         "max_flows.$": "$$.Map.Item.Value",
         "reference_time.$": "$.pipeline_info.reference_time",
         "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
@@ -1425,7 +1437,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
       "End": true
     }
   },
-  "TimeoutSeconds": 3600
+  "TimeoutSeconds": 4500
 }
   EOF
 }

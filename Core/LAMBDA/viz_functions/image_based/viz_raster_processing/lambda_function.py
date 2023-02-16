@@ -45,7 +45,12 @@ def open_raster(bucket, file, variable):
     
     os.remove(download_path)
     
-    return ds[variable]
+    if "forcing_medium_range_blend" in file:
+        data = ds
+    else:
+        data = ds[variable]
+
+    return data
 
 def create_raster(data, crs):
     print(f"Creating raster for {data.name}")

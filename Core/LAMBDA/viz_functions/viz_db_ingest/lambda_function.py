@@ -37,7 +37,7 @@ def lambda_handler(event, context):
     reference_time = event['reference_time']
     keep_flows_at_or_above = event['keep_flows_at_or_above']
     
-    print(f"Checking existance of {file} on S3 / Google Cloud.")
+    print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
     file = check_if_file_exists(bucket, file)
     
     if not target_table:
@@ -55,11 +55,12 @@ def lambda_handler(event, context):
         try:
             download_path = f'/tmp/{os.path.basename(file)}'
             print(f"--> Downloading {file} to {download_path}")
-            if 'https://storage.googleapis.com/national-water-model' in file:
+            if 'https' in file:
                 open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
             else:
                 s3.download_file(bucket, file, download_path)
     
+            nwm_version = 0
             if file[-12:] == 'max_flows.nc':
                 # Load the NetCDF file into a dataframe
                 ds = xr.open_dataset(download_path)
@@ -72,13 +73,14 @@ def lambda_handler(event, context):
                 drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
                 ds = xr.open_dataset(download_path, drop_variables=drop_vars)
                 ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
+                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
                 df = ds.to_dataframe().reset_index()
                 ds.close()
     
                 # Only include reference time in the insert if specified
-                df_toLoad = df[['feature_id', 'time_step', 'streamflow']]
+                df_toLoad = df[['feature_id', 'time_step', 'streamflow', 'nwm_vers']]
                 cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (feature_id integer, forecast_hour integer, "
-                                "streamflow double precision)")
+                                "streamflow double precision, nwm_vers double precision)")
     
                 # Filter out any streamflow data below the specificed threshold
                 df_toLoad = df_toLoad.loc[df_toLoad['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
@@ -111,24 +113,39 @@ def lambda_handler(event, context):
                         "file": file,
                         "target_table": target_table,
                         "reference_time": reference_time,
-                        "rows_imported": len(df_toLoad)
+                        "rows_imported": len(df_toLoad),
+                        "nwm_version": nwm_version
                     }
     return json.dumps(dump_dict)    # Return some info on the import
 
 def check_if_file_exists(bucket, file):
-    file_source = 'Google' if 'https://storage.googleapis.com/national-water-model' in file else 'S3'
-    if file_source == 'S3':
+    if "https" in file:
+        if requests.head(file).status_code == 200:
+            print(f"{file} exists.")
+            return file
+        else:
+            raise Exception(f"https file doesn't seem to exist: {file}")
+        
+    else:
         if s3_file(bucket, file).check_existence():
             print("File exists on S3.")
             return file
-        elif requests.head(file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')).status_code == 200:
-            print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-            return file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-        else:
-            raise MissingS3FileException(f"{file} does not exist on S3.")
-    elif file_source == 'Google':
-        if requests.head(file).status_code == 200:
-            print("File exists on Google Cloud.")
-            return file
-        else:
-            raise Exception(f"Google Cloud file doesn't seem to exist: {file}")
+        elif "/prod" in file:
+            google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+            if requests.head(google_file).status_code == 200:
+                print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+                return google_file
+        elif "/para" in file:
+            para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+            if requests.head(para_nomads_file).status_code == 200:
+                print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
+                
+                download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
+                open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
+                
+                print(f"Saving {file} to {bucket} for archiving")
+                s3.upload_file(download_path, bucket, file)
+                os.remove(download_path)
+                return file
+
+        raise MissingS3FileException(f"{file} does not exist on S3.")
