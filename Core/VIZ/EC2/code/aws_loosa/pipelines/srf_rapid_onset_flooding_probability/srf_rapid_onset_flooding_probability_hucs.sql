@@ -3,6 +3,7 @@ SELECT
 	hucs.huc10,
 	TO_CHAR(hucs.huc10, 'fm0000000000') AS huc10_str,
 	ROUND(CAST(hucs.low_order_reach_count AS numeric), 2) AS low_order_reach_count,
+	ROUND(CAST(hucs.total_low_order_reach_length AS numeric), 2) AS total_low_order_reach_length,
 	ROUND(CAST(hucs.total_low_order_reach_miles AS numeric), 2) AS total_low_order_reach_miles,
 	COUNT(rofp.feature_id) AS rapid_onset_reach_cnt,
 	ROUND(CAST(SUM(rofp.reach_length_miles) AS numeric), 2) AS rapid_onset_reach_length_sum,
