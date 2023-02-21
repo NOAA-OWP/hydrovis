@@ -199,6 +199,13 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
