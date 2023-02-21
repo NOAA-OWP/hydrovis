@@ -17,6 +17,9 @@ SELECT
     max_flows.maxflow_10day_cfs AS max_flow_cfs,
     arrival_time.t_normal AS below_bank_return_time,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
+    channels.strm_order::integer,
+    channels.name,
+    channels.huc6,
     channels.geom
    
 INTO publish.mrf_nbm_peak_flow_arrival_time_alaska_para
@@ -32,4 +35,4 @@ JOIN derived.channels_alaska as channels ON forecasts.feature_id = channels.feat
 -- Join in arrival_time 
 JOIN arrival_time ON forecasts.feature_id = arrival_time.feature_id
 
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, max_flows.maxflow_10day_cfs, arrival_time.t_normal, channels.geom;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, max_flows.maxflow_10day_cfs, arrival_time.t_normal, channels.geom, channels.strm_order, channels.name, channels.huc6;

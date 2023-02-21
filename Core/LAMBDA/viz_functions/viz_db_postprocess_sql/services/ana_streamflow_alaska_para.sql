@@ -9,6 +9,9 @@ SELECT
 	ana.reference_time,
 	ana.reference_time AS valid_time,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
+    channels.strm_order::integer,
+    channels.name,
+    channels.huc6,
     channels.geom
 INTO publish.ana_streamflow_alaska_para
 FROM cache.max_flows_ana_alaska_para as ana
