@@ -160,6 +160,8 @@ def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom
         if add_geom_index:
             print(f"---> Adding an spatial index to the {dest_table}")
             cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+            if 'geom_xy' in columns:
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
         if update_srid:
             print(f"---> Updating SRID to {update_srid}")
             cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
