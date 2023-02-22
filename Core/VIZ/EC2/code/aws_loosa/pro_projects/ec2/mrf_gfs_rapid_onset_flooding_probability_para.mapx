@@ -4040,7 +4040,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Total Features (Stream Order <=4)",
+            "alias" : "Total Low Order NWM Features",
             "fieldName" : "low_order_reach_count",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -4055,7 +4055,22 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Total Feature Length (Mi. - Stream Order <=4)",
+            "alias" : "Total Low Order Reach Length (meters)",
+            "fieldName" : "total_low_order_reach_length",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Total Low Order Reach Length (miles)",
             "fieldName" : "total_low_order_reach_miles",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -4168,7 +4183,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%hucs",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8_str, low_order_reach_count, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.mrf_gfs_rapid_onset_flooding_probability_hucs_para",
+          "sqlQuery" : "select huc8_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.mrf_gfs_rapid_onset_flooding_probability_hucs_para",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4197,6 +4212,11 @@
               "name" : "low_order_reach_count",
               "type" : "esriFieldTypeDouble",
               "alias" : "low_order_reach_count"
+            },
+            {
+              "name" : "total_low_order_reach_length",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "total_low_order_reach_length"
             },
             {
               "name" : "total_low_order_reach_miles",

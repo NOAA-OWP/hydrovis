@@ -2735,21 +2735,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Total Flooded Area (Sq. Mi)",
-            "fieldName" : "flooded_area_sqmi",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 1,
-              "useSeparator" : true
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Est. Buildings Impacted",
             "fieldName" : "buildings_impacted",
             "numberFormat" : {
@@ -2931,7 +2916,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc10,huc10_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,flooded_area_sqmi,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_inundation_hucs",
+          "sqlQuery" : "select oid,huc10,huc10_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_inundation_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2985,11 +2970,6 @@
               "name" : "avg_hand_stage_ft",
               "type" : "esriFieldTypeDouble",
               "alias" : "avg_hand_stage_ft"
-            },
-            {
-              "name" : "flooded_area_sqmi",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "flooded_area_sqmi"
             },
             {
               "name" : "buildings_impacted",
@@ -3830,21 +3810,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Total Flooded Area (Sq. Mi)",
-            "fieldName" : "flooded_area_sqmi",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Est. Buildings Impacted",
             "fieldName" : "buildings_impacted",
             "numberFormat" : {
@@ -4026,7 +3991,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,flooded_area_sqmi,buildings_impacted,building_sqft_impacted,bldgs_agriculture, bldgs_assembly, bldgs_commercial, bldgs_education, bldgs_government, bldgs_industrial, bldgs_residential, bldgs_utility_msc, bldgs_other,reference_time,update_time,geom from vizprocessing.publish.ana_inundation_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted,building_sqft_impacted,bldgs_agriculture, bldgs_assembly, bldgs_commercial, bldgs_education, bldgs_government, bldgs_industrial, bldgs_residential, bldgs_utility_msc, bldgs_other,reference_time,update_time,geom from vizprocessing.publish.ana_inundation_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4087,11 +4052,6 @@
               "name" : "avg_hand_stage_ft",
               "type" : "esriFieldTypeDouble",
               "alias" : "avg_hand_stage_ft"
-            },
-            {
-              "name" : "flooded_area_sqmi",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "flooded_area_sqmi"
             },
             {
               "name" : "buildings_impacted",
