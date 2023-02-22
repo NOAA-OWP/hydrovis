@@ -42,9 +42,9 @@ echo ""
 echo "---- SETTING UP LOCATION DB ----"
 echo "Setting up location tables..."
 psql -h "${db_host}" -U "${db_username}" -c "CREATE DATABASE ${location_db_name};"
-aws s3 cp s3://${deployment_bucket}/location_db_dumps/wrds_location3.dump $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
-pg_restore -h "${db_host}" -p ${db_port} -d "${location_db_name}" -U ${db_username} -v $${POSTGRES_DATA_FOLDER}/wrds_location3.dump
-rm "$${POSTGRES_DATA_FOLDER}/wrds_location3.dump"
+aws s3 cp s3://${deployment_bucket}/location_db_dumps/wrds_location3.sql.gz $${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz
+cat $${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz | gunzip | psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${location_db_name}"
+rm "$${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz"
 
 
 # Updating permissions

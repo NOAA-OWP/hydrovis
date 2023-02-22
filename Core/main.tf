@@ -200,8 +200,8 @@ module "vpc" {
 }
 
 # Route53 DNS
-module "route53" {
-  source = "./Route53"
+module "private-route53" {
+  source = "./Route53/private/hydrovis"
 
   vpc_main_id = module.vpc.vpc_main.id
 }
@@ -270,41 +270,6 @@ module "sns" {
   error_email_list          = local.env.sns_email_lists
 }
 
-# RDS
-module "rds-ingest" {
-  source = "./RDS/ingest"
-
-  environment               = local.env.environment
-  subnet-data1a             = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-  subnet-data1b             = module.vpc.subnet_hydrovis-sn-prv-data1b.id
-  db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  rds_kms_key               = module.kms.key_arns["rds-ingest"]
-  db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
-}
-
-module "rds-viz" {
-  source = "./RDS/viz"
-
-  environment                       = local.env.environment
-  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
-  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
-  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  rds_kms_key                       = module.kms.key_arns["rds-viz"]
-  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
-  viz_db_name                       = local.env.viz_db_name
-  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
-}
-
-# MQ
-module "mq-ingest" {
-  source = "./MQ/ingest"
-
-  environment               = local.env.environment
-  mq_ingest_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id]
-  mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
-  mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
-}
-
 module "sagemaker" {
   source = "./Sagemaker"
 
@@ -325,11 +290,62 @@ module "lambda-layers" {
   deployment_bucket  = module.s3.buckets["deployment"].bucket
 }
 
+# MQ
+module "mq-ingest" {
+  source = "./MQ/ingest"
+
+  environment               = local.env.environment
+  mq_ingest_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id]
+  mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
+  mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
+}
+
+# RDS
+module "rds-ingest" {
+  source = "./RDS/ingest"
+
+  environment               = local.env.environment
+  subnet-data1a             = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  subnet-data1b             = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  rds_kms_key               = module.kms.key_arns["rds-ingest"]
+  db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
+
+  private_route_53_zone = module.private-route53.zone
+}
+
+module "rds-viz" {
+  source = "./RDS/viz"
+
+  environment                       = local.env.environment
+  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+  viz_db_name                       = local.env.viz_db_name
+  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
+
+  private_route_53_zone = module.private-route53.zone
+}
+
 # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
-# Import EGIS DB
-data "aws_db_instance" "egis_rds" {
-  db_instance_identifier = "hv-${local.env.environment == "prod" ? "prd" : local.env.environment}-egis-data-pg-egdb"
+# EGIS Route53 DNS
+module "private-route53-egis" {
+  source = "./Route53/private/egis"
+
+  environment = local.env.environment
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
+module "rds-egis" {
+  source = "./RDS/egis"
+
+  environment = local.env.environment
+
+  private_route_53_zone = module.private-route53.zone
 }
 
 module "rds-bastion" {
@@ -351,8 +367,8 @@ module "rds-bastion" {
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
   ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  ingest_db_address              = module.rds-ingest.rds-ingest.address
-  ingest_db_port                 = module.rds-ingest.rds-ingest.port
+  ingest_db_address              = module.rds-ingest.dns_name
+  ingest_db_port                 = module.rds-ingest.instance.port
   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
@@ -367,12 +383,12 @@ module "rds-bastion" {
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  viz_db_address                  = module.rds-viz.rds-viz-processing.address
-  viz_db_port                     = module.rds-viz.rds-viz-processing.port
+  viz_db_address                  = module.rds-viz.dns_name
+  viz_db_port                     = module.rds-viz.instance.port
   viz_db_name                     = local.env.viz_db_name
-  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_db_address                 = data.aws_db_instance.egis_rds.address
-  egis_db_port                    = data.aws_db_instance.egis_rds.port
+  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-service-account"]
+  egis_db_address                 = module.rds-egis.dns_name
+  egis_db_port                    = module.rds-egis.instance.port
   egis_db_name                    = local.env.egis_db_name
 
   fim_version = local.env.fim_version
@@ -406,12 +422,12 @@ module "rds-bastion" {
 #   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
 #   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
 #   db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-#   viz_db_host                   = module.rds-viz.rds-viz-processing.address
+#   viz_db_host                   = module.rds-viz.dns_name
 #   viz_db_name                   = local.env.viz_db_name
 #   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-#   egis_db_host                  = data.aws_db_instance.egis_rds.address
+#   egis_db_host                  = module.rds-egis.dns_name
 #   egis_db_name                  = local.env.egis_db_name
-#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-service-account"]
 #   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 #   dataservices_ip               = module.data-services.dataservices-ip
 # }
@@ -428,9 +444,9 @@ module "rds-bastion" {
 #   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
 #   mq_ingest_id                = module.mq-ingest.mq-ingest.id
 #   db_ingest_name              = local.env.forecast_db_name
-#   db_ingest_host              = module.rds-ingest.rds-ingest.address
+#   db_ingest_host              = module.rds-ingest.dns_name
 #   mq_ingest_port              = split(":", module.mq-ingest.mq-ingest.instances.0.endpoints.0)[2]
-#   db_ingest_port              = module.rds-ingest.rds-ingest.port
+#   db_ingest_port              = module.rds-ingest.instance.port
 #   primary_hml_bucket_name     = module.s3-replication.buckets["hml"].bucket
 #   primary_hml_bucket_arn      = module.s3-replication.buckets["hml"].arn
 #   backup_hml_bucket_name      = module.s3.buckets["hml-backup"].bucket
@@ -494,7 +510,7 @@ module "rds-bastion" {
 
 #   mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 #   mq_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
-#   db_host                 = module.rds-ingest.rds-ingest.address
+#   db_host                 = module.rds-ingest.dns_name
 #   db_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
 #   logstash_ip             = module.monitoring.aws_instance_logstash.private_ip
 # }
@@ -514,7 +530,7 @@ module "rds-bastion" {
 #   ]
 #   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
 #   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
-#   rds_host                           = module.rds-ingest.rds-ingest.address
+#   rds_host                           = module.rds-ingest.dns_name
 #   location_db_name                   = local.env.location_db_name
 #   forecast_db_name                   = local.env.forecast_db_name
 #   location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
@@ -608,10 +624,10 @@ module "rds-bastion" {
 #   vlab_host                   = local.env.viz-ec2_vlab_host
 #   github_repo_prefix          = local.env.viz-ec2_github_repo_prefix
 #   github_host                 = local.env.viz-ec2_github_host
-#   viz_db_host                 = module.rds-viz.rds-viz-processing.address
+#   viz_db_host                 = module.rds-viz.dns_name
 #   viz_db_name                 = local.env.viz_db_name
 #   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-#   egis_db_host                = data.aws_db_instance.egis_rds.address
+#   egis_db_host                = module.rds-egis.dns_name
 #   egis_db_name                = local.env.egis_db_name
-#   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+#   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-service-account"]
 # }

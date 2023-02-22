@@ -21,7 +21,15 @@ variable "rds_kms_key" {
   type = string
 }
 
-resource "aws_db_subnet_group" "ingest" {
+variable "private_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
+
+resource "aws_db_subnet_group" "hydrovis" {
   name       = "rds_ingest_${var.environment}"
   subnet_ids = [var.subnet-data1a, var.subnet-data1b]
 
@@ -30,7 +38,7 @@ resource "aws_db_subnet_group" "ingest" {
   }
 }
 
-resource "aws_db_instance" "ingest" {
+resource "aws_db_instance" "hydrovis" {
   identifier                   = "hydrovis-${var.environment}-ingest"
   db_name                      = "rfcfcst"
   instance_class               = "db.r6g.large"
@@ -40,7 +48,7 @@ resource "aws_db_instance" "ingest" {
   engine_version               = "12.8"
   username                     = jsondecode(var.db_ingest_secret_string)["username"]
   password                     = jsondecode(var.db_ingest_secret_string)["password"]
-  db_subnet_group_name         = aws_db_subnet_group.ingest.name
+  db_subnet_group_name         = aws_db_subnet_group.hydrovis.name
   vpc_security_group_ids       = var.db_ingest_security_groups
   kms_key_id                   = var.rds_kms_key
   storage_encrypted            = true
@@ -51,10 +59,19 @@ resource "aws_db_instance" "ingest" {
   auto_minor_version_upgrade   = false
 }
 
-output "rds-ingest" {
-  value = aws_db_instance.ingest
+resource "aws_route53_record" "hydrovis" {
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "rds-ingest.${var.private_route_53_zone.name}"
+  type    = "CNAME"
+  ttl     = 300
+  records = [aws_db_instance.hydrovis.address]
 }
 
-output "rds-ingest-connection-string" {
-  value = "jdbc:postgresql://${aws_db_instance.ingest.address}:${aws_db_instance.ingest.port}/${aws_db_instance.ingest.name}"
+
+output "instance" {
+  value = aws_db_instance.hydrovis
+}
+
+output "dns_name" {
+  value = aws_route53_record.hydrovis.name
 }
