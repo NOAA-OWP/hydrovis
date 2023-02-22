@@ -1,5 +1,5 @@
 SELECT
-    CONCAT(crosswalk.huc8, '-', crosswalk.branch_id) as huc8_branch,
+    CONCAT(LPAD(crosswalk.huc8::text, 8, '0'), '-', crosswalk.branch_id) as huc8_branch,
     LEFT(LPAD(crosswalk.huc8::text, 8, '0'), 6) as huc,
     crosswalk.hydro_id
 FROM derived.fim4_featureid_crosswalk AS crosswalk
