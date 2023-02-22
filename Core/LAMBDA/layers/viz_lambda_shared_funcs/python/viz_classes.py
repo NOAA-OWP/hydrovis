@@ -239,6 +239,9 @@ class s3_file:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
 
         bucket = os.environ.get("DATA_BUCKET_UPLOAD") if os.environ.get("DATA_BUCKET_UPLOAD") else "nomads"
+
+        if "14day" not in configuration:
+            reference_time = reference_time - datetime.timedelta(hours=1)
             
         if para and "_para" not in configuration:
             configuration = f"{configuration}_para"

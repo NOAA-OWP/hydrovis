@@ -6,7 +6,7 @@ WITH high_flow_mag AS
         maxflows.nwm_vers,
         maxflows.reference_time,
 		CASE
-			WHEN thresholds.high_water_threshold = '-10'::integer::double precision THEN 'Not Available'::text
+			WHEN thresholds.high_water_threshold = '-9999'::integer::double precision THEN 'Not Available'::text
 			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_100_0 THEN '1'::text
 			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_50_0 THEN '2'::text
 			WHEN maxflows.maxflow_48hour_cfs >= thresholds.rf_25_0 THEN '4'::text
@@ -25,7 +25,7 @@ WITH high_flow_mag AS
 	FROM cache.max_flows_srf_hi_para maxflows
 	JOIN derived.recurrence_flows_hi thresholds ON maxflows.feature_id = thresholds.feature_id
 	WHERE (thresholds.high_water_threshold > 0::double precision
-		OR thresholds.high_water_threshold = '-10'::integer::double precision)
+		OR thresholds.high_water_threshold = '-9999'::integer::double precision)
 		AND maxflows.maxflow_48hour_cfs >= thresholds.high_water_threshold )
 
 SELECT channels.feature_id,
