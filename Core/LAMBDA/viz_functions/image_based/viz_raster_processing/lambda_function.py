@@ -40,22 +40,35 @@ def open_raster(bucket, file, variable):
         open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
     else:
         s3.download_file(bucket, file, download_path)
-
-    ds = rxr.open_rasterio(download_path)
     
+    ds = rxr.open_rasterio(download_path, variable=variable)
+    
+    # for some files like NBM alaska, the line above opens the attribute itself
+    try:
+        data = ds[variable]
+    except:
+        data = ds
+        
+    
+    if "alaska" in file:
+        proj4 = "+proj=stere +lat_0=90 +lat_ts=60 +lon_0=-135 +x_0=0 +y_0=0 +R=6370000 +units=m +no_defs"
+    else:
+        try:
+            proj4 = data.proj4
+        except:
+            proj4 = ds.proj4
+            
+    crs = CRS.from_proj4(proj4)
+
     os.remove(download_path)
     
-    if "forcing_medium_range_blend" in file:
-        data = ds
-    else:
-        data = ds[variable]
-
-    return data
+    return [data, crs]
 
 def create_raster(data, crs):
     print(f"Creating raster for {data.name}")
     data.rio.write_crs(crs, inplace=True)
     data.rio.write_nodata(0, inplace=True)
+    
     if "grid_mapping" in data.attrs:
         data.attrs.pop("grid_mapping")
         
@@ -89,7 +102,7 @@ def sum_rasters(bucket, input_files, variable):
     sum_initiated = False
     for input_file in input_files:
         print(f"Adding {input_file}...")
-        data = open_raster(bucket, input_file, variable)
+        data, crs = open_raster(bucket, input_file, variable)
         time_index = 0
         if len(data.time) > 1:
             time_index = -1
@@ -102,7 +115,6 @@ def sum_rasters(bucket, input_files, variable):
         
         if not sum_initiated:
             data_sum = data.sel(time=data.time[time_index])
-            crs = CRS.from_proj4(data.proj4)
             sum_initiated = True
         else:
             data_sum += data.sel(time=data.time[time_index])
@@ -110,19 +122,49 @@ def sum_rasters(bucket, input_files, variable):
     return data_sum, crs
 
 def check_if_file_exists(bucket, file):
-    file_source = 'Google' if 'https://storage.googleapis.com/national-water-model' in file else 'S3'
-    if file_source == 'S3':
+    if "https" in file:
+        if requests.head(file).status_code == 200:
+            print(f"{file} exists.")
+            return file
+        else:
+            raise Exception(f"https file doesn't seem to exist: {file}")
+        
+    else:
         if s3_file(bucket, file).check_existence():
             print("File exists on S3.")
             return file
-        elif requests.head(file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')).status_code == 200:
-            print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-            return file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
         else:
-            raise MissingS3FileException(f"{file} does not exist on S3.")
-    elif file_source == 'Google':
-        if requests.head(file).status_code == 200:
-            print("File exists on Google Cloud.")
-            return file
-        else:
-            raise Exception(f"Google Cloud file doesn't seem to exist: {file}")
+            if "/prod" in file:
+                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+                if requests.head(google_file).status_code == 200:
+                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+                    return google_file
+            elif "/para" in file:
+                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+                if requests.head(para_nomads_file).status_code == 200:
+                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
+                    
+                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
+                    
+                    
+                    tries = 0
+                    while tries < 3:
+                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
+                        
+                        try:
+                            xr.open_dataset(download_path)
+                            tries = 3
+                        except:
+                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
+                            os.remove(download_path)
+                            tries +=1
+                    
+                    print(f"Saving {file} to {bucket} for archiving")
+                    s3.upload_file(download_path, bucket, file)
+                    os.remove(download_path)
+                    return file
+            else:
+                raise Exception("Code could not handle request for file")
+
+
+        raise MissingS3FileException(f"{file} does not exist on S3.")

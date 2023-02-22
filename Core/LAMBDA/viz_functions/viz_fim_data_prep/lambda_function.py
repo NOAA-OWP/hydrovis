@@ -56,8 +56,9 @@ def setup_branch_iteration(event):
 
     table = fim_config
     target_schema = "ingest"
-    if fim_config.startswith("rf_"): #recurrence flow fim
-        target_schema = "reference"
+    if configuration == "reference": #recurrence flow fim
+        if "catchments" in service:
+            target_schema = "fim_catchments"
         db_type = "egis"
         target_table = f"{target_schema}.{table}"
     elif len(sql_replace) > 0: #past events
