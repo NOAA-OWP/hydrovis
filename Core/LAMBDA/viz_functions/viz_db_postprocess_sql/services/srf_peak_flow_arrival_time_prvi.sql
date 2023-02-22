@@ -18,7 +18,7 @@ SELECT
     channels.nwm_vers,
     to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     CASE WHEN rf.HIGH_WATER_THRESHOLD = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,
-    CASE WHEN rf.HIGH_WATER_THRESHOLD = -9999 THEN NULL ELSE arrival_time.t_normal END AS below_bank_return_time,,
+    CASE WHEN rf.HIGH_WATER_THRESHOLD = -9999 THEN NULL ELSE arrival_time.t_normal END AS below_bank_return_time,
     round((max_flows.maxflow_48hour_cms*35.315)::numeric, 2) AS max_flow_cfs,
     rf.high_water_threshold,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 

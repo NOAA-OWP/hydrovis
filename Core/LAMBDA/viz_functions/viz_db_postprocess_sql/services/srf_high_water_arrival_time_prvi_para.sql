@@ -4,7 +4,10 @@ WITH arrival_time AS
 	(SELECT forecasts.feature_id,
 			forecasts.nwm_vers,
 			forecasts.reference_time,
-			MIN(forecasts.forecast_hour) AS t_high_water_threshold,
+			CASE
+							WHEN thresholds.high_water_threshold = '-9999'::double precision  THEN NULL
+							ELSE MIN(forecasts.forecast_hour)
+			END AS t_high_water_threshold,
 			CASE
 							WHEN MAX(forecasts.forecast_hour) >= 48 THEN '> 48 hours'::text
 							ELSE (MAX(forecasts.forecast_hour)+1)::text
@@ -20,7 +23,7 @@ WITH arrival_time AS
 		JOIN derived.recurrence_flows_prvi thresholds ON forecasts.feature_id = thresholds.feature_id
 		JOIN derived.channels_prvi geo ON forecasts.feature_id = geo.feature_id
 		WHERE (thresholds.high_water_threshold > 0::double precision
-									OR thresholds.high_water_threshold = '-10'::integer::double precision)
+									OR thresholds.high_water_threshold = '-9999'::integer::double precision)
 			AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
 		GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers,
 			thresholds.high_water_threshold)
