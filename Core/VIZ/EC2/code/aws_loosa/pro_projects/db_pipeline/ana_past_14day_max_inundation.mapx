@@ -5990,9 +5990,9 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Branch",
+            "alias" : "FIM Branch ID",
             "fieldName" : "branch",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -12267,9 +12267,9 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Branch",
+            "alias" : "FIM Branch ID",
             "fieldName" : "branch",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
