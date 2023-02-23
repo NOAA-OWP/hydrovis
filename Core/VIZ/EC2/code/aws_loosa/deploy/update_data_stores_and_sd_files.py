@@ -15,12 +15,12 @@ s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')
 
 service_dict = {
-    "full_resolution_fim_catchments_hi": "fim_catchments",
-    "full_resolution_fim_catchments_prvi": "fim_catchments",
-    "full_resolution_fim_catchments": "fim_catchments",
-    "main_stem_fim_catchments_hi": "fim_catchments",
-    "main_stem_fim_catchments_prvi": "fim_catchments",
-    "main_stem_fim_catchments": "fim_catchments",
+    "branch_0_catchments": "fim_catchments",
+    "branch_0_catchments_hi": "fim_catchments",
+    "branch_0_catchments_prvi": "fim_catchments",
+    "branch_gms_catchments": "fim_catchments",
+    "branch_gms_catchments_hi": "fim_catchments",
+    "branch_gms_catchments_prvi": "fim_catchments",
     "nwm_flowlines": "reference",
     "nwm_flowlines_hi": "reference",
     "nwm_flowlines_prvi": "reference",

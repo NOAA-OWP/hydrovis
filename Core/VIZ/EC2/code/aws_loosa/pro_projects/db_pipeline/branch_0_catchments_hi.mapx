@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "Main Stem FIM Catchment Boundaries - Puerto Rico and Virgin Islands",
+    "name" : "Branch 0 FIM Catchment Boundaries - Hawaii",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant",
@@ -34,24 +34,24 @@
       "rings" : [
         [
           [
-            -7520251.28529502917,
-            1948152.65047895443
+            -18149166.8962628543,
+            1985752.94624128565
           ],
           [
-            -7520251.28529502917,
-            2152754.52345202444
+            -18149166.8962628543,
+            2711484.28323961608
           ],
           [
-            -7155919.31211616192,
-            2152754.52345202444
+            -16885295.3511508778,
+            2711484.28323961608
           ],
           [
-            -7155919.31211616192,
-            1948152.65047895443
+            -16885295.3511508778,
+            1985752.94624128565
           ],
           [
-            -7520251.28529502917,
-            1948152.65047895443
+            -18149166.8962628543,
+            1985752.94624128565
           ]
         ]
       ],
@@ -61,10 +61,10 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -7464766.883892755,
-      "ymin" : 1981868.89718665765,
-      "xmax" : -7203095.96320161875,
-      "ymax" : 2111989.40966148535,
+      "xmin" : -18149166.8962628543,
+      "ymin" : 1985752.94624128565,
+      "xmax" : -16885295.3511508778,
+      "ymax" : 2711484.28323961608,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -150,13 +150,13 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Main Stem FIM Catchment Boundaries - Puerto Rico and Virgin Islands",
+      "name" : "Branch 0 FIM Catchment Boundaries",
       "uRI" : "CIMPATH=map/main_stem_fim_catchments.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/9de60d0b52f14e747f7e1125c2507a87.xml",
+      "metadataURI" : "CIMPATH=Metadata/932c7750e36954e1c13f513583b52810.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.Main Stem FIM Catchments",
       "layerElevation" : {
@@ -165,6 +165,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 1000000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -185,13 +186,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Hydro ID",
             "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -221,17 +215,31 @@
               "roundingValue" : 0
             },
             "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS HUC8",
+            "fieldName" : "huc8",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Level Path ID",
+            "fieldName" : "branch",
             "visible" : true,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68617850742b7a486f705a6a5764363274564b4d4e414c695a34484235526e315732752f4d6a5538534d71773d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e687951632f476a566a665738646b4a49704c4e46526d6e6b474162494f69616d6750776e53417857514838773d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%Main Stem FIM Catchments_1_2_1_1_1",
+          "dataset" : "hydrovis.reference.%Main Stem FIM Catchments_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select * from hydrovis.fim_catchments.ms_catchments_prvi",
+          "sqlQuery" : "SELECT hydro_id::text as hydro_id, geom, huc8, branch, fim_version, oid FROM hydrovis.fim_catchments.branch_0_catchments_hi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -242,8 +250,9 @@
           "queryFields" : [
             {
               "name" : "hydro_id",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "hydro_id"
+              "type" : "esriFieldTypeString",
+              "alias" : "hydro_id",
+              "length" : 50
             },
             {
               "name" : "geom",
@@ -261,10 +270,22 @@
               }
             },
             {
+              "name" : "huc8",
+              "type" : "esriFieldTypeString",
+              "alias" : "huc8",
+              "length" : 60000
+            },
+            {
+              "name" : "branch",
+              "type" : "esriFieldTypeString",
+              "alias" : "branch",
+              "length" : 60000
+            },
+            {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 1073741822
+              "length" : 60000
             },
             {
               "name" : "oid",
@@ -526,9 +547,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    245.63,
+                    231.71000000000001,
                     252.44999999999999,
-                    207.00999999999999,
+                    209.53,
                     0
                   ]
                 }
@@ -538,14 +559,17 @@
         }
       },
       "scaleSymbols" : true,
-      "snappable" : true
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing"
+      }
     }
   ],
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/9de60d0b52f14e747f7e1125c2507a87.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220217</CreaDate><CreaTime>21264200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/932c7750e36954e1c13f513583b52810.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220225</CreaDate><CreaTime>22282300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
