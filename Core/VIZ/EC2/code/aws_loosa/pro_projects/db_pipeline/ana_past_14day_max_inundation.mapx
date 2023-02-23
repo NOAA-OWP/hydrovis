@@ -5992,7 +5992,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Branch",
             "fieldName" : "branch",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -12269,7 +12269,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Branch",
             "fieldName" : "branch",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {

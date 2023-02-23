@@ -5986,7 +5986,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Branch",
             "fieldName" : "branch",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
