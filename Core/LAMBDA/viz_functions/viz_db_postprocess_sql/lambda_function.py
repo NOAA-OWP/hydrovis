@@ -8,7 +8,7 @@ def lambda_handler(event, context):
     sql_replace = event['args']['sql_rename_dict']
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     
-    if step == "services":
+    if step in ["services", "fim_config"]:
         if event['args']['map']['service']['configuration'] == "reference":
             return
     

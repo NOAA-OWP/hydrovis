@@ -50,7 +50,6 @@ def lambda_handler(event, context):
     
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
-        print(df_inundation)
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
@@ -129,7 +128,6 @@ def create_inundation_catchment_boundary(huc8, branch):
             raise HANDDatasetReadError("Failed to open HAND and Catchment datasets")
             
         print("--> Setting up mapping array")
-        catchment_nodata = int(catchment_dataset.nodata)  # get no_data value for catchment raster
         profile = catchment_dataset.profile  # get the rasterio profile so the output can use the profile and match the input  # noqa
 
         # set the output nodata to 0
@@ -208,8 +206,9 @@ def create_inundation_catchment_boundary(huc8, branch):
     df_final = df_final.dissolve(by="hydro_id")
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
-    
-    df_final = df_final.drop_duplicates()
+    print("dropping duplicates")
+    if df_final.index.has_duplicates:
+        df_final = df_final.drop_duplicates()
     
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
