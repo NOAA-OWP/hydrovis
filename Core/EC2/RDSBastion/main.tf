@@ -249,6 +249,11 @@ data "cloudinit_config" "startup" {
       EGISDBPORT             = var.egis_db_port
       EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
       EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
+      LOCATIONDBHOST         = var.location_db_name
+      LOCATIONDBNAME         = var.ingest_db_address
+      LOCATIONDBPORT         = var.ingest_db_port
+      LOCATIONDBUSER         = jsondecode(var.ingest_db_secret_string)["username"]
+      LOCATIONDBPASS         = jsondecode(var.ingest_db_secret_string)["password"]
       DEPLOYMENT_BUCKET      = var.data_deployment_bucket
       HOME                   = local.home_dir
       VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]

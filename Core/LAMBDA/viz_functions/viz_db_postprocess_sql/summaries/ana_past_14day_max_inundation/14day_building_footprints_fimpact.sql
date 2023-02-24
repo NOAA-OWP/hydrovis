@@ -1,6 +1,3 @@
--- Create a spatial index on the fim table to help with RAM usage on spatial joins
-CREATE INDEX IF NOT EXISTS ana_past_14day_max_inundation_14d_geom_idx ON publish.ana_past_14day_max_inundation_14d USING GIST (geom);
-
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation_14day_building_footprints;
 SELECT
@@ -36,7 +33,6 @@ SELECT
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
 	max(fim.hand_stage_ft) AS max_hand_stage_ft,
 	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
-	sum(st_area(fim.geom))* 0.00000038610 AS flooded_area_sqmi,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
 	sum(CASE WHEN buildings.occ_cls = 'Agriculture' THEN 1 ELSE 0 END) AS bldgs_agriculture,
@@ -67,7 +63,6 @@ SELECT
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
 	max(fim.hand_stage_ft) AS max_hand_stage_ft,
 	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
-	sum(st_area(fim.geom))* 0.00000038610 AS flooded_area_sqmi,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
 	sum(CASE WHEN buildings.occ_cls = 'Agriculture' THEN 1 ELSE 0 END) AS bldgs_agriculture,

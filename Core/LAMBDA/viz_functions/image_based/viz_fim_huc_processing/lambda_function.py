@@ -48,45 +48,49 @@ def lambda_handler(event, context):
     huc8 = huc8_branch.split("-")[0]
     branch = huc8_branch.split("-")[1]
     
-    print(f"Processing FIM for huc {huc8} and branch {branch}")
-
-    subsetted_streams = f"{data_prefix}/{service}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
-
-    print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
-
-    # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-    catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
-
-    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
-    hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
-
-    rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
-    rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
-
-    stage_lookup = pd.DataFrame()
-    if catch_exists and hand_exists and rating_curve_exists:
-        print("->Calculating flood depth")
-        stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc8_branch)  # get stages
+    if "catchments" in db_fim_table:
+        df_inundation = create_inundation_catchment_boundary(huc8, branch)
     else:
-        print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}")
-        
-    # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
-    if stage_lookup.empty:
-        print("No reaches with valid stages")
-        return
+        print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-    # Run the desired configuration
-    df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time)
+        subsetted_streams = f"{data_prefix}/{service}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+
+        print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
+
+        # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
+        catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+        catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
+
+        hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+        hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
+
+        rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
+        rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
+
+        stage_lookup = pd.DataFrame()
+        if catch_exists and hand_exists and rating_curve_exists:
+            print("->Calculating flood depth")
+            stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc8_branch)  # get stages
+        else:
+            print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}")
+
+        # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
+        if stage_lookup.empty:
+            print("No reaches with valid stages")
+            return
+
+        # Run the desired configuration
+        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time)
 
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     db_schema = db_fim_table.split(".")[0]
     db_table = db_fim_table.split(".")[-1]
 
     try:
-        process_db = database(db_type="viz")
-        if db_table.startswith("rf_"):
+        if "reference" in db_schema or "fim_catchments" in db_schema:
             process_db = database(db_type="egis")
+        else:
+            process_db = database(db_type="viz")
 
         df_inundation.to_postgis(db_table, con=process_db.engine, schema=db_schema, if_exists='append')
     except Exception as e:
@@ -99,18 +103,126 @@ def lambda_handler(event, context):
 
     return
 
+def create_inundation_catchment_boundary(huc8, branch):
+    """
+        Creates the catchment boundary polygons
+    """
+    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    
+    catchment_dataset = None
+    try:
+        print("--> Connecting to S3 datasets")
+        tries = 0
+        raster_open_success = False
+        while tries < 3:
+            try:
+                catchment_dataset = rasterio.open(f's3://{FIM_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
+                tries = 3
+                raster_open_success = True
+            except Exception as e:
+                tries += 1
+                time.sleep(30)
+                print(f"Failed to open datasets. Trying again in 30 seconds - ({e})")
+
+        if not raster_open_success:
+            raise HANDDatasetReadError("Failed to open HAND and Catchment datasets")
+            
+        print("--> Setting up mapping array")
+        profile = catchment_dataset.profile  # get the rasterio profile so the output can use the profile and match the input  # noqa
+
+        # set the output nodata to 0
+        profile['nodata'] = 0
+        profile['dtype'] = "int32"
+
+        # Open the output raster using rasterio. This will allow the inner function to be parallel and write to it
+        print("--> Setting up windows")
+
+        # Get the list of windows according to the raster metadata so they can be looped through
+        windows = [window for ij, window in catchment_dataset.block_windows()]
+
+        # This function will be run for each raster window.
+        def process(window):
+            """
+                This function is run for each raster window in parallel. The function will read in the appropriate
+                window of the HAND and catchment datasets for main stem and/or full resolution. The stages will
+                then be mapped from a numpy array to the catchment window. This will create a windowed stage array.
+                The stage array is then compared to the HAND window array to create an inundation array where the
+                HAND values are gte to the stage values.
+
+                Each windowed inundation array is then saved to the output array for that specific window that was
+                ran.
+
+                For more information on rasterio window processing, see
+                https://rasterio.readthedocs.io/en/latest/topics/windowed-rw.html
+
+                If main stem AND full resolution are ran, then the inundation arrays for each configuration will be
+                compared and the highest value for each element in the array will be used. This is how we 'merge'
+                the two configurations. Because the extents of fr and ms are not the same, we do have to reshape
+                the arrays a bit to allow for the comparison
+            """
+            tries = 0
+            catchment_open_success = False
+            while tries < 3:
+                try:
+                    catchment_window = catchment_dataset.read(window=window)  # Read the dataset for the specified window  # noqa
+                    tries = 3
+                    catchment_open_success = True
+                except Exception as e:
+                    tries += 1
+                    time.sleep(10)
+                    print(f"Failed to open catchment. Trying again in 10 seconds - ({e})")
+
+            if not catchment_open_success:
+                raise HANDDatasetReadError("Failed to open Catchment dataset window")
+            
+            from rasterio.features import shapes
+            mask = None
+            results = (
+            {'hydro_id': int(v), 'geom': s}
+            for i, (s, v) 
+            in enumerate(
+                shapes(catchment_window, mask=mask, transform=rasterio.windows.transform(window, catchment_dataset.transform))) if int(v))
+
+            return list(results)
+
+        # Use threading to parallelize the processing of the inundation windows
+        geoms = []
+        for window in windows:
+            catchment_windows = process(window)
+            if catchment_windows:
+                geoms.extend(catchment_windows)
+                        
+    except Exception as e:
+        raise e
+    finally:
+        if catchment_dataset is not None:
+            catchment_dataset.close()
+
+    print("Generating polygons")
+    from shapely.geometry import shape
+    geom = [shape(i['geom']) for i in geoms]
+    hydro_ids = [i['hydro_id'] for i in geoms]
+    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
+    df_final = df_final.dissolve(by="hydro_id")
+    df_final = df_final.to_crs(3857)
+    df_final = df_final.set_crs('epsg:3857')
+    print("dropping duplicates")
+    if df_final.index.has_duplicates:
+        df_final = df_final.drop_duplicates()
+    
+    print("Adding additional metadata columns")
+    df_final = df_final.reset_index()
+    df_final = df_final.rename(columns={"index": "hydro_id"})
+    df_final['fim_version'] = FIM_PREFIX.split("fim_")[-1]
+    df_final['huc8'] = huc8
+    df_final['branch'] = branch
+                
+    return df_final
+    
 
 def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
-
-        Args:
-            huc8(str): HUC that is being processed
-            fr_stage_lookup(str): list of lists that have a feature id with its corresponding stage for full resolution
-            ms_stage_lookup(str): list of lists that have a feature id with its corresponding stage for main stem
-            inundation_raster(str): local tif output for inundation
-            inundation_mode(str): mode for how the inundation will be processed. mask will mask the depths to create
-                                  a flood extent. depth will create depth grids
     """
     # join metadata to get path to FIM datasets
     catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
@@ -281,6 +393,10 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
+<<<<<<< HEAD
+    df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
+=======
+>>>>>>> ti
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
         
