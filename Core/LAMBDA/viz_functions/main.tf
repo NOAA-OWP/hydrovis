@@ -221,7 +221,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
   s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
   s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
-  source_code_hash = aws_s3_object.wrds_api_handler_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.wrds_api_handler_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -308,7 +308,7 @@ resource "aws_lambda_function" "viz_max_flows" {
   }
   s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
   s3_key           = aws_s3_object.max_flows_zip_upload.key
-  source_code_hash = aws_s3_object.max_flows_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.max_flows_zip.output_path)
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -391,7 +391,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
   s3_key           = aws_s3_object.initialize_pipeline_zip_upload.key
-  source_code_hash = aws_s3_object.initialize_pipeline_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.initialize_pipeline_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -467,7 +467,7 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
   s3_key           = aws_s3_object.db_postprocess_sql_zip_upload.key
-  source_code_hash = aws_s3_object.db_postprocess_sql_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.db_postprocess_sql_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -527,7 +527,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   s3_bucket        = aws_s3_object.db_ingest_zip_upload.bucket
   s3_key           = aws_s3_object.db_ingest_zip_upload.key
-  source_code_hash = aws_s3_object.db_ingest_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.db_ingest_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -597,7 +597,7 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
   }
   s3_bucket        = aws_s3_object.fim_data_prep_zip_upload.bucket
   s3_key           = aws_s3_object.fim_data_prep_zip_upload.key
-  source_code_hash = aws_s3_object.fim_data_prep_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.fim_data_prep_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -664,7 +664,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
   }
   s3_bucket        = aws_s3_object.update_egis_data_zip_upload.bucket
   s3_key           = aws_s3_object.update_egis_data_zip_upload.key
-  source_code_hash = aws_s3_object.update_egis_data_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.update_egis_data_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -728,7 +728,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   }
   s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
   s3_key           = aws_s3_object.publish_service_zip_upload.key
-  source_code_hash = aws_s3_object.publish_service_zip_upload.source_hash
+  source_code_hash = filebase64sha256(data.archive_file.publish_service_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
