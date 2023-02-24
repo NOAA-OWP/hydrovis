@@ -104,8 +104,9 @@ module "secrets-manager" {
     "rds-rfc_fcst_user"                   = { "username" : "rfc_fcst_user" }
     "rds-nwm_viz_ro"                      = { "username" : "nwm_viz_ro" }
     "mq-aws-monitoring"                   = { "username" : "monitoring-AWS-OWNED-DO-NOT-DELETE" }
-    "egis-pg-rds-secret"                  = { "username" : "hydrovis", "password" : local.env.egis-pg-rds_password }
     "egis-service-account"                = { "username" : "arcgis", "password" : local.env.egis-service-account_password }
+    "egis-master-pg-rds-secret"           = { "username" : "master", "password" : local.env.egis-master-pg-rds_password }
+    "egis-pg-rds-secret"                  = { "username" : "hydrovis" }
   }
 }
 
@@ -386,7 +387,8 @@ module "rds-bastion" {
   viz_db_address                  = module.rds-viz.dns_name
   viz_db_port                     = module.rds-viz.instance.port
   viz_db_name                     = local.env.viz_db_name
-  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-service-account"]
+  egis_db_master_secret_string    = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
+  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_db_address                 = module.rds-egis.dns_name
   egis_db_port                    = module.rds-egis.instance.port
   egis_db_name                    = local.env.egis_db_name
@@ -427,7 +429,7 @@ module "rds-bastion" {
 #   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
 #   egis_db_host                  = module.rds-egis.dns_name
 #   egis_db_name                  = local.env.egis_db_name
-#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-service-account"]
+#   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
 #   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
 #   dataservices_ip               = module.data-services.dataservices-ip
 # }
@@ -629,5 +631,5 @@ module "rds-bastion" {
 #   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
 #   egis_db_host                = module.rds-egis.dns_name
 #   egis_db_name                = local.env.egis_db_name
-#   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-service-account"]
+#   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
 # }

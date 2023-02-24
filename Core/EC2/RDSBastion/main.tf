@@ -64,6 +64,10 @@ variable "viz_db_name" {
   type = string
 }
 
+variable "egis_db_master_secret_string" {
+  type = string
+}
+
 variable "egis_db_secret_string" {
   type = string
 }
@@ -333,6 +337,8 @@ data "cloudinit_config" "startup" {
       viz_db_port                = local.dbs["viz"]["db_port"]
       viz_db_username            = local.dbs["viz"]["db_username"]
       viz_db_password            = local.dbs["viz"]["db_password"]
+      egis_db_master_username    = jsondecode(var.egis_db_master_secret_string)["username"]
+      egis_db_master_password    = jsondecode(var.egis_db_master_secret_string)["password"]
       egis_db_name               = local.dbs["egis"]["db_name"]
       egis_db_host               = local.dbs["egis"]["db_host"]
       egis_db_port               = local.dbs["egis"]["db_port"]

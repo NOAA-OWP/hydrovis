@@ -5,14 +5,17 @@ POSTGRES_DATA_FOLDER="/home/ec2-user/postgres_data"
 echo ""
 echo "---- SETTING UP EGIS DB ----"
 
-export PGPASSWORD=${egis_db_password}
 
-
-# Create EGIS DB
+export PGPASSWORD=${egis_db_master_password}
+# Create EGIS DB and hydrovis role
 echo "Creating EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_username}" -c "CREATE DATABASE ${egis_db_name}"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "postgres" -c "CREATE DATABASE ${egis_db_name}"
+echo "Creating ${egis_db_username} Role..."
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "CREATE ROLE ${egis_db_username};"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "ALTER ROLE ${egis_db_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '${egis_db_password}';"
 
 
+export PGPASSWORD=${egis_db_password}
 # Setting up EGIS DB
 echo "Setting up postgis..."
 aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
