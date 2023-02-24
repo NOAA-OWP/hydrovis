@@ -1,0 +1,19 @@
+name: mrf_rapid_onset_flooding_probability
+dataset:
+    uris:
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem1/nwm.t{{datetime:%H}}z.medium_range.channel_rt_1.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem2/nwm.t{{datetime:%H}}z.medium_range.channel_rt_2.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem3/nwm.t{{datetime:%H}}z.medium_range.channel_rt_3.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem4/nwm.t{{datetime:%H}}z.medium_range.channel_rt_4.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem5/nwm.t{{datetime:%H}}z.medium_range.channel_rt_5.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem6/nwm.t{{datetime:%H}}z.medium_range.channel_rt_6.f{{range:3,121,3,%03d}}.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/medium_range_mem7/nwm.t{{datetime:%H}}z.medium_range.channel_rt_7.f{{range:3,121,3,%03d}}.conus.nc
+    repeat: PT6H
+    repeat_ref_time: 0:00:00
+    delay: PT6H
+    expect: PT8H
+    ping: PT5M
+    transfer: all
+    clean: True
+process:
+    script: .\process.py

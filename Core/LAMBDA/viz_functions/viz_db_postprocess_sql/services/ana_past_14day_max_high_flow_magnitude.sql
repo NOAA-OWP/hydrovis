@@ -1,44 +1,44 @@
 DROP TABLE IF EXISTS publish.ana_past_14day_max_high_flow_magnitude;
 
-SELECT CHANNELS.FEATURE_ID,
-	CHANNELS.FEATURE_ID::TEXT AS FEATURE_ID_STR,
-	CHANNELS.STRM_ORDER,
-	CHANNELS.NAME,
-	CHANNELS.HUC6,
-	CHANNELS.NWM_VERS,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
-	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS valid_time,
-	HFM_14DAY.MAX_FLOW_7DAY_CFS AS MAX_FLOW_7DAY_CFS,
+SELECT channels.feature_id,
+	channels.feature_id::TEXT AS feature_id_str,
+	channels.strm_order,
+	channels.name,
+	channels.huc6,
+	hfm_14day.nwm_vers,
+	hfm_14day.reference_time,
+	hfm_14day.reference_time AS valid_time,
+	hfm_14day.max_flow_7day_cfs AS max_flow_7day_cfs,
 	CASE
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.RF_50_0_17C THEN '2'
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.RF_25_0_17C THEN '4'
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.RF_10_0_17C THEN '10'
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.RF_5_0_17C THEN '20'
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.RF_2_0_17C THEN '50'
-					WHEN MAX_FLOW_7DAY_CFS >= THRESHOLDS.HIGH_WATER_THRESHOLD THEN '>50'
+					WHEN max_flow_7day_cfs >= thresholds.rf_50_0_17C THEN '2'
+					WHEN max_flow_7day_cfs >= thresholds.rf_25_0_17C THEN '4'
+					WHEN max_flow_7day_cfs >= thresholds.rf_10_0_17C THEN '10'
+					WHEN max_flow_7day_cfs >= thresholds.rf_5_0_17C THEN '20'
+					WHEN max_flow_7day_cfs >= thresholds.rf_2_0_17C THEN '50'
+					WHEN max_flow_7day_cfs >= thresholds.high_water_threshold THEN '>50'
 					ELSE NULL
-	END AS RECUR_CAT_7DAY,
-	HFM_14DAY.MAX_FLOW_14DAY_CFS AS MAX_FLOW_14DAY_CFS,
+	END AS recur_cat_7day,
+	hfm_14day.max_flow_14day_cfs AS max_flow_14day_cfs,
 	CASE
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.RF_50_0_17C THEN '2'
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.RF_25_0_17C THEN '4'
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.RF_10_0_17C THEN '10'
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.RF_5_0_17C THEN '20'
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.RF_2_0_17C THEN '50'
-					WHEN MAX_FLOW_14DAY_CFS >= THRESHOLDS.HIGH_WATER_THRESHOLD THEN '>50'
+					WHEN max_flow_14day_cfs >= thresholds.rf_50_0_17C THEN '2'
+					WHEN max_flow_14day_cfs >= thresholds.rf_25_0_17C THEN '4'
+					WHEN max_flow_14day_cfs >= thresholds.rf_10_0_17C THEN '10'
+					WHEN max_flow_14day_cfs >= thresholds.rf_5_0_17C THEN '20'
+					WHEN max_flow_14day_cfs >= thresholds.rf_2_0_17C THEN '50'
+					WHEN max_flow_14day_cfs >= thresholds.high_water_threshold THEN '>50'
 					ELSE NULL
-	END AS RECUR_CAT_14DAY,
-	THRESHOLDS.HIGH_WATER_THRESHOLD AS HIGH_WATER_THRESHOLD,
-	THRESHOLDS.RF_2_0_17C AS FLOW_2YR,
-	THRESHOLDS.RF_5_0_17C AS FLOW_5YR,
-	THRESHOLDS.RF_10_0_17C AS FLOW_10YR,
-	THRESHOLDS.RF_25_0_17C AS FLOW_25YR,
-	THRESHOLDS.RF_50_0_17C AS FLOW_50YR,
+	END AS recur_cat_14day,
+	thresholds.high_water_threshold AS high_water_threshold,
+	thresholds.rf_2_0_17C AS flow_2yr,
+	thresholds.rf_5_0_17C AS flow_5yr,
+	thresholds.rf_10_0_17C AS flow_10yr,
+	thresholds.rf_25_0_17C AS flow_25yr,
+	thresholds.rf_50_0_17C AS flow_50yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
-	CHANNELS.GEOM
+	channels.geom
 INTO publish.ana_past_14day_max_high_flow_magnitude
-FROM DERIVED.CHANNELS_CONUS CHANNELS
-JOIN DERIVED.RECURRENCE_FLOWS_CONUS THRESHOLDS ON (CHANNELS.FEATURE_ID = THRESHOLDS.FEATURE_ID)
-JOIN CACHE.MAX_FLOWS_ANA_14DAY HFM_14DAY ON (CHANNELS.FEATURE_ID = HFM_14DAY.FEATURE_ID)
-WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0)
-				AND HFM_14DAY.MAX_FLOW_14DAY_CFS >= THRESHOLDS.HIGH_WATER_THRESHOLD
+FROM derived.channels_CONUS channels
+JOIN derived.recurrence_flows_CONUS thresholds ON (channels.feature_id = thresholds.feature_id)
+JOIN cache.max_flows_ana_14day hfm_14day ON (channels.feature_id = hfm_14day.feature_id)
+WHERE (thresholds.high_water_threshold > 0)
+				AND hfm_14day.max_flow_14day_cfs >= thresholds.high_water_threshold
