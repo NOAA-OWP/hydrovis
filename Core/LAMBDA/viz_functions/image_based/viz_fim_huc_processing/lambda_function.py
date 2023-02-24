@@ -393,7 +393,10 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
+<<<<<<< HEAD
     df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
+=======
+>>>>>>> ti
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
         

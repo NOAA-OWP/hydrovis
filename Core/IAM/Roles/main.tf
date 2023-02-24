@@ -251,6 +251,141 @@ resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
 }
 
 
+#ECS Execution Role
+resource "aws_iam_role" "hydrovis-ecs-task-execution" {
+  name = "hydrovis-${var.environment}-ecs-task-execution"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+data "aws_iam_policy" "ecs_task_execution_policy" {
+  name = "AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-policy" {
+  name   = "ecs-task-execution-policy"
+  role   = aws_iam_role.hydrovis-ecs-task-execution.id
+  policy = data.aws_iam_policy.ecs_task_execution_policy.policy
+}
+
+resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
+  name   = "ecs-task-execution-cloudwatch-log-policy"
+  role   = aws_iam_role.hydrovis-ecs-task-execution.id
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
+}
+
+
+# ECS Container Role
+resource "aws_iam_role" "hydrovis-ecs-resource-access" {
+  name = "hydrovis-${var.environment}-ecs-resource-access"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "ecs-tasks.amazonaws.com",
+            "ecs.amazonaws.com"
+          ]
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
+  name   = "hydrovis-cloudwatch-log-policy"
+  role   = aws_iam_role.hydrovis-ecs-resource-access.id
+  policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
+}
+
+
+# hydrovis-sync-wrds-location-db Role
+resource "aws_iam_role" "hydrovis-sync-wrds-location-db" {
+  name = "hydrovis-sync-wrds-location-db"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "events.amazonaws.com",
+            "scheduler.amazonaws.com",
+            "lambda.amazonaws.com",
+            "datasync.amazonaws.com",
+            "states.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "hydrovis-sync-wrds-location-db" {
+  name = "hydrovis-sync-wrds-location-db"
+  role = aws_iam_role.hydrovis-sync-wrds-location-db.name
+}
+
+resource "aws_iam_role_policy" "hydrovis-sync-wrds-location-db-policy" {
+  name   = "HydroVISSyncWrdsLocationDbPolicy"
+  role   = aws_iam_role.hydrovis-sync-wrds-location-db.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "kms:CreateGrant"
+        ],
+        "Resource": "*",
+        "Condition": {
+          "Bool": {
+            "kms:GrantIsForAWSResource": true
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "hydrovis-sync-wrds-location-db" {
+  for_each = toset([
+    "arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
+    "arn:aws:iam::aws:policy/SecretsManagerReadWrite",
+    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
+    "arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole",
+    "arn:aws:iam::aws:policy/service-role/AWSLambdaRole",
+    "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess",
+    "arn:aws:iam::aws:policy/CloudWatchEventsFullAccess",
+    "arn:aws:iam::aws:policy/AmazonEventBridgeSchedulerFullAccess",
+    "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+  ])
+  role       = aws_iam_role.hydrovis-sync-wrds-location-db.name
+  policy_arn = each.value
+}
+
+
 output "role_autoscaling" {
   value = aws_iam_service_linked_role.autoscaling
 }
@@ -293,4 +428,20 @@ output "role_Hydroviz-RnR-EC2-Profile" {
 
 output "profile_Hydroviz-RnR-EC2-Profile" {
   value = aws_iam_instance_profile.Hydroviz-RnR-EC2-Profile
+}
+
+output "role_hydrovis-ecs-resource-access" {
+  value = aws_iam_role.hydrovis-ecs-resource-access
+}
+
+output "role_hydrovis-ecs-task-execution" {
+  value = aws_iam_role.hydrovis-ecs-task-execution
+}
+
+output "role_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_role.hydrovis-sync-wrds-location-db
+}
+
+output "profile_hydrovis-sync-wrds-location-db" {
+  value = aws_iam_instance_profile.hydrovis-sync-wrds-location-db
 }

@@ -108,10 +108,6 @@ variable "hydrovis_egis_pass" {
   type = string
 }
 
-variable "logstash_ip" {
-  type = string
-}
-
 variable "vlab_repo_prefix" {
   type = string
 }
@@ -210,9 +206,7 @@ data "cloudinit_config" "pipeline_setup" {
         LICENSE_SERVER = var.license_server_ip
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
-      FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {
-        LOGSTASH_IP = var.logstash_ip
-      })
+      FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
       WRDS_HOST                      = var.dataservices_ip
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
@@ -227,7 +221,6 @@ data "cloudinit_config" "pipeline_setup" {
       PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
       PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
       HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
-      LOGSTASH_IP                    = var.logstash_ip
       VLAB_REPO_PREFIX               = var.vlab_repo_prefix
       VLAB_HOST                      = var.vlab_host
       GITHUB_REPO_PREFIX             = var.github_repo_prefix

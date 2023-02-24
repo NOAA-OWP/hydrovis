@@ -161,7 +161,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-${var.ec2_instance_availability_zone}-rds-l-dba-1"
+    "Name" = "hv-${var.environment}-rds-bastion"
     "OS"   = "Linux"
   }
 
@@ -196,6 +196,44 @@ data "aws_ami" "linux" {
 data "cloudinit_config" "startup" {
   gzip          = true
   base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    filename                 = "restore_db_from_s3.sh"
+    content                  = templatefile("${path.module}/scripts/restore_db_from_s3.sh.tftpl", {
+      EGIS_PGUSER            = jsondecode(var.egis_db_secret_string)["username"]
+      EGIS_PGPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
+      EGIS_PGHOST            = var.egis_db_address
+      EGIS_PGPORT            = var.egis_db_port
+      INGEST_PGUSER          = jsondecode(var.ingest_db_secret_string)["username"]
+      INGEST_PGPASSWORD      = jsondecode(var.ingest_db_secret_string)["password"]
+      INGEST_PGHOST          = var.ingest_db_address
+      INGEST_PGPORT          = var.ingest_db_port
+      VIZ_PGUSER             = jsondecode(var.viz_db_secret_string)["username"]
+      VIZ_PGPASSWORD         = jsondecode(var.viz_db_secret_string)["password"]
+      VIZ_PGHOST             = var.viz_db_address
+      VIZ_PGPORT             = var.viz_db_port
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename                 = "swap_dbs.sh"
+    content                  = templatefile("${path.module}/scripts/swap_dbs.sh.tftpl", {
+      EGIS_PGUSER            = jsondecode(var.egis_db_secret_string)["username"]
+      EGIS_PGPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
+      EGIS_PGHOST            = var.egis_db_address
+      EGIS_PGPORT            = var.egis_db_port
+      INGEST_PGUSER          = jsondecode(var.ingest_db_secret_string)["username"]
+      INGEST_PGPASSWORD      = jsondecode(var.ingest_db_secret_string)["password"]
+      INGEST_PGHOST          = var.ingest_db_address
+      INGEST_PGPORT          = var.ingest_db_port
+      VIZ_PGUSER             = jsondecode(var.viz_db_secret_string)["username"]
+      VIZ_PGPASSWORD         = jsondecode(var.viz_db_secret_string)["password"]
+      VIZ_PGHOST             = var.viz_db_address
+      VIZ_PGPORT             = var.viz_db_port
+    })
+  }
 
   part {
     content_type = "text/x-shellscript"
@@ -277,4 +315,8 @@ data "cloudinit_config" "startup" {
       })}
     END
   }
+}
+
+output "instance-id" {
+  value = aws_instance.rds-bastion.id
 }
