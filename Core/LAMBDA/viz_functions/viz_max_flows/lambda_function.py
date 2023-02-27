@@ -303,6 +303,7 @@ def check_if_file_exists(bucket, file):
                 open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
                 
                 print(f"Saving {file} to {bucket} for archiving")
+                s3 = boto3.client('s3')
                 s3.upload_file(download_path, bucket, file)
                 os.remove(download_path)
                 return file

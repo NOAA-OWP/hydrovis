@@ -150,7 +150,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Branch 0 FIM Catchment Boundaries",
+      "name" : "GMS Branch FIM Catchment Boundaries",
       "uRI" : "CIMPATH=map/main_stem_fim_catchments.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
