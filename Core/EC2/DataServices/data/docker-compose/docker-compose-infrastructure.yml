@@ -17,7 +17,6 @@ services:
     external_links:
       - wrds_location_api_v3.0
       - wrds_rfc_forecast_api_v2.0
-      - wrds_rfc_forecast_api_v1.1
 volumes:
   wrds_apis:
     name: wrds_apis

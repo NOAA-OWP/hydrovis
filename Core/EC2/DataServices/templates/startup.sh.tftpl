@@ -5,7 +5,7 @@ echo "Setting up Rsyslog Configuration"
 sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 { echo "[Service]"; 
   echo "Environment=\"LOGSTASH_IP=logstash.hydrovis.internal\"";
-  echo "Environment=\"HYDROVIS_APPLICATION=data_services\"";
+  echo "Environment=\"HYDROVIS_APPLICATION=${logging_application_name}\"";
 } | sudo tee /etc/systemd/system/rsyslog.service.d/override.conf
 sudo systemctl daemon-reload
 sudo systemctl restart rsyslog
@@ -35,6 +35,7 @@ git pull
 echo "Building NGINX Docker"
 cd nginx
 mv ../../docker-compose-infrastructure.yml docker-compose.yml
+mv ../../apis.conf ./conf/aws/apis.conf
 sudo docker-compose up --build -d
 cd ../..
 
@@ -47,6 +48,7 @@ echo "Building Location API Docker"
 cd wrds-location-api
 mv ../../location.env env.aws
 mv ../../docker-compose-location.yml docker-compose.yml
+mv ../../requirements-location.txt requirements.txt
 sudo docker-compose up --build -d
 cd ../..
 
@@ -57,20 +59,9 @@ git checkout ${forecast_api_2_0_commit}
 
 echo "Building Forecast API V2.0 Docker"
 cd wrds-rfc-forecast-api
-mv ../../forecast-2.0.env env.aws
-mv ../../docker-compose-forecast-2.0.yml docker-compose.yml
-sudo docker-compose up --build -d
-cd ../..
-
-echo "Cloning Forecast API V1.1"
-git clone ${vlab_repo_prefix}/rfc-forecast-api rfc-forecast-api-1.1
-cd rfc-forecast-api-1.1
-git checkout ${forecast_api_1_1_commit}
-
-echo "Building Forecast API V1.1 Docker"
-cd wrds-rfc-forecast-api
-mv ../../forecast-1.1.env env.aws
-mv ../../docker-compose-forecast-1.1.yml docker-compose.yml
+mv ../../forecast.env env.aws
+mv ../../docker-compose-forecast.yml docker-compose.yml
+mv ../../requirements-forecast.txt requirements.txt
 sudo docker-compose up --build -d
 cd ../..
 

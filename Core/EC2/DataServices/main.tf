@@ -57,10 +57,12 @@ variable "data_services_versions" {
 # THIS TF CONFIG IS DEPENDANT ON A SSH KEY THAT CAN ACCESS THE WRDS VLAB REPOS
 
 locals {
-  ssh_key_filename        = "id_ed25519"
-  instance_name = "hv-${var.environment}-data-services"
-  instance_names = [local.instance_name, format("%s-for-tests", local.instance_name)]
-  location_db_names = [var.location_db_name, format("%s_ondeck", var.location_db_name)]
+  ssh_key_filename          = "id_ed25519"
+  instance_name             = "hv-${var.environment}-data-services"
+  instance_names            = [local.instance_name, format("%s-for-tests", local.instance_name)]
+  logging_application_name  = "data_services"
+  logging_application_names =  [local.logging_application_name, format("test_%s", local.logging_application_name)]
+  location_db_names         = [var.location_db_name, format("%s_ondeck", var.location_db_name)]
   cloudinit_config_data = {
     write_files = [
       {
@@ -70,12 +72,16 @@ locals {
         content     = file("${path.root}/sensitive/DataServices/${local.ssh_key_filename}")
       },
       {
+        path        = "/wrds/apis.conf"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = file("${path.module}/data/nginx-apis.conf")
+      },
+      {
         path        = "/wrds/docker-compose-infrastructure.yml"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/docker-compose/docker-compose-infrastructure.yml.tftpl", {
-          environment = var.environment
-        })
+        content     = file("${path.module}/data/docker-compose/docker-compose-infrastructure.yml")
       },
       {
         path        = "/wrds/location.env"
@@ -94,15 +100,19 @@ locals {
         path        = "/wrds/docker-compose-location.yml"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/docker-compose/docker-compose-location.yml.tftpl", {
-          environment = var.environment
-        })
+        content     = file("${path.module}/data/docker-compose/docker-compose-location.yml")
       },
       {
-        path        = "/wrds/forecast-2.0.env"
+        path        = "/wrds/requirements-location.txt"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/env/forecast-2.0.env.tftpl", {
+        content     = file("${path.module}/data/requirements/requirements-location.txt")
+      },
+      {
+        path        = "/wrds/forecast.env"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = templatefile("${path.module}/templates/env/forecast.env.tftpl", {
           db_name          = var.forecast_db_name
           location_db_name = "$${location_db_name}}"
           db_username      = jsondecode(var.forecast_credentials_secret_string)["username"]
@@ -113,34 +123,16 @@ locals {
         })
       },
       {
-        path        = "/wrds/docker-compose-forecast-2.0.yml"
+        path        = "/wrds/docker-compose-forecast.yml"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/docker-compose/docker-compose-forecast-2.0.yml.tftpl", {
-          environment = var.environment
-        })
+        content     = file("${path.module}/data/docker-compose/docker-compose-forecast.yml")
       },
       {
-        path        = "/wrds/forecast-1.1.env"
+        path        = "/wrds/requirements-forecast.txt"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/env/forecast-1.1.env.tftpl", {
-          db_name          = var.forecast_db_name
-          location_db_name = "$${location_db_name}}"
-          db_username      = jsondecode(var.forecast_credentials_secret_string)["username"]
-          db_password      = jsondecode(var.forecast_credentials_secret_string)["password"]
-          db_host          = var.rds_host
-          db_port          = "5432"
-          environment      = var.environment
-        })
-      },
-      {
-        path        = "/wrds/docker-compose-forecast-1.1.yml"
-        permissions = "0777"
-        owner       = "ec2-user:ec2-user"
-        content     = templatefile("${path.module}/templates/docker-compose/docker-compose-forecast-1.1.yml.tftpl", {
-          environment = var.environment
-        })
+        content     = file("${path.module}/data/requirements/requirements-forecast.txt")
       },
     ]
   }
@@ -165,13 +157,13 @@ data "cloudinit_config" "startup" {
     content_type = "text/x-shellscript"
     filename     = "startup.sh"
     content      = templatefile("${path.module}/templates/startup.sh.tftpl", {
-      vlab_repo_prefix        = var.vlab_repo_prefix
-      infrastructure_commit   = var.data_services_versions["infrastructure_commit"]
-      location_api_3_0_commit = var.data_services_versions["location_api_3_0_commit"]
-      forecast_api_2_0_commit = var.data_services_versions["forecast_api_2_0_commit"]
-      forecast_api_1_1_commit = var.data_services_versions["forecast_api_1_1_commit"]
-      ssh_key_filename        = local.ssh_key_filename
-      instance                = count.index
+      vlab_repo_prefix         = var.vlab_repo_prefix
+      infrastructure_commit    = var.data_services_versions["infrastructure_commit"]
+      location_api_3_0_commit  = var.data_services_versions["location_api_3_0_commit"]
+      forecast_api_2_0_commit  = var.data_services_versions["forecast_api_2_0_commit"]
+      ssh_key_filename         = local.ssh_key_filename
+      logging_application_name = local.logging_application_names[count.index]
+      instance                 = count.index
     })
   }
 }
