@@ -121,11 +121,14 @@ module "s3" {
       module.iam-roles.role_Hydroviz-RnR-EC2-Profile.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
+      module.iam-roles.role_hydrovis-sync-wrds-location-db.arn,
+      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
+      module.iam-roles.role_hydrovis-ecs-task-execution.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
+      module.iam-roles.role_hydrovis-rds-s3-export.arn,
       module.iam-users.user_FIMServiceAccount.arn
     ]
     "hml-backup" = [
@@ -190,6 +193,13 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
@@ -215,6 +225,7 @@ module "vpces" {
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
   route_table_private_id           = module.vpc.route_table_private.id
   ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
+  opensearch-access_id             = module.security-groups.opensearch-access.id
 }
 
 ###################### STAGE 3 ######################
@@ -252,6 +263,7 @@ module "rds-viz" {
   rds_kms_key                       = module.kms.key_arns["rds-viz"]
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
   viz_db_name                       = local.env.viz_db_name
+  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
 }
 
 # Import EGIS DB
@@ -265,7 +277,7 @@ module "lambda_layers" {
 
   environment        = local.env.environment
   viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
-  lambda_data_bucket = module.s3.buckets["deployment"].bucket
+  deployment_bucket = module.s3.buckets["deployment"].bucket
 }
 
 # Lambda Functions
@@ -280,7 +292,7 @@ module "viz_lambda_functions" {
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
   fim_output_bucket             = module.s3.buckets["fim"].bucket
   max_flows_bucket              = module.s3.buckets["fim"].bucket
-  lambda_data_bucket            = module.s3.buckets["deployment"].bucket
+  deployment_bucket            = module.s3.buckets["deployment"].bucket
   viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
@@ -304,6 +316,14 @@ module "viz_lambda_functions" {
   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
+}
+
+# Simple Service Notifications
+module "eventbridge" {
+  source = "./EventBridge"
+
+  viz_initialize_pipeline_lambda = module.viz_lambda_functions.initialize_pipeline
+  scheduled_rules                = local.env.nwm_3_0_event_bridge_targets
 }
 
 # MQ
@@ -382,39 +402,66 @@ module "ingest_lambda_functions" {
   lambda_security_group_ids   = [module.security-groups.hydrovis-nat-sg.id]
 }
 
-# Monitoring (Kibana, ElasticSearch, Logstash)
-module "monitoring" {
-  source = "./MONITORING"
 
-  environment          = local.env.environment
-  ami_owner_account_id = local.env.ami_owner_account_id
-  region               = local.env.region
-  account_id           = local.env.account_id
-  availability_zone    = module.vpc.subnet_hydrovis-sn-prv-app1a.availability_zone
-  es_sgs               = [module.security-groups.es-sg.id]
-  ec2_instance_sgs = [
-    module.security-groups.es-sg.id,
-    module.security-groups.ssm-session-manager-sg.id
-  ]
-  data_subnets = [
+# Monitoring Module
+module "monitoring" {
+  source = "./Monitoring"
+
+  # General Variables
+  environment                   = local.env.environment
+  account_id                    = local.env.account_id
+  region                        = local.env.region
+  opensearch_security_group_ids = [module.security-groups.opensearch-access.id]
+  data_subnet_ids               = [
     module.vpc.subnet_hydrovis-sn-prv-data1a.id,
     module.vpc.subnet_hydrovis-sn-prv-data1b.id
   ]
-  ec2_instance_subnet       = module.vpc.subnet_hydrovis-sn-prv-app1a.id
-  ec2_instance_profile_name = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
-  fim_bucket_name           = module.s3.buckets["fim"].bucket
-  deployment_bucket         = module.s3.buckets["deployment"].bucket
 
-  lambda_trigger_functions = [
-    module.viz_lambda_functions.max_flows.function_name,
-    # module.viz_lambda_functions.inundation_parent.function_name,
-    # module.viz_lambda_functions.huc_processing.function_name,
-    # module.viz_lambda_functions.optimize_rasters.function_name,
-    module.ingest_lambda_functions.hml_reciever.function_name,
-    module.viz_lambda_functions.db_ingest.function_name,
-    # module.viz_lambda_functions.db_postprocess.function_name
+  # DashboardUsersCredentials Module
+  dashboard_users_and_roles = {
+    wpod = ["readall", "opensearch_dashboards_read_only"]
+  }
+
+  # OpenSearch Module
+  vpc_id             = module.vpc.vpc_main.id
+  task_role_arn      = module.iam-roles.role_hydrovis-ecs-resource-access.arn
+  execution_role_arn = module.iam-roles.role_hydrovis-ecs-task-execution.arn
+
+  # LogIngest Module
+  ami_owner_account_id                 = local.env.ami_owner_account_id
+  logstash_instance_subnet_id          = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  logstash_instance_availability_zone  = module.vpc.subnet_hydrovis-sn-prv-app1a.availability_zone
+  logstash_instance_profile_name       = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
+  logstash_instance_security_group_ids = [
+    module.security-groups.opensearch-access.id,
+    module.security-groups.ssm-session-manager-sg.id
   ]
+  deployment_bucket                    = module.s3.buckets["deployment"].bucket
+  lambda_trigger_functions             = [
+    module.viz_lambda_functions.max_flows.function_name,
+    module.ingest_lambda_functions.hml_reciever.function_name,
+    module.viz_lambda_functions.db_ingest.function_name
+  ]
+  buckets_and_parameters = {
+    "hml" = {
+      bucket_name         = "hydrovis-${local.env.environment}-hml-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+    "nwm" = {
+      bucket_name         = "hydrovis-${local.env.environment}-nwm-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+    "pcpanl" = {
+      bucket_name         = "hydrovis-${local.env.environment}-pcpanl-${local.env.region}"
+      comparison_operator = "LessThanLowerThreshold"
+    }
+  }
+  internal_route_53_zone = {
+    name    = module.route53.hydrovis_internal_zone.name
+    zone_id = module.route53.hydrovis_internal_zone.zone_id
+  }
 }
+
 
 # Data Ingest
 module "data-ingest-ec2" {
@@ -439,7 +486,6 @@ module "data-ingest-ec2" {
   mq_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
   db_host                 = module.rds-ingest.rds-ingest.address
   db_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
-  logstash_ip             = module.monitoring.aws_instance_logstash.private_ip
 }
 
 #Data Services (WRDS APIs)
@@ -462,7 +508,6 @@ module "data-services" {
   forecast_db_name                   = local.env.forecast_db_name
   location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
   forecast_credentials_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
-  logstash_ip                        = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix                   = local.env.data_services_vlab_repo_prefix
   data_services_versions             = local.env.data_services_versions
 }
@@ -480,7 +525,6 @@ module "rnr_ec2" {
   ec2_kms_key                    = module.kms.key_arns["encrypt-ec2"]
   ec2_instance_profile_name      = module.iam-roles.profile_Hydroviz-RnR-EC2-Profile.name
   dataservices_ip                = module.data-services.dataservices-ip
-  logstash_ip                    = module.monitoring.aws_instance_logstash.private_ip
   nomads_url                     = local.env.rnr_nomads_url
   s3_url                         = local.env.rnr_s3_url
   rnr_versions                   = local.env.rnr_versions
@@ -546,7 +590,6 @@ module "viz_ec2" {
   license_server_ip           = module.egis_license_manager.license_manager_ip
   pipeline_user_secret_string = module.secrets-manager.secret_strings["egis-service-account"]
   hydrovis_egis_pass          = local.env.viz_ec2_hydrovis_egis_pass
-  logstash_ip                 = module.monitoring.aws_instance_logstash.private_ip
   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
   vlab_host                   = local.env.viz_ec2_vlab_host
   github_repo_prefix          = local.env.viz_ec2_github_repo_prefix
