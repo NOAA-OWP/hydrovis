@@ -1309,7 +1309,7 @@
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "> 5 (SRC Underestimate)",
+            "label" : "> 5 (SRC Overestimate)",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
