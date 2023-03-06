@@ -1,6 +1,9 @@
 #!/bin/bash
 
-POSTGRES_DATA_FOLDER="/home/ec2-user/postgres_data"
+### set correct db dump file name / version here - These should be in the S3 bucket at {DEPLOYMENT_BUCKET}/location_db_dumps/ ###
+wrds_location3="wrds_location3.sql.gz"
+
+postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
 echo "---- SETTING UP FORECAST DB ----"
@@ -9,16 +12,16 @@ export PGPASSWORD=${db_password}
 
 # Setting up DB
 echo "Setting up postgis..."
-aws s3 cp s3://${deployment_bucket}/${postgis_setup_s3_key} $${POSTGRES_DATA_FOLDER}/postgis_setup.sql
-psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
-rm "$${POSTGRES_DATA_FOLDER}/postgis_setup.sql"
+aws s3 cp s3://${deployment_bucket}/${postgis_setup_s3_key} $${postgres_data_folder}/postgis_setup.sql
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${postgres_data_folder}/postgis_setup.sql"
+rm "$${postgres_data_folder}/postgis_setup.sql"
 
 
 # Update users
 echo "Setting up forecast users..."
-aws s3 cp s3://${deployment_bucket}/${ingest_user_s3_key} $${POSTGRES_DATA_FOLDER}/ingest_users.sql
-psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/ingest_users.sql"
-rm "$${POSTGRES_DATA_FOLDER}/ingest_users.sql"
+aws s3 cp s3://${deployment_bucket}/${ingest_user_s3_key} $${postgres_data_folder}/ingest_users.sql
+psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}" -f "$${postgres_data_folder}/ingest_users.sql"
+rm "$${postgres_data_folder}/ingest_users.sql"
 
 
 # Updating permissions
@@ -32,19 +35,19 @@ psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}"
 
 # Create table schemas for HML Ingest
 echo "Setting up forecast tables..."
-aws s3 cp s3://${deployment_bucket}/${rfcfcst_base_s3_key} $${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz
-gzip -d "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql.gz"
-psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql"
-rm "$${POSTGRES_DATA_FOLDER}/rfcfcst_base.sql"
+aws s3 cp s3://${deployment_bucket}/${rfcfcst_base_s3_key} $${postgres_data_folder}/rfcfcst_base.sql.gz
+gzip -d "$${postgres_data_folder}/rfcfcst_base.sql.gz"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -f "$${postgres_data_folder}/rfcfcst_base.sql"
+rm "$${postgres_data_folder}/rfcfcst_base.sql"
 
 
 echo ""
 echo "---- SETTING UP LOCATION DB ----"
 echo "Setting up location tables..."
 psql -h "${db_host}" -U "${db_username}" -c "CREATE DATABASE ${location_db_name};"
-aws s3 cp s3://${deployment_bucket}/location_db_dumps/wrds_location3.sql.gz $${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz
-cat $${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz | gunzip | psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${location_db_name}"
-rm "$${POSTGRES_DATA_FOLDER}/wrds_location3.sql.gz"
+aws s3 cp s3://${deployment_bucket}/location_db_dumps/$${wrds_location3} $${postgres_data_folder}/wrds_location3.sql.gz
+cat $${postgres_data_folder}/wrds_location3.sql.gz | gunzip | psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${location_db_name}"
+rm "$${postgres_data_folder}/wrds_location3.sql.gz"
 
 
 # Updating permissions

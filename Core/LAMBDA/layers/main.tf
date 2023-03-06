@@ -59,8 +59,9 @@ resource "aws_s3_object" "viz_lambda_shared_funcs_zip_upload" {
 }
 
 resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
-  s3_bucket = aws_s3_object.viz_lambda_shared_funcs_zip_upload.bucket
-  s3_key = aws_s3_object.viz_lambda_shared_funcs_zip_upload.key
+  s3_bucket        = aws_s3_object.viz_lambda_shared_funcs_zip_upload.bucket
+  s3_key           = aws_s3_object.viz_lambda_shared_funcs_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.viz_lambda_shared_funcs_zip.output_path)
 
   layer_name = "viz_lambda_shared_funcs_${var.environment}"
 

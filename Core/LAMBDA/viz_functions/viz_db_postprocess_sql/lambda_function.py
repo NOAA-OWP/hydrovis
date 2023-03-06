@@ -2,14 +2,13 @@ import re
 from viz_classes import database
 
 def lambda_handler(event, context):
-    print(event)
     step = event['step']
     folder = event['folder']
     reference_time = event['args']['map']['reference_time']
     sql_replace = event['args']['sql_rename_dict']
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     
-    if step == "services":
+    if step in ["services", "fim_config"]:
         if event['args']['map']['service']['configuration'] == "reference":
             return
     
@@ -40,8 +39,10 @@ def run_admin_tasks(event, folder, step, sql_replace):
     index_columns = event['args']['map']['index_columns']
     index_name = event['args']['map']['index_name']
     schema = target_table.split('.')[0]
+    target_table_only = target_table.split('.')[-1]
     
     sql_replace.update({"{target_table}": target_table})
+    sql_replace.update({"{target_table_only}": target_table_only})
     sql_replace.update({"{target_schema}": schema})
     sql_replace.update({"{index_name}": index_name})
     sql_replace.update({"{index_columns}": index_columns})

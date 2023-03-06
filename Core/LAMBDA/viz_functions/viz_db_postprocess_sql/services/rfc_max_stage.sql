@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS publish.rfc_max_stage;
 
 WITH
 	-------- Max Stage Sub Query -------
-	MAX_STAGE AS
+	max_stage AS
 		(SELECT 
 			af.nws_lid, 
 			af.stage, 
@@ -27,7 +27,7 @@ WITH
 		 LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid
 		 GROUP BY af.nws_lid, af.stage, af.status, c.record_threshold),
 	-------- Min Stage Sub Query -------
-	MIN_STAGE AS
+	min_stage AS
 		(SELECT 
 			af.nws_lid,  
 			af.stage, 
@@ -52,7 +52,7 @@ WITH
 		LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid
 		GROUP BY af.nws_lid, af.stage, af.status, c.record_threshold),
 	-------- Initial Stage Sub Query -------
-	INITIAL_STAGE AS
+	initial_stage AS
 		(SELECT 
 			af.nws_lid,
 			af.stage,
@@ -78,22 +78,22 @@ WITH
 
 -------- Main Query (Put it all together) -------
 SELECT 
-	MAX_STAGE.nws_lid,
-	INITIAL_STAGE.stage AS initial_stage,
-	INITIAL_STAGE.status AS initial_status,
-	to_char(INITIAL_STAGE.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_stage_timestep,
-	MIN_STAGE.stage AS min_stage,
-	MIN_STAGE.status AS min_status,
-	to_char(MIN_STAGE.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS min_stage_timestep,
-	MAX_STAGE.stage AS max_stage,
-	MAX_STAGE.status AS max_status,
-	to_char(MAX_STAGE.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS max_stage_timestep,
+	max_stage.nws_lid,
+	initial_stage.stage AS initial_stage,
+	initial_stage.status AS initial_status,
+	to_char(initial_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_stage_timestep,
+	min_stage.stage AS min_stage,
+	min_stage.status AS min_status,
+	to_char(min_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS min_stage_timestep,
+	max_stage.stage AS max_stage,
+	max_stage.status AS max_status,
+	to_char(max_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS max_stage_timestep,
 	CASE
-		WHEN INITIAL_STAGE.stage = 0 THEN 'increasing'::text
-		WHEN ((MAX_STAGE.stage-INITIAL_STAGE.stage)/INITIAL_STAGE.stage) > .05 THEN 'increasing'::text									
-		WHEN ((MIN_STAGE.stage-INITIAL_STAGE.stage)/INITIAL_STAGE.stage) < -.05 THEN 'decreasing'::text									
-		WHEN MAX_STAGE.status_value > INITIAL_STAGE.status_value THEN 'increasing'::text								
-		WHEN MAX_STAGE.status_value < INITIAL_STAGE.status_value THEN 'decreasing'::text
+		WHEN initial_stage.stage = 0 THEN 'increasing'::text
+		WHEN ((max_stage.stage-initial_stage.stage)/initial_stage.stage) > .05 THEN 'increasing'::text									
+		WHEN ((min_stage.stage-initial_stage.stage)/initial_stage.stage) < -.05 THEN 'decreasing'::text									
+		WHEN max_stage.status_value > initial_stage.status_value THEN 'increasing'::text								
+		WHEN max_stage.status_value < initial_stage.status_value THEN 'decreasing'::text
 		ELSE 'constant'::text
 	END AS forecast_trend,
 	metadata.producer, 
@@ -116,7 +116,7 @@ SELECT
 	to_char(NOW()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS UPDATE_TIME
 INTO publish.rfc_max_stage
 FROM ingest.ahps_metadata as metadata
-JOIN MAX_STAGE ON MAX_STAGE.nws_lid = metadata.nws_lid
-JOIN MIN_STAGE ON MIN_STAGE.nws_lid = metadata.nws_lid
-JOIN INITIAL_STAGE ON INITIAL_STAGE.nws_lid = metadata.nws_lid
+JOIN max_stage ON max_stage.nws_lid = metadata.nws_lid
+JOIN min_stage ON min_stage.nws_lid = metadata.nws_lid
+JOIN initial_stage ON initial_stage.nws_lid = metadata.nws_lid
 WHERE metadata.issued_time > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);
