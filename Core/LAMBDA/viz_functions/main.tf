@@ -1498,7 +1498,10 @@ resource "aws_sfn_state_machine" "huc_processing_step_function" {
             "Retry": [
               {
                 "ErrorEquals": [
-                  "Lambda.ServiceException"
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
                 ],
                 "BackoffRate": 1,
                 "IntervalSeconds": 60,
