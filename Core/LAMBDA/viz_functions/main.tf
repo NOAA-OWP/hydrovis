@@ -286,7 +286,10 @@ resource "aws_s3_object" "max_flows_zip_upload" {
 resource "aws_lambda_function" "viz_max_flows" {
   function_name = "viz_max_flows_${var.environment}"
   description   = "Lambda function to create max streamflow files for NWM data"
-  memory_size   = 512
+  memory_size   = 2048
+  ephemeral_storage {
+    size = 1024
+  }
   timeout       = 900
 
   vpc_config {
@@ -297,7 +300,7 @@ resource "aws_lambda_function" "viz_max_flows" {
   environment {
     variables = {
       CACHE_DAYS         = 1
-      MAX_FLOWS_BUCKET   = var.max_flows_bucket
+      MAX_VALS_BUCKET   = var.max_flows_bucket
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
       VIZ_DB_DATABASE     = var.viz_db_name
       VIZ_DB_HOST         = var.viz_db_host
@@ -780,6 +783,179 @@ module "image_based_lambdas" {
 
 ########################################################################################################################################
 ########################################################################################################################################
+##################################################
+##     Viz Process Schism FIM Step Function     ##
+##################################################
+
+resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
+  name     = "process_schism_fim_${var.environment}"
+  role_arn = var.lambda_role
+
+  definition = <<EOF
+{
+  "Comment": "Processes the outputs for all SCHISM FIM services.",
+  "StartAt": "Prepare for SCHISM FIM Processing",
+  "States": {
+    "Prepare for SCHISM FIM Processing": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.schism_fim_processing}",
+        "Payload": {
+          "step": "setup",
+          "args.$": "$"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Iterate over HUC8s",
+      "ResultPath": "$.result",
+      "ResultSelector": {
+        "huc_list.$": "$.Payload"
+      }
+    },
+    "Iterate over HUC8s": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Process FIM By HUC8",
+        "States": {
+          "Process FIM By HUC8": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.schism_fim_processing}",
+              "Payload": {
+                "step": "iteration",
+                "args": {
+                  "huc.$": "$.huc8",
+                  "reference_time.$": "$.reference_time",
+                  "configuration.$": "$.configuration"
+                }
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 2,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice",
+            "ResultPath": "$.result",
+            "ResultSelector": {
+              "output_bucket.$": "$.Payload.output_bucket",
+              "output_raster.$": "$.Payload.output_key"
+            }
+          },
+          "Choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Not": {
+                  "Variable": "$.result.output_raster",
+                  "IsNull": true
+                },
+                "Next": "Cloud Optimize Raster"
+              }
+            ],
+            "Default": "Success"
+          },
+          "Success": {
+            "Type": "Succeed"
+          },
+          "Cloud Optimize Raster": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.raster_processing}",
+              "Payload.$": "$"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Success",
+            "InputPath": "$.result",
+            "ResultPath": null,
+            "OutputPath": "$.result"
+          }
+        }
+      },
+      "ItemsPath": "$.result.huc_list",
+      "ItemSelector": {
+        "huc8.$": "$$.Map.Item.Value",
+        "reference_time.$": "$.reference_time",
+        "configuration.$": "$.configuration"
+      },
+      "Next": "Move Rasters to Published Folder",
+      "ResultPath": "$.result"
+    },
+    "Move Rasters to Published Folder": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${aws_lambda_function.viz_update_egis_data.arn}",
+        "Payload": {
+          "step": "update_service_data",
+          "args": {
+            "map_item.$": "States.Format('{}_inundation_depth', $.configuration)",
+            "reference_time.$": "$.reference_time",
+            "job_type.$": "$.job_type",
+            "service": {
+              "service.$": "$.configuration",
+              "configuration.$": "$.service.configuration",
+              "egis_server": "image"
+            },
+            "output_raster_info_list.$": "$.result"
+          }
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}
+EOF
+}
+
+########################################################################################################################################
+########################################################################################################################################
 ########################################
 ##     Viz Pipeline Step Function     ##
 ########################################
@@ -1058,8 +1234,52 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
             "Type": "Map",
             "Next": "Parallelize Summaries",
             "Iterator": {
-              "StartAt": "FIM Data Preparation - Setup HUC Branch Data",
+              "StartAt": "Choice",
               "States": {
+                "Choice": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.fim_config",
+                      "StringMatches": "*coastal*",
+                      "Next": "Process Coastal (SCHISM) FIM"
+                    }
+                  ],
+                  "Default": "FIM Data Preparation - Setup HUC Branch Data"
+                },
+                "Process Coastal (SCHISM) FIM": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                  "Parameters": {
+                    "StateMachineArn": "${aws_sfn_state_machine.schism_fim_processing_step_function.arn}",
+                    "Input": {
+                      "configuration.$": "$.fim_config",
+                      "reference_time.$": "$.reference_time",
+                      "job_type.$": "$.job_type",
+                      "service.$": "$.service"
+                    }
+                  },
+                  "Next": "Add \"_inundation\" to $.map_item (",
+                  "ResultPath": null
+                },
+                "Add \"_inundation\" to $.map_item (": {
+                  "Type": "Pass",
+                  "Next": "Add \"_inundation\" to $.map_item (1)",
+                  "Parameters": {
+                    "input.$": "$",
+                    "mods": {
+                      "map_item.$": "States.Format('{}_inundation', $.map_item)"
+                    }
+                  }
+                },
+                "Add \"_inundation\" to $.map_item (1)": {
+                  "Type": "Pass",
+                  "Next": "Update EGIS Data - FIM Config",
+                  "Parameters": {
+                    "output.$": "States.JsonMerge($.input, $.mods, false)"
+                  },
+                  "OutputPath": "$.output"
+                },
                 "FIM Data Preparation - Setup HUC Branch Data": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",

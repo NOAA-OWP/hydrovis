@@ -1,8 +1,8 @@
-service: viz-huc-processing
+service: viz-schism-fim-processing
 provider:
   name: aws
   deploymentBucket: 
-    name: ${env:DEPLOYMENT_BUCKET}
+    name: ${env:INPUTS_BUCKET}
     serverSideEncryption: AES256
   region: ${env:AWS_DEFAULT_REGION}
 functions:
@@ -10,20 +10,18 @@ functions:
     name: ${env:LAMBDA_NAME}
     image: ${env:AWS_ACCOUNT_ID}.dkr.ecr.${env:AWS_DEFAULT_REGION}.amazonaws.com/${env:IMAGE_REPO_NAME}:${env:IMAGE_TAG}
     role: ${env:LAMBDA_ROLE_ARN}
-    memorySize: 3072
+    memorySize: 5000
     timeout: 900
-    ephemeralStorageSize: 1024
+    ephemeralStorageSize: 2048
     environment:
-      FIM_BUCKET: ${env:FIM_BUCKET}
-      FIM_PREFIX: ${env:FIM_PREFIX}
+      INPUTS_BUCKET: ${env:INPUTS_BUCKET}
+      INPUTS_PREFIX: ${env:INPUTS_PREFIX}
+      OUTPUTS_BUCKET: ${env:OUTPUTS_BUCKET}
+      OUTPUTS_PREFIX: ${env:OUTPUTS_PREFIX}
       VIZ_DB_DATABASE: ${env:VIZ_DB_DATABASE}
       VIZ_DB_HOST: ${env:VIZ_DB_HOST}
       VIZ_DB_PASSWORD: ${env:VIZ_DB_PASSWORD}
       VIZ_DB_USERNAME: ${env:VIZ_DB_USERNAME}
-      EGIS_DB_DATABASE: ${env:EGIS_DB_DATABASE}
-      EGIS_DB_HOST: ${env:EGIS_DB_HOST}
-      EGIS_DB_PASSWORD: ${env:EGIS_DB_PASSWORD}
-      EGIS_DB_USERNAME: ${env:EGIS_DB_USERNAME}
     vpc:
       securityGroupIds:
         - ${env:SECURITY_GROUP_1}

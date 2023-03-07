@@ -1,4 +1,5 @@
 import re
+import os
 from viz_classes import database
 
 def lambda_handler(event, context):
@@ -24,7 +25,10 @@ def lambda_handler(event, context):
             sql_file = event['args']['map']['map_item']
         sql_path = f"{folder}/{sql_file}.sql"
         
-        run_sql_file(sql_path, sql_replace)
+        if step == 'max_flows' and max_flows_already_processed(sql_path, reference_time):
+            return True
+        
+        run_sql(sql_path, sql_replace)
    
     return True
 
@@ -51,23 +55,46 @@ def run_admin_tasks(event, folder, step, sql_replace):
         # if target table is not the original table, run the create command to create the table
         if target_table != original_table:
             sql_replace.update({"{original_table}": original_table})
-            run_sql_file('admin/create_table_from_original.sql', sql_replace)
-        run_sql_file('admin/ingest_prep.sql', sql_replace)
+            run_sql('admin/create_table_from_original.sql', sql_replace)
+        run_sql('admin/ingest_prep.sql', sql_replace)
 
     if step == 'ingest_finish':
         sql_replace.update({"{files_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         sql_replace.update({"{rows_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
-        run_sql_file('admin/ingest_finish.sql', sql_replace)
+        run_sql('admin/ingest_finish.sql', sql_replace)
 
-# Run a sql file, and replace any items basd on the sql_replace dictionary.
-def run_sql_file(sql_path, sql_replace):  
-    # Find the sql file, and replace any items in the dictionary (at least has reference_time)
-    sql = open(sql_path, 'r').read()
-    for word, replacement in sql_replace.items():
-        sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+# Run sql from string or file, and replace any items basd on the sql_replace dictionary.
+def run_sql(sql_path_or_str, sql_replace=None):
+    result = None
+    # Determine if arg is file or raw SQL string
+    if os.path.exists(sql_path_or_str):
+        sql = open(sql_path_or_str, 'r').read()
+    else:
+        sql = sql_path_or_str
+    if sql_replace:
+        # replace portions of SQL with any items in the dictionary (at least has reference_time)
+        for word, replacement in sql_replace.items():
+            sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
     viz_db = database(db_type="viz")
     with viz_db.get_db_connection() as connection:
         cur = connection.cursor()
+        print(sql)
         cur.execute(sql)
+        try:
+            result = cur.fetchone()
+        except:
+            pass
         connection.commit()
-    print(f"Finished running {sql_path}.")
+    print(f"Finished executing the SQL statement above.")
+    return result
+
+def max_flows_already_processed(sql_path, reference_time):
+    sql = open(sql_path, 'r').read().lower()
+    schema, table = re.search('into (\w+)\.(\w+)', sql).groups()
+    sql = f'SELECT reference_time FROM {schema}.{table} LIMIT 1;'
+    result = run_sql(sql)[0]
+    if result == reference_time:
+        print("NOTE: {sql_path} was already executed for reference time {reference_time}")
+        return True
+    else:
+        return False

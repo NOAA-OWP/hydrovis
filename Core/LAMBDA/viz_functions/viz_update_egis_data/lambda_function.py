@@ -26,9 +26,9 @@ def lambda_handler(event, context):
     if step == "unstage":
         egis_db = database(db_type="egis")
         
-        # Services with FIM Configs
+        # Services with FIM Configs, ignoring "coastal" configs
         if event['args']['service']['fim_configs']:
-            dest_tables = event['args']['service']['fim_configs']
+            dest_tables = [t for t in event['args']['service']['fim_configs'] if 'coastal' not in t]
         # Services without FIM Configs
         else:
             dest_tables = [event['args']['service']['service']]
@@ -98,11 +98,16 @@ def lambda_handler(event, context):
                     stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
                 
             s3 = boto3.resource('s3')
-            workspace_rasters = event['args']['output_rasters']
             service_name = event['args']['service']['service']
-            
             mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
-            s3_bucket = event['args']['output_bucket']
+            
+            if 'output_raster_info_list' in event['args']:
+                info_list = event['args']['output_raster_info_list']
+                workspace_rasters = [i['output_raster'] for i in info_list if 'output_raster' in i and i['output_raster']]
+                s3_bucket = [i['output_bucket'] for i in info_list if 'output_bucket' in i and i['output_bucket']][0]
+            else:
+                workspace_rasters = event['args']['output_rasters']
+                s3_bucket = event['args']['output_bucket']
             
             for s3_key in workspace_rasters:
                 s3_object = {"Bucket": s3_bucket, "Key": s3_key}

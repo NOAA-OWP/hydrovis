@@ -70,6 +70,13 @@ variable "egis_db_user_secret_string" {
   type = string
 }
 
+locals {
+  viz_optimize_rasters_lambda_name = "viz_optimize_rasters_${var.environment}"
+  viz_huc_processing_lambda_name = "viz_fim_huc_processing_${var.environment}"
+  viz_schism_fim_processing_lambda_name = "viz_schism_fim_processing_${var.environment}"
+  viz_raster_processing_lambda_name = "viz_raster_processing_${var.environment}"
+}
+
 ##############################
 ## RASTER PROCESSING LAMBDA ##
 ##############################
@@ -136,6 +143,11 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
     }
+
+    environment_variable {
+      name  = "LAMBDA_NAME"
+      value = local.viz_raster_processing_lambda_name
+    }
     
     environment_variable {
       name  = "LAMBDA_ROLE_ARN"
@@ -155,11 +167,6 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
     environment_variable {
       name  = "OUTPUT_PREFIX"
       value = var.raster_output_prefix
-    }
-
-    environment_variable {
-      name  = "ENVIRONMENT"
-      value = var.environment
     }
   }
 
@@ -246,6 +253,11 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
     }
+
+    environment_variable {
+      name  = "LAMBDA_NAME"
+      value = local.viz_optimize_rasters_lambda_name
+    }
     
     environment_variable {
       name  = "LAMBDA_ROLE_ARN"
@@ -255,11 +267,6 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
     environment_variable {
       name  = "DEPLOYMENT_BUCKET"
       value = var.deployment_bucket
-    }
-
-    environment_variable {
-      name  = "ENVIRONMENT"
-      value = var.environment
     }
   }
 
@@ -280,9 +287,9 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   }
 }
 
-##############################
-## HUC PROCESSING LAMBDA ##
-##############################
+################################
+## HAND HUC PROCESSING LAMBDA ##
+################################
 
 data "archive_file" "huc_processing_zip" {
   type = "zip"
@@ -345,6 +352,11 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
     environment_variable {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
+    }
+
+    environment_variable {
+      name  = "LAMBDA_NAME"
+      value = local.viz_huc_processing_lambda_name
     }
     
     environment_variable {
@@ -421,11 +433,6 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
       name  = "SUBNET_2"
       value = var.huc_processing_subnets[1]
     }
-
-    environment_variable {
-      name  = "ENVIRONMENT"
-      value = var.environment
-    }
   }
 
   source {
@@ -445,14 +452,173 @@ resource "null_resource" "viz_fim_huc_processing_cluster" {
   }
 }
 
+################################
+## SCHISM HUC PROCESSING LAMBDA ##
+################################
+
+data "archive_file" "schism_processing_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/viz_schsim_fim_processing"
+
+  output_path = "${path.module}/viz_schsim_fim_processing_${var.environment}.zip"
+}
+
+resource "aws_s3_object" "schism_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "viz/viz_schism_fim_processing.zip"
+  source      = data.archive_file.schism_processing_zip.output_path
+  source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+}
+
+resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
+  name                 = "schism_fim_processing"
+  image_tag_mutability = "MUTABLE"
+
+  force_delete = true
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
+  name          = "viz-${var.environment}-schism-fim-processing"
+  description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
+  build_timeout = "60"
+  service_role  = var.lambda_role
+
+  artifacts {
+    type = "NO_ARTIFACTS"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:6.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+    privileged_mode = true
+
+    environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = var.region
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = var.account_id
+    }
+    
+    environment_variable {
+      name  = "IMAGE_REPO_NAME"
+      value = aws_ecr_repository.viz_schism_fim_processing_image.name
+    }
+    
+    environment_variable {
+      name  = "IMAGE_TAG"
+      value = var.ecr_repository_image_tag
+    }
+
+    environment_variable {
+      name  = "LAMBDA_NAME"
+      value = local.viz_schism_fim_processing_lambda_name
+    }
+    
+    environment_variable {
+      name  = "LAMBDA_ROLE_ARN"
+      value = var.lambda_role
+    }
+
+    environment_variable {
+      name  = "INPUTS_BUCKET"
+      value = var.deployment_bucket
+    }
+
+    environment_variable {
+      name  = "INPUTS_PREFIX"
+      value = "schism_fim"
+    }
+
+    environment_variable {
+      name  = "MAX_VALS_BUCKET"
+      value = var.fim_data_bucket
+    }
+
+    environment_variable {
+      name  = "OUTPUTS_BUCKET"
+      value = var.fim_data_bucket
+    }
+
+    environment_variable {
+      name  = "OUTPUTS_PREFIX"
+      value = "processing_outputs"
+    }
+
+    environment_variable {
+      name  = "VIZ_DB_DATABASE"
+      value = var.viz_db_name
+    }
+
+    environment_variable {
+      name  = "VIZ_DB_HOST"
+      value = var.viz_db_host
+    }
+
+    environment_variable {
+      name  = "VIZ_DB_USERNAME"
+      value = jsondecode(var.viz_db_user_secret_string)["username"]
+    }
+
+    environment_variable {
+      name  = "VIZ_DB_PASSWORD"
+      value = jsondecode(var.viz_db_user_secret_string)["password"]
+    }
+
+    environment_variable {
+      name  = "SECURITY_GROUP_1"
+      value = var.huc_processing_sgs[0]
+    }
+
+    environment_variable {
+      name  = "SUBNET_1"
+      value = var.huc_processing_subnets[0]
+    }
+
+    environment_variable {
+      name  = "SUBNET_2"
+      value = var.huc_processing_subnets[1]
+    }
+  }
+
+  source {
+    type            = "S3"
+    location        = "${aws_s3_object.schism_zip_upload.bucket}/${aws_s3_object.schism_zip_upload.key}"
+  }
+}
+
+resource "null_resource" "viz_schism_fim_processing_cluster" {
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers = {
+    source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+  }
+
+  provisioner "local-exec" {
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.environment}"
+  }
+}
+
 output "fim_huc_processing" {
-  value = "viz_fim_huc_processing_${var.environment}"
+  value = local.viz_huc_processing_lambda_name
+}
+
+output "schism_fim_processing" {
+  value = local.viz_schism_fim_processing_lambda_name
 }
 
 output "optimize_rasters" {
-  value = "viz_optimize_rasters_${var.environment}"
+  value = local.viz_optimize_rasters_lambda_name
 }
 
 output "raster_processing" {
-  value = "viz_raster_processing_${var.environment}"
+  value = local.viz_raster_processing_lambda_name
 }

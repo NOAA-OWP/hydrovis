@@ -31,6 +31,9 @@ variable "scheduled_rules" {
 #     forcing_medium_range_nbm_para       = tomap({ "description" = "MRF (NBM) Forcing CONUS at 5H5M Past hour", "schedule_expression" = "cron(5 5,11,17,23 * * ? *)"})
 #     channel_rt_medium_range_nbm_alaska_para       = tomap({ "description" = "MRF (NBM) Channel Alaska at 6H15M Past hour", "schedule_expression" = "cron(15 0,6,12,18 * * ? *)"})
 #     forcing_medium_range_nbm_alaska_para       = tomap({ "description" = "MRF (NBM) Forcing Alaska at 5H15M Past hour", "schedule_expression" = "cron(15 5,11,17,23 * * ? *)"})
+#     analysis_assim_coastal_atlgulf             = tomap({ "description" = "AnA Total Water Coastal AtlGulf at 1H20M Past hour", "schedule_expression" = "cron(20 * * * ? *)"})
+#     medium_range_coastal_atlgulf_mem1             = tomap({ "description" = "MRF Member 1 Total Water Coastal AtlGulf at 2H30M Past hour", "schedule_expression" = "cron(0 2,8,14,20 * * ? *)"})
+#     short_range_coastal_atlgulf             = tomap({ "description" = "SRF Total Water Coastal AtlGulf at 2H30M Past hour", "schedule_expression" = "cron(30 * * * ? *)"})
 #   }
 # }
 
