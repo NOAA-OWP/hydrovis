@@ -33,7 +33,7 @@
       "CIMPATH=srf_accum_precip/7hour-9hour_accum_precipitation_mrf.xml",
       "CIMPATH=srf_accum_precip/10hour-12hour_accum_precipitation_mrf.xml",
       "CIMPATH=srf_accum_precip/13hour-15hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip/1hour-18hour_accum_precipitation_mrf.xml"
+      "CIMPATH=srf_accum_precip/1hour-15hour_accum_precipitation_mrf.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -2414,14 +2414,14 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "15 Hours - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip/1hour-18hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_accum_precip/1hour-15hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "metadataURI" : "CIMPATH=Metadata/87351ae7084018adacb3c067d813c3c5.xml",
       "useSourceMetadata" : true,
-      "description" : "1hour-18hour_accum_precipitation.mrf",
+      "description" : "1hour-15hour_accum_precipitation.mrf",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{517BE08B-79DE-4E79-AEBB-C481AE488E6B}"
@@ -2440,7 +2440,7 @@
         "type" : "CIMStandardDataConnection",
         "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_alaska_para\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "1hour-18hour_accum_precipitation.mrf",
+        "dataset" : "1hour-15hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {

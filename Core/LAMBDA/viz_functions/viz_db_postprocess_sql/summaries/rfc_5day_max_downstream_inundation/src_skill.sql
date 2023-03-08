@@ -2,10 +2,17 @@
 DROP TABLE IF EXISTS publish.rfc_5day_max_downstream_inundation_src_skill;
 
 WITH rnr_max_flows AS (
-     SELECT feature_id,
-        MAX(forecast_max_value) * 35.31467 as maxflow_5day_cfs
+    WITH waterbody_reaches AS (SELECT feature_id
+						   FROM ingest.rnr_max_flows
+						   WHERE waterbody_status IS NOT null
+						   GROUP BY feature_id
+						  )
+    SELECT rnr.feature_id,
+        MAX(streamflow) * 35.31467 as maxflow_5day_cfs
     FROM ingest.rnr_max_flows as rnr
-    GROUP BY feature_id)
+    LEFT OUTER JOIN waterbody_reaches ON rnr.feature_id = waterbody_reaches.feature_id
+    WHERE waterbody_reaches.feature_id IS NULL
+    GROUP BY rnr.feature_id)
 SELECT
     LPAD(urc.location_id::text, 8, '0') as usgs_site_code, 
     ht.feature_id,

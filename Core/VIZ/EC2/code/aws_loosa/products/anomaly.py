@@ -79,34 +79,46 @@ def anomaly(channel_rt_files_list, channel_rt_date_time, anomaly_config=7):
     date = int(channel_rt_date_time.strftime("%j")) - 1  # retrieves the date in integer form from channel_rt_date_time
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 5th percentiles...")
-    ds_5_perc = xr.open_dataset(percentile_5)
-    df['prcntle_5'] = ds_5_perc.sel(time=date)['streamflow']
-    df['prcntle_5']  = (df['prcntle_5'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_5)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_5"})
+    df_perc['prcntle_5'] = (df_perc['prcntle_5'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 10th percentiles...")
-    ds_10_perc = xr.open_dataset(percentile_10)
-    df['prcntle_10'] = ds_10_perc.sel(time=date)['streamflow']
-    df['prcntle_10']  = (df['prcntle_10'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_10)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_10"})
+    df_perc['prcntle_10'] = (df_perc['prcntle_10'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 25th percentiles...")
-    ds_25_perc = xr.open_dataset(percentile_25)
-    df['prcntle_25'] = ds_25_perc.sel(time=date)['streamflow']
-    df['prcntle_25']  = (df['prcntle_25'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_25)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_25"})
+    df_perc['prcntle_25'] = (df_perc['prcntle_25'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 75th percentiles...")
-    ds_75_perc = xr.open_dataset(percentile_75)
-    df['prcntle_75'] = ds_75_perc.sel(time=date)['streamflow']
-    df['prcntle_75']  = (df['prcntle_75'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_75)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_75"})
+    df_perc['prcntle_75'] = (df_perc['prcntle_75'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 90th percentiles...")
-    ds_90_perc = xr.open_dataset(percentile_90)
-    df['prcntle_90'] = ds_90_perc.sel(time=date)['streamflow']
-    df['prcntle_90']  = (df['prcntle_90'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_90)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_90"})
+    df_perc['prcntle_90'] = (df_perc['prcntle_90'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage(f"---->Retrieving {anomaly_config} day 95th percentiles...")
-    ds_95_perc = xr.open_dataset(percentile_95)
-    df['prcntle_95'] = ds_95_perc.sel(time=date)['streamflow']
-    df['prcntle_95']  = (df['prcntle_95'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    ds_perc = xr.open_dataset(percentile_95)
+    df_perc = ds_perc.sel(time=date)['streamflow'].to_dataframe()
+    df_perc = df_perc.rename(columns={"streamflow": "prcntle_95"})
+    df_perc['prcntle_95'] = (df_perc['prcntle_95'] * 35.3147).round(2)  # convert streamflow from cms to cfs
+    df = df.join(df_perc)
 
     arcpy.AddMessage("---->Creating percentile dictionary...")
     df[anom_col] = np.nan
