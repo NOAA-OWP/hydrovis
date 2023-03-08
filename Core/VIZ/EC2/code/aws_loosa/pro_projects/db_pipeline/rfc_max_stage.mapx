@@ -34,40 +34,40 @@
       "rings" : [
         [
           [
-            -136.7609491,
-            19.0395928000000012
+            -14434322.3855056241,
+            2971350.1776445182
           ],
           [
-            -136.7609491,
-            54.2177087000000029
+            -14434322.3855056241,
+            6386201.50037057232
           ],
           [
-            -55.9498417,
-            54.2177087000000029
+            -7567093.901342242,
+            6386201.50037057232
           ],
           [
-            -55.9498417,
-            19.0395928000000012
+            -7567093.901342242,
+            2971350.1776445182
           ],
           [
-            -136.7609491,
-            19.0395928000000012
+            -14434322.3855056241,
+            2971350.1776445182
           ]
         ]
       ],
       "spatialReference" : {
-        "wkid" : 4326,
-        "latestWkid" : 4326
+        "wkid" : 102100,
+        "latestWkid" : 3857
       }
     },
     "defaultExtent" : {
-      "xmin" : -159.946493914160811,
-      "ymin" : 2.02447353944659625,
-      "xmax" : -46.7660060858391091,
-      "ymax" : 85.4538597935535336,
+      "xmin" : -14434322.3855056241,
+      "ymin" : 2971350.1776445182,
+      "xmax" : -7567093.901342242,
+      "ymax" : 6386201.50037057232,
       "spatialReference" : {
-        "wkid" : 4326,
-        "latestWkid" : 4326
+        "wkid" : 102100,
+        "latestWkid" : 3857
       }
     },
     "elevationSurfaces" : [
@@ -126,8 +126,8 @@
       "isZSnappingEnabled" : true
     },
     "spatialReference" : {
-      "wkid" : 4326,
-      "latestWkid" : 4326
+      "wkid" : 102100,
+      "latestWkid" : 3587
     },
     "timeDisplay" : {
       "type" : "CIMMapTimeDisplay",
@@ -225,22 +225,8 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "nwm_feature_id",
             "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -477,15 +463,15 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6873546b73415150764355336e4d48382f686d6164475966322b75754e7a475a3838547251476952576962453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686a4b6f71326b4c39415478394970302b3146743747737166677663696e4c4f46684e634d495361586268773d2a00;SERVER=hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select * from hydrovis.services.rfc_max_stage",
-          "srid" : "4326",
+          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_stage",
+          "srid" : "3857",
           "spatialReference" : {
-            "wkid" : 4326,
-            "latestWkid" : 4326
+            "wkid" : 102100,
+            "latestWkid" : 3857
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPoint",
@@ -584,9 +570,10 @@
               "length" : 1073741822
             },
             {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "feature_id"
+              "name" : "nwm_feature_id",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwm_feature_id",
+              "length" : 60
             },
             {
               "name" : "nws_name",
@@ -610,8 +597,8 @@
                 "hasM" : false,
                 "hasZ" : false,
                 "spatialReference" : {
-                  "wkid" : 4326,
-                  "latestWkid" : 4326
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
                 }
               }
             },

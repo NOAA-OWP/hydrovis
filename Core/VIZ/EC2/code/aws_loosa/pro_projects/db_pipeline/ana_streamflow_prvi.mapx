@@ -228,6 +228,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "NWM Feature ID",
+            "fieldName" : "feature_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Name",
             "fieldName" : "name",
             "visible" : true,
@@ -308,13 +315,6 @@
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id",
-            "visible" : true,
             "searchMode" : "Exact"
           }
         ],

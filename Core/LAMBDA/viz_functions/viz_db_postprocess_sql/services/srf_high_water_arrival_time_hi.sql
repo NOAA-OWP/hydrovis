@@ -27,7 +27,7 @@ WITH arrival_time AS
 		WHERE (THRESHOLDS.HIGH_WATER_THRESHOLD > 0::double precision
 									OR THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision)
 			AND (FORECASTS.STREAMFLOW * 35.315::double precision) >= THRESHOLDS.HIGH_WATER_THRESHOLD
-		GROUP BY FORECASTS.FEATURE_ID,
+		GROUP BY FORECASTS.FEATURE_ID, forecasts.reference_time, forecasts.nwm_vers,
 			THRESHOLDS.HIGH_WATER_THRESHOLD)
 
 SELECT channels.feature_id,

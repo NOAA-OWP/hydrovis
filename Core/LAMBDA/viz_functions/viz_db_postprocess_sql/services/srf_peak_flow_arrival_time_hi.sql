@@ -15,8 +15,8 @@ SELECT
     channels.name,
     (channels.strm_order)::integer,
     channels.huc6,
-    channels.nwm_vers,
-    to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
+    forecasts.nwm_vers,
+    forecasts.reference_time,
     CASE WHEN rf.HIGH_WATER_THRESHOLD = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,
     CASE WHEN rf.HIGH_WATER_THRESHOLD = -9999 THEN NULL ELSE arrival_time.t_normal END AS below_bank_return_time,
     round((max_flows.maxflow_48hour_cms*35.315)::numeric, 2) AS max_flow_cfs,
@@ -41,4 +41,4 @@ JOIN derived.recurrence_flows_hi as rf ON forecasts.feature_id = rf.feature_id
 JOIN arrival_time ON forecasts.feature_id = arrival_time.feature_id
 
 WHERE (rf.HIGH_WATER_THRESHOLD > 0 OR rf.HIGH_WATER_THRESHOLD = '-9999') AND forecasts.streamflow * 35.315::double precision >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, channels.name, channels.strm_order, channels.huc6, channels.nwm_vers, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_48hour_cms, channels.geom
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_48hour_cms, channels.geom
