@@ -50,14 +50,29 @@ data "aws_caller_identity" "current" {}
 ########################################################################################################################################
 ########################################################################################################################################
 
-resource "aws_cloudwatch_event_rule" "every_monday_at_2330" {
-  name                = "every_monday_at_2245"
-  description         = "Fires every Monday at 23:30 UTC"
-  schedule_expression = "cron(45 23 ? * 2 *)"
+resource "aws_cloudwatch_event_rule" "detect_location_db_dump" {
+  name                = "detect-wrds-location-db-dump"
+  description         = "Detects when a new WRDS location db dump file has been created and triggers the sync_wrds_location_db step function"
+  event_pattern       = <<EOF
+  {
+    "source": ["aws.s3"],
+    "detail-type": ["Object Created"],
+    "detail": {
+      "bucket": {
+        "name": ["hydrovis-ti-deployment-us-east-1"]
+      },
+      "object": {
+        "key": [{
+          "prefix": "location/database/wrds_location3_"
+        }]
+      }
+    }
+  }
+  EOF
 }
 
-resource "aws_cloudwatch_event_target" "sync_wrds_location_db_every_monday_at_2330" {
-  rule      = aws_cloudwatch_event_rule.every_monday_at_2330.name
+resource "aws_cloudwatch_event_target" "trigger_sync_location_db_step_function" {
+  rule      = aws_cloudwatch_event_rule.detect_location_db_dump.name
   arn       = aws_sfn_state_machine.sync_wrds_location_db_step_function.arn
   role_arn  = var.iam_role_arn
 }
@@ -264,15 +279,8 @@ resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
   definition = <<EOF
 {
   "Comment": "A description of my state machine",
-  "StartAt": "Format Event Time",
+  "StartAt": "Parallel",
   "States": {
-    "Format Event Time": {
-      "Type": "Pass",
-      "Next": "Parallel",
-      "Parameters": {
-        "DateParts.$": "States.StringSplit(States.ArrayGetItem(States.StringSplit($.time, 'T'), 0), '-')"
-      }
-    },
     "Parallel": {
       "Type": "Parallel",
       "Next": "Run API Tests",
@@ -287,7 +295,7 @@ resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
                 "StateMachineArn": "${aws_sfn_state_machine.restore_db_from_s3_step_function.arn}",
                 "Input": {
                   "db_instance_tag": "ingest",
-                  "s3_uri.$": "States.Format('s3://hydrovis-ti-deployment-us-east-1/location/database/wrds_location3_{}{}{}.sql.gz', $.DateParts[0], $.DateParts[1], $.DateParts[2])",
+                  "s3_uri.$": "States.Format('s3://{}/{}', $.detail.bucket.name, $.detail.object.key)",
                   "db_name": "wrds_location3_ondeck"
                 }
               },
@@ -318,7 +326,8 @@ resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
           "ErrorEquals": [
             "States.ALL"
           ],
-          "Next": "Shutdown Deploy and Test Machines"
+          "Next": "Shutdown Deploy and Test Machines",
+          "ResultPath": "$.error"
         }
       ]
     },
@@ -374,7 +383,25 @@ resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
         ]
       },
       "Resource": "arn:aws:states:::aws-sdk:ec2:stopInstances",
-      "End": true
+      "ResultPath": "$.result",
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.error",
+          "IsPresent": true,
+          "Next": "Fail"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Fail": {
+      "Type": "Fail"
+    },
+    "Success": {
+      "Type": "Succeed"
     }
   }
 }
