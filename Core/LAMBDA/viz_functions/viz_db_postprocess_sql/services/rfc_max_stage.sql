@@ -104,7 +104,7 @@ SELECT
 	metadata.nwm_feature_id, 
 	metadata.nws_name, 
 	metadata.usgs_name, 
-	ST_SetSRID(ST_MakePoint(metadata.longitude, metadata.latitude),4326) as geom, 
+	ST_TRANSFORM(ST_SetSRID(ST_MakePoint(metadata.longitude, metadata.latitude),4326),3857) as geom, 
 	metadata.action_threshold, 
 	metadata.minor_threshold, 
 	metadata.moderate_threshold, 
