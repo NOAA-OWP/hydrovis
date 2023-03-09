@@ -26,9 +26,15 @@ def lambda_handler(event, context):
     if step == "unstage":
         egis_db = database(db_type="egis")
         
-        # Services with FIM Configs, ignoring "coastal" configs
+        # Services with FIM Configs
         if event['args']['service']['fim_configs']:
-            dest_tables = [t for t in event['args']['service']['fim_configs'] if 'coastal' not in t]
+            dest_tables = []
+            for t in event['args']['service']['fim_configs']:
+                if 'coastal' in t:
+                    dest_tables.append(f'{t}_inundation')
+                    dest_tables.append(f'{t}_inundation_depth')
+                else:
+                    dest_tables.append(t)
         # Services without FIM Configs
         else:
             dest_tables = [event['args']['service']['service']]
