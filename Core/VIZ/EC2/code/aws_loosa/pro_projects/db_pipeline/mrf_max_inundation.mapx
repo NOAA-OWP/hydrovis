@@ -14316,7 +14316,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1_5_9",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,str AS feature_id,geom_xy from vizprocessing.publish.mrf_max_inundation_10day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.mrf_max_inundation_10day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
