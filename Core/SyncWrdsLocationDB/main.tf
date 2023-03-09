@@ -43,6 +43,11 @@ variable "lambda_subnets" {
   type        = list(any)
 }
 
+variable "db_dumps_bucket" {
+  description = "The bucket that the WRDS Location DB dumps are being uploaded to"
+  type       = string
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 data "aws_caller_identity" "current" {}
@@ -59,7 +64,7 @@ resource "aws_cloudwatch_event_rule" "detect_location_db_dump" {
     "detail-type": ["Object Created"],
     "detail": {
       "bucket": {
-        "name": ["hydrovis-${var.environment}-deployment-us-east-1"]
+        "name": ["${var.db_dumps_bucket}"]
       },
       "object": {
         "key": [{
@@ -430,4 +435,9 @@ resource "aws_cloudwatch_event_target" "step_function_failure_sns" {
   target_id   = "SendToSNS"
   arn         = var.email_sns_topics["viz_lambda_errors"].arn
   input_path  = "$.detail.name"
+}
+
+resource "aws_s3_bucket_notification" "nwm_bucket_notification" {
+  bucket = var.db_dumps_bucket
+  eventbridge = true
 }
