@@ -51,7 +51,7 @@ data "aws_caller_identity" "current" {}
 ########################################################################################################################################
 
 resource "aws_cloudwatch_event_rule" "detect_location_db_dump" {
-  name                = "detect-wrds-location-db-dump"
+  name                = "detect_wrds_location_db_dump"
   description         = "Detects when a new WRDS location db dump file has been created and triggers the sync_wrds_location_db step function"
   event_pattern       = <<EOF
   {
@@ -59,7 +59,7 @@ resource "aws_cloudwatch_event_rule" "detect_location_db_dump" {
     "detail-type": ["Object Created"],
     "detail": {
       "bucket": {
-        "name": ["hydrovis-ti-deployment-us-east-1"]
+        "name": ["hydrovis-${var.environment}-deployment-us-east-1"]
       },
       "object": {
         "key": [{
