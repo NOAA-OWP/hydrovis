@@ -319,6 +319,7 @@ resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
 # hydrovis-sync-wrds-location-db Role
 resource "aws_iam_role" "hydrovis-sync-wrds-location-db" {
   name = "hydrovis-sync-wrds-location-db"
+  
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
