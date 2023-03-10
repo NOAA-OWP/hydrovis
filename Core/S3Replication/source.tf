@@ -173,7 +173,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-hml-incoming" {
   bucket = aws_s3_bucket.hydrovis-hml-incoming[0].id
 
   rule {
-    id     = "30 Day Expiration"
+    id     = "90 Day Expiration"
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
@@ -181,7 +181,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-hml-incoming" {
     }
 
     expiration {
-      days = 30
+      days = 90
     }
 
     noncurrent_version_expiration {
@@ -561,7 +561,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-nwm-incoming" {
   bucket = aws_s3_bucket.hydrovis-nwm-incoming[0].id
 
   rule {
-    id     = "30 Day Expiration"
+    id     = "90 Day Expiration"
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
@@ -569,7 +569,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-nwm-incoming" {
     }
 
     expiration {
-      days = 30
+      days = 90
     }
 
     noncurrent_version_expiration {
@@ -924,7 +924,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-pcpanl-incoming" {
   bucket = aws_s3_bucket.hydrovis-pcpanl-incoming[0].id
 
   rule {
-    id     = "30 Day Expiration"
+    id     = "90 Day Expiration"
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
@@ -932,7 +932,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis-pcpanl-incoming" {
     }
 
     expiration {
-      days = 30
+      days = 90
     }
 
     noncurrent_version_expiration {
