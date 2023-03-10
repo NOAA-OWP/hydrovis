@@ -161,7 +161,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-${var.ec2_instance_availability_zone}-rds-l-dba-1"
+    "Name" = "hv-${var.environment}-rds-bastion"
     "OS"   = "Linux"
   }
 
@@ -211,6 +211,11 @@ data "cloudinit_config" "startup" {
       EGISDBPORT             = var.egis_db_port
       EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
       EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
+      LOCATIONDBHOST         = var.location_db_name
+      LOCATIONDBNAME         = var.ingest_db_address
+      LOCATIONDBPORT         = var.ingest_db_port
+      LOCATIONDBUSER         = jsondecode(var.ingest_db_secret_string)["username"]
+      LOCATIONDBPASS         = jsondecode(var.ingest_db_secret_string)["password"]
       DEPLOYMENT_BUCKET      = var.data_deployment_bucket
       HOME                   = local.home_dir
       VIZ_PROC_ADMIN_RW_USER = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
@@ -267,9 +272,51 @@ data "cloudinit_config" "startup" {
               RFC_FCST_USER    = jsondecode(var.rfc_fcst_user_secret_string)["password"]
               LOCATION_RO_USER = jsondecode(var.location_ro_user_secret_string)["password"]
             })
+          },
+          {
+            path        = "/deploy_files/restore_db_from_s3.sh"
+            permissions = "0700"
+            owner       = "ec2-user:ec2-user"
+            content                  = templatefile("${path.module}/scripts/restore_db_from_s3.sh.tftpl", {
+              EGIS_PGUSER            = jsondecode(var.egis_db_secret_string)["username"]
+              EGIS_PGPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
+              EGIS_PGHOST            = var.egis_db_address
+              EGIS_PGPORT            = var.egis_db_port
+              INGEST_PGUSER          = jsondecode(var.ingest_db_secret_string)["username"]
+              INGEST_PGPASSWORD      = jsondecode(var.ingest_db_secret_string)["password"]
+              INGEST_PGHOST          = var.ingest_db_address
+              INGEST_PGPORT          = var.ingest_db_port
+              VIZ_PGUSER             = jsondecode(var.viz_db_secret_string)["username"]
+              VIZ_PGPASSWORD         = jsondecode(var.viz_db_secret_string)["password"]
+              VIZ_PGHOST             = var.viz_db_address
+              VIZ_PGPORT             = var.viz_db_port
+            })
+          },
+          {
+            path        = "/deploy_files/swap_dbs.sh"
+            permissions = "0700"
+            owner       = "ec2-user:ec2-user"
+            content                  = templatefile("${path.module}/scripts/swap_dbs.sh.tftpl", {
+              EGIS_PGUSER            = jsondecode(var.egis_db_secret_string)["username"]
+              EGIS_PGPASSWORD        = jsondecode(var.egis_db_secret_string)["password"]
+              EGIS_PGHOST            = var.egis_db_address
+              EGIS_PGPORT            = var.egis_db_port
+              INGEST_PGUSER          = jsondecode(var.ingest_db_secret_string)["username"]
+              INGEST_PGPASSWORD      = jsondecode(var.ingest_db_secret_string)["password"]
+              INGEST_PGHOST          = var.ingest_db_address
+              INGEST_PGPORT          = var.ingest_db_port
+              VIZ_PGUSER             = jsondecode(var.viz_db_secret_string)["username"]
+              VIZ_PGPASSWORD         = jsondecode(var.viz_db_secret_string)["password"]
+              VIZ_PGHOST             = var.viz_db_address
+              VIZ_PGPORT             = var.viz_db_port
+            })
           }
         ]
       })}
     END
   }
+}
+
+output "instance-id" {
+  value = aws_instance.rds-bastion.id
 }

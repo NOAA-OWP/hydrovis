@@ -122,11 +122,13 @@ module "s3" {
       module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-users.user_FIMServiceAccount.arn,
       module.iam-roles.role_hydrovis-ecs-resource-access.arn,
-      module.iam-roles.role_hydrovis-ecs-task-execution.arn
+      module.iam-roles.role_hydrovis-ecs-task-execution.arn,
+      module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
+      module.iam-roles.role_hydrovis-rds-s3-export.arn,
       module.iam-users.user_FIMServiceAccount.arn
     ]
     "hml-backup" = [
@@ -191,6 +193,13 @@ module "vpc" {
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
 
+# Route53 DNS
+module "route53" {
+  source = "./Route53"
+
+  vpc_main_id = module.vpc.vpc_main.id
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"
@@ -203,12 +212,14 @@ module "security-groups" {
   vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
   subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
   subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
+  public_route_peering_ip_block            = local.env.public_route_peering_ip_block
 }
 
 # VPCe's
 module "vpces" {
   source = "./VPC/VPCe"
 
+  environment                      = local.env.environment
   region                           = local.env.region
   vpc_main_id                      = module.vpc.vpc_main.id
   subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
@@ -252,6 +263,7 @@ module "rds-viz" {
   rds_kms_key                       = module.kms.key_arns["rds-viz"]
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
   viz_db_name                       = local.env.viz_db_name
+  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
 }
 
 # Import EGIS DB
@@ -265,7 +277,7 @@ module "lambda_layers" {
 
   environment        = local.env.environment
   viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
-  lambda_data_bucket = module.s3.buckets["deployment"].bucket
+  deployment_bucket = module.s3.buckets["deployment"].bucket
 }
 
 # Lambda Functions
@@ -280,7 +292,7 @@ module "viz_lambda_functions" {
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
   fim_output_bucket             = module.s3.buckets["fim"].bucket
   max_flows_bucket              = module.s3.buckets["fim"].bucket
-  lambda_data_bucket            = module.s3.buckets["deployment"].bucket
+  deployment_bucket            = module.s3.buckets["deployment"].bucket
   viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
@@ -304,6 +316,14 @@ module "viz_lambda_functions" {
   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
+}
+
+# Simple Service Notifications
+module "eventbridge" {
+  source = "./EventBridge"
+
+  viz_initialize_pipeline_lambda = module.viz_lambda_functions.initialize_pipeline
+  scheduled_rules                = local.env.nwm_3_0_event_bridge_targets
 }
 
 # MQ
@@ -590,4 +610,19 @@ module "sagemaker" {
   subnet          = module.vpc.subnet_hydrovis-sn-prv-data1a.id
   security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   kms_key_id      = module.kms.key_arns["encrypt-ec2"]
+}
+
+module "sync_wrds_location_db" {
+  source = "./SyncWrdsLocationDB"
+
+  environment               = local.env.environment
+  region                    = local.env.region
+  iam_role_arn              = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
+  email_sns_topics          = module.sns.email_sns_topics
+  requests_lambda_layer     = module.lambda_layers.requests.arn
+  rds_bastion_id            = module.rds-bastion.instance-id
+  test_data_services_id     = module.data-services.dataservices-test-instance-id
+  lambda_security_groups    = [module.security-groups.hydrovis-RDS.id]
+  lambda_subnets            = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_dumps_bucket           = module.s3.buckets["deployment"].bucket
 }
