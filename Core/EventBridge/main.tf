@@ -1,5 +1,3 @@
-variable "viz_initialize_pipeline_lambda" {}
-
 variable "scheduled_rules" {
   type = map(map(string))
 }
@@ -17,16 +15,26 @@ resource "aws_cloudwatch_event_rule" "scheduled_events" {
   schedule_expression = each.value.schedule_expression
 }
 
-########################################
-## Initialize Pipeline Lambda Target  ##
-########################################
+#################################
+## Get Lambda Resource By Name ##
+#################################
+
+data "aws_lambda_function" "scheduled_rules_function" {
+  for_each = var.scheduled_rules
+
+  function_name = each.value.function_name
+}
+
+###############################
+## Initialize Lambda Target  ##
+###############################
 
 resource "aws_cloudwatch_event_target" "eventbridge_targets" {
   for_each = var.scheduled_rules
 
   rule      = aws_cloudwatch_event_rule.scheduled_events[each.key].name
-  target_id = var.viz_initialize_pipeline_lambda.function_name
-  arn       = var.viz_initialize_pipeline_lambda.arn
+  target_id = data.aws_lambda_function.scheduled_rules_function[each.key].function_name
+  arn       = data.aws_lambda_function.scheduled_rules_function[each.key].arn
 }
 
 resource "aws_lambda_permission" "allow_eventbridge_targets" {
@@ -34,7 +42,7 @@ resource "aws_lambda_permission" "allow_eventbridge_targets" {
 
   statement_id_prefix  = "AllowExecutionFromCloudWatch"
   action               = "lambda:InvokeFunction"
-  function_name        = var.viz_initialize_pipeline_lambda.function_name
+  function_name        = data.aws_lambda_function.scheduled_rules_function[each.key].function_name
   principal            = "events.amazonaws.com"
   source_arn           = aws_cloudwatch_event_rule.scheduled_events[each.key].arn
 }

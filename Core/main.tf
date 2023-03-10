@@ -322,7 +322,6 @@ module "viz_lambda_functions" {
 module "eventbridge" {
   source = "./EventBridge"
 
-  viz_initialize_pipeline_lambda = module.viz_lambda_functions.initialize_pipeline
   scheduled_rules                = local.env.nwm_3_0_event_bridge_targets
 }
 
