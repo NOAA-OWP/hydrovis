@@ -459,9 +459,9 @@ resource "null_resource" "viz_fim_huc_processing_cluster" {
 data "archive_file" "schism_processing_zip" {
   type = "zip"
 
-  source_dir = "${path.module}/viz_schsim_fim_processing"
+  source_dir = "${path.module}/viz_schism_fim_processing"
 
-  output_path = "${path.module}/viz_schsim_fim_processing_${var.environment}.zip"
+  output_path = "${path.module}/viz_schism_fim_processing_${var.environment}.zip"
 }
 
 resource "aws_s3_object" "schism_zip_upload" {
