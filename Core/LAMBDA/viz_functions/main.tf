@@ -765,6 +765,7 @@ module "image_based_lambdas" {
   account_id  = var.account_id
   region      = var.region
   deployment_bucket = var.deployment_bucket
+  max_flows_bucket = var.max_flows_bucket
   raster_output_bucket = var.fim_output_bucket
   raster_output_prefix = local.raster_output_prefix
   lambda_role = var.lambda_role
@@ -881,7 +882,7 @@ resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.raster_processing}",
+              "FunctionName": "arn:aws:lambda:${var.region}:${var.account_id}:function:${module.image_based_lambdas.optimize_rasters}",
               "Payload.$": "$"
             },
             "Retry": [
