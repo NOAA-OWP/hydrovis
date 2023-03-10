@@ -624,4 +624,5 @@ module "sync_wrds_location_db" {
   test_data_services_id     = module.data-services.dataservices-test-instance-id
   lambda_security_groups    = [module.security-groups.hydrovis-RDS.id]
   lambda_subnets            = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_dumps_bucket           = module.s3.buckets["deployment"].bucket
 }
