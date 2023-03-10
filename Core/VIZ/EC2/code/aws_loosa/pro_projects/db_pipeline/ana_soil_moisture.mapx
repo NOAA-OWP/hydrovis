@@ -32,10 +32,10 @@
     "groundElevationSurfaceLayer" : "CIMPATH=map/ground.json",
     "defaultColorVisionDeficiencyMode" : "None",
     "defaultExtent" : {
-      "xmin" : -15051342.3210060485,
-      "ymin" : 3250852.14856508467,
-      "xmax" : -7523727.13113262132,
-      "ymax" : 7225981.262489141,
+      "xmin" : -16317129.6627782024,
+      "ymin" : 2557631.89540052647,
+      "xmax" : -6257939.78936046641,
+      "ymax" : 7919201.51565369964,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857,
@@ -149,7 +149,7 @@
       "allowDrapingOnIntegratedMesh" : true,
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=.\\data",
+        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\raster_tifs",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_soil_moisture.tif",
         "datasetType" : "esriDTAny"
