@@ -3,10 +3,10 @@ import time
 import os
 import arcpy
 
-from aws_loosa.ec2.processes.base.aws_egis_process import AWSEgisPublishingProcess
-from aws_loosa.ec2.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
-from aws_loosa.ec2.products.rapid_onset_probability import srf_rapid_onset_probability
-from aws_loosa.ec2.utils.shared_funcs import create_service_db_tables
+from aws_loosa.processes.base.aws_egis_process import AWSEgisPublishingProcess
+from aws_loosa.consts.egis import PRIMARY_SERVER, NWM_FOLDER, REFERENCE_TIME
+from aws_loosa.products.rapid_onset_probability import srf_rapid_onset_probability
+from aws_loosa.utils.shared_funcs import create_service_db_tables
 
 
 class SrfRapidOnsetFloodingProbability(AWSEgisPublishingProcess):
