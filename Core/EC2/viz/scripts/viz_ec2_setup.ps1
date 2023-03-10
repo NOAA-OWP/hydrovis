@@ -300,14 +300,14 @@ $PATH += ";C:\Programs"
 [Environment]::SetEnvironmentVariable("PATH", $PATH, "2")
 
 CreateUTF8File $FILEBEAT_YML_CONTENT "C:\Users\$PIPELINE_USER\Desktop" filebeat.yml
-$Url = "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.2.3-windows-x86_64.zip"
+$Url = "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.4.0-windows-x86_64.zip"
 $DownloadZipFile = "C:\Users\$PIPELINE_USER\Downloads\" + $(Split-Path -Path $Url -Leaf)
 $ExtractPath = "C:\Program Files"
 Invoke-WebRequest -Uri $Url -OutFile $DownloadZipFile
 $ExtractShell = New-Object -ComObject Shell.Application
 $ExtractFiles = $ExtractShell.Namespace($DownloadZipFile).Items()
 $ExtractShell.NameSpace($ExtractPath).CopyHere($ExtractFiles)
-Rename-Item -Path "$ExtractPath\filebeat-8.2.3-windows-x86_64" -NewName "Filebeat"
+Rename-Item -Path "$ExtractPath\filebeat-8.4.0-windows-x86_64" -NewName "Filebeat"
 Copy-Item "C:\Users\$PIPELINE_USER\Desktop\filebeat.yml" -Destination "$ExtractPath\Filebeat"
 & "C:\Program Files\Filebeat\install-service-filebeat.ps1"
 START-SERVICE filebeat

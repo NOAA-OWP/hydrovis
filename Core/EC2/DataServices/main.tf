@@ -46,10 +46,6 @@ variable "forecast_credentials_secret_string" {
   type = string
 }
 
-variable "logstash_ip" {
-  type = string
-}
-
 variable "vlab_repo_prefix" {
   type = string
 }
@@ -166,7 +162,6 @@ data "cloudinit_config" "startup" {
       location_api_3_0_commit  = var.data_services_versions["location_api_3_0_commit"]
       forecast_api_2_0_commit  = var.data_services_versions["forecast_api_2_0_commit"]
       ssh_key_filename         = local.ssh_key_filename
-      logstash_ip              = var.logstash_ip
       logging_application_name = local.logging_application_names[count.index]
       instance                 = count.index
     })

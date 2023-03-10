@@ -47,10 +47,6 @@ variable "deployment_data_bucket" {
   type        = string
 }
 
-variable "logstash_ip" {
-  type = string
-}
-
 variable "nomads_url" {
   type = string
 }
@@ -182,7 +178,6 @@ data "cloudinit_config" "startup" {
     filename     = "install.sh"
     content      = templatefile("${path.module}/templates/install.sh.tftpl", {
       DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-      logstash_ip            = var.logstash_ip
       netcdf_c_commit        = var.rnr_versions["netcdf_c_commit"]
       netcdf_fortran_commit  = var.rnr_versions["netcdf_fortran_commit"]
     })
