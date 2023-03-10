@@ -7,12 +7,12 @@ provider:
   region: ${env:AWS_DEFAULT_REGION}
 functions:
   lambda:
-    name: viz_optimize_rasters_${env:ENVIRONMENT}
+    name: ${env:LAMBDA_NAME}
     image: ${env:AWS_ACCOUNT_ID}.dkr.ecr.${env:AWS_DEFAULT_REGION}.amazonaws.com/${env:IMAGE_REPO_NAME}:${env:IMAGE_TAG}
     role: ${env:LAMBDA_ROLE_ARN}
-    memorySize: 1024
+    memorySize: 2048
     timeout: 900
-    ephemeralStorageSize: 1024
+    ephemeralStorageSize: 4096
     environment:
       GDAL_DATA: /var/task/share/gdal
       PROJ_LIB: /var/task/share/proj

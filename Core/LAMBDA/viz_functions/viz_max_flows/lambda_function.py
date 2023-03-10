@@ -6,18 +6,32 @@ import pandas as pd
 import numpy as np
 import boto3
 import botocore
-import urllib.parse
 import time
 import re
-import collections
 import isodate
 import requests
+import tempfile
 
 from viz_classes import s3_file, database
 
-MAX_FLOWS_BUCKET = os.environ['MAX_FLOWS_BUCKET']
+MAX_VALS_BUCKET = os.environ['MAX_VALS_BUCKET']
 CACHE_DAYS = os.environ['CACHE_DAYS']
 INITIALIZE_PIPELINE_FUNCTION = os.environ['INITIALIZE_PIPELINE_FUNCTION']
+S3 = boto3.client('s3')
+MAX_PROPS = {
+    'channel_rt': {
+        'max_variable': 'streamflow',
+        'common_var': 'flow',
+        'id': 'feature_id',
+        'extras': []
+    },
+    'total_water': {
+        'max_variable': 'elevation',
+        'common_var': 'elev',
+        'id': 'nSCHISM_hgrid_node',
+        'extras': ['SCHISM_hgrid_node_x', 'SCHISM_hgrid_node_y']
+    }
+}
 
 class MissingS3FileException(Exception):
     """ my custom exception class """
@@ -37,24 +51,19 @@ def lambda_handler(event, context):
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:
-        pipeline = viz_lambda_pipeline(event, max_flow_method="lambda") # This does a ton of stuff - see the viz_pipeline class below for details.
+        pipeline = viz_lambda_pipeline(event, step='max_flows') # This does a ton of stuff - see the viz_pipeline class below for details.
         invoke_step_function = pipeline.start_event.get('invoke_step_function') if 'invoke_step_function' in pipeline.start_event else True
     except Exception as e:
         print("Error: Pipeline failed to initialize.")
         raise e
-        
-    if 'analysis_assim' in pipeline.configuration.name:
+
+    if 'analysis_assim' in pipeline.configuration.name and 'coastal' not in pipeline.configuration.name:
         # Only perform max flows computation for analysis_assim when its the 00Z timestep
         if pipeline.configuration.reference_time.hour != 0:
             print(f"{pipeline.configuration.reference_time} is not for 00Z so max flows will not be calculated")
             return
 
-    config = pipeline.configuration.name
-    short_hand_config = config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf")  # noqa
-    short_hand_config = short_hand_config.replace("hawaii", "hi").replace("puertorico", "prvi")
-    subset_config = None
-
-    file_datasets = {}
+    config_datasets = {}
     for service_name, flow_id_data in pipeline.configuration.service_input_files.items():
         for flow_id, s3_keys in flow_id_data.items():
             service_metadata = [service for service in pipeline.configuration.db_data_flow_metadata if service['service'] == service_name and service['flow_id'] == flow_id][0]
@@ -66,18 +75,34 @@ def lambda_handler(event, context):
                 file = check_if_file_exists(pipeline.configuration.input_bucket, s3_key)
                 file_dataset.append({"s3_key": file, "s3_bucket": pipeline.configuration.input_bucket})
             
-            first_file_pipeline = viz_lambda_pipeline({"data_key": file_dataset[0]['s3_key'], "data_bucket": pipeline.configuration.input_bucket})
+            first_file_pipeline = viz_lambda_pipeline({"data_key": file_dataset[0]['s3_key'], "data_bucket": pipeline.configuration.input_bucket}, print_init=False)
             first_file_reference_time = first_file_pipeline.configuration.reference_time
             
-            last_file_pipeline = viz_lambda_pipeline({"data_key": file_dataset[-1]['s3_key'], "data_bucket": pipeline.configuration.input_bucket})
+            last_file_pipeline = viz_lambda_pipeline({"data_key": file_dataset[-1]['s3_key'], "data_bucket": pipeline.configuration.input_bucket}, print_init=False)
             last_file_reference_time = last_file_pipeline.configuration.reference_time
             
             delta = (last_file_reference_time - first_file_reference_time).total_seconds()
-
-            if (delta/(60*60*24)).is_integer():
+            
+            if delta == 0:
+                delta = ''
+                if pipeline.configuration.name == 'medium_range_coastal_atlgulf_mem1':
+                    if len(file_dataset) == 24:
+                        delta = '_3day'
+                    elif len(file_dataset) == 40:
+                        delta = '_5day'
+                    else:
+                        delta = '_10day'
+            elif (delta/(60*60*24)).is_integer():
                 delta = f"_{int(delta/(60*60*24))}day"
             else:
                 delta = f"_{int(delta/(60*60))}hour"
+            
+            short_hand_config = last_file_pipeline.configuration.name \
+                .replace("analysis_assim", "ana") \
+                .replace("short_range", "srf") \
+                .replace("medium_range", "mrf") \
+                .replace("hawaii", "hi") \
+                .replace("puertorico", "prvi")
             
             if "day" in short_hand_config:
                 short_hand_config = re.sub("_[0-9]*day", delta, short_hand_config)
@@ -85,146 +110,190 @@ def lambda_handler(event, context):
                 short_hand_config = re.sub("_[0-9]*hour", delta, short_hand_config)
             else:
                 short_hand_config = f"{short_hand_config}{delta}"
-                
-            file_datasets[short_hand_config] = {"files": file_dataset, "config": service_metadata['target_table']}
-    
-    file_datasets = dict(sorted(file_datasets.items(), key=lambda i: len(i[1]['files'])))
-    keys = list(file_datasets.keys())
+            
+            ds_config = service_metadata['target_table'] if service_metadata['target_table'] else last_file_pipeline.configuration.name
+            if ds_config not in config_datasets:
+                config_datasets[ds_config] = {}
+            config_datasets[ds_config][short_hand_config] = file_dataset
+
     reference_time = pipeline.configuration.reference_time
     date = reference_time.strftime("%Y%m%d")
     hour = reference_time.strftime("%H")
-        
-    for n, file_dataset_key in enumerate(keys):
-        short_hand_config = keys[n]
-        file_dataset = file_datasets[short_hand_config]['files']
-        config = file_datasets[short_hand_config]['config']
-        print(f"Creating max flows file for {short_hand_config} for {date}T{hour}:00:00Z")
-        output_netcdf = f"max_flows/{config}/{date}/{short_hand_config}_{hour}_max_flows.nc"
+    
+    for config, file_datasets in config_datasets.items():
+        # file_datasets = {'<short_hand_config_1>': [<file_dataset_1>], '<short_hand_config_2>': [<file_dataset_2], ...}
+        print(f'Preparing to create max flows file(s) for configuration {config}...')
+        file_datasets = dict(sorted(file_datasets.items(), key=lambda i: len(i[1])))  # sorts the file_datasets by k-v pairs from shortest v-list to longest
+        keys = list(file_datasets.keys())
+        for n, file_dataset_key in enumerate(keys):
+            short_hand_config = keys[n]
+            model_var = 'total_water' if 'coastal' in short_hand_config else 'channel_rt'
+            max_props = MAX_PROPS[model_var]
+            common_var = max_props['common_var']
+            file_dataset = file_datasets[short_hand_config]
+            print(f"Creating max flows file for {short_hand_config} for {date}T{hour}:00:00Z")
+            output_key = f"max_{common_var}s/{config}/{date}/{short_hand_config}_{hour}_max_{common_var}s.nc"
+    
+            # Once the files exist, calculate the max flows
+            aggregate_max_to_file(file_dataset, max_props, output_key)
+            print(f"Successfully created max flows file for {output_key}")
+    
+            # If analysis_assim, trigger the db ingest function
+            if 'ana_14day' in short_hand_config or 'ana_para_14day' in short_hand_config or 'atlgulf' in short_hand_config:
+                if 'mrf' not in short_hand_config or '10day' in short_hand_config:
+                    execute_initialize_pipeline_lambda(config, MAX_VALS_BUCKET, output_key)
+    
+            # If max calcs will run more than once, remove duplicates and
+            # update the second set of input files to include the just created max file.
+            next = n+1
+            if 'ana_7day' in short_hand_config or all(['mrf' in short_hand_config, any(x in short_hand_config for x in ['3day', '5day'])]) and next <= len(keys) - 1:
+                current_keys = []
+                for f in file_dataset:
+                    if 'composite_keys' in f:
+                        current_keys.extend(f['composite_keys'])
+                    else:
+                        current_keys.append(f['s3_key'])
 
-        # Once the files exist, calculate the max flows
-        calculate_max_flows(file_dataset, output_netcdf)
-        print(f"Successfully created max flows file for {output_netcdf}")
-
-        # If analysis_assim, trigger the db ingest function
-        if 'ana_14day' in short_hand_config or 'ana_para_14day' in short_hand_config:
-            trigger_db_ingest(config, pipeline.configuration.reference_time, MAX_FLOWS_BUCKET, output_netcdf)
-
-        # If max calcs will run more than once, remove duplicates and
-        # update the second set of input files to include the just created max file.
-        next = n+1
-        if len(file_datasets) > (next):
-            file_datasets[keys[next]]['files'] = [file_next for file_next in file_datasets[keys[next]]['files'] if file_next not in file_datasets[short_hand_config]['files']]
-            file_datasets[keys[next]]['files'].append({"s3_key": output_netcdf, "s3_bucket": MAX_FLOWS_BUCKET})
-
-        #Cleanup old max flows files beyond the cache
-        cleanup_cache(config, reference_time, short_hand_config)
+                file_datasets[keys[next]] = [file_next for file_next in file_datasets[keys[next]] if file_next['s3_key'] not in current_keys]
+                file_datasets[keys[next]].append({"s3_key": output_key, "s3_bucket": MAX_VALS_BUCKET, "composite_keys": current_keys})
+    
+            #Cleanup old max flows files beyond the cache
+            cleanup_cache(config, reference_time, short_hand_config)
 
     print("Done")
 
 
-def calculate_max_flows(s3_files, output_netcdf):
+def aggregate_max_to_file(s3_files, max_props, output_netcdf):
     """
-        Iterates through a times series of National Water Model (NWM) channel_rt output NetCDF files, and finds the
-        maximum flow of each NWM reach during this period.  Outputs a NetCDF file containing all NWM reaches and their
-        maximum flows.
+        Aggregates all provided NetCDF files to create a single file containing the max value across all designtated entities for the provided variable
 
         Args:
-            data_bucket (str): S3 bucket name where the NWM files are stored
-            path_to_nwm_files (str or list): Path to the directory or list of the paths to the files to caclulate
-                                             maximum flows on.
-            output_netcdf (str): Key (path) of the max flows netcdf that will be store in S3
+            s3_files (list): List of objects representing NetCDF files stored in s3, each with the 's3_bucket' and 's3_key' keys
+            max_props (dict): Configuration properties for computing the max, formatted as in the following example:
+                                {
+                                    'max_variable': 'streamflow',
+                                    'tag': 'flow',
+                                    'id': 'feature_id',
+                                    'extras': []
+                                }
+            output_netcdf (str): Key (path) of the max values netcdf that will be store in S3
     """
-    print("--> Calculating flows")
-    peak_flows, feature_ids, nwm_vers = calc_max_flows(s3_files)  # creates a max flow array for all reaches
+    print("--> Calculating max vals")
+    max_result = aggregate_max(s3_files, max_props)  # creates a max value array for all reaches
 
     print(f"--> Creating {output_netcdf}")
-    write_netcdf(feature_ids, peak_flows, nwm_vers, output_netcdf)  # creates the output NetCDF file
-
+    write_netcdf(max_result, output_netcdf)  # creates the output NetCDF file
 
 def download_file(data_bucket, file_path, download_path):
-    s3 = boto3.client('s3')
-
     try:
-        s3.download_file(data_bucket, file_path, download_path)
+        S3.download_file(data_bucket, file_path, download_path)
         return True
     except Exception as e:
         print(f"File failed to download {file_path}: {e}")
         return False
 
-
-def calc_max_flows(s3_files):
+def aggregate_max(s3_files, max_props):
     """
         Iterates through a times series of National Water Model (NWM) channel_rt output NetCDF files, and finds
-        the maximum flow of each NWM reach during this period.
+        the maximum value of each NWM entity during this period.
 
         Args:
-            data_bucket (str): S3 bucket name where the NWM files are stored
-            active_file_paths (str or list): Path to the directory or list of the paths to the files to caclulate
-                                             maximum flows on.
+            s3_files (list): List of objects representing NetCDF files stored in s3, each with the 's3_bucket' and 's3_key' keys
+            max_props (dict): Configuration properties for computing the max, formatted as in the following example:
+                                {
+                                    'max_variable': 'streamflow',
+                                    'tag': 'flow',
+                                    'id': 'feature_id',
+                                    'extras': []
+                                }
 
         Returns:
-            max_flows (numpy array): Numpy array that contains all the max flows for each feature for the forecast
-            feature_ids (numpy array): Numpy array that contains all the features ids for the forecast
+            result (dict): A dict in the following format:
+                result = {
+                    "identifiers": {"varname": <name>, "array": <array>},
+                    "max_values": {"varname": <name>, "array": <array>},
+                    "extras": [{"varname": <name>, "array": <array>}, {"varname": <name>, "array": <array>}, ...]
+                }
+                where <varname> is the name of the variable of interest as represented in the NetCDF file(s),
+                and <array> is the numpy array containing the values of the variable of interest from the NetCDF file(s)
     """
-    max_flows = None
-    feature_ids = None
-    tries = 0
-    nwm_vers = None
+    max_var = max_props['max_variable']
+    id_var = max_props['id']
+    identifiers = None
+    max_vals = None
+    extras = None
 
-    for file_dataset in s3_files:
-        file_path = file_dataset['s3_key']
-        data_bucket = file_dataset['s3_bucket']
-        download_path = f'/tmp/{os.path.basename(file_path)}'
+    tempdir = tempfile.mkdtemp()
+
+    for file in s3_files:
+        data_bucket = file['s3_bucket']
+        file_path = file['s3_key']
+        download_path = os.path.join(tempdir, os.path.basename(file_path))
         print(f"--> Downloading {file_path} to {download_path}")
         download_file(data_bucket, file_path, download_path)
-
         with xarray.open_dataset(download_path) as ds:
-            temp_flows = ds['streamflow'].values  # imports the streamflow values from each file
-            if not nwm_vers:
-                print(download_path)
-                nwm_vers = float(ds.NWM_version_number.replace("v",""))
-            if max_flows is None:
-                max_flows = temp_flows
-            if feature_ids is None:
-                feature_ids = ds['feature_id'].values
-
-        print(f"--> Removing {download_path}")
+            temp_vals = ds[max_var].values.flatten()  # imports the values from each file
+            if max_vals is None:
+                max_vals = temp_vals
+            if identifiers is None:
+                identifiers = ds[id_var].values
+            if extras is None and max_props['extras']:
+                extras = []
+                for extra in max_props['extras']:
+                    extras.append({
+                        'varname': extra,
+                        'array': ds[extra].values
+                    })
         os.remove(download_path)
 
-        # compares the streamflow values in each file with those stored in the max_flows array, and keeps the
-        # maximum value for each reach
-        max_flows = np.maximum(max_flows, temp_flows)
+        # compares the values in each file with those stored in the max_vals array, and keeps the
+        # maximum value for each entity
+        max_vals = np.maximum(max_vals, temp_vals)
 
-    return max_flows, feature_ids, nwm_vers
+    return {
+        "identifiers": {"varname": id_var, "array": identifiers},
+        "max_values": {"varname": max_var, "array": max_vals},
+        "extras": extras
+    }
 
-
-def write_netcdf(feature_ids, peak_flows, nwm_vers, output_netcdf):
+def write_netcdf(configuration, output_netcdf):
     """
-        Iterates through a times series of National Water Model (NWM) channel_rt output NetCDF files, and finds the
-        maximum flow of each NWM reach during this period.
+        Creates a NetCDF file from the provided configuration
 
         Args:
-            feature_ids (numpy array): Numpy array that contains all the features ids for the forecast
-            peak_flows (numpy array): Numpy array that contains all the max flows for each feature for the forecast
-            output_netcdf (str or list): Key (path) of the max flows netcdf that will be store in S3
+            configuration (dict): A dict in the following format:
+                configuration = {
+                    "identifiers": {"varname": <varname>, "array": <array>},
+                    "max_values": {"varname": <varname>, "array": <array>},
+                    "extras": [{"varname": <name>, "array": <array>}, {"varname": <name>, "array": <array>}, ...]
+                }
+                where <varname> is the name of the variables as expected in the output NetCDF file,
+                and <values> is the array containing the actual values to be written to the NetCDF file
+            output_netcdf (str or list): Key (path) of the max vals netcdf that will be store in S3
     """
-    s3 = boto3.client('s3')
+    tempdir = tempfile.mkdtemp()
+    tmp_netcdf = os.path.join(tempdir, 'max_vals.nc')
 
-    tmp_netcdf = '/tmp/max_flows.nc'
+    id_colname = configuration['identifiers']['varname']
+    values_colname = configuration['max_values']['varname']
+    identifiers = configuration['identifiers']['array']
+    values = configuration['max_values']['array']
+    extras = configuration['extras'] 
 
-    # Create a dataframe from the feature ids and streamflow
-    df = pd.DataFrame(feature_ids, columns=['feature_id']).set_index('feature_id')
-    df['streamflow'] = peak_flows
-    df['streamflow'] = df['streamflow'].fillna(0)
-    df['nwm_vers'] = nwm_vers
+    # Create a dataframe from the identifiers and values arrays
+    df = pd.DataFrame(identifiers, columns=[id_colname]).set_index(id_colname)
+    df[values_colname] = values
+    df[values_colname] = df[values_colname].fillna(0)
+    if extras:
+        for extra in extras:
+            df[extra['varname']] = extra['array']
 
-    # Save the max flows dataframe to a loacl netcdf file
+    # Save the max vals dataframe to a loacl netcdf file
     df.to_xarray().to_netcdf(tmp_netcdf)
 
-    # Upload the local max flows file to the S3 bucket
-    s3.upload_file(tmp_netcdf, MAX_FLOWS_BUCKET, output_netcdf, ExtraArgs={'ServerSideEncryption': 'aws:kms'})
+    # Upload the local max vals file to the S3 bucket
+    S3.upload_file(tmp_netcdf, MAX_VALS_BUCKET, output_netcdf, ExtraArgs={'ServerSideEncryption': 'aws:kms'})
     os.remove(tmp_netcdf)
-
 
 def cleanup_cache(configuration, forecast_date, short_hand_config, buffer_days=30):
     """
@@ -252,30 +321,29 @@ def cleanup_cache(configuration, forecast_date, short_hand_config, buffer_days=3
         buffer_file = f"max_flows/{configuration}/{buffer_time}/{short_hand_config}_{buffer_hour}_max_flows.nc"
 
         try:
-            check_if_file_exists(MAX_FLOWS_BUCKET, buffer_file)
-            s3_resource.Object(MAX_FLOWS_BUCKET, buffer_file).delete()
-            print(f"Deleted file {buffer_file} from {MAX_FLOWS_BUCKET}")
+            check_if_file_exists(MAX_VALS_BUCKET, buffer_file)
+            s3_resource.Object(MAX_VALS_BUCKET, buffer_file).delete()
+            print(f"Deleted file {buffer_file} from {MAX_VALS_BUCKET}")
         except MissingS3FileException:
             pass
 
 
-def trigger_db_ingest(configuration, reference_time, bucket, s3_file_path):
+def execute_initialize_pipeline_lambda(configuration, data_bucket, data_key):
     """
         Triggers the db_ingest lambda function to ingest a specific file into the vizprocessing db.
 
         Args:
             configuration(str): The configuration for the forecast being processed
-            reference_time (datetime): The reference time of the originating forecast
-            bucket (str): The s3 bucket containing the file.
-            s3_file_path (str): The s3 path to ingest into the db.
+            data_bucket (str): The s3 bucket containing the file.
+            data_key (str): The s3 path to ingest into the db.
     """
     lambda_config = botocore.client.Config(max_pool_connections=1, connect_timeout=60, read_timeout=600)
     lambda_client = boto3.client('lambda', config=lambda_config)
 
-    dump_dict = {"data_key": s3_file_path, "configuration": configuration,
-                 "data_bucket": bucket, "invocation_type": "event"}
+    dump_dict = {"data_key": data_key, "configuration": configuration,
+                 "data_bucket": data_bucket, "invocation_type": "event"}
     lambda_client.invoke(FunctionName=INITIALIZE_PIPELINE_FUNCTION, InvocationType='Event', Payload=json.dumps(dump_dict))
-    print(f"Invoked db_ingest function with payload: {dump_dict}.")
+    print(f"Invoked initialize_pipeline lambda function with payload: {dump_dict}.")
     
 def check_if_file_exists(bucket, file):
     if "https" in file:
@@ -303,8 +371,7 @@ def check_if_file_exists(bucket, file):
                 open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
                 
                 print(f"Saving {file} to {bucket} for archiving")
-                s3 = boto3.client('s3')
-                s3.upload_file(download_path, bucket, file)
+                S3.upload_file(download_path, bucket, file)
                 os.remove(download_path)
                 return file
 
@@ -327,7 +394,7 @@ def check_if_file_exists(bucket, file):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, max_flow_method="pipeline"):
+    def __init__(self, start_event, print_init=True, step=None):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -344,24 +411,24 @@ class viz_lambda_pipeline:
 
         if self.start_event.get("detail-type") == "Scheduled Event":
             config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
-            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, step=step)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
         elif self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
             configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
+            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
         # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
         elif self.invocation_type == "manual":
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
-                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), max_flow_method=max_flow_method)
+                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), step=step)
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
                 self.start_file = most_recent_file
                 configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, max_flow_method=max_flow_method)
+                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
         
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
@@ -435,7 +502,8 @@ class viz_lambda_pipeline:
         for service_name, flow_id_data in self.configuration.service_input_files.items():
             for flow_id, s3_keys in flow_id_data.items():
                 service_metadata = [service for service in self.db_data_flow_metadata if service['service'] == service_name and service['flow_id'] == flow_id][0]
-                
+                if service_metadata['step'] == 'max_flows' and service_metadata['file_format']:
+                    continue
                 original_table = service_metadata['original_table'] if self.job_type == "past_event" else service_metadata['target_table']
                 ingest_table = service_metadata['target_table']
                 ingest_keys = service_metadata['target_keys']
@@ -481,12 +549,12 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, max_flow_method="pipeline"): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, step=None): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
-        self.service_metadata = self.get_service_metadata(max_flow_method=max_flow_method)
-        self.db_data_flow_metadata = self.get_db_data_flow_metadata(max_flow_method=max_flow_method)
+        self.service_metadata = self.get_service_metadata()
+        self.db_data_flow_metadata = self.get_db_data_flow_metadata(step=step)
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
         self.max_flows = []
         for service in self.services_to_run:
@@ -697,7 +765,7 @@ class configuration:
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     # TODO: Encapsulate this into a view within the database.
-    def get_service_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
+    def get_service_metadata(self, specific_service=None, run_only=True):
         import psycopg2.extras
         service_filter = run_filter = ""
         
@@ -707,11 +775,9 @@ class configuration:
         if run_only:
             run_filter = "AND run is True"
             
-        max_flow_method_filter = f"AND max_flow_method = '{max_flow_method}'"
-            
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter} {max_flow_method_filter};")
+            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()
@@ -721,20 +787,18 @@ class configuration:
     ###################################
     # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, max_flow_method="pipeline"):
+    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, step=None):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
-        if run_only:
-            run_filter = " AND run is True"
-            
-        max_flow_method_filter = f"AND max_flow_method = '{max_flow_method}'"
+        run_filter = " AND run is True" if run_only else ""
+        step_filter = f" AND step = '{step}'" if step else ""
         
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             cur.execute(f"""
                 SELECT admin.services.service, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.services
                 JOIN admin.pipeline_data_flows ON admin.services.service = admin.pipeline_data_flows.service
-                WHERE configuration = '{self.name}'{run_filter}  {max_flow_method_filter};
+                WHERE configuration = '{self.name}'{run_filter}{step_filter};
                 """)
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()

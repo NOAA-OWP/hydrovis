@@ -1,4 +1,5 @@
 import os
+import shutil
 import boto3
 import OptimizeRasters
 
@@ -36,16 +37,26 @@ def lambda_handler(event, context):
     # Run ESRI code to convert a tif to an mrf
     print("Creating optimized raster")
     mrf_dir = create_optimized_rasters(local_raster)
+    
+    try:
+        os.remove(local_raster)
+    except:
+        print("Failed to remove local raster file.")
 
     # Loop through the mrf files (4) and upload them to S3
     mrf_files = os.listdir(mrf_dir)
-    for file in mrf_files:
-        if file_name in file:
-            local_file_path = os.path.join(mrf_dir, file)
-            S3_file_path = os.path.join(output_raster_prefix, file)
+    for mrf_file in mrf_files:
+        if file_name in mrf_file:
+            local_file_path = os.path.join(mrf_dir, mrf_file)
+            S3_file_path = os.path.join(output_raster_prefix, mrf_file)
             print(f"Writing {S3_file_path} to {output_raster_bucket}")
             s3.upload_file(local_file_path, output_raster_bucket, S3_file_path,
                            ExtraArgs={'ServerSideEncryption': 'aws:kms'})
+    
+    try:
+        shutil.rmtree(mrf_dir)
+    except:
+        print("Failed to remove mrf_dir")
 
     print(
         f"Successfully processed mrf for {input_raster_key}"
