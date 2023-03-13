@@ -38,7 +38,7 @@ variable "role_hydrovis-viz-proc-pipeline-lambda_arn" {
   type = string
 }
 
-variable "role_Hydroviz-RnR-EC2-Profile_arn" {
+variable "role_hydrovis-rnr-role_arn" {
   type = string
 }
 
@@ -52,7 +52,7 @@ locals {
     "nwm" = {
       access_principal_arns = [
         var.role_hydrovis-viz-proc-pipeline-lambda_arn,
-        var.role_Hydroviz-RnR-EC2-Profile_arn
+        var.role_hydrovis-rnr-role_arn
       ]
     }
     "pcpanl" = {

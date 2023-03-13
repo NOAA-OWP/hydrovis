@@ -205,7 +205,7 @@ resource "aws_iam_role_policy" "hydrovis-rds-s3-export" {
 
 # hydrovis-hml-ingest-role Role
 resource "aws_iam_role" "hydrovis-hml-ingest-role" {
-  name = "hydrovis-${var.environment}-hml-ingest-role_${var.region}"
+  name = "hydrovis-hml-ingest-role_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -253,8 +253,8 @@ resource "aws_iam_role_policy_attachment" "hydrovis-hml-ingest-role-lambda-execu
 
 
 # Hydroviz-RnR-EC2-Profile Role
-resource "aws_iam_role" "Hydroviz-RnR-EC2-Profile" {
-  name = "Hydroviz-RnR-EC2-Profile_${var.region}"
+resource "aws_iam_role" "hydrovis-rnr-role" {
+  name = "hydrovis-rnr-role_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -271,14 +271,14 @@ resource "aws_iam_role" "Hydroviz-RnR-EC2-Profile" {
   })
 }
 
-resource "aws_iam_instance_profile" "Hydroviz-RnR-EC2-Profile" {
-  name = "Hydroviz-RnR-EC2-Profile_${var.region}"
-  role = aws_iam_role.Hydroviz-RnR-EC2-Profile.name
+resource "aws_iam_instance_profile" "hydrovis-rnr-role" {
+  name = "hydrovis-rnr-role_${var.region}"
+  role = aws_iam_role.hydrovis-rnr-role.name
 }
 
-resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
+resource "aws_iam_role_policy" "hydrovis-rnr-role-SSM-policy" {
   name   = "HydroVISSSMPolicy_${var.region}"
-  role   = aws_iam_role.Hydroviz-RnR-EC2-Profile.id
+  role   = aws_iam_role.hydrovis-rnr-role.id
   policy = templatefile("${path.module}/HydroVISSSMPolicy.json.tftpl", {
     environment = var.environment
   })
@@ -287,7 +287,7 @@ resource "aws_iam_role_policy" "Hydroviz-RnR-EC2-Profile-SSM-policy" {
 
 #ECS Execution Role
 resource "aws_iam_role" "hydrovis-ecs-task-execution" {
-  name = "hydrovis-${var.environment}-ecs-task-execution"
+  name = "hydrovis-ecs-task-execution_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -309,13 +309,13 @@ data "aws_iam_policy" "ecs_task_execution_policy" {
 }
 
 resource "aws_iam_role_policy" "ecs-task-execution-policy" {
-  name   = "ecs-task-execution-policy"
+  name   = "ecs-task-execution-policy_${var.region}"
   role   = aws_iam_role.hydrovis-ecs-task-execution.id
   policy = data.aws_iam_policy.ecs_task_execution_policy.policy
 }
 
 resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
-  name   = "ecs-task-execution-cloudwatch-log-policy"
+  name   = "ecs-task-execution-cloudwatch-log-policy_${var.region}"
   role   = aws_iam_role.hydrovis-ecs-task-execution.id
   policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
 }
@@ -323,7 +323,7 @@ resource "aws_iam_role_policy" "ecs-task-execution-cloudwatch-log-policy" {
 
 # ECS Container Role
 resource "aws_iam_role" "hydrovis-ecs-resource-access" {
-  name = "hydrovis-${var.environment}-ecs-resource-access"
+  name = "hydrovis-ecs-resource-access_${var.region}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -344,7 +344,7 @@ resource "aws_iam_role" "hydrovis-ecs-resource-access" {
 }
 
 resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
-  name   = "hydrovis-cloudwatch-log-policy"
+  name   = "hydrovis-cloudwatch-log-policy_${var.region}"
   role   = aws_iam_role.hydrovis-ecs-resource-access.id
   policy = templatefile("${path.module}/hydrovis-cloudwatch-log-template.json.tftpl", {})
 }
@@ -352,7 +352,7 @@ resource "aws_iam_role_policy" "hydrovis-ecs-task-cloudwatch-log-policy" {
 
 # hydrovis-sync-wrds-location-db Role
 resource "aws_iam_role" "hydrovis-sync-wrds-location-db" {
-  name = "hydrovis-sync-wrds-location-db"
+  name = "hydrovis-sync-wrds-location-db_${var.region}"
   
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -377,12 +377,12 @@ resource "aws_iam_role" "hydrovis-sync-wrds-location-db" {
 }
 
 resource "aws_iam_instance_profile" "hydrovis-sync-wrds-location-db" {
-  name = "hydrovis-sync-wrds-location-db"
+  name = "hydrovis-sync-wrds-location-db_${var.region}"
   role = aws_iam_role.hydrovis-sync-wrds-location-db.name
 }
 
 resource "aws_iam_role_policy" "hydrovis-sync-wrds-location-db-policy" {
-  name   = "HydroVISSyncWrdsLocationDbPolicy"
+  name   = "HydroVISSyncWrdsLocationDbPolicy_${var.region}"
   role   = aws_iam_role.hydrovis-sync-wrds-location-db.id
   policy = jsonencode({
     Version = "2012-10-17",
@@ -457,12 +457,12 @@ output "profile_hydrovis-hml-ingest-role" {
   value = aws_iam_instance_profile.hydrovis-hml-ingest-role
 }
 
-output "role_Hydroviz-RnR-EC2-Profile" {
-  value = aws_iam_role.Hydroviz-RnR-EC2-Profile
+output "role_hydrovis-rnr-role" {
+  value = aws_iam_role.hydrovis-rnr-role
 }
 
-output "profile_Hydroviz-RnR-EC2-Profile" {
-  value = aws_iam_instance_profile.Hydroviz-RnR-EC2-Profile
+output "profile_hydrovis-rnr-role" {
+  value = aws_iam_instance_profile.hydrovis-rnr-role
 }
 
 output "role_hydrovis-ecs-resource-access" {
