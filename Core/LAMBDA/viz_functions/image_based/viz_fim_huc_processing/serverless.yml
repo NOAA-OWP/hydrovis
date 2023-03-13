@@ -7,7 +7,7 @@ provider:
   region: ${env:AWS_DEFAULT_REGION}
 functions:
   lambda:
-    name: viz_fim_huc_processing_${env:ENVIRONMENT}
+    name: ${env:LAMBDA_NAME}
     image: ${env:AWS_ACCOUNT_ID}.dkr.ecr.${env:AWS_DEFAULT_REGION}.amazonaws.com/${env:IMAGE_REPO_NAME}:${env:IMAGE_TAG}
     role: ${env:LAMBDA_ROLE_ARN}
     memorySize: 3072

@@ -6,10 +6,10 @@ import xarray
 from datetime import datetime
 import arcpy
 
-from aws_loosa.ec2.processes.base.aws_egis_process import AWSEgisPublishingProcess
-from aws_loosa.ec2.consts.egis import PRIMARY_SERVER, NWM_FOLDER, VALID_TIME
-from aws_loosa.ec2.products.anomaly import anomaly
-from aws_loosa.ec2.utils.shared_funcs import create_service_db_tables
+from aws_loosa.processes.base.aws_egis_process import AWSEgisPublishingProcess
+from aws_loosa.consts.egis import PRIMARY_SERVER, NWM_FOLDER, VALID_TIME
+from aws_loosa.products.anomaly import anomaly
+from aws_loosa.utils.shared_funcs import create_service_db_tables
 
 
 class AnaAnomaly(AWSEgisPublishingProcess):

@@ -191,43 +191,53 @@ class s3_file:
     def from_eventbridge(cls, event):
         configuration = event['resources'][0].split("/")[-1]
         eventbridge_time = datetime.datetime.strptime(event['time'], '%Y-%m-%dT%H:%M:%SZ')
-    
+
         para = False
         if "_para" in configuration:
             para = True
 
-        if "analysis_assim" in configuration:
-            base_config = "analysis_assim"
-        elif "short_range" in configuration:
-            base_config = "short_range"
-        elif "medium_range_gfs" in configuration:
-            base_config = "medium_range_gfs"
-        elif "medium_range_nbm" in configuration:
-            base_config = "medium_range_nbm"
-
-        nwm_file_type = configuration.split(base_config)[0][:-1]
-        domain = configuration.split(base_config)[-1]
-        if domain:
-            domain = domain[1:]
-            domain = domain.replace("_para", "")
-            configuration = f"{base_config}_{domain}"
-        else:
-            domain = "conus"
+        if "coastal" in configuration:
+            base_config = configuration
+            nwm_file_type = 'total_water'
+            domain = 'coastal'
             configuration = base_config
+        else:
+            if "analysis_assim" in configuration:
+                base_config = "analysis_assim"
+            elif "short_range" in configuration:
+                base_config = "short_range"
+            elif "medium_range_gfs" in configuration:
+                base_config = "medium_range_gfs"
+            elif "medium_range_nbm" in configuration:
+                base_config = "medium_range_nbm"
+
+            nwm_file_type = configuration.split(base_config)[0][:-1]
+            domain = configuration.split(base_config)[-1]
+            if domain:
+                domain = domain[1:]
+                domain = domain.replace("_para", "")
+                configuration = f"{base_config}_{domain}"
+            else:
+                domain = "conus"
+                configuration = base_config
 
         if nwm_file_type == "forcing":
             configuration = f"{nwm_file_type}_{configuration}"
 
-        if base_config == "analysis_assim":
+        if "analysis_assim" in base_config:
             if "14day" in configuration:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0, hour=0)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
-        elif base_config == "short_range":
+        elif "short_range" in base_config:
             if domain in ["hawaii", "puertorico"]:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=3)
             elif domain == "alaska":
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=2)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
         elif "medium_range" in base_config:
@@ -235,6 +245,8 @@ class s3_file:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=5)
             elif domain == "alaska":
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=13)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
 

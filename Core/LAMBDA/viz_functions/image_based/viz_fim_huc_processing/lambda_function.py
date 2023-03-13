@@ -87,7 +87,7 @@ def lambda_handler(event, context):
     db_table = db_fim_table.split(".")[-1]
 
     try:
-        if "reference" in db_schema or "fim_catchments" in db_schema:
+        if "aep" in db_schema or "fim_catchments" in db_schema:
             process_db = database(db_type="egis")
         else:
             process_db = database(db_type="viz")

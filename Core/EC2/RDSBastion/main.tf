@@ -199,7 +199,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-${var.ec2_instance_availability_zone}-rds-l-dba-1"
+    "Name" = "hv-${var.environment}-rds-bastion"
     "OS"   = "Linux"
   }
 
@@ -348,4 +348,58 @@ data "cloudinit_config" "startup" {
       viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
     })
   }
+
+  part {
+    content_type = "text/cloud-config"
+    filename     = "cloud-config.yaml"
+    content = <<-END
+      #cloud-config
+      ${jsonencode({
+        write_files = [
+          {
+            path        = "/deploy_files/restore_db_from_s3.sh"
+            permissions = "0700"
+            owner       = "ec2-user:ec2-user"
+            content     = templatefile("${path.module}/scripts/utils/restore_db_from_s3.sh.tftpl", {
+              egis_db_host         = local.dbs["egis"]["db_host"]
+              egis_db_port         = local.dbs["egis"]["db_port"]
+              egis_db_username     = local.dbs["egis"]["db_username"]
+              egis_db_password     = local.dbs["egis"]["db_password"]
+              location_db_host     = local.dbs["location"]["db_host"]
+              location_db_port     = local.dbs["location"]["db_port"]
+              location_db_username = local.dbs["location"]["db_username"]
+              location_db_password = local.dbs["location"]["db_password"]
+              viz_db_host          = local.dbs["viz"]["db_host"]
+              viz_db_port          = local.dbs["viz"]["db_port"]
+              viz_db_username      = local.dbs["viz"]["db_username"]
+              viz_db_password      = local.dbs["viz"]["db_password"]
+            })
+          },
+          {
+            path        = "/deploy_files/swap_dbs.sh"
+            permissions = "0700"
+            owner       = "ec2-user:ec2-user"
+            content     = templatefile("${path.module}/scripts/utils/swap_dbs.sh.tftpl", {
+              egis_db_host         = local.dbs["egis"]["db_host"]
+              egis_db_port         = local.dbs["egis"]["db_port"]
+              egis_db_username     = local.dbs["egis"]["db_username"]
+              egis_db_password     = local.dbs["egis"]["db_password"]
+              location_db_host     = local.dbs["location"]["db_host"]
+              location_db_port     = local.dbs["location"]["db_port"]
+              location_db_username = local.dbs["location"]["db_username"]
+              location_db_password = local.dbs["location"]["db_password"]
+              viz_db_host          = local.dbs["viz"]["db_host"]
+              viz_db_port          = local.dbs["viz"]["db_port"]
+              viz_db_username      = local.dbs["viz"]["db_username"]
+              viz_db_password      = local.dbs["viz"]["db_password"]
+            })
+          }
+        ]
+      })}
+    END
+  }
+}
+
+output "instance-id" {
+  value = aws_instance.rds-bastion.id
 }

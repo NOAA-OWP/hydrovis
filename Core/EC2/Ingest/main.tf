@@ -62,9 +62,6 @@ variable "db_ingest_secret_string" {
   type = string
 }
 
-variable "logstash_ip" {
-  type = string
-}
 
 locals {
   hvl_environment = var.environment == "ti" ? "TI" : var.environment == "uat" ? "UAT" : var.environment
@@ -78,7 +75,6 @@ locals {
     DBHOST                 = var.db_host
     DBPASSWORD             = jsondecode(var.db_ingest_secret_string)["password"]
     HVLEnvironment         = var.environment
-    logstash_ip            = var.logstash_ip
   })
 }
 

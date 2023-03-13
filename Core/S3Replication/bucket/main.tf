@@ -120,7 +120,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis" {
   bucket = aws_s3_bucket.hydrovis.id
 
   rule {
-    id     = "30 Day Expiration"
+    id     = "90 Day Expiration"
     status = "Enabled"
 
     abort_incomplete_multipart_upload {
@@ -128,7 +128,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "hydrovis" {
     }
 
     expiration {
-      days = 30
+      days = 90
     }
 
     noncurrent_version_expiration {
