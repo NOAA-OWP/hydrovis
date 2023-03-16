@@ -118,7 +118,7 @@ resource "aws_instance" "replace_and_route" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-replace-route"
+    "Name" = "hv-vpp-${var.environment}-replace-route"
     "OS"   = "Linux"
   }
 
