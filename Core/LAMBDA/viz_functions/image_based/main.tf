@@ -380,7 +380,7 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
 
     environment_variable {
       name  = "FIM_PREFIX"
-      value = "fim_${replace(var.fim_version, ".", "_")}"
+      value = "fim/fim_${replace(var.fim_version, ".", "_")}"
     }
 
     environment_variable {
@@ -465,12 +465,12 @@ data "archive_file" "schism_processing_zip" {
 
   source_dir = "${path.module}/viz_schism_fim_processing"
 
-  output_path = "${path.module}/viz_schism_fim_processing_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_schism_fim_processing_${var.environment}_${var.region}.zip"
 }
 
-resource "aws_s3_object" "schism_zip_upload" {
+resource "aws_s3_object" "schism_processing_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_schism_fim_processing.zip"
+  key         = "terraform_artifacts/${path.module}/viz_schism_fim_processing.zip"
   source      = data.archive_file.schism_processing_zip.output_path
   source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
 }
@@ -596,7 +596,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 
   source {
     type            = "S3"
-    location        = "${aws_s3_object.schism_zip_upload.bucket}/${aws_s3_object.schism_zip_upload.key}"
+    location        = "${aws_s3_object.schism_processing_zip_upload.bucket}/${aws_s3_object.schism_processing_zip_upload.key}"
   }
 }
 

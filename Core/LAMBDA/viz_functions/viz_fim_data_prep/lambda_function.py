@@ -9,9 +9,6 @@ import pandas as pd
 
 from viz_classes import database
 
-FIM_DATA_BUCKET = os.environ['FIM_DATA_BUCKET']
-FIM_PREFIX = f'fim_{os.environ["FIM_VERSION"].replace(".", "_")}/'
-
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
 

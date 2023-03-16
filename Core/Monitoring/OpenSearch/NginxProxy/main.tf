@@ -38,7 +38,7 @@ variable "execution_role_arn" {
 locals {
   load_balancer_names = {
       "ti" : "hv-ti-egis-pub-prtl-alb",
-      "uat" : "hv-uat-pub-lb-pub-age-alb",
+      "uat" : "hv-uat-egis-pub-lb-pub-age-alb",
       "prod" : "hv-prod-pub-lb-alb-pub-age-alb"
   }
 }

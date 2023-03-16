@@ -212,10 +212,10 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
   environment {
     variables = {
-      DATASERVICES_HOST                 = var.dataservices_host
-      PROCESSED_OUTPUT_BUCKET           = var.max_flows_bucket
-      PROCESSED_OUTPUT_PREFIX           = "max_stage/ahps"
-      INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
+      DATASERVICES_HOST            = var.dataservices_host
+      PROCESSED_OUTPUT_BUCKET      = var.max_flows_bucket
+      PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
+      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
   s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
@@ -298,14 +298,14 @@ resource "aws_lambda_function" "viz_max_flows" {
 
   environment {
     variables = {
-      CACHE_DAYS         = 1
-      MAX_VALS_BUCKET   = var.max_flows_bucket
+      CACHE_DAYS                   = 1
+      MAX_VALS_BUCKET              = var.max_flows_bucket
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
+      VIZ_DB_DATABASE              = var.viz_db_name
+      VIZ_DB_HOST                  = var.viz_db_host
+      VIZ_DB_USERNAME              = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD              = jsondecode(var.viz_db_user_secret_string)["password"]
+      DATA_BUCKET_UPLOAD           = var.fim_output_bucket
     }
   }
   s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
@@ -383,12 +383,12 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN   = aws_sfn_state_machine.viz_pipeline_step_function.arn
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
+      STEP_FUNCTION_ARN  = aws_sfn_state_machine.viz_pipeline_step_function.arn
+      VIZ_DB_DATABASE    = var.viz_db_name
+      VIZ_DB_HOST        = var.viz_db_host
+      VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD    = jsondecode(var.viz_db_user_secret_string)["password"]
+      DATA_BUCKET_UPLOAD = var.fim_output_bucket
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
@@ -461,10 +461,10 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST     = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -521,10 +521,10 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST     = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_ingest_zip_upload.bucket
@@ -583,18 +583,16 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
   }
   environment {
     variables = {
-      EGIS_DB_DATABASE    = var.egis_db_name
-      EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
-      FIM_DATA_BUCKET             = var.fim_data_bucket
-      FIM_VERSION                 = var.fim_version
-      PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
-      PROCESSED_OUTPUT_PREFIX     = "processing_outputs"
-      VIZ_DB_DATABASE             = var.viz_db_name
-      VIZ_DB_HOST                 = var.viz_db_host
-      VIZ_DB_USERNAME             = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
+      EGIS_DB_DATABASE        = var.egis_db_name
+      EGIS_DB_HOST            = var.egis_db_host
+      EGIS_DB_USERNAME        = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD        = jsondecode(var.egis_db_user_secret_string)["password"]
+      PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
+      PROCESSED_OUTPUT_PREFIX = "processing_outputs"
+      VIZ_DB_DATABASE         = var.viz_db_name
+      VIZ_DB_HOST             = var.viz_db_host
+      VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD         = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.fim_data_prep_zip_upload.bucket
@@ -653,15 +651,15 @@ resource "aws_lambda_function" "viz_update_egis_data" {
   }
   environment {
     variables = {
-      EGIS_DB_DATABASE    = var.egis_db_name
-      EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      CACHE_BUCKET        = var.viz_cache_bucket
+      EGIS_DB_DATABASE = var.egis_db_name
+      EGIS_DB_HOST     = var.egis_db_host
+      EGIS_DB_USERNAME = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD = jsondecode(var.egis_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE  = var.viz_db_name
+      VIZ_DB_HOST      = var.viz_db_host
+      VIZ_DB_USERNAME  = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD  = jsondecode(var.viz_db_user_secret_string)["password"]
+      CACHE_BUCKET     = var.viz_cache_bucket
     }
   }
   s3_bucket        = aws_s3_object.update_egis_data_zip_upload.bucket
@@ -724,7 +722,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_USERNAME        = "hydrovis.proc"
       PUBLISH_FLAG_BUCKET = var.max_flows_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
-      SD_S3_PATH          = "viz/db_pipeline/pro_project_data/sd_files/"
+      SD_S3_PATH          = "viz_sd_files/"
       SERVICE_TAG         = local.service_suffix
     }
   }

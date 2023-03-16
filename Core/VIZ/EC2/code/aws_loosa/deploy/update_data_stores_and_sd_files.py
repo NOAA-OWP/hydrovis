@@ -124,7 +124,7 @@ def update_db_sd_files():
         print(f"Uploading {sd_file} to {deployment_bucket}")
         s3_client.upload_file(
            sd_file, deployment_bucket,
-           f"viz/db_pipeline/pro_project_data/sd_files/{os.path.basename(sd_file)}",
+           f"viz_sd_files/{os.path.basename(sd_file)}",
            ExtraArgs={"ServerSideEncryption": "aws:kms"}
         )
 

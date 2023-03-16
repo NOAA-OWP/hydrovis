@@ -57,6 +57,10 @@ module "nginx-proxy" {
 
 resource "aws_iam_service_linked_role" "os" {
   aws_service_name = "opensearchservice.amazonaws.com"
+
+  lifecycle {
+    ignore_changes = [tags]
+  }
 }
 
 resource "aws_cloudwatch_log_group" "os_loggroup" {

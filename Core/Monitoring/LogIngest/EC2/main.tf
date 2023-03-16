@@ -50,7 +50,7 @@ variable "master_user_credentials_secret_string" {
   type = string
 }
 
-variable "internal_route_53_zone" {
+variable "private_route_53_zone" {
   type = object({
     name     = string
     zone_id  = string
@@ -135,6 +135,7 @@ resource "aws_instance" "logstash" {
   availability_zone      = var.instance_availability_zone
   vpc_security_group_ids = var.instance_security_group_ids
   subnet_id              = var.instance_subnet_id
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
   ebs_optimized          = true
 
   lifecycle {
@@ -142,7 +143,7 @@ resource "aws_instance" "logstash" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-logstash"
+    "Name" = "hv-vpp-${var.environment}-logstash"
     "OS"   = "Linux"
   }
 
@@ -151,8 +152,8 @@ resource "aws_instance" "logstash" {
 }
 
 resource "aws_route53_record" "logstash" {
-  zone_id = var.internal_route_53_zone.zone_id
-  name    = "logstash.${var.internal_route_53_zone.name}"
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "logstash.${var.private_route_53_zone.name}"
   type    = "A"
   ttl     = 300
   records = [aws_instance.logstash.private_ip]
@@ -162,7 +163,7 @@ data "aws_ami" "linux" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-amznlinux2-STIGD*"]
+    values = ["amazon-linux-2-git-docker-psql-stig*"]
   }
   filter {
     name   = "virtualization-type"

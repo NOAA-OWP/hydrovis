@@ -2,6 +2,10 @@ variable "environment" {
   type = string
 }
 
+variable "region" {
+  type        = string
+}
+
 variable "ami_owner_account_id" {
   type        = string
 }
@@ -61,8 +65,8 @@ variable "private_route_53_zone" {
   })
 }
 
-# THIS TF CONFIG IS DEPENDANT ON A SSH KEY THAT CAN ACCESS THE WRDS VLAB REPOS
 
+# THIS TF CONFIG IS DEPENDANT ON A SSH KEY THAT CAN ACCESS THE WRDS VLAB REPOS
 locals {
   ssh_key_filename          = "id_ed25519"
   instance_name             = "hv-vpp-${var.environment}-data-services"
@@ -184,6 +188,7 @@ resource "aws_instance" "data_services" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]

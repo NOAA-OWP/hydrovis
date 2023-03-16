@@ -54,7 +54,7 @@ variable "buckets_and_parameters" {
   type = map(map(string))
 }
 
-variable "internal_route_53_zone" {
+variable "private_route_53_zone" {
   type = object({
     name     = string
     zone_id  = string
@@ -124,7 +124,7 @@ module "logingest" {
   dashboard_users_credentials_secret_strings = [ for name in keys(var.dashboard_users_and_roles) : module.dashboard-users-credentials[name].secret_string ]
   dashboard_users_and_roles                  = var.dashboard_users_and_roles
   master_user_credentials_secret_string      = module.dashboard-users-credentials["monitoring_admin"].secret_string
-  internal_route_53_zone                     = var.internal_route_53_zone
+  private_route_53_zone                      = var.private_route_53_zone
 
   # Lambda Module
   lambda_trigger_functions            = var.lambda_trigger_functions

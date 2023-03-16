@@ -27,11 +27,11 @@ variable "ec2_instance_subnet" {
   type = string
 }
 
-variable "dataservices_ip" {
+variable "dataservices_host" {
   type = string
 }
 
-variable "license_server_ip" {
+variable "license_server_host" {
   type = string
 }
 
@@ -151,8 +151,7 @@ variable "egis_db_secret_string" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  egis_host          = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
-  deploy_file_prefix = "viz/"
+  egis_host = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
 }
 
 
@@ -164,7 +163,7 @@ data "aws_ami" "windows" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-win2019-STIG*"]
+    values = ["windows-server-2019-awscli-git-pgadmin-arcgis-stig*"]
   }
   filter {
     name   = "virtualization-type"
@@ -203,11 +202,11 @@ data "cloudinit_config" "pipeline_setup" {
       VLAB_SSH_KEY_CONTENT           = file("${path.root}/sensitive/viz/vlab")
       GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
       LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
-        LICENSE_SERVER = var.license_server_ip
+        LICENSE_SERVER = var.license_server_host
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
       FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
-      WRDS_HOST                      = var.dataservices_ip
+      WRDS_HOST                      = var.dataservices_host
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
       FIM_OUTPUT_BUCKET              = var.fim_output_bucket
@@ -215,7 +214,6 @@ data "cloudinit_config" "pipeline_setup" {
       RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
       DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
       DEPLOYMENT_DATA_OBJECT         = aws_s3_object.setup_upload.key
-      DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
       WINDOWS_SERVICE_STATUS         = var.windows_service_status
       WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
       PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
@@ -249,14 +247,14 @@ resource "aws_instance" "viz_pipeline" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami, tags]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-viz-prc-1"
+    "Name" = "hv-vpp-${var.environment}-viz-pipeline"
     "OS"   = "Windows"
   }
 
@@ -305,14 +303,14 @@ resource "aws_instance" "viz_fileshare" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami, tags]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-viz-fileshare"
+    "Name" = "hv-vpp-${var.environment}-viz-fileshare"
     "OS"   = "Windows"
   }
 

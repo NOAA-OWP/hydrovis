@@ -40,7 +40,6 @@ $DynamicDir = "D:\dynamic"
 $AUTHORITATIVE_ROOT = "$StaticDir\authoritative"
 $CACHE_ROOT = "$DynamicDir\cache"
 $FLAGS_ROOT = "s3://$FIM_OUTPUT_BUCKET/published_flags"
-$PRISTINE_ROOT = "$StaticDir\pristine"
 $PRO_PROJECT_ROOT = "$StaticDir\pro_project"
 $PUBLISHED_ROOT = "$Fileshare\viz\published"
 $WORKSPACE_ROOT = "$DynamicDir\workspace"
@@ -89,7 +88,6 @@ LogWrite "Setting up file structure of static and dynamic data"
 $env:AUTHORITATIVE_ROOT = $AUTHORITATIVE_ROOT
 $env:CACHE_ROOT = $CACHE_ROOT
 $env:FLAGS_ROOT = $FLAGS_ROOT
-$env:PRISTINE_ROOT = $PRISTINE_ROOT
 $env:PRO_PROJECT_ROOT = $PRO_PROJECT_ROOT
 $env:PUBLISHED_ROOT = $PUBLISHED_ROOT
 $env:WORKSPACE_ROOT = $WORKSPACE_ROOT
@@ -102,9 +100,6 @@ New-Item -ItemType Directory -Force -Path $env:CACHE_ROOT | Out-Null
 [Environment]::SetEnvironmentVariable("CACHE_ROOT", $env:CACHE_ROOT, "2")
 
 [Environment]::SetEnvironmentVariable("FLAGS_ROOT", $env:FLAGS_ROOT, "2")
-
-New-Item -ItemType Directory -Force -Path $env:PRISTINE_ROOT | Out-Null
-[Environment]::SetEnvironmentVariable("PRISTINE_ROOT", $env:PRISTINE_ROOT, "2")
 
 New-Item -ItemType Directory -Force -Path $env:PRO_PROJECT_ROOT | Out-Null
 [Environment]::SetEnvironmentVariable("PRO_PROJECT_ROOT", $env:PRO_PROJECT_ROOT, "2")
@@ -246,12 +241,8 @@ Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42 shapely==1.8.5.post1 fiona==1.8.22
 
 LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
-$s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "authoritative_data/"
+$s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/viz_authoritative_data/"
 aws s3 cp $s3_authoritative $AUTHORITATIVE_ROOT --recursive
-
-LogWrite "-->TRANFERRING PRISTINE DATA"
-$s3_pristine = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "pristine_data/"
-aws s3 cp $s3_pristine $PRISTINE_ROOT --recursive
 
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
 Set-Location -Path $AWS_SERVICE_REPO

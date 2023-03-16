@@ -19,6 +19,10 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  type        = string
+}
+
 variable "ami_owner_account_id" {
   type        = string
 }
@@ -38,7 +42,7 @@ variable "ec2_instance_profile_name" {
   type        = string
 }
 
-variable "dataservices_ip" {
+variable "dataservices_host" {
   type = string
 }
 
@@ -59,6 +63,7 @@ variable "rnr_versions" {
   type = map(string)
 }
 
+
 locals {
   cloudinit_config_data = {
     write_files = [
@@ -67,7 +72,7 @@ locals {
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
         content     = templatefile("${path.module}/templates/conus.ini.tftpl", {
-          WRDS_HOST = "http://${var.dataservices_ip}"
+          WRDS_HOST = "http://${var.dataservices_host}"
           S3_URL = var.s3_url
           NOMADS_URL = var.nomads_url
         })
@@ -106,6 +111,7 @@ resource "aws_instance" "replace_and_route" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]
@@ -148,19 +154,19 @@ resource "aws_instance" "replace_and_route" {
 
 data "aws_s3_object" "wrf_hydro" {
   bucket = var.deployment_data_bucket
-  key    = "rnr/wrf_hydro.tgz"
+  key    = "rnr_datasets/wrf_hydro.tgz"
 }
 
 data "aws_s3_object" "rnr_static" {
   bucket = var.deployment_data_bucket
-  key    = "rnr/rnr_static.tgz"
+  key    = "rnr_datasets/rnr_static.tgz"
 }
 
 data "aws_ami" "linux" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-amznlinux2-STIGD*"]
+    values = ["amazon-linux-2-git-docker-psql-stig*"]
   }
   filter {
     name   = "virtualization-type"

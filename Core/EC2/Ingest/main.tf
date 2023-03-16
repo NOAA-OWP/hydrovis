@@ -7,6 +7,10 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  type        = string
+}
+
 variable "ami_owner_account_id" {
   type        = string
 }
@@ -97,7 +101,7 @@ data "aws_ami" "linux" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-amznlinux2-STIGD*"]
+    values = ["amazon-linux-2-git-docker-psql-stig*"]
   }
   filter {
     name   = "virtualization-type"
@@ -117,13 +121,14 @@ resource "aws_instance" "ingest_prc1" {
   availability_zone      = var.prc1_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.prc1_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-ing-l-prc-1"
+    "Name" = "hv-vpp-${var.environment}-data-ingest-1"
     "OS"   = "Linux"
   }
 
@@ -149,13 +154,14 @@ resource "aws_instance" "ingest_prc2" {
   availability_zone      = var.prc2_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.prc2_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-ing-l-prc-2"
+    "Name" = "hv-vpp-${var.environment}-data-ingest-2"
     "OS"   = "Linux"
   }
 

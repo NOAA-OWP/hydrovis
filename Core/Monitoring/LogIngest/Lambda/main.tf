@@ -52,11 +52,11 @@ data "archive_file" "lambda_code" {
     filename = "viz_js.js"
   }
 
-  output_path = "${path.module}/lambda_code_${var.environment}.zip"
+  output_path = "${path.module}/temp/lambda_code_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_iam_role" "hydrovis-opensearch-lambda" {
-  name = "hydrovis-opensearch-lambda"
+  name = "hydrovis-opensearch-lambda_${var.region}"
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -125,7 +125,7 @@ resource "aws_cloudwatch_log_subscription_filter" "logfilter" {
   log_group_name  = "/aws/lambda/${each.key}"
   filter_pattern  = "?ELASTICSEARCH ?ERROR ?REPORT"
   destination_arn = aws_lambda_function.opensearch_lambda_log_ingester.arn
-  depends_on      = [aws_lambda_permission.allow_cloudwatch, aws_cloudwatch_log_group.loggroup]
+  depends_on      = [aws_lambda_permission.allow_cloudwatch]
 }
 
 output "role_arn" {
