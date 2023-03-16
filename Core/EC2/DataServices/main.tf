@@ -54,11 +54,18 @@ variable "data_services_versions" {
   type = map(string)
 }
 
+variable "private_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
 # THIS TF CONFIG IS DEPENDANT ON A SSH KEY THAT CAN ACCESS THE WRDS VLAB REPOS
 
 locals {
   ssh_key_filename          = "id_ed25519"
-  instance_name             = "hv-${var.environment}-data-services"
+  instance_name             = "hv-vpp-${var.environment}-data-services"
   instance_names            = [local.instance_name, format("%s-for-tests", local.instance_name)]
   logging_application_name  = "data_services"
   logging_application_names =  [local.logging_application_name, format("test_%s", local.logging_application_name)]
@@ -197,11 +204,19 @@ resource "aws_instance" "data_services" {
   user_data_replace_on_change = true
 }
 
+resource "aws_route53_record" "hydrovis" {
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "data-services.${var.private_route_53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.data_services[0].private_ip]
+}
+
 data "aws_ami" "linux" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-amznlinux2-STIGD*"]
+    values = ["amazon-linux-2-git-docker-psql-stig*"]
   }
   filter {
     name   = "virtualization-type"
@@ -210,8 +225,8 @@ data "aws_ami" "linux" {
   owners = [var.ami_owner_account_id]
 }
 
-output "dataservices-ip" {
-  value = aws_instance.data_services[0].private_ip
+output "dns_name" {
+  value = aws_route53_record.hydrovis.name
 }
 
 output "dataservices-test-instance-id" {

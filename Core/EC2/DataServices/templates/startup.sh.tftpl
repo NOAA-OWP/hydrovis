@@ -15,13 +15,6 @@ echo "Disabling Vlab Hostkey Requirement"
 # Couldn't seem to figure out how to properly add Vlab to the known_hosts file
 export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/${ssh_key_filename} -o IdentitiesOnly=yes"
 
-
-echo "Installing System Dependencies"
-sudo yum -y install git
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
 echo "Setting up WRDS File Structure"
 sudo chmod 777 /wrds
 cd /wrds

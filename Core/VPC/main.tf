@@ -30,6 +30,7 @@ variable "region" {
   type = string
 }
 
+
 locals {
   pub_subnet_cidr_a = {
     "ti" : cidrsubnet(var.nwave_ip_block, 1, 0),
@@ -41,21 +42,10 @@ locals {
     "uat" : cidrsubnet(var.nwave_ip_block, 1, 0),
     "prod" : cidrsubnet(var.nwave_ip_block, 1, 1)
   }
-  public_route_default = {
-    cidr_block                = "0.0.0.0/0"
-    transit_gateway_id        = var.transit_gateway_id
-    vpc_peering_connection_id = ""
-  }
-  public_routes = var.public_route_peering_ip_block != "" ? [
-    local.public_route_default,
-    {
-      cidr_block                = var.public_route_peering_ip_block
-      transit_gateway_id        = ""
-      vpc_peering_connection_id = var.public_route_peering_connection_id
-    }
-  ] : [local.public_route_default]
 }
 
+
+# VPC
 resource "aws_vpc" "main" {
   cidr_block                     = var.vpc_ip_block
   instance_tenancy               = "default"
@@ -65,7 +55,7 @@ resource "aws_vpc" "main" {
   enable_dns_support             = true
 
   tags = {
-    Name = "hydrovis-${var.environment}-vpc"
+    Name = "hv-vpp-${var.environment}-vpc"
   }
 }
 
@@ -74,173 +64,180 @@ resource "aws_vpc_ipv4_cidr_block_association" "public_cidr" {
   cidr_block = var.nwave_ip_block
 }
 
-resource "aws_nat_gateway" "hv-pub-nat-gw-a" {
+
+# NAT Gateways
+resource "aws_nat_gateway" "a" {
   connectivity_type = "private"
-  subnet_id         = aws_subnet.hydrovis-sn-pub-1a.id
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-}
-
-resource "aws_nat_gateway" "hv-pub-nat-gw-b" {
-  connectivity_type = "private"
-  subnet_id         = aws_subnet.hydrovis-sn-pub-1b.id
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-}
-
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block                 = "0.0.0.0/0"
-    nat_gateway_id             = aws_nat_gateway.hv-pub-nat-gw-a.id
-  }
+  subnet_id         = aws_subnet.public_a.id
 
   tags = {
-    Name = "hydrovis-${var.environment}-private"
+    Name = "hv-vpp-${var.environment}-nat-gw-a"
   }
 }
 
-resource "aws_main_route_table_association" "main_private" {
-  vpc_id         = aws_vpc.main.id
-  route_table_id = aws_route_table.private.id
+resource "aws_nat_gateway" "b" {
+  connectivity_type = "private"
+  subnet_id         = aws_subnet.public_b.id
+
+  tags = {
+    Name = "hv-vpp-${var.environment}-nat-gw-b"
+  }
 }
 
-resource "aws_subnet" "hydrovis-sn-prv-data1a" {
+
+# Private Subnets
+resource "aws_subnet" "vpp_private_a" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 2)
+  cidr_block        = cidrsubnet(var.vpc_ip_block, 2, 2)
   availability_zone = "${var.region}a"
   tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-data1a"
+    Name = "hv-vpp-${var.environment}-prv-sn-a"
   }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
 }
 
-resource "aws_subnet" "hydrovis-sn-prv-data1b" {
+resource "aws_subnet" "vpp_private_b" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 5)
+  cidr_block        = cidrsubnet(var.vpc_ip_block, 2, 3)
   availability_zone = "${var.region}b"
   tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-data1b"
+    Name = "hv-vpp-${var.environment}-prv-sn-b"
   }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
 }
 
-resource "aws_subnet" "hydrovis-sn-prv-app1a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 0)
-  availability_zone = "${var.region}a"
-  tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-app1a"
-  }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
-}
-
-resource "aws_subnet" "hydrovis-sn-prv-app1b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 1)
-  availability_zone = "${var.region}b"
-  tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-app1b"
-  }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
-}
-
-resource "aws_subnet" "hydrovis-sn-prv-web1a" {
+resource "aws_subnet" "egis_private_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 4)
   availability_zone = "${var.region}a"
   tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-web1a"
+    Name = "hydrovis-egis-${var.environment}-prv-sn-a"
   }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
 }
 
-resource "aws_subnet" "hydrovis-sn-prv-web1b" {
+resource "aws_subnet" "egis_private_b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 3)
   availability_zone = "${var.region}b"
   tags = {
-    Name = "hydrovis-sn-prv-${var.environment}-web1b"
+    Name = "hydrovis-egis-${var.environment}-prv-sn-b"
   }
-  depends_on = [
-    aws_main_route_table_association.main_private
-  ]
 }
 
 
-resource "aws_subnet" "hydrovis-sn-pub-1a" {
+# Private Route Tables
+resource "aws_route_table" "private_a" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.a.id
+  }
+
+  tags = {
+    Name = "hv-vpp-${var.environment}-prv-rt-a"
+  }
+}
+
+resource "aws_route_table" "private_b" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.b.id
+  }
+
+  tags = {
+    Name = "hv-vpp-${var.environment}-prv-rt-b"
+  }
+}
+
+
+# Private Subnet to Private Route Table Associations
+resource "aws_route_table_association" "vpp_private_a_private" {
+  subnet_id      = aws_subnet.vpp_private_a.id
+  route_table_id = aws_route_table.private_a.id
+}
+
+resource "aws_route_table_association" "vpp_private_b_private" {
+  subnet_id      = aws_subnet.vpp_private_b.id
+  route_table_id = aws_route_table.private_b.id
+}
+
+resource "aws_route_table_association" "egis_private_a_private" {
+  subnet_id      = aws_subnet.egis_private_a.id
+  route_table_id = aws_route_table.private_a.id
+}
+
+resource "aws_route_table_association" "egis_private_b_private" {
+  subnet_id      = aws_subnet.egis_private_b.id
+  route_table_id = aws_route_table.private_b.id
+}
+
+
+# Public Subnets
+resource "aws_subnet" "public_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.pub_subnet_cidr_a[var.environment]
   availability_zone = "${var.region}a"
 
+  tags = {
+    Name = "hv-vpp-${var.environment}-pub-sn-a"
+  }
+
   depends_on = [
     aws_vpc_ipv4_cidr_block_association.public_cidr
   ]
-
-  tags = {
-    Name = "hydrovis-sn-pub-${var.environment}-1a"
-  }
 }
 
-resource "aws_subnet" "hydrovis-sn-pub-1b" {
+resource "aws_subnet" "public_b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = local.pub_subnet_cidr_b[var.environment]
   availability_zone = "${var.region}b"
 
+  tags = {
+    Name = "hv-vpp-${var.environment}-pub-sn-b"
+  }
+
   depends_on = [
     aws_vpc_ipv4_cidr_block_association.public_cidr
   ]
-
-  tags = {
-    Name = "hydrovis-sn-pub-${var.environment}-1b"
-  }
 }
 
+
+# Transit Gateway Attachment
 resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
-  subnet_ids         = [aws_subnet.hydrovis-sn-pub-1a.id, aws_subnet.hydrovis-sn-pub-1b.id]
+  subnet_ids         = [aws_subnet.public_a.id, aws_subnet.public_b.id]
   transit_gateway_id = var.transit_gateway_id
   vpc_id             = aws_vpc.main.id
   dns_support        = "disable"
+
   tags = {
     Name = "nws-diss-hydrovis-${var.environment}-${var.account_id}-hydrovis-${var.environment}-vpc-attach-01"
   }
 }
 
+
+# Public Route Table
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
-  dynamic route {
-    for_each = local.public_routes
-    
-    content {
-      cidr_block                = route.value["cidr_block"]
-      transit_gateway_id        = route.value["transit_gateway_id"]
-      vpc_peering_connection_id = route.value["vpc_peering_connection_id"]
-    }
+  route {
+    cidr_block         = "0.0.0.0/0"
+    transit_gateway_id = var.transit_gateway_id
   }
-
-  depends_on = [
-    aws_ec2_transit_gateway_vpc_attachment.main
-  ]
 
   tags = {
-    Name = "hydrovis-${var.environment}-public"
+    Name = "hv-vpp-${var.environment}-pub-rt"
   }
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.main
+  ]
 }
 
-resource "aws_route_table_association" "hydrovis-sn-pub-1a_public" {
-  subnet_id      = aws_subnet.hydrovis-sn-pub-1a.id
+
+# Public Subnet to Public Route Table Associations
+resource "aws_route_table_association" "public_a_public" {
+  subnet_id      = aws_subnet.public_a.id
   route_table_id = aws_route_table.public.id
 
   depends_on = [
@@ -248,8 +245,8 @@ resource "aws_route_table_association" "hydrovis-sn-pub-1a_public" {
   ]
 }
 
-resource "aws_route_table_association" "hydrovis-sn-pub-1b_public" {
-  subnet_id      = aws_subnet.hydrovis-sn-pub-1b.id
+resource "aws_route_table_association" "public_b_public" {
+  subnet_id      = aws_subnet.public_b.id
   route_table_id = aws_route_table.public.id
 
   depends_on = [
@@ -257,16 +254,18 @@ resource "aws_route_table_association" "hydrovis-sn-pub-1b_public" {
   ]
 }
 
-resource "aws_network_acl" "hydrovis-acl-default" {
+
+# VPC ACL
+resource "aws_network_acl" "default" {
   vpc_id = aws_vpc.main.id
-  subnet_ids = [aws_subnet.hydrovis-sn-prv-data1a.id,
-    aws_subnet.hydrovis-sn-prv-data1b.id,
-    aws_subnet.hydrovis-sn-prv-app1a.id,
-    aws_subnet.hydrovis-sn-prv-app1b.id,
-    aws_subnet.hydrovis-sn-prv-web1a.id,
-    aws_subnet.hydrovis-sn-prv-web1b.id,
-    aws_subnet.hydrovis-sn-pub-1a.id,
-    aws_subnet.hydrovis-sn-pub-1b.id]
+  subnet_ids = [
+    aws_subnet.vpp_private_a.id,
+    aws_subnet.vpp_private_b.id,
+    aws_subnet.egis_private_a.id,
+    aws_subnet.egis_private_b.id,
+    aws_subnet.public_a.id,
+    aws_subnet.public_b.id
+  ]
   ingress {
     protocol   = "-1"
     rule_no    = "10"
@@ -381,43 +380,27 @@ resource "aws_network_acl" "hydrovis-acl-default" {
   }
 
   tags = {
-    "Name" = "hydrovis-${var.environment}-acl-default"
+    "Name" = "hv-vpp-${var.environment}-acl-default"
   }
 }
 
-
-output "route_table_private" {
-  value = aws_route_table.private
-}
 
 output "vpc_main" {
   value = aws_vpc.main
 }
 
-output "subnet_hydrovis-sn-prv-data1a" {
-  value = aws_subnet.hydrovis-sn-prv-data1a
+output "route_table_private_a" {
+  value = aws_route_table.private_a
 }
 
-output "subnet_hydrovis-sn-prv-data1b" {
-  value = aws_subnet.hydrovis-sn-prv-data1b
+output "route_table_private_b" {
+  value = aws_route_table.private_b
 }
 
-output "subnet_hydrovis-sn-prv-app1a" {
-  value = aws_subnet.hydrovis-sn-prv-app1a
+output "subnet_private_a" {
+  value = aws_subnet.vpp_private_a
 }
 
-output "subnet_hydrovis-sn-prv-app1b" {
-  value = aws_subnet.hydrovis-sn-prv-app1b
-}
-
-output "subnet_hydrovis-sn-prv-web1a" {
-  value = aws_subnet.hydrovis-sn-prv-web1a
-}
-
-output "subnet_hydrovis-sn-prv-web1b" {
-  value = aws_subnet.hydrovis-sn-prv-web1b
-}
-
-output "acl_hydrovis-acl" {
-  value = aws_network_acl.hydrovis-acl-default
+output "subnet_private_b" {
+  value = aws_subnet.vpp_private_b
 }

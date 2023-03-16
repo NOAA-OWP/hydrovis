@@ -10,11 +10,11 @@ variable "rds_kms_key" {
   type = string
 }
 
-variable "subnet-app1a" {
+variable "subnet-a" {
   type = string
 }
 
-variable "subnet-app1b" {
+variable "subnet-b" {
   type = string
 }
 
@@ -40,7 +40,7 @@ variable "private_route_53_zone" {
 
 resource "aws_db_subnet_group" "hydrovis" {
   name       = "rds_viz-processing_${var.environment}"
-  subnet_ids = [var.subnet-app1a, var.subnet-app1b]
+  subnet_ids = [var.subnet-a, var.subnet-b]
   tags = {
     Name = "Viz Processing Subnet Group"
   }

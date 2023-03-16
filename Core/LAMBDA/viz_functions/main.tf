@@ -144,13 +144,12 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
-variable "dataservices_ip" {
+variable "dataservices_host" {
   type = string
 }
 
 ########################################################################################################################################
 ########################################################################################################################################
-data "aws_caller_identity" "current" {}
 
 locals {
   egis_host      = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
@@ -213,7 +212,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
   environment {
     variables = {
-      DATASERVICES_HOST                 = var.dataservices_ip
+      DATASERVICES_HOST                 = var.dataservices_host
       PROCESSED_OUTPUT_BUCKET           = var.max_flows_bucket
       PROCESSED_OUTPUT_PREFIX           = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn

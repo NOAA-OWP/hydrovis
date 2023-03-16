@@ -2,10 +2,10 @@ variable "environment" {
   type = string
 }
 
-variable "subnet-data1a" {
+variable "subnet-a" {
   type = string
 }
-variable "subnet-data1b" {
+variable "subnet-b" {
   type = string
 }
 
@@ -31,7 +31,7 @@ variable "private_route_53_zone" {
 
 resource "aws_db_subnet_group" "hydrovis" {
   name       = "rds_ingest_${var.environment}"
-  subnet_ids = [var.subnet-data1a, var.subnet-data1b]
+  subnet_ids = [var.subnet-a, var.subnet-b]
 
   tags = {
     Name = "Data Ingest Subnet Group"

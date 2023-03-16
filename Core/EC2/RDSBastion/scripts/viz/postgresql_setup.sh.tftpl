@@ -1,14 +1,5 @@
 #!/bin/bash
 
-### set correct db dump file names / versions here - These should be in the S3 bucket at {DEPLOYMENT_BUCKET}/viz_db_dumps/ ###
-vizDB_admin="vizDB_admin_2023_0214.dump"
-vizDB_archive="vizDB_archive_2023_0214.dump"
-vizDB_cache="vizDB_cache_2023_0214.dump"
-vizDB_derived="vizDB_derived_2023_0214.dump"
-vizDB_ingest="vizDB_ingest_2023_0214.dump"
-vizDB_publish="vizDB_publish_2023_0214.dump"
-vizDB_external="vizDB_external_2023_0214.dump"
-
 postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
@@ -44,66 +35,17 @@ echo "Adding permissions to aws_s3 extension for viz user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
 
 
-# TODO: Not sure if there is a fim schema at this point...
-echo "Cleaning up Viz DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS fim CASCADE;"
-
-
-# Resoring Viz DB Schema Dumps
-echo "Setting up admin schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS admin CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_admin}" "$${postgres_data_folder}/vizDB_admin.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_admin.dump"
-rm "$${postgres_data_folder}/vizDB_admin.dump"
-
-echo "Setting up archive schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS archive CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_archive}" "$${postgres_data_folder}/vizDB_archive.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_archive.dump"
-rm "$${postgres_data_folder}/vizDB_archive.dump"
-
-echo "Setting up cache schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS cache CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_cache}" "$${postgres_data_folder}/vizDB_cache.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_cache.dump"
-rm "$${postgres_data_folder}/vizDB_cache.dump"
-
-echo "Setting up derived schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS derived CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_derived}" "$${postgres_data_folder}/vizDB_derived.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_derived.dump"
-rm "$${postgres_data_folder}/vizDB_derived.dump"
-
-echo "Setting up ingest schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS ingest CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_ingest}" "$${postgres_data_folder}/vizDB_ingest.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_ingest.dump"
-rm "$${postgres_data_folder}/vizDB_ingest.dump"
-
-echo "Setting up publish schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS publish CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_publish}" "$${postgres_data_folder}/vizDB_publish.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_publish.dump"
-rm "$${postgres_data_folder}/vizDB_publish.dump"
-
-echo "Setting up external schema in the VIZ DB..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "DROP SCHEMA IF EXISTS external CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/viz_db_dumps/$${vizDB_external}" "$${postgres_data_folder}/vizDB_external.dump"
-pg_restore -h "${viz_db_host}" -p ${viz_db_port} -d "${viz_db_name}" -U ${viz_db_username} -j 4 -v "$${postgres_data_folder}/vizDB_external.dump"
-rm "$${postgres_data_folder}/vizDB_external.dump"
-
-
 # Adding Dev Schema to Viz DB #ToDo: Only do this in Dev / TI environments.
-echo "Setting up dev schema in the VIZ DB and grant full permissions to both viz proc and dev users..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" \
-    -tAc "DROP SCHEMA IF EXISTS dev CASCADE;
-            CREATE SCHEMA dev;
-            GRANT ALL ON SCHEMA dev TO ${viz_proc_admin_rw_username};
-            GRANT ALL ON ALL TABLES IN SCHEMA dev TO ${viz_proc_admin_rw_username};
-            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO ${viz_proc_admin_rw_username};
-            GRANT ALL ON SCHEMA dev TO ${viz_proc_dev_rw_username};
-            GRANT ALL ON ALL TABLES IN SCHEMA dev TO ${viz_proc_dev_rw_username};
-            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO ${viz_proc_dev_rw_username};"
+# echo "Setting up dev schema in the VIZ DB and grant full permissions to both viz proc and dev users..."
+# psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" \
+#     -tAc "DROP SCHEMA IF EXISTS dev CASCADE;
+#             CREATE SCHEMA dev;
+#             GRANT ALL ON SCHEMA dev TO ${viz_proc_admin_rw_username};
+#             GRANT ALL ON ALL TABLES IN SCHEMA dev TO ${viz_proc_admin_rw_username};
+#             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO ${viz_proc_admin_rw_username};
+#             GRANT ALL ON SCHEMA dev TO ${viz_proc_dev_rw_username};
+#             GRANT ALL ON ALL TABLES IN SCHEMA dev TO ${viz_proc_dev_rw_username};
+#             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO ${viz_proc_dev_rw_username};"
 
 
 echo "Setting up external.usgs_gage table in the EVIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."

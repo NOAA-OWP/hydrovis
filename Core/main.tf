@@ -214,28 +214,30 @@ module "private-route53" {
 module "security-groups" {
   source = "./SecurityGroups"
 
-  environment                              = local.env.environment
-  nwave_ip_block                           = local.env.nwave_ip_block
-  vpc_ip_block                             = local.env.vpc_ip_block
-  #nwc_ip_block                             = local.env.nwc_ip_block
-  vpc_main_id                              = module.vpc.vpc_main.id
-  vpc_main_cidr_block                      = module.vpc.vpc_main.cidr_block
-  subnet_hydrovis-sn-prv-data1a_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1a.cidr_block
-  subnet_hydrovis-sn-prv-data1b_cidr_block = module.vpc.subnet_hydrovis-sn-prv-data1b.cidr_block
-  public_route_peering_ip_block            = local.env.public_route_peering_ip_block
+  environment                     = local.env.environment
+  nwave_ip_block                  = local.env.nwave_ip_block
+  vpc_ip_block                    = local.env.vpc_ip_block
+  #nwc_ip_block                   = local.env.nwc_ip_block
+  vpc_main_id                     = module.vpc.vpc_main.id
+  vpc_main_cidr_block             = module.vpc.vpc_main.cidr_block
+  subnet_a_cidr_block             = module.vpc.subnet_private_a.cidr_block
+  subnet_b_cidr_block             = module.vpc.subnet_private_b.cidr_block
+  public_route_peering_ip_block   = local.env.public_route_peering_ip_block
 }
 
 # VPCe's
 module "vpces" {
   source = "./VPC/VPCe"
 
-  environment                      = local.env.environment
-  region                           = local.env.region
-  vpc_main_id                      = module.vpc.vpc_main.id
-  subnet_hydrovis-sn-prv-data1b_id = module.vpc.subnet_hydrovis-sn-prv-data1b.id
-  route_table_private_id           = module.vpc.route_table_private.id
-  ssm-session-manager-sg_id        = module.security-groups.ssm-session-manager-sg.id
-  opensearch-access_id             = module.security-groups.opensearch-access.id
+  environment               = local.env.environment
+  region                    = local.env.region
+  vpc_main_id               = module.vpc.vpc_main.id
+  subnet_a_id               = module.vpc.subnet_private_a.id
+  subnet_b_id               = module.vpc.subnet_private_b.id
+  route_table_private_a_id  = module.vpc.route_table_private_a.id
+  route_table_private_b_id  = module.vpc.route_table_private_b.id
+  ssm-session-manager-sg_id = module.security-groups.ssm-session-manager-sg.id
+  opensearch-access_id      = module.security-groups.opensearch-access.id
 }
 
 # Image Builder Pipelines
@@ -257,7 +259,7 @@ module "image-builder" {
   session_manager_logs_kms_arn    = module.s3.keys["session-manager-logs"].arn
   rnr_bucket_arn                  = module.s3.buckets["rnr"].arn
   rnr_kms_arn                     = module.s3.keys["rnr"].arn
-  builder_subnet_id               = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  builder_subnet_id               = module.vpc.subnet_private_b.id
   egis_service_account_password   = local.env.egis-service-account_password
 }
 
@@ -280,7 +282,7 @@ module "sagemaker" {
 
   environment     = local.env.environment
   iam_role        = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-  subnet          = module.vpc.subnet_hydrovis-sn-prv-data1a.id
+  subnet          = module.vpc.subnet_private_a.id
   security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   kms_key_id      = module.kms.key_arns["encrypt-ec2"]
 }
@@ -300,7 +302,7 @@ module "mq-ingest" {
   source = "./MQ/ingest"
 
   environment               = local.env.environment
-  mq_ingest_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id]
+  mq_ingest_subnets         = [module.vpc.subnet_private_a.id]
   mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
   mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
 }
@@ -310,8 +312,8 @@ module "rds-ingest" {
   source = "./RDS/ingest"
 
   environment               = local.env.environment
-  subnet-data1a             = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-  subnet-data1b             = module.vpc.subnet_hydrovis-sn-prv-data1b.id
+  subnet-a                  = module.vpc.subnet_private_a.id
+  subnet-b                  = module.vpc.subnet_private_b.id
   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
   rds_kms_key               = module.kms.key_arns["rds-ingest"]
   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
@@ -323,8 +325,8 @@ module "rds-viz" {
   source = "./RDS/viz"
 
   environment                       = local.env.environment
-  subnet-app1a                      = module.vpc.subnet_hydrovis-sn-prv-app1a.id
-  subnet-app1b                      = module.vpc.subnet_hydrovis-sn-prv-app1b.id
+  subnet-a                          = module.vpc.subnet_private_a.id
+  subnet-b                          = module.vpc.subnet_private_b.id
   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   rds_kms_key                       = module.kms.key_arns["rds-viz"]
   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
@@ -360,8 +362,8 @@ module "rds-bastion" {
   region                         = local.env.region
   ami_owner_account_id           = local.env.ami_owner_account_id
   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-hml-ingest-role.name
-  ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-  ec2_instance_availability_zone = module.vpc.subnet_hydrovis-sn-prv-data1a.availability_zone
+  ec2_instance_subnet            = module.vpc.subnet_private_a.id
+  ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
   ec2_instance_sgs               = [
     module.security-groups.hydrovis-RDS.id,
     module.security-groups.hv-rabbitmq.id,
@@ -388,7 +390,7 @@ module "rds-bastion" {
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  viz_db_address                  = module.rds-viz.dns_name
+  viz_db_address                  = module.rds-viz.instance.address # TODO: Change this to DNS after EGIS team has added DB paramter group to EGIS RDS instance
   viz_db_port                     = module.rds-viz.instance.port
   viz_db_name                     = local.env.viz_db_name
   egis_db_master_secret_string    = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
@@ -400,6 +402,32 @@ module "rds-bastion" {
   fim_version = local.env.fim_version
 }
 
+#Data Services (WRDS APIs)
+module "data-services" {
+  source = "./EC2/DataServices"
+
+  environment                    = local.env.environment
+  ami_owner_account_id           = local.env.ami_owner_account_id
+  ec2_instance_subnet            = module.vpc.subnet_private_a.id
+  ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
+  ec2_instance_sgs = [
+    module.security-groups.hydrovis-RDS.id,
+    module.security-groups.hydrovis-nat-sg.id,
+    module.security-groups.ssm-session-manager-sg.id
+  ]
+  ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
+  kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
+  rds_host                           = module.rds-ingest.dns_name
+  location_db_name                   = local.env.location_db_name
+  forecast_db_name                   = local.env.forecast_db_name
+  location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
+  forecast_credentials_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
+  vlab_repo_prefix                   = local.env.data_services_vlab_repo_prefix
+  data_services_versions             = local.env.data_services_versions
+
+  private_route_53_zone = module.private-route53.zone
+}
+
 # # Lambda Functions
 # module "viz_lambda_functions" {
 #   source = "./LAMBDA/viz_functions"
@@ -408,12 +436,12 @@ module "rds-bastion" {
 #   account_id                    = local.env.account_id
 #   region                        = local.env.region
 #   viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
-#   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
 #   fim_data_bucket               = module.s3.buckets["deployment"].bucket
+#   deployment_bucket             = module.s3.buckets["deployment"].bucket
 #   fim_output_bucket             = module.s3.buckets["fim"].bucket
 #   max_flows_bucket              = module.s3.buckets["fim"].bucket
-#   deployment_bucket             = module.s3.buckets["deployment"].bucket
 #   viz_cache_bucket              = module.s3.buckets["fim"].bucket
+#   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
 #   fim_version                   = local.env.fim_version
 #   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
 #   sns_topics                    = module.sns.sns_topics
@@ -435,7 +463,7 @@ module "rds-bastion" {
 #   egis_db_name                  = local.env.egis_db_name
 #   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
 #   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
-#   dataservices_ip               = module.data-services.dataservices-ip
+#   dataservices_host             = module.data-services.dns_name
 # }
 
 # # Simple Service Notifications
@@ -554,30 +582,6 @@ module "rds-bastion" {
 #   db_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
 # }
 
-# #Data Services (WRDS APIs)
-# module "data-services" {
-#   source = "./EC2/DataServices"
-
-#   environment                    = local.env.environment
-#   ami_owner_account_id           = local.env.ami_owner_account_id
-#   ec2_instance_subnet            = module.vpc.subnet_hydrovis-sn-prv-data1a.id
-#   ec2_instance_availability_zone = module.vpc.subnet_hydrovis-sn-prv-data1a.availability_zone
-#   ec2_instance_sgs = [
-#     module.security-groups.hydrovis-RDS.id,
-#     module.security-groups.hydrovis-nat-sg.id,
-#     module.security-groups.ssm-session-manager-sg.id
-#   ]
-#   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
-#   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
-#   rds_host                           = module.rds-ingest.dns_name
-#   location_db_name                   = local.env.location_db_name
-#   forecast_db_name                   = local.env.forecast_db_name
-#   location_credentials_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
-#   forecast_credentials_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
-#   vlab_repo_prefix                   = local.env.data_services_vlab_repo_prefix
-#   data_services_versions             = local.env.data_services_versions
-# }
-
 # module "rnr" {
 #   source = "./EC2/rnr"
 
@@ -590,7 +594,7 @@ module "rds-bastion" {
 #   deployment_data_bucket         = module.s3.buckets["deployment"].bucket
 #   ec2_kms_key                    = module.kms.key_arns["encrypt-ec2"]
 #   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-rnr-role.name
-#   dataservices_ip                = module.data-services.dataservices-ip
+#   dataservices_host              = module.data-services.dns_name
 #   nomads_url                     = local.env.rnr_nomads_url
 #   s3_url                         = local.env.rnr_s3_url
 #   rnr_versions                   = local.env.rnr_versions
@@ -641,7 +645,7 @@ module "rds-bastion" {
 #     module.security-groups.ssm-session-manager-sg.id,
 #     module.security-groups.egis-overlord.id
 #   ]
-#   dataservices_ip             = module.data-services.dataservices-ip
+#   dataservices_host           = module.data-services.dns_name
 #   fim_data_bucket             = module.s3.buckets["deployment"].bucket
 #   fim_output_bucket           = module.s3.buckets["fim"].bucket
 #   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket

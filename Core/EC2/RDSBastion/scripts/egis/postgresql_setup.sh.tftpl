@@ -1,11 +1,5 @@
 #!/bin/bash
 
-### set correct db dump file names / versions here - These should be in the S3 bucket at {DEPLOYMENT_BUCKET}/egis_db_dumps/ ###
-egisDB_services="egisDB_services_2023_0214.dump"
-egisDB_reference="egisDB_reference_2023_0214.dump"
-egisDB_aep_fim="egisDB_aep_fim_2023_0214.dump"
-egisDB_fim_catchments="egisDB_fim_catchments_2023_0214.dump"
-
 postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
@@ -18,23 +12,19 @@ echo "Creating EGIS DB..."
 psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "postgres" -c "CREATE DATABASE ${egis_db_name}"
 echo "Creating ${egis_db_username} Role..."
 psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "CREATE ROLE ${egis_db_username};"
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "ALTER ROLE ${egis_db_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '${egis_db_password}';"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "ALTER ROLE ${egis_db_username} WITH INHERIT LOGIN ENCRYPTED PASSWORD '${egis_db_password}';"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "GRANT rds_superuser TO ${egis_db_username};"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "GRANT ALL ON DATABASE ${egis_db_name} TO ${egis_db_username};"
 
 
-export PGPASSWORD=${egis_db_password}
 # Setting up EGIS DB
+export PGPASSWORD=${egis_db_password}
+
 echo "Setting up postgis..."
 aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql"
 psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -f "$${postgres_data_folder}/postgis_setup.sql"
 rm "$${postgres_data_folder}/postgis_setup.sql"
 
-
-# Cleaning up EGIS DB
-echo "Setting up services schema in the EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/egis_db_dumps/$${egisDB_services}" "$${postgres_data_folder}/egisDB_services.dump"
-pg_restore -h "${egis_db_host}" -p ${egis_db_port} -d "${egis_db_name}" -U ${egis_db_username} -j 4 -v "$${postgres_data_folder}/egisDB_services.dump"
-rm "$${postgres_data_folder}/egisDB_services.dump"
 
 # Adding foreign data wrapper-linked schema to the viz processing publish, for the transfer of published data.
 echo "Setting up vizprc_publish schema in the EGIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
@@ -50,27 +40,3 @@ psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis
             CREATE SERVER vizprc_db FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '${viz_db_host}', dbname '${viz_db_name}', port '${viz_db_port}');
             CREATE USER MAPPING FOR ${egis_db_username} SERVER vizprc_db OPTIONS (user '${viz_proc_admin_rw_username}', password '${viz_proc_admin_rw_password}');
             IMPORT FOREIGN SCHEMA publish FROM SERVER vizprc_db INTO vizprc_publish;"
-
-
-# Restoring EGIS Reference Schema Dumps
-echo "Setting up reference schema in the EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/egis_db_dumps/$${egisDB_reference}" "$${postgres_data_folder}/egisDB_reference.dump"
-pg_restore -h "${egis_db_host}" -p ${egis_db_port} -d "${egis_db_name}" -U ${egis_db_username} -j 4 -v "$${postgres_data_folder}/egisDB_reference.dump"
-rm "$${postgres_data_folder}/egisDB_reference.dump"
-
-
-# Restoring AEP FIM Schema Dump
-echo "Setting up aep_fim schema in the EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS aep_fim CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/egis_db_dumps/$${egisDB_aep_fim}" "$${postgres_data_folder}/egisDB_aep_fim.dump"
-pg_restore -h "${egis_db_host}" -p ${egis_db_port} -d "${egis_db_name}" -U ${egis_db_username} -j 4 -v "$${postgres_data_folder}/egisDB_aep_fim.dump"
-rm "$${postgres_data_folder}/egisDB_aep_fim.dump"
-
-
-# Restoring FIM Catchments Schema Dumps
-echo "Setting up fim_catchments schema in the EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "DROP SCHEMA IF EXISTS fim_catchments CASCADE;"
-aws s3 cp "s3://${deployment_bucket}/egis_db_dumps/$${egisDB_fim_catchments}" "$${postgres_data_folder}/egisDB_fim_catchments.dump"
-pg_restore -h "${egis_db_host}" -p ${egis_db_port} -d "${egis_db_name}" -U ${egis_db_username} -j 4 -v "$${postgres_data_folder}/egisDB_fim_catchments.dump"
-rm "$${postgres_data_folder}/egisDB_fim_catchments.dump"

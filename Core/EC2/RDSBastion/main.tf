@@ -199,7 +199,7 @@ resource "aws_instance" "rds-bastion" {
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-rds-bastion"
+    "Name" = "hv-vpp-${var.environment}-rds-bastion"
     "OS"   = "Linux"
   }
 
@@ -267,6 +267,16 @@ data "aws_ami" "linux" {
   owners = [var.ami_owner_account_id]
 }
 
+data "aws_s3_objects" "viz_db_dumps" {
+  bucket = var.data_deployment_bucket
+  prefix = "viz_db_dumps/vizDB"
+}
+
+data "aws_s3_objects" "egis_db_dumps" {
+  bucket = var.data_deployment_bucket
+  prefix = "egis_db_dumps/egisDB"
+}
+
 data "cloudinit_config" "startup" {
   gzip          = true
   base64_encode = true
@@ -328,7 +338,22 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "3_egis_postgresql_setup.sh"
+    filename     = "3_viz_restore_db_dumps.sh"
+    content      = templatefile("${path.module}/scripts/utils/restore_db_dumps_from_s3.sh.tftpl", {
+      db_name     = local.dbs["viz"]["db_name"]
+      db_host     = local.dbs["viz"]["db_host"]
+      db_port     = local.dbs["viz"]["db_port"]
+      db_username = local.dbs["viz"]["db_username"]
+      db_password = local.dbs["viz"]["db_password"]
+
+      s3_bucket   = data.aws_s3_objects.viz_db_dumps.bucket
+      s3_key_list = data.aws_s3_objects.viz_db_dumps.keys
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "4_egis_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/egis/postgresql_setup.sh.tftpl", {
       deployment_bucket          = var.data_deployment_bucket
       postgis_setup_s3_key       = aws_s3_object.postgis_setup.key
@@ -346,6 +371,21 @@ data "cloudinit_config" "startup" {
       egis_db_password           = local.dbs["egis"]["db_password"]
       viz_proc_admin_rw_username = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
       viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "5_egis_restore_db_dumps.sh"
+    content      = templatefile("${path.module}/scripts/utils/restore_db_dumps_from_s3.sh.tftpl", {
+      db_name     = local.dbs["egis"]["db_name"]
+      db_host     = local.dbs["egis"]["db_host"]
+      db_port     = local.dbs["egis"]["db_port"]
+      db_username = local.dbs["egis"]["db_username"]
+      db_password = local.dbs["egis"]["db_password"]
+
+      s3_bucket   = data.aws_s3_objects.egis_db_dumps.bucket
+      s3_key_list = data.aws_s3_objects.egis_db_dumps.keys
     })
   }
 

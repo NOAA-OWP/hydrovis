@@ -21,11 +21,11 @@ variable "vpc_main_id" {
 variable "vpc_main_cidr_block" {
   type = string
 }
-variable "subnet_hydrovis-sn-prv-data1a_cidr_block" {
+variable "subnet_a_cidr_block" {
   type = string
 }
 
-variable "subnet_hydrovis-sn-prv-data1b_cidr_block" {
+variable "subnet_b_cidr_block" {
   type = string
 }
 
@@ -211,9 +211,9 @@ resource "aws_security_group" "hv-rabbitmq" {
     },
     {
       cidr_blocks = [
-        var.subnet_hydrovis-sn-prv-data1b_cidr_block,
+        var.subnet_b_cidr_block,
       ]
-      description      = "Access from subnet hydrovis-sn-prv-${var.environment}-data1b"
+      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-b"
       from_port        = 443
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
@@ -224,9 +224,9 @@ resource "aws_security_group" "hv-rabbitmq" {
     },
     {
       cidr_blocks = [
-        var.subnet_hydrovis-sn-prv-data1b_cidr_block,
+        var.subnet_b_cidr_block,
       ]
-      description      = "Access from subnet hydrovis-sn-prv-${var.environment}-data1b"
+      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-b"
       from_port        = 5671
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
@@ -237,9 +237,9 @@ resource "aws_security_group" "hv-rabbitmq" {
     },
     {
       cidr_blocks = [
-        var.subnet_hydrovis-sn-prv-data1a_cidr_block,
+        var.subnet_a_cidr_block,
       ]
-      description      = "Access from subnet hydrovis-sn-prv-${var.environment}-data1a"
+      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-a"
       from_port        = 443
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
@@ -250,9 +250,9 @@ resource "aws_security_group" "hv-rabbitmq" {
     },
     {
       cidr_blocks = [
-        var.subnet_hydrovis-sn-prv-data1a_cidr_block,
+        var.subnet_a_cidr_block,
       ]
-      description      = "Access from subnet hydrovis-sn-prv-${var.environment}-data1a"
+      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-a"
       from_port        = 5671
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
