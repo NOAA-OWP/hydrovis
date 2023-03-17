@@ -386,11 +386,12 @@ def get_db_credentials(db_type):
     db_host = os.environ[f'{db_type}_DB_HOST']
     db_name = os.environ[f'{db_type}_DB_DATABASE']
     db_user = os.environ[f'{db_type}_DB_USERNAME']
+    aws_region = os.environ['AWS_REGION']
     try:
         db_password = os.getenv(f'{db_type}_DB_PASSWORD')
     except Exception:
         try:
-            db_password = get_secret_password(os.getenv(f'{db_type}_RDS_SECRET_NAME'), 'us-east-1', 'password')
+            db_password = get_secret_password(os.getenv(f'{db_type}_RDS_SECRET_NAME'), aws_region, 'password')
         except Exception as e:
             print(f"Couldn't get db password from environment variable or secret name. ({e})")
 

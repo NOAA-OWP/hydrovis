@@ -151,9 +151,10 @@ def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, columns, r
     ref_day = f"{reference_time.strftime('%Y%m%d')}"
     ref_hour = f"{reference_time.strftime('%H%M')}"
     s3_key = f"viz_cache/{ref_day}/{ref_hour}/{table}.csv"
+    aws_region = os.environ['AWS_REGION']
     with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
             columns = columns.replace('geom', 'ST_AsText(geom) AS geom')
-            cur.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','us-east-1'), options :='format csv , HEADER true');")
+            cur.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','{aws_region}'), options :='format csv , HEADER true');")
     print(f"---> Wrote csv cache data from {schema}.{table} to {cache_bucket}/{s3_key}")
     return s3_key
 
