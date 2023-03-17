@@ -10,29 +10,16 @@ sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 sudo systemctl daemon-reload
 sudo systemctl restart rsyslog
 
-echo "Installing System Dependencies"
-sudo yum -y install git postgresql12
-
 echo "Installing HML Ingester"
-aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/ingest/owp-hml-ingester.tar.gz /home/ec2-user
+aws s3 cp s3://${deployment_bucket}/${hml_ingester_s3_key} /home/ec2-user/owp-hml-ingester.tar.gz
 tar -C /home/ec2-user -xzf /home/ec2-user/owp-hml-ingester.tar.gz
 
-echo "Updating HML Ingester Configs"
-RSCHEME=${RSCHEME}
-RPORT=${RPORT}
-RHOST=${RHOST}
-RPASSWORD=${MQINGESTPASSWORD}
-DBHOST=${DBHOST}
-DBPASSWORD=${DBPASSWORD}
+cd /home/ec2-user/owp-hml-ingester
 
 # Update configs
-(echo "$RHOST"; echo "$RPASSWORD"; echo "$DBHOST"; echo "$DBPASSWORD") | sudo /home/ec2-user/owp-hml-ingester/update_configs.sh hydrovis.${HVLEnvironment}
+(echo "${r_host}"; echo "${r_password}"; echo "${db_host}"; echo "${db_password}") | sudo update_configs.sh hydrovis.${environment}
 
-echo "Building HML Ingester Dockers"
-/usr/local/bin/docker-compose -f /home/ec2-user/owp-hml-ingester/docker-compose_hydrovis_${HVLEnvironment}.yml build
-
-echo "Spinning up HML Ingester Dockers"
-/usr/local/bin/docker-compose -f /home/ec2-user/owp-hml-ingester/docker-compose_hydrovis_${HVLEnvironment}.yml up -d
+echo "Building HML Ingester Docker"
+sudo docker-compose -f docker-compose_hydrovis_${environment}.yml up --build -d
 
 echo "Finished Setup"
-

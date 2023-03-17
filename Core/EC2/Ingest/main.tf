@@ -45,7 +45,7 @@ variable "ec2_instance_profile_name" {
   type        = string
 }
 
-variable "deployment_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 bucket where the deployment files reside"
   type        = string
 }
@@ -68,17 +68,14 @@ variable "db_ingest_secret_string" {
 
 
 locals {
-  hvl_environment = var.environment == "ti" ? "TI" : var.environment == "uat" ? "UAT" : var.environment
   user_data = templatefile("${path.module}/templates/prc_install.sh.tftpl", {
-    DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-    HVLEnvironment         = local.hvl_environment
-    RSCHEME                = split(":", var.mq_ingest_endpoint)[0]
-    RPORT                  = split(":", var.mq_ingest_endpoint)[2]
-    RHOST                  = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
-    MQINGESTPASSWORD       = jsondecode(var.mq_ingest_secret_string)["password"]
-    DBHOST                 = var.db_host
-    DBPASSWORD             = jsondecode(var.db_ingest_secret_string)["password"]
-    HVLEnvironment         = var.environment
+    deployment_bucket   = var.deployment_bucket
+    hml_ingester_s3_key = aws_s3_object.hml_ingester.key
+    environment         = var.environment
+    r_host              = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
+    r_password          = jsondecode(var.mq_ingest_secret_string)["password"]
+    db_host             = var.db_host
+    db_password         = jsondecode(var.db_ingest_secret_string)["password"]
   })
 }
 
@@ -86,10 +83,10 @@ locals {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_object" "owp_hml_ingester" {
-  bucket = var.deployment_data_bucket
-  key    = "terraform_artifacts/${path.module}/owp-hml-ingester.tar.gz"
-  source = "${path.module}/owp-hml-ingester.tar.gz"
+resource "aws_s3_object" "hml_ingester" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/owp-hml-ingester.tar.gz"
+  source      = "${path.module}/owp-hml-ingester.tar.gz"
   source_hash = filemd5("${path.module}/owp-hml-ingester.tar.gz")
 }
 
@@ -139,10 +136,6 @@ resource "aws_instance" "ingest_prc1" {
     volume_type = "gp2"
   }
 
-  depends_on = [
-    aws_s3_object.owp_hml_ingester
-  ]
-
   user_data                   = local.user_data
   user_data_replace_on_change = true
 }
@@ -171,10 +164,6 @@ resource "aws_instance" "ingest_prc2" {
     kms_key_id  = var.ec2_kms_key
     volume_type = "gp2"
   }
-
-  depends_on = [
-    aws_s3_object.owp_hml_ingester
-  ]
 
   user_data                   = local.user_data
   user_data_replace_on_change = true

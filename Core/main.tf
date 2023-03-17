@@ -571,7 +571,7 @@ module "data-ingest-ec2" {
   ]
   ec2_kms_key               = module.kms.key_arns["encrypt-ec2"]
   ec2_instance_profile_name = module.iam-roles.profile_hydrovis-hml-ingest-role.name
-  deployment_data_bucket    = module.s3.buckets["deployment"].bucket
+  deployment_bucket         = module.s3.buckets["deployment"].bucket
 
   mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
   mq_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
@@ -589,7 +589,7 @@ module "rnr" {
   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
   ec2_instance_sgs               = [module.security-groups.ssm-session-manager-sg.id]
   output_bucket                  = module.s3.buckets["rnr"].bucket
-  deployment_data_bucket         = module.s3.buckets["deployment"].bucket
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
   ec2_kms_key                    = module.kms.key_arns["encrypt-ec2"]
   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-rnr-role.name
   dataservices_host              = module.data-services.dns_name

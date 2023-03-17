@@ -61,12 +61,13 @@ resource "aws_s3_object" "viz_lambda_shared_funcs_zip_upload" {
 resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
   s3_bucket        = aws_s3_object.viz_lambda_shared_funcs_zip_upload.bucket
   s3_key           = aws_s3_object.viz_lambda_shared_funcs_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.viz_lambda_shared_funcs_zip.output_path)
 
   layer_name = "viz_lambda_shared_funcs_${var.environment}"
 
   compatible_runtimes = ["python3.7", "python3.8"]
   description         = "Viz classes and helper functions for general viz lambda functionality"
+  
+  source_code_hash = filebase64sha256(data.archive_file.viz_lambda_shared_funcs_zip.output_path)
 }
 
 #############################
@@ -88,6 +89,8 @@ resource "aws_lambda_layer_version" "arcgis_python_api" {
 
   compatible_runtimes = ["python3.9"]
   description         = "ArcGIS Python API module"
+
+  source_code_hash = filebase64sha256("${path.module}/arcgis_python_api.zip")
 }
 
 ##################
@@ -109,6 +112,8 @@ resource "aws_lambda_layer_version" "pandas" {
 
   compatible_runtimes = ["python3.9"]
   description         = "pandas python package"
+
+  source_code_hash = filebase64sha256("${path.module}/pandas.zip")
 }
 
 ##################
@@ -131,6 +136,8 @@ resource "aws_lambda_layer_version" "geopandas" {
 
   compatible_runtimes = ["python3.9"]
   description         = "geopandas python package"
+
+  source_code_hash = filebase64sha256("${path.module}/geopandas.zip")
 }
 
 ##################################
@@ -152,6 +159,8 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 
   compatible_runtimes = ["python3.9"]
   description         = "psycopg2 and sql alchemy python packages"
+
+  source_code_hash = filebase64sha256("${path.module}/psycopg2_sqlalchemy.zip")
 }
 
 ##########################
@@ -173,6 +182,8 @@ resource "aws_lambda_layer_version" "huc_proc_combo" {
 
   compatible_runtimes = ["python3.9"]
   description         = "Includes pandas, pyscopg2, sqlachemy, and rasterio"
+
+  source_code_hash = filebase64sha256("${path.module}/huc_proc_combo.zip")
 }
 
 ##################
@@ -194,6 +205,8 @@ resource "aws_lambda_layer_version" "xarray" {
 
   compatible_runtimes = ["python3.9"]
   description         = "xarray python package"
+
+  source_code_hash = filebase64sha256("${path.module}/xarray.zip")
 }
 
 ################
@@ -215,6 +228,8 @@ resource "aws_lambda_layer_version" "pika" {
 
   compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
   description         = "Python pika module"
+
+  source_code_hash = filebase64sha256("${path.module}/pika.zip")
 }
 
 ####################
@@ -236,6 +251,8 @@ resource "aws_lambda_layer_version" "requests" {
 
   compatible_runtimes = ["python3.9"]
   description         = "Python requests module"
+
+  source_code_hash = filebase64sha256("${path.module}/requests.zip")
 }
 
 #############

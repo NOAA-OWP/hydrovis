@@ -46,7 +46,7 @@ variable "dataservices_host" {
   type = string
 }
 
-variable "deployment_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 bucket where the deployment data lives"
   type        = string
 }
@@ -72,9 +72,9 @@ locals {
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
         content     = templatefile("${path.module}/templates/conus.ini.tftpl", {
-          WRDS_HOST = "http://${var.dataservices_host}"
-          S3_URL = var.s3_url
-          NOMADS_URL = var.nomads_url
+          dataservices_host = "http://${var.dataservices_host}"
+          s3_url            = var.s3_url
+          nomads_url        = var.nomads_url
         })
       },
       {
@@ -82,7 +82,7 @@ locals {
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
         content     = templatefile("${path.module}/templates/.env.devel.tftpl", {
-          OUTPUT_BUCKET = var.output_bucket
+          output_bucket = var.output_bucket
         })
       }
     ]
@@ -93,10 +93,10 @@ locals {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_object" "owp_viz_replace_route" {
-  bucket = var.deployment_data_bucket
-  key    = "terraform_artifacts/${path.module}/owp-viz-replace-route.tgz"
-  source = "${path.module}/owp-viz-replace-route.tgz"
+resource "aws_s3_object" "replace_route" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/owp-viz-replace-route.tgz"
+  source      = "${path.module}/owp-viz-replace-route.tgz"
   source_hash = filemd5("${path.module}/owp-viz-replace-route.tgz")
 }
 
@@ -137,12 +137,6 @@ resource "aws_instance" "replace_and_route" {
     }
   }
 
-  depends_on = [
-    aws_s3_object.owp_viz_replace_route,
-    data.aws_s3_object.wrf_hydro,
-    data.aws_s3_object.rnr_static
-  ]
-
   user_data                   = data.cloudinit_config.startup.rendered
   user_data_replace_on_change = true
 }
@@ -153,12 +147,12 @@ resource "aws_instance" "replace_and_route" {
 #################
 
 data "aws_s3_object" "wrf_hydro" {
-  bucket = var.deployment_data_bucket
+  bucket = var.deployment_bucket
   key    = "rnr_datasets/wrf_hydro.tgz"
 }
 
 data "aws_s3_object" "rnr_static" {
-  bucket = var.deployment_data_bucket
+  bucket = var.deployment_bucket
   key    = "rnr_datasets/rnr_static.tgz"
 }
 
@@ -183,9 +177,12 @@ data "cloudinit_config" "startup" {
     content_type = "text/x-shellscript"
     filename     = "install.sh"
     content      = templatefile("${path.module}/templates/install.sh.tftpl", {
-      DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-      netcdf_c_commit        = var.rnr_versions["netcdf_c_commit"]
-      netcdf_fortran_commit  = var.rnr_versions["netcdf_fortran_commit"]
+      deployment_bucket     = var.deployment_bucket
+      replace_route_s3_key  = aws_s3_object.replace_route.key
+      wrf_hydro_s3_key      = data.aws_s3_object.wrf_hydro.key
+      rnr_static_s3_key     = data.aws_s3_object.rnr_static.key
+      netcdf_c_commit       = var.rnr_versions["netcdf_c_commit"]
+      netcdf_fortran_commit = var.rnr_versions["netcdf_fortran_commit"]
     })
   }
 
