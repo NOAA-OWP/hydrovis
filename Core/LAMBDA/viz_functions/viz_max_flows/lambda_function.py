@@ -51,7 +51,8 @@ def lambda_handler(event, context):
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:
-        pipeline = viz_lambda_pipeline(event, step='max_flows') # This does a ton of stuff - see the viz_pipeline class below for details.
+        custom_dataflow_query=" AND (step = 'max_flows' AND file_format IS NOT NULL)"
+        pipeline = viz_lambda_pipeline(event, custom_dataflow_query=custom_dataflow_query) # This does a ton of stuff - see the viz_pipeline class below for details.
         invoke_step_function = pipeline.start_event.get('invoke_step_function') if 'invoke_step_function' in pipeline.start_event else True
     except Exception as e:
         print("Error: Pipeline failed to initialize.")
@@ -394,7 +395,7 @@ def check_if_file_exists(bucket, file):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, step=None):
+    def __init__(self, start_event, print_init=True, custom_dataflow_query=None):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -411,24 +412,24 @@ class viz_lambda_pipeline:
 
         if self.start_event.get("detail-type") == "Scheduled Event":
             config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
-            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, step=step)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, custom_dataflow_query=custom_dataflow_query)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
         elif self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
             configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
+            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, custom_dataflow_query=custom_dataflow_query)
         # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
         elif self.invocation_type == "manual":
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
-                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), step=step)
+                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), custom_dataflow_query=custom_dataflow_query)
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
                 self.start_file = most_recent_file
                 configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
+                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, custom_dataflow_query=custom_dataflow_query)
         
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
@@ -549,12 +550,12 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, step=None): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, custom_dataflow_query=None): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
         self.service_metadata = self.get_service_metadata()
-        self.db_data_flow_metadata = self.get_db_data_flow_metadata(step=step)
+        self.db_data_flow_metadata = self.get_db_data_flow_metadata(custom_dataflow_query=custom_dataflow_query)
         self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
         self.max_flows = []
         for service in self.services_to_run:
@@ -583,9 +584,6 @@ class configuration:
             hour = matches[3]
             configuration_name = matches[0]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
-            days_match = re.findall(r"(\d+day)", filename)
-            if days_match:
-                configuration_name = f"{configuration_name}_{days_match[0]}"
         elif 'max_stage' in filename:
             matches = re.findall(r"max_stage/(.*)/(\d{8})/(\d{2})_(\d{2})_ahps_(.*).csv", filename)[0]
             date = matches[1]
@@ -593,6 +591,12 @@ class configuration:
             minute = matches[3]
             configuration_name = matches[0]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:{minute[-2:]}:00", '%Y-%m-%d %H:%M:%S')
+        elif 'max_elevs' in filename:	
+            matches = re.findall(r"max_elevs/(.*)/(\d{8})/\D*_(mem\d_)?(\d+day_)?(\d{2})_max_elevs.*", filename)[0]
+            date = matches[1]
+            hour = matches[-1]	
+            configuration_name = matches[0]	
+            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
         else:
             if 'analysis_assim' in filename:
                 matches = re.findall(r"(.*)/nwm.(\d{8})/(.*)/nwm.t(\d{2})z\.(.*)\..*\.tm(.*)\.(.*)\.nc", filename)[0]
@@ -787,18 +791,18 @@ class configuration:
     ###################################
     # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, step=None):
+    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, custom_dataflow_query=None):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
+        
         run_filter = " AND run is True" if run_only else ""
-        step_filter = f" AND step = '{step}'" if step else ""
         
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             cur.execute(f"""
                 SELECT admin.services.service, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.services
                 JOIN admin.pipeline_data_flows ON admin.services.service = admin.pipeline_data_flows.service
-                WHERE configuration = '{self.name}'{run_filter}{step_filter};
+                WHERE configuration = '{self.name}'{run_filter}{custom_dataflow_query};
                 """)
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
