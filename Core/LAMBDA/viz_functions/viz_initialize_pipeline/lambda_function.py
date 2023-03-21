@@ -305,7 +305,8 @@ class configuration:
         self.input_bucket = input_bucket
         self.service_metadata = self.get_service_metadata()
         self.db_data_flow_metadata = self.get_db_data_flow_metadata(custom_dataflow_query=custom_dataflow_query)
-        self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
+        valid_services = [service['service'] for service in self.db_data_flow_metadata]
+        self.services_to_run = [service for service in self.service_metadata if service['run'] and service['service'] in valid_services] #Pull the relevant configuration services into a list.
         self.max_flows = []
         for service in self.services_to_run:
             self.max_flows.extend([max_flow for max_flow in service['postprocess_max_flows'] if max_flow not in self.max_flows])
