@@ -395,7 +395,7 @@ def check_if_file_exists(bucket, file):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, custom_dataflow_query=None):
+    def __init__(self, start_event, print_init=True, custom_dataflow_query=""):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -550,7 +550,7 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, custom_dataflow_query=None): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, custom_dataflow_query=""): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
@@ -792,7 +792,7 @@ class configuration:
     ###################################
     # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, custom_dataflow_query=None):
+    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, custom_dataflow_query=""):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
         
