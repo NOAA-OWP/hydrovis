@@ -35,10 +35,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -9375598.56422759034,
-      "ymin" : 4842372.529844027,
-      "xmax" : -9361252.02075471915,
-      "ymax" : 4855964.85503146611,
+      "xmin" : -9389142.88613675535,
+      "ymin" : 4828322.49227744155,
+      "xmax" : -9346431.49694715813,
+      "ymax" : 4861506.87994208746,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -179,22 +179,99 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "USGS Gage",
-            "fieldName" : "usgs_gage",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "NWM ID",
+            "alias" : "NWM Feature ID",
             "fieldName" : "nwm_seg",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "NWM Stream Order",
+            "fieldName" : "nwm_feature_data_stream_order",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Gauge ID",
+            "fieldName" : "usgs_gage",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Name",
+            "fieldName" : "usgs_data_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Preferred Name",
+            "fieldName" : "usgs_preferred_name",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "GOES ID",
+            "fieldName" : "identifiers_goes_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "WFO",
+            "fieldName" : "nws_data_wfo",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "HSA",
+            "fieldName" : "nws_data_hsa",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "RFC",
+            "fieldName" : "nws_data_rfc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "states",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "County",
+            "fieldName" : "nws_data_county",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -214,15 +291,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
-            "visible" : false,
+            "alias" : "WRDS Timestamp",
+            "fieldName" : "wrds_timestamp",
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "WRDS Timestamp",
-            "fieldName" : "wrds_timestamp",
+            "alias" : "Map Link",
+            "fieldName" : "nws_data_map_link",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -242,16 +319,16 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "metadata_sources",
-            "fieldName" : "metadata_sources",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "GOES ID",
-            "fieldName" : "identifiers_goes_id",
-            "visible" : true,
+            "alias" : "metadata_sources",
+            "fieldName" : "metadata_sources",
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -272,21 +349,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Name",
             "fieldName" : "nws_data_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "WFO",
-            "fieldName" : "nws_data_wfo",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "RFC",
-            "fieldName" : "nws_data_rfc",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -326,57 +389,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Map Link",
-            "fieldName" : "nws_data_map_link",
-            "visible" : true,
+            "alias" : "State",
+            "fieldName" : "nws_data_state",
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Horizontal Datum",
             "fieldName" : "nws_data_horizontal_datum_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "State",
-            "fieldName" : "nws_data_state",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "County",
-            "fieldName" : "nws_data_county",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "County Code",
-            "fieldName" : "nws_data_county_code",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "nws_data_huc",
-            "fieldName" : "nws_data_huc",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "HSA",
-            "fieldName" : "nws_data_hsa",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -403,6 +424,34 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "USGS Preferred Lat Lon Datum",
+            "fieldName" : "usgs_preferred_latlon_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "County Code",
+            "fieldName" : "nws_data_county_code",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_huc",
+            "fieldName" : "nws_data_huc",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "RFC Forecast Point",
             "fieldName" : "nws_data_rfc_forecast_point",
             "visible" : true,
@@ -419,14 +468,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Riverpoint",
             "fieldName" : "nws_data_riverpoint",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS Name",
-            "fieldName" : "usgs_data_name",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -461,6 +503,34 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS Coordinate Method Code",
             "fieldName" : "usgs_data_coord_method_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Altitude Accuracy Code",
+            "fieldName" : "usgs_data_alt_accuracy_code",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Altitude Datum Code",
+            "fieldName" : "usgs_data_alt_datum_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS Altitude Method Code",
+            "fieldName" : "usgs_data_alt_method_code",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -503,34 +573,6 @@
               "roundingOption" : "esriRoundNumberOfSignificantDigits",
               "roundingValue" : 2
             },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS Altitude Accuracy Code",
-            "fieldName" : "usgs_data_alt_accuracy_code",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS Altitude Datum Code",
-            "fieldName" : "usgs_data_alt_datum_code",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS Altitude Method Code",
-            "fieldName" : "usgs_data_alt_method_code",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -599,23 +641,9 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "NWM Stream Order",
-            "fieldName" : "nwm_feature_data_stream_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "NWS Preferred Name",
             "fieldName" : "nws_preferred_name",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -641,20 +669,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "USGS Preferred Name",
-            "fieldName" : "usgs_preferred_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS Preferred Lat Lon Datum",
-            "fieldName" : "usgs_preferred_latlon_datum_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "usgs_preferred_state",
             "fieldName" : "usgs_preferred_state",
             "visible" : false,
@@ -665,20 +679,6 @@
             "alias" : "assigned_crs",
             "fieldName" : "assigned_crs",
             "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "States",
-            "fieldName" : "states",
-            "visible" : true,
             "searchMode" : "Exact"
           }
         ],
@@ -1343,7 +1343,7 @@
                                 2
                               ],
                               [
-                                1.5628715010100145e-15,
+                                1.9066825246747944e-15,
                                 0
                               ],
                               0,
@@ -1446,7 +1446,7 @@
                                         2
                                       ],
                                       [
-                                        2.2361680744950692e-15,
+                                        2.4080735754336047e-15,
                                         0
                                       ],
                                       0,
@@ -1551,7 +1551,7 @@
                                         2
                                       ],
                                       [
-                                        2.2361680744950692e-15,
+                                        2.4080735754336047e-15,
                                         0
                                       ],
                                       0,
@@ -1698,15 +1698,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Magnitude",
-            "fieldName" : "magnitude",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "version",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1714,13 +1707,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1749,6 +1735,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "County",
             "fieldName" : "county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "FIM Version",
+            "fieldName" : "version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Magnitude",
+            "fieldName" : "magnitude",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1784,7 +1784,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Viz",
             "fieldName" : "viz",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -2374,15 +2374,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Magnitude",
-            "fieldName" : "magnitude",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "version",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2390,13 +2383,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2425,6 +2411,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "County",
             "fieldName" : "county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "FIM Version",
+            "fieldName" : "version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Magnitude",
+            "fieldName" : "magnitude",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2460,7 +2460,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Viz",
             "fieldName" : "viz",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -3050,15 +3050,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Magnitude",
-            "fieldName" : "magnitude",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "version",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3066,13 +3059,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3101,6 +3087,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "County",
             "fieldName" : "county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "FIM Version",
+            "fieldName" : "version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Magnitude",
+            "fieldName" : "magnitude",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3136,7 +3136,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Viz",
             "fieldName" : "viz",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -3726,15 +3726,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Magnitude",
-            "fieldName" : "magnitude",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "version",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3742,13 +3735,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3777,6 +3763,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "County",
             "fieldName" : "county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "FIM Version",
+            "fieldName" : "version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Magnitude",
+            "fieldName" : "magnitude",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3812,7 +3812,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Viz",
             "fieldName" : "viz",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -4402,15 +4402,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Magnitude",
-            "fieldName" : "magnitude",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "version",
+            "alias" : "Name",
+            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4418,13 +4411,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4453,6 +4439,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "County",
             "fieldName" : "county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "FIM Version",
+            "fieldName" : "version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Magnitude",
+            "fieldName" : "magnitude",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4488,7 +4488,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Viz",
             "fieldName" : "viz",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
