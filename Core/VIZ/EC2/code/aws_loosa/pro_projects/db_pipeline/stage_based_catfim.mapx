@@ -291,29 +291,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "WRDS Timestamp",
-            "fieldName" : "wrds_timestamp",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Map Link",
             "fieldName" : "nws_data_map_link",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NRLDB Timestamp",
-            "fieldName" : "nrldb_timestamp",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWIS Timestamp",
-            "fieldName" : "nwis_timestamp",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -644,6 +623,27 @@
             "alias" : "NWS Preferred Name",
             "fieldName" : "nws_preferred_name",
             "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "WRDS Timestamp",
+            "fieldName" : "wrds_timestamp",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NRLDB Timestamp",
+            "fieldName" : "nrldb_timestamp",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWIS Timestamp",
+            "fieldName" : "nwis_timestamp",
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -1343,7 +1343,7 @@
                                 2
                               ],
                               [
-                                1.9066825246747944e-15,
+                                1.9639843619522576e-15,
                                 0
                               ],
                               0,
@@ -1446,7 +1446,7 @@
                                         2
                                       ],
                                       [
-                                        2.4080735754336047e-15,
+                                        2.4367244922566943e-15,
                                         0
                                       ],
                                       0,
@@ -1551,7 +1551,7 @@
                                         2
                                       ],
                                       [
-                                        2.4080735754336047e-15,
+                                        2.4367244922566943e-15,
                                         0
                                       ],
                                       0,
