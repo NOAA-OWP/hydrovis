@@ -1,4 +1,4 @@
-service: viz-huc-processing
+service: viz-hand-fim-processing
 provider:
   name: aws
   deploymentBucket: 

@@ -1,0 +1,159 @@
+{
+  "Comment": "Processes the outputs for all SCHISM FIM services.",
+  "StartAt": "Prepare for SCHISM FIM Processing",
+  "States": {
+    "Prepare for SCHISM FIM Processing": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${schism_fim_processing_arn}",
+        "Payload": {
+          "step": "setup",
+          "args.$": "$"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Iterate over HUC8s",
+      "ResultPath": "$.result",
+      "ResultSelector": {
+        "huc_list.$": "$.Payload"
+      }
+    },
+    "Iterate over HUC8s": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Process FIM By HUC8",
+        "States": {
+          "Process FIM By HUC8": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${schism_fim_processing_arn}",
+              "Payload": {
+                "step": "iteration",
+                "args": {
+                  "huc.$": "$.huc8",
+                  "reference_time.$": "$.reference_time",
+                  "configuration.$": "$.configuration"
+                }
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 2,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice",
+            "ResultPath": "$.result",
+            "ResultSelector": {
+              "output_bucket.$": "$.Payload.output_bucket",
+              "output_raster.$": "$.Payload.output_key"
+            }
+          },
+          "Choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Not": {
+                  "Variable": "$.result.output_raster",
+                  "IsNull": true
+                },
+                "Next": "Cloud Optimize Raster"
+              }
+            ],
+            "Default": "Success"
+          },
+          "Success": {
+            "Type": "Succeed"
+          },
+          "Cloud Optimize Raster": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${optimize_rasters_arn}",
+              "Payload.$": "$"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Success",
+            "InputPath": "$.result",
+            "ResultPath": null,
+            "OutputPath": "$.result"
+          }
+        }
+      },
+      "ItemsPath": "$.result.huc_list",
+      "ItemSelector": {
+        "huc8.$": "$$.Map.Item.Value",
+        "reference_time.$": "$.reference_time",
+        "configuration.$": "$.configuration"
+      },
+      "Next": "Move Rasters to Published Folder",
+      "ResultPath": "$.result"
+    },
+    "Move Rasters to Published Folder": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${update_egis_data_arn}",
+        "Payload": {
+          "step": "update_service_data",
+          "args": {
+            "map_item.$": "States.Format('{}_inundation_depth', $.configuration)",
+            "reference_time.$": "$.reference_time",
+            "job_type.$": "$.job_type",
+            "service": {
+              "service.$": "$.configuration",
+              "configuration.$": "$.service.configuration",
+              "egis_server": "image"
+            },
+            "output_raster_info_list.$": "$.result"
+          }
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}

@@ -316,6 +316,25 @@ module "viz_lambda_functions" {
   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip               = module.data-services.dataservices-ip
+  viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
+}
+
+# Simple Service Notifications
+module "step_functions" {
+  source = "./StepFunctions"
+
+  lambda_role = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  environment = local.env.environment
+  schism_fim_processing_arn = module.viz_lambda_functions
+  optimize_rasters_arn = module.viz_lambda_functions.optimize_rasters.arn
+  update_egis_data_arn = module.viz_lambda_functions.update_egis_data.arn
+  fim_data_prep_arn = module.viz_lambda_functions.fim_data_prep.arn
+  hand_fim_processing_arn = module.viz_lambda_functions
+  db_postprocess_sql_arn = module.viz_lambda_functions.db_postprocess_sql.arn
+  db_ingest_arn = module.viz_lambda_functions.db_ingest.arn
+  raster_processing_arn = module.viz_lambda_functions.raster_processing.arn
+  publish_service_arn = module.viz_lambda_functions.publish_service.arn
+  email_sns_topics              = module.sns.email_sns_topics
 }
 
 # Simple Service Notifications
