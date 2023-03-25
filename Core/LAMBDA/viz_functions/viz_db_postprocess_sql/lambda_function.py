@@ -10,7 +10,7 @@ def lambda_handler(event, context):
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     
     if step in ["services", "fim_config"]:
-        if event['args']['map']['service']['configuration'] == "reference":
+        if event['args']['map']['product']['configuration'] == "reference":
             return
     
     if folder == 'admin':
@@ -78,7 +78,6 @@ def run_sql(sql_path_or_str, sql_replace=None):
     viz_db = database(db_type="viz")
     with viz_db.get_db_connection() as connection:
         cur = connection.cursor()
-        print(sql)
         cur.execute(sql)
         try:
             result = cur.fetchone()
@@ -92,8 +91,12 @@ def max_flows_already_processed(sql_path, reference_time):
     sql = open(sql_path, 'r').read().lower()
     schema, table = re.search('into (\w+)\.(\w+)', sql).groups()
     sql = f'SELECT reference_time FROM {schema}.{table} LIMIT 1;'
-    result = run_sql(sql)[0]
-    if result == reference_time:
+    result = run_sql(sql)
+    
+    if not result:
+        return False
+        
+    if result[0] == reference_time:
         print("NOTE: {sql_path} was already executed for reference time {reference_time}")
         return True
     else:

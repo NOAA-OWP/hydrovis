@@ -727,6 +727,10 @@ resource "aws_lambda_function" "viz_publish_service" {
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz/db_pipeline/pro_project_data/sd_files/"
       SERVICE_TAG         = local.service_suffix
+      VIZ_DB_DATABASE     = var.viz_db_name
+      VIZ_DB_HOST         = var.viz_db_host
+      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
@@ -736,6 +740,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
   layers = [
+    var.psycopg2_sqlalchemy_layer,
     var.arcgis_python_api_layer,
     var.viz_lambda_shared_funcs_layer
   ]

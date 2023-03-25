@@ -9,10 +9,9 @@ def lambda_handler(event, context):
     step = event['step']
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
-    service_server = event['args']['service']['egis_server']
-
+    
     # Don't want to run for reference services because they already exist in the EGIS DB
-    if event['args']['service']['configuration'] == "reference":
+    if event['args']['product']['configuration'] == "reference":
         return
     
     if step == "update_summary_data":
@@ -27,9 +26,9 @@ def lambda_handler(event, context):
         egis_db = database(db_type="egis")
         
         # Services with FIM Configs
-        if event['args']['service']['fim_configs']:
+        if event['args']['product']['fim_configs']:
             dest_tables = []
-            for t in event['args']['service']['fim_configs']:
+            for t in event['args']['product']['fim_configs']:
                 if 'coastal' in t:
                     dest_tables.append(f'{t}_inundation')
                     dest_tables.append(f'{t}_inundation_depth')
@@ -37,11 +36,11 @@ def lambda_handler(event, context):
                     dest_tables.append(t)
         # Services without FIM Configs
         else:
-            dest_tables = [event['args']['service']['service']]
+            dest_tables = [event['args']['product']['postprocess_product']]
         # Services with Postprocess Summaries
-        if len(event['args']['service']['postprocess_summary']) > 0:
+        if len(event['args']['product']['postprocess_summaries']) > 0:
             summary_tables = []
-            summary_list = event['args']['service']['postprocess_summary']
+            summary_list = event['args']['product']['postprocess_summaries']
             for summary_dict in summary_list:
                 for summary, tables in summary_dict.items(): 
                     for table in tables:
@@ -51,11 +50,12 @@ def lambda_handler(event, context):
         unstage_db_tables(egis_db, dest_tables)
         return True
     
+    product_type = event['args']['product']['product_type']
     ## For Staging and Caching - Loop through all the tables relevant to the current step
     for table in tables:
         staged_table = f"{table}_stage"
         ################### Vector Services ###################
-        if service_server == "server":
+        if product_type in ["vector", "fim"]:
             viz_db = database(db_type="viz")
             egis_db = database(db_type="egis")
             

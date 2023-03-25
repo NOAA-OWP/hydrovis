@@ -34,7 +34,7 @@ class DuplicatePipelineException(Exception):
 
 def lambda_handler(event, context):
     ###### Initialize the pipeline class & configuration classes ######
-    #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
+    #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull product metadata for that configuration from the viz processing database.
     try:
         pipeline = viz_lambda_pipeline(event) # This does a ton of stuff - see the viz_pipeline class below for details.
         invoke_step_function = pipeline.start_event.get('invoke_step_function') if 'invoke_step_function' in pipeline.start_event else True
@@ -99,7 +99,7 @@ def lambda_handler(event, context):
             "keep_raw": pipeline.keep_raw,
             "reference_time": pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
             "data_type": pipeline.configuration.data_type,
-            "pipeline_services": pipeline.pipeline_services,
+            "pipeline_products": pipeline.pipeline_products,
             "max_flows":  pipeline.pipeline_max_flows,
             "sql_rename_dict": pipeline.sql_rename_dict
         },  "ingest_groups": pipeline.ingest_groups
@@ -132,7 +132,8 @@ def lambda_handler(event, context):
 # Two foundational pipeline classes are defined below, which make-up any given viz pipeline. The general heirarchy is as such:
 # -> viz_pipeline
 # ---> configuration
-# ------> service (not currently a class - may make sense to define as such in the future)
+# ------> product
+# ---------> service (not currently a class - may make sense to define as such in the future)
 ###################################################################################################################################################
 
 ###################################################################################################################################################
@@ -181,11 +182,11 @@ class viz_lambda_pipeline:
         
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
-        self.pipeline_services = self.configuration.services_to_run
-        self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE service post-processing
+        self.pipeline_products = self.configuration.products_to_run
+        self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE product post-processing
         
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
-        self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
+        self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows_new_infrastrucutre db table, and updates the sql_rename_dict dictionary if/when needed for past events.
         
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
@@ -201,12 +202,12 @@ class viz_lambda_pipeline:
             cur.execute(f"""
                         SELECT max(reference_time) as reference_time, last_update
                         FROM (SELECT max(update_time) as last_update from admin.ingest_status a
-                                JOIN admin.pipeline_data_flows b ON a.target = b.target_table
-                                JOIN admin.services c on b.service = c.service
+                                JOIN admin.pipeline_data_flows_new_infrastrucutre b ON a.target = b.target_table
+                                JOIN admin.products_new_infrastrucutre c on b.product = c.product
                                 WHERE configuration = '{self.configuration.name}' and status = 'Import Started' AND step = 'ingest') as last_start
                         JOIN admin.ingest_status a ON last_start.last_update = a.update_time
-                        JOIN admin.pipeline_data_flows b on a.target = b.target_table
-                        JOIN admin.services c ON b.service = c.service
+                        JOIN admin.pipeline_data_flows_new_infrastrucutre b on a.target = b.target_table
+                        JOIN admin.products_new_infrastrucutre c ON b.product = c.product
                         WHERE c.configuration = '{self.configuration.name}' AND b.step = 'ingest'
                         GROUP BY last_update
                         """)
@@ -216,13 +217,14 @@ class viz_lambda_pipeline:
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     
     ###################################
-    # This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
+    # This method organizes input table metadata based on the admin.pipeline_data_flows_new_infrastrucutre db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
     # It produces one new pipeline class attribute: ingest_files, which is the list of S3 file paths and their respective db destination tables.
     # TODO: Find someway to use an actual map to figure this all out - sooooo much looping and redundant assignments happening here. This is very messy
     def organize_db_import(self, run_only=True): 
         self.ingest_files = []
         db_prefix = ""
         self.db_data_flow_metadata = self.configuration.db_data_flow_metadata # copy the configuration db import metadata to a pipeline attribute
+        print(self.db_data_flow_metadata)
         
         ##### If running a past event #####
         if self.job_type == "past_event":
@@ -237,25 +239,25 @@ class viz_lambda_pipeline:
                 db_flow['original_table'] = db_flow['target_table']
                 db_flow['target_table'] = 'archive' + '.' + db_prefix + 'raw_' + db_flow['target_table'].split('.')[1]
                 self.sql_rename_dict.update({db_flow['original_table']: db_flow['target_table']})
-            # Add new service tables as well
-            for service in self.pipeline_services:
-                self.sql_rename_dict.update({'publish.' + service['service']: 'archive' + '.' + ref_prefix + service['service']})
+            # Add new product tables as well
+            for product in self.pipeline_products:
+                self.sql_rename_dict.update({'publish.' + product['product']: 'archive' + '.' + ref_prefix + product['product']})
             # Add new summary tables as well
-            for service in [service for service in self.pipeline_services if service['postprocess_summary'] is not None]:
-                for postprocess_summary in service['postprocess_summary']:
+            for product in [product for product in self.pipeline_products if product['postprocess_summary'] is not None]:
+                for postprocess_summary in product['postprocess_summary']:
                     self.sql_rename_dict.update({'publish.' + postprocess_summary: 'archive' + '.' + ref_prefix + postprocess_summary})
         
         ########
         # Now, let's loop through all the input files in the configuration and assign db destination tables and keys now that we've completed the above logic.
         added_files = {}
-        for service_name, flow_id_data in self.configuration.service_input_files.items():
+        for product_name, flow_id_data in self.configuration.product_input_files.items():
             for flow_id, s3_keys in flow_id_data.items():
-                service_metadata = [service for service in self.db_data_flow_metadata if service['service'] == service_name and service['flow_id'] == flow_id][0]
-                if service_metadata['step'] == 'max_flows' and service_metadata['file_format']:
+                product_metadata = [product for product in self.db_data_flow_metadata if product['product'] == product_name and product['flow_id'] == flow_id][0]
+                if product_metadata['step'] == 'max_flows' and product_metadata['file_format']:
                     continue
-                original_table = service_metadata['original_table'] if self.job_type == "past_event" else service_metadata['target_table']
-                ingest_table = service_metadata['target_table']
-                ingest_keys = service_metadata['target_keys']
+                original_table = product_metadata['original_table'] if self.job_type == "past_event" else product_metadata['target_table']
+                ingest_table = product_metadata['target_table']
+                ingest_keys = product_metadata['target_keys']
 
                 if original_table not in added_files and ingest_table not in added_files:
                     added_files[ingest_table] = []
@@ -268,10 +270,10 @@ class viz_lambda_pipeline:
                     added_files[ingest_table].append(s3_key)
                 
         if self.configuration.data_type != "channel":
-            for service in self.pipeline_services:
-                service_name = service['service']
-                service['input_files'] = sorted({x for v in self.configuration.service_input_files[service_name].values() for x in v})
-                service['bucket'] = self.configuration.input_bucket
+            for product in self.pipeline_products:
+                product_name = product['product']
+                product['input_files'] = sorted({x for v in self.configuration.product_input_files[product_name].values() for x in v})
+                product['bucket'] = self.configuration.input_bucket
     
     ###################################
     def __print__(self):
@@ -289,25 +291,25 @@ class viz_lambda_pipeline:
 ## Configuration Class
 ###################################################################################################################################################
 # This class is essentially a sub-class of viz_pipeline that denotes a common unit/aggregation of data source.
-# A configuration defines the data sources that a set of services require to run, and is primarily used to define the ingest files that must be
-# compiled before various service data can be generated. A particular reference_time is always associted with a configuration.
+# A configuration defines the data sources that a set of products require to run, and is primarily used to define the ingest files that must be
+# compiled before various product data can be generated. A particular reference_time is always associted with a configuration.
 # Example Configurations:
-#   - short_range - A NWM short_range forecast... used for services like srf_max_high_flow_magnitude, srf_high_water_arrival_time, srf_max_inundation, etc.
-#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_max_high_flow_magnitude, mrf_high_water_arrival_time, mrf_max_inundation, etc.
-#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_stage service data.
-#   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
+#   - short_range - A NWM short_range forecast... used for products like srf_max_high_flow_magnitude, srf_high_water_arrival_time, srf_max_inundation, etc.
+#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for products like mrf_max_high_flow_magnitude, mrf_high_water_arrival_time, mrf_max_inundation, etc.
+#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_stage product data.
+#   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation products.
 
 class configuration:
     def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, step=None): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
-        self.service_metadata = self.get_service_metadata()
+        self.product_metadata = self.get_product_metadata()
         self.db_data_flow_metadata = self.get_db_data_flow_metadata(step=step)
-        self.services_to_run = [service for service in self.service_metadata if service['run']] #Pull the relevant configuration services into a list.
+        self.products_to_run = [product for product in self.product_metadata if product['run']] #Pull the relevant configuration products into a list.
         self.max_flows = []
-        for service in self.services_to_run:
-            self.max_flows.extend([max_flow for max_flow in service['postprocess_max_flows'] if max_flow not in self.max_flows])
+        for product in self.products_to_run:
+            self.max_flows.extend([max_flow for max_flow in product['postprocess_max_flows'] if max_flow not in self.max_flows])
 
         self.data_type = 'channel'
         if 'forcing' in name:
@@ -318,7 +320,7 @@ class configuration:
         if input_files:
             self.input_files = input_files
         else:
-            self.input_files, self.service_input_files = self.generate_file_list(reference_time)
+            self.input_files, self.product_input_files = self.generate_file_list(reference_time)
 
     ###################################
     # This method initializes the a configuration class from a s3_file class object by parsing the file path and name to determine the appropriate attributes.
@@ -364,13 +366,13 @@ class configuration:
     # TODO: We should probably abstract the file pattern information in the database to a configuration database table to avoid redundant file patterns.
     def generate_file_list(self, reference_time):
         all_input_files = []
-        service_input_files = {}
-        for service in self.db_data_flow_metadata:
-            service_name = service['service']
-            flow_id = service['flow_id']
-            file_pattern = service['file_format']
-            file_window = service['file_window'] if service['file_window'] != 'None' else ""
-            file_window_step = service['file_step'] if service['file_step'] != 'None' else ""
+        product_input_files = {}
+        for product in self.db_data_flow_metadata:
+            product_name = product['product']
+            flow_id = product['flow_id']
+            file_pattern = product['file_format']
+            file_window = product['file_window'] if product['file_window'] != 'None' else ""
+            file_window_step = product['file_step'] if product['file_step'] != 'None' else ""
             
             if not file_pattern:
                 continue
@@ -393,11 +395,11 @@ class configuration:
 
                 token_dict[token_key].append(token_value)
 
-            if service_name not in service_input_files:
-                service_input_files[service_name] = {}
+            if product_name not in product_input_files:
+                product_input_files[product_name] = {}
                 
-            if flow_id not in service_input_files:
-                service_input_files[service_name][flow_id] = []
+            if flow_id not in product_input_files:
+                product_input_files[product_name][flow_id] = []
                 
             for reference_date in reference_dates:
                 reference_date_file = file_pattern
@@ -411,10 +413,10 @@ class configuration:
                 else:
                     reference_date_files = [reference_date_file]
 
-                service_input_files[service_name][flow_id].extend(reference_date_files)
+                product_input_files[product_name][flow_id].extend(reference_date_files)
                 all_input_files.extend(file for file in reference_date_files if file not in all_input_files)
 
-        return all_input_files, service_input_files
+        return all_input_files, product_input_files
     
     ###################################
     # TODO: Might make sense to make this a nested function of the generate_file_list function.
@@ -515,21 +517,21 @@ class configuration:
         return True
     
     ###################################
-    # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
+    # This method gathers information for the admin.products_new_infrastrucutre table in the database and returns a dictionary of products and their attributes.
     # TODO: Encapsulate this into a view within the database.
-    def get_service_metadata(self, specific_service=None, run_only=True):
+    def get_product_metadata(self, specific_product=None, run_only=True):
         import psycopg2.extras
-        service_filter = run_filter = ""
+        product_filter = run_filter = ""
         
-        if specific_service:
-            service_filter = f"AND service = {specific_service}"
+        if specific_product:
+            product_filter = f"AND product = {specific_product}"
             
         if run_only:
             run_filter = "AND run is True"
             
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter};")
+            cur.execute(f"SELECT * FROM admin.products_new_infrastrucutre WHERE configuration = '{self.name}' {product_filter} {run_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()
@@ -537,9 +539,9 @@ class configuration:
         return list(map(lambda x: dict(zip(column_names, x)), response))
         
     ###################################
-    # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
+    # This method gathers information for the admin.pipeline_data_flows_new_infrastrucutre table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
-    def get_db_data_flow_metadata(self, specific_service=None, run_only=True, step=None):
+    def get_db_data_flow_metadata(self, specific_product=None, run_only=True, step=None):
         import psycopg2.extras
         # Get ingest source data from the database (the ingest_sources table is the authoritative dataset)
         
@@ -548,9 +550,14 @@ class configuration:
         
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+            print(f"""
+                SELECT admin.products_new_infrastrucutre.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products_new_infrastrucutre
+                JOIN admin.pipeline_data_flows_new_infrastrucutre ON admin.products_new_infrastrucutre.product = admin.pipeline_data_flows_new_infrastrucutre.product
+                WHERE configuration = '{self.name}'{run_filter}{step_filter};
+                """)
             cur.execute(f"""
-                SELECT admin.services.service, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.services
-                JOIN admin.pipeline_data_flows ON admin.services.service = admin.pipeline_data_flows.service
+                SELECT admin.products_new_infrastrucutre.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products_new_infrastrucutre
+                JOIN admin.pipeline_data_flows_new_infrastrucutre ON admin.products_new_infrastrucutre.product = admin.pipeline_data_flows_new_infrastrucutre.product
                 WHERE configuration = '{self.name}'{run_filter}{step_filter};
                 """)
             column_names = [desc[0] for desc in cur.description]

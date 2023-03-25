@@ -2,22 +2,22 @@ import boto3
 import os
 import time
 from arcgis.gis import GIS
-from viz_classes import s3_file
+from viz_classes import s3_file, database
 
 def lambda_handler(event, context):
     
     s3 = boto3.client('s3')
-    service_data = event['args']['service']
-    service_name = service_data['service']
+    service_metadata = get_service_metadata(event['service'])
+    service_name = service_metadata['service']
     service_tag = os.getenv('SERVICE_TAG')
     service_name_publish = service_name + service_tag
-    folder = service_data['egis_folder']
-    summary = service_data['summary']
-    description = service_data['description']
-    tags = service_data['tags']
-    credits = service_data['credits']
-    server = service_data['egis_server']
-    public_service = True if service_tag == "_alpha" else service_data['public_service']
+    folder = service_metadata['egis_folder']
+    summary = service_metadata['summary']
+    description = service_metadata['description']
+    tags = service_metadata['tags']
+    credits = service_metadata['credits']
+    server = service_metadata['egis_server']
+    public_service = True if service_tag == "_alpha" else service_metadata['public_service']
     publish_flag_bucket = os.getenv('PUBLISH_FLAG_BUCKET')
     publish_flag_key = f"published_flags/{server}/{folder}/{service_name}/{service_name}"
 
@@ -150,3 +150,15 @@ def lambda_handler(event, context):
             
             
     return True
+    
+def get_service_metadata(service):
+    import psycopg2.extras
+        
+    connection = database("viz").get_db_connection()
+    with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+        cur.execute(f"SELECT * FROM admin.services_new_infrastrucutre WHERE service = '{service}'")
+        column_names = [desc[0] for desc in cur.description]
+        response = cur.fetchall()
+        cur.close()
+    connection.close()
+    return list(map(lambda x: dict(zip(column_names, x)), response))[0]
