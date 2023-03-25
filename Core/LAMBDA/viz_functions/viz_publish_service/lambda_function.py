@@ -156,7 +156,7 @@ def get_service_metadata(service):
         
     connection = database("viz").get_db_connection()
     with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute(f"SELECT * FROM admin.services_new_infrastrucutre WHERE service = '{service}'")
+        cur.execute(f"SELECT * FROM admin.services WHERE service = '{service}'")
         column_names = [desc[0] for desc in cur.description]
         response = cur.fetchall()
         cur.close()

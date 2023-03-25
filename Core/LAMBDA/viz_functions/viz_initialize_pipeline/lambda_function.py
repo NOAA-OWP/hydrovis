@@ -186,7 +186,7 @@ class viz_lambda_pipeline:
         self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE product post-processing
         
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
-        self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows_new_infrastrucutre db table, and updates the sql_rename_dict dictionary if/when needed for past events.
+        self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
         
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
@@ -202,12 +202,12 @@ class viz_lambda_pipeline:
             cur.execute(f"""
                         SELECT max(reference_time) as reference_time, last_update
                         FROM (SELECT max(update_time) as last_update from admin.ingest_status a
-                                JOIN admin.pipeline_data_flows_new_infrastrucutre b ON a.target = b.target_table
-                                JOIN admin.products_new_infrastrucutre c on b.product = c.product
+                                JOIN admin.pipeline_data_flows b ON a.target = b.target_table
+                                JOIN admin.products c on b.product = c.product
                                 WHERE configuration = '{self.configuration.name}' and status = 'Import Started' AND step = 'ingest') as last_start
                         JOIN admin.ingest_status a ON last_start.last_update = a.update_time
-                        JOIN admin.pipeline_data_flows_new_infrastrucutre b on a.target = b.target_table
-                        JOIN admin.products_new_infrastrucutre c ON b.product = c.product
+                        JOIN admin.pipeline_data_flows b on a.target = b.target_table
+                        JOIN admin.products c ON b.product = c.product
                         WHERE c.configuration = '{self.configuration.name}' AND b.step = 'ingest'
                         GROUP BY last_update
                         """)
@@ -217,7 +217,7 @@ class viz_lambda_pipeline:
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     
     ###################################
-    # This method organizes input table metadata based on the admin.pipeline_data_flows_new_infrastrucutre db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
+    # This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
     # It produces one new pipeline class attribute: ingest_files, which is the list of S3 file paths and their respective db destination tables.
     # TODO: Find someway to use an actual map to figure this all out - sooooo much looping and redundant assignments happening here. This is very messy
     def organize_db_import(self, run_only=True): 
@@ -517,7 +517,7 @@ class configuration:
         return True
     
     ###################################
-    # This method gathers information for the admin.products_new_infrastrucutre table in the database and returns a dictionary of products and their attributes.
+    # This method gathers information for the admin.products table in the database and returns a dictionary of products and their attributes.
     # TODO: Encapsulate this into a view within the database.
     def get_product_metadata(self, specific_product=None, run_only=True):
         import psycopg2.extras
@@ -531,7 +531,7 @@ class configuration:
             
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.products_new_infrastrucutre WHERE configuration = '{self.name}' {product_filter} {run_filter};")
+            cur.execute(f"SELECT * FROM admin.products WHERE configuration = '{self.name}' {product_filter} {run_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()
@@ -539,7 +539,7 @@ class configuration:
         return list(map(lambda x: dict(zip(column_names, x)), response))
         
     ###################################
-    # This method gathers information for the admin.pipeline_data_flows_new_infrastrucutre table in the database and returns a dictionary of data source metadata.
+    # This method gathers information for the admin.pipeline_data_flows table in the database and returns a dictionary of data source metadata.
     # TODO: Encapsulate this into a view within the database.
     def get_db_data_flow_metadata(self, specific_product=None, run_only=True, step=None):
         import psycopg2.extras
@@ -551,13 +551,13 @@ class configuration:
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
             print(f"""
-                SELECT admin.products_new_infrastrucutre.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products_new_infrastrucutre
-                JOIN admin.pipeline_data_flows_new_infrastrucutre ON admin.products_new_infrastrucutre.product = admin.pipeline_data_flows_new_infrastrucutre.product
+                SELECT admin.products.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products
+                JOIN admin.pipeline_data_flows ON admin.products.product = admin.pipeline_data_flows.product
                 WHERE configuration = '{self.name}'{run_filter}{step_filter};
                 """)
             cur.execute(f"""
-                SELECT admin.products_new_infrastrucutre.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products_new_infrastrucutre
-                JOIN admin.pipeline_data_flows_new_infrastrucutre ON admin.products_new_infrastrucutre.product = admin.pipeline_data_flows_new_infrastrucutre.product
+                SELECT admin.products.product, flow_id, step, file_format, source_table, target_table, target_keys, file_window, file_step FROM admin.products
+                JOIN admin.pipeline_data_flows ON admin.products.product = admin.pipeline_data_flows.product
                 WHERE configuration = '{self.name}'{run_filter}{step_filter};
                 """)
             column_names = [desc[0] for desc in cur.description]
