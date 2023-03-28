@@ -92,9 +92,9 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -15250772.0291557685,
-      "ymin" : 1474107.38979748311,
-      "xmax" : -5851112.10396996513,
+      "xmin" : -16791651.2146173716,
+      "ymin" : 1474107.38979748264,
+      "xmax" : -4310232.918508362,
       "ymax" : 8534243.619137926,
       "spatialReference" : {
         "wkid" : 102100,
@@ -200,6 +200,10 @@
       {
         "type" : "CIMScale",
         "value" : 100000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 400000
       },
       {
         "type" : "CIMScale",
@@ -5873,6 +5877,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
