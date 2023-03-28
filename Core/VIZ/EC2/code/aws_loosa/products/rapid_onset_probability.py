@@ -63,95 +63,158 @@ def srf_rapid_onset_probability(a_event_time, a_input_files, percent_change_thre
 
     # Loop through the input files and parse out the important dates in order to organize our data processing.
     for file in a_input_files:
-        matches = re.findall(r"nwm\.(\d{8})-(.*)\\nwm.t(\d{2})z.*.[f,tm](\d{2,})", file)[0]
-        date = matches[0]
-        year = date[:4]
-        month = date[:6][-2:]
-        day = date[-2:]
-        ref_hour = int(matches[2])
-        forecast_file = int(matches[3])
-        file_ref_time = datetime.strptime(f"{year}-{month}-{day} {ref_hour}:00:00", '%Y-%m-%d %H:%M:%S')
+        matches = re.findall(r"nwm\.(\d{4})(\d{2})(\d{2})-(.*)\\nwm.t(\d{2})z.*.[f,tm](\d{2,})", file)[0]
+        model_initialization_year = matches[0]
+        model_initialization_month = matches[1]
+        model_initialization_day = matches[2]
+        model_initialization_date = f"{model_initialization_year}{model_initialization_month}{model_initialization_day}"
+        model_initialization_hour = int(matches[4])
+        model_initialization_time = datetime.strptime(f"{model_initialization_year}-{model_initialization_month}-{model_initialization_day} {model_initialization_hour}:00:00", '%Y-%m-%d %H:%M:%S')
+        model_output_delta_hour = int(matches[5])
 
         # Analysis metrics refer the UTC hour we are aligning between ensemble members
         # This isn't all really necessary, but I'm leaving it in here because it can be a really helpful
         # table to visualize the ensemble members and hour shift.
-        analysis_time = file_ref_time + timedelta(hours=forecast_file)
-        analysis_timestep = (analysis_time - reference_time)
-        analysis_hour = analysis_time.hour
-        if (analysis_timestep.total_seconds()/3600) <= 6:
-            time_cat = '1_6'
-        elif (analysis_timestep.total_seconds()/3600) > 6:
-            time_cat = '7_12'
+        model_output_valid_time = model_initialization_time + timedelta(hours=model_output_delta_hour)
+        
+        if model_output_valid_time <= reference_time or model_output_valid_time > reference_time + timedelta(hours=12):
+            continue
+        
+        model_output_valid_hour = model_output_valid_time.hour
+        model_output_delta_time = (model_output_valid_time - reference_time)
+
+        if (model_output_delta_time.total_seconds()/3600) <= 6:
+            model_output_delta_time_cat = '1_6'
+        elif (model_output_delta_time.total_seconds()/3600) > 6:
+            model_output_delta_time_cat = '7_12'
 
         # Append the relevant metadata for each datasource to a dictionary
         files[file] = {
-            "ref_date": date, "ref_hour": ref_hour, "forecast_file": forecast_file, "forecast_day": day,
-            "analysis_hour": analysis_hour, "analysis_time": analysis_time, "analysis_timestep": analysis_timestep,
-            "time_cat": time_cat
+            "model_initialization_date": model_initialization_date, "model_initialization_hour": model_initialization_hour, 
+            "model_output_delta_hour": model_output_delta_hour, "model_initialization_day": model_initialization_day,
+            "model_output_valid_hour": model_output_valid_hour, "model_output_valid_time": model_output_valid_time, 
+            "model_output_delta_time": model_output_delta_time, "model_output_delta_time_cat": model_output_delta_time_cat
         }
 
     # Create a sorted dataframe of the input files, eliminating all the datasets that aren't an ensemble member
     # Look at this dataframe to understand all the files that are being used!
     df_all_input_files = pd.DataFrame(files).T
-    df_all_input_files = df_all_input_files[df_all_input_files["analysis_hour"].isin(ensemble_hours)]
-    df_all_input_files = df_all_input_files.sort_values(["ref_date", "ref_hour", "forecast_file"], ascending=False)
+    df_all_input_files = df_all_input_files.sort_values(["model_initialization_date", "model_initialization_hour", "model_output_delta_hour"])
     df_all_input_files = df_all_input_files.reset_index()
 
-    # Loop through each dataset and import the NetCDF data
-    # then add the data to the appropriate reference-time dataframe in our dataframes dictionary.
-    print("Importing ensemble members into dataframes dictionary.")
-    for row in df_all_input_files.itertuples():
-        drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
-        with xr.open_dataset(row.index, drop_variables=drop_vars) as ds:
-            ds['streamflow'] = ds['streamflow']*CFS_FROM_CMS
-            df_file = ds.to_dataframe().reset_index().set_index('feature_id')
-            df_file = df_file.rename(columns={"streamflow": row.analysis_hour})
-        df_file.drop(columns=['reference_time', 'time'], inplace=True, axis=1)
-        dataframes[row.ref_hour] = df_file.join(dataframes[row.ref_hour], on='feature_id')
+    def preprocess(ds):
+        ds['streamflow'] = ds['streamflow']*CFS_FROM_CMS
+        analysis_time = str(ds.time.values[0]).split(".")[0].replace("T", " ")
+        analysis_time = datetime.strptime(analysis_time, "%Y-%m-%d %H:%M:%S")
+        ds = ds.rename({'streamflow': analysis_time.hour})
+        ds = ds.drop_dims(['time', 'reference_time'])
+        return ds
 
-    # Loop through ensemble data frames and note reaches that meet rapid onset conditions within the 12-hour window.
+    drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
+
+    # Loop through ref_hour data frames and note reaches that meet rapid onset conditions within the 12-hour window.
     print(f"Identifying reaches that meet rapid onset criteria ({percent_change_threshold}% increase and high flow threshold "
-          f"within {high_water_hour_threshold} hours) in each ensemble member.")
+          f"within {high_water_hour_threshold} hours) in each ref_hour member.")
     df_all = df_main
-    # Filter out Stream Orders over threshold
-    # This could be moved up higher for improved performance... but leaving it here for now ####
-    df_all = df_all[df_all['strm_order'] <= stream_reaches_at_or_below]
-    ref_hours = []
-    for ensemble in dataframes:
-        df = dataframes[ensemble].join(df_main, on='feature_id')
-        # Filter out Stream Orders over threshold
-        # This could be moved up higher for improved performance... but leaving it here for now ####
-        df = df[df['strm_order'] <= stream_reaches_at_or_below]
-        df['double_increase'] = None
-        df['double_hour'] = None
-        df['time_cat'] = None
-        df['high_water_hour'] = None
-        df['rapid_onset'] = 0
-        for i, hour in enumerate(ensemble_hours[1:]):  # Start on the second hour
-            if hour not in df:  # Skip to the next iteration if the hour is out of range
-                continue
-            df['double_increase'] = np.where(((df[hour] >= (df[ensemble_hours[i]]*(1+(percent_change_threshold/100)))) & (df[hour] != 0)), 'Yes', df['double_increase'])  # Identify reaches that have an increase of 100%+  # noqa: E501
-            df['double_hour'] = np.where((df['double_hour'].isnull() & (df[hour] >= (df[ensemble_hours[i]]*(1+(percent_change_threshold/100)))) & (df[hour] != 0)), hour, df['double_hour'])  # Identify the hour of the 100%+ increase  # noqa: E501
-            df['time_cat'] = np.where(df['double_hour'].isin(ensemble_hours[:6]), "1_6", df['time_cat'])  # Add the time category of the 100% increase  # noqa: E501
-            df['time_cat'] = np.where(df['double_hour'].isin(ensemble_hours[6:12]), "7_12", df['time_cat'])  # we're capping the double hour criteria at hour 12, but continuing to look for high flow threshold below.  # noqa: E501
-            df['high_water_hour'] = np.where((df['high_water_hour'].isnull() & df['time_cat'].notnull() & (df["high_water_threshold"] > 0) & (df[hour] >= df["high_water_threshold"])), hour, df['high_water_hour'])  # Identify the hour of high flow threshold conditions  # noqa: E501
-            df['rapid_onset'] = np.where((df['high_water_hour'].apply(lambda x: ensemble_hours.index(x) if x is not None else None) - df['double_hour'].apply(lambda x: ensemble_hours.index(x) if x is not None else None)) <= high_water_hour_threshold,  # noqa: E501
-                                         df['time_cat'],  # Assign the time category if rapid onset conditions are met.
-                                         df['rapid_onset'])  # Leave alone if conditions are not met.
-        df_ensemble = df.filter(items=['rapid_onset']).rename(columns={"rapid_onset": ensemble})  # Rename the column
-        ref_hours.append(ensemble)  # Create a list of the reference hours used
-        df_all = df_ensemble.join(df_all, on='feature_id')  # Add each ensemble dataframe to df_all as it's calculated.
+    ensembles_used = []
+    for model_initialization_hour, df_model_initialization_hour in df_all_input_files.groupby("model_initialization_hour"):
+        print(f"Processing model_initialization_hour {model_initialization_hour}")
+        model_output_valid_hours = df_model_initialization_hour['model_output_valid_hour'].values
 
+        df_ensemble = xr.open_mfdataset(df_model_initialization_hour['index'].values.tolist(), drop_variables=drop_vars, parallel=True, preprocess=preprocess).to_dataframe()  # Use dask to open up all ensemble files at once and change streamflow col to datetime
+        df_ensemble = df_ensemble[model_output_valid_hours]
+        df_ensemble = df_ensemble.loc[(df_ensemble!=0).any(axis=1)]  # Remove all rows with a 0 value for every timestep
+        df = df_ensemble.join(df_main)  # Join main data to ref_hour data
+        df = df[df['strm_order'] <= stream_reaches_at_or_below]  # Only look at lower order streams
+        df = df[df["high_water_threshold"] > 0]  # Only look at reaches with high water threshold above 0
+
+        df['double_increase'] = None
+        df['high_water_hour'] = None
+        df['in_rof'] = False
+        df['hour_1_6_rof'] = False
+        df['hour_7_12_rof'] = False
+        previous_hour_rof = None
+
+        for i, model_output_valid_hour in enumerate(model_output_valid_hours[1:]):  # Start on the second hour
+
+            
+            if model_output_valid_hour not in df:  # Skip to the next iteration if the hour is out of range
+                continue
+
+            if model_output_valid_hour in model_output_valid_hours[:6]:
+                hour_rof = 'hour_1_6_rof'
+            else:
+                hour_rof = 'hour_7_12_rof'
+
+            if not previous_hour_rof:
+                previous_hour_rof = hour_rof
+
+            # Identify reaches currently in ROF and ending because of drop of flow
+            rof_ending_condition = (df['in_rof']==True) & (df[model_output_valid_hour] < df['high_water_threshold']) & (df['high_water_hour'] < model_output_valid_hour)
+            df.loc[rof_ending_condition, hour_rof] = True
+            df.loc[rof_ending_condition, 'high_water_hour'] = None
+            df.loc[rof_ending_condition, 'in_rof'] = False
+
+            # Identify reaches currently in ROF and set ROF status to True. Will cover reaches in ROF over multiple days
+            rof_continous_condition = (df['in_rof']==True)
+            if previous_hour_rof != hour_rof:
+                df.loc[rof_continous_condition, hour_rof] = True
+
+            # Identify the hour of the 100%+ increase
+            double_increase_condition = (df[hour_rof]==False) & (df[model_output_valid_hour] >= (df[model_output_valid_hours[i]]*(1+(percent_change_threshold/100)))) & (df[model_output_valid_hour] != 0)
+            df_doubled = df[double_increase_condition]
+
+            # Checking if high water occurs in the next 6 hours (assuming 3 hour timesteps). If so, set high water hour accordingly
+            high_water_condition = (df_doubled[model_output_valid_hour]>=df_doubled['high_water_threshold'])
+            if len(df_doubled[high_water_condition]):
+                df_doubled.loc[high_water_condition, 'high_water_hour'] = model_output_valid_hour  # Identify the hour of high flow threshold conditions
+                df_doubled.loc[high_water_condition, 'in_rof'] = True
+                df_doubled.loc[high_water_condition, hour_rof] = True
+            
+            if model_output_valid_hour not in model_output_valid_hours[-1:]:
+                high_water_condition = (df_doubled[model_output_valid_hours[i+2]]>=df_doubled['high_water_threshold'])
+                if len(df_doubled[high_water_condition]):
+                    df_doubled.loc[high_water_condition, 'high_water_hour'] = model_output_valid_hours[i+2]  # Identify the hour of high flow threshold conditions
+                    df_doubled.loc[high_water_condition, 'in_rof'] = True
+                    df_doubled.loc[high_water_condition, hour_rof] = True
+
+            if model_output_valid_hour not in model_output_valid_hours[-2:]:
+                high_water_condition = (df_doubled[model_output_valid_hours[i+3]]>=df_doubled['high_water_threshold'])
+                if len(df_doubled[high_water_condition]):
+                    df_doubled.loc[high_water_condition, 'high_water_hour'] = model_output_valid_hours[i+3]  # Identify the hour of high flow threshold conditions
+                    df_doubled.loc[high_water_condition, 'in_rof'] = True
+                    df_doubled.loc[high_water_condition, hour_rof] = True
+
+            df.update(df_doubled)
+
+        df = df[df['hour_1_6_rof'] | df['hour_7_12_rof']]  # Remove rows where rapid onset flooding wont occur
+
+        # Rename the rapid onset column to the ensemble reference hour
+        df_ensemble = df.filter(items=['hour_1_6_rof', 'hour_7_12_rof'])
+        df_ensemble = df_ensemble.rename(columns={
+            "hour_1_6_rof": f"hour_1_6_rof_{model_initialization_hour}",
+            "hour_7_12_rof": f"hour_7_12_rof_{model_initialization_hour}"
+        })
+        ensembles_used.append(model_initialization_hour)  # Create a list of the reference hours used
+        df_all = df_all.join(df_ensemble, on='feature_id')  # Add each ensemble dataframe to df_all as it's calculated.
+    
     # Calculate rapid onset flooding probability across ensemble members
     # These are the percentage values that we're going for.
     print("Consolidating and exporting data array.")
-    df_all['rapid_onset_prob_all'] = ((df_all[df_all[ref_hours] != 0].count(axis=1) / len(ref_hours)) * 100).astype(int)  # noqa: E501
-    df_all['rapid_onset_prob_1_6'] = ((df_all[df_all[ref_hours] == "1_6"].count(axis=1) / len(ref_hours)) * 100).astype(int)  # noqa: E501
-    df_all['rapid_onset_prob_7_12'] = ((df_all[df_all[ref_hours] == "7_12"].count(axis=1) / len(ref_hours)) * 100).astype(int)  # noqa: E501
+    df_all = df_all.drop(columns=['strm_order', 'high_water_threshold'])
+    df_all = df_all.replace(False, np.nan)
+    df_all = df_all.dropna(how="all")
 
-    # Format and return an array
-    df_out = df_all[df_all['rapid_onset_prob_all'] != 0].reset_index()
-    return df_out[["feature_id", "rapid_onset_prob_all", "rapid_onset_prob_1_6", "rapid_onset_prob_7_12"]]
+    hour_1_6_ensembles = [f"hour_1_6_rof_{ensemble}" for ensemble in ensembles_used]
+    hour_7_12_ensembles = [f"hour_7_12_rof_{ensemble}" for ensemble in ensembles_used]
+    all_enembles_used = hour_1_6_ensembles + hour_7_12_ensembles
+
+    df_all['rapid_onset_prob_all'] = ((df_all[all_enembles_used].count(axis=1) / len(all_enembles_used)) * 100).astype(int)
+    df_all['rapid_onset_prob_1_6'] = ((df_all[hour_1_6_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all['rapid_onset_prob_7_12'] = ((df_all[hour_7_12_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all = df_all.reset_index()
+
+    return df_all[["feature_id", "rapid_onset_prob_all", "rapid_onset_prob_1_6", "rapid_onset_prob_7_12"]]
 
 
 def mrf_rapid_onset_probability(a_event_time, a_input_files, percent_change_threshold=100, high_water_hour_threshold=6,
@@ -263,63 +326,106 @@ def mrf_rapid_onset_probability(a_event_time, a_input_files, percent_change_thre
         df = df[df["high_water_threshold"] > 0]  # Only look at reaches with high water threshold above 0
 
         df['double_increase'] = None
-        df['double_hour'] = None
-        df['time_cat'] = None
         df['high_water_hour'] = None
-        df['rapid_onset'] = 0
-        for i, forecast_time in enumerate(forecast_times[1:]):  # Start on the second hour
+        df['in_rof'] = False
+        df['day1_rof'] = False
+        df['day2_rof'] = False
+        df['day3_rof'] = False
+        df['day4_rof'] = False
+        df['day5_rof'] = False
+        previous_day_rof = None
+
+        for i, forecast_time in enumerate(forecast_times[1:]): #start at second hour, then i is the timestep before when using list
             if forecast_time not in df:  # Skip to the next iteration if the hour is out of range
                 continue
 
+            if forecast_time <= reference_time + timedelta(days=1):
+                day_rof = 'day1_rof'
+            elif forecast_time <= reference_time + timedelta(days=2):
+                day_rof = 'day2_rof'
+            elif forecast_time <= reference_time + timedelta(days=3):
+                day_rof = 'day3_rof'
+            elif forecast_time <= reference_time + timedelta(days=4):
+                day_rof = 'day4_rof'
+            else:
+                day_rof = 'day5_rof'
+
+            if not previous_day_rof:
+                previous_day_rof = day_rof
+
+            # Identify reaches currently in ROF and ending because of drop of flow
+            rof_ending_condition = (df['in_rof']==True) & (df[forecast_time] < df['high_water_threshold']) & (df['high_water_hour'] < forecast_time)
+            df.loc[rof_ending_condition, day_rof] = True
+            df.loc[rof_ending_condition, 'high_water_hour'] = None
+            df.loc[rof_ending_condition, 'in_rof'] = False
+
+            # Identify reaches currently in ROF and set ROF status to True. Will cover reaches in ROF over multiple days
+            rof_continous_condition = (df['in_rof']==True)
+            if previous_day_rof != day_rof:
+                df.loc[rof_continous_condition, day_rof] = True
+
             # Identify the hour of the 100%+ increase
-            double_increase_condition = (df['high_water_hour'].isnull()) & (df[forecast_time] >= (df[forecast_times[i]]*(1+(percent_change_threshold/100)))) & (df[forecast_time] != 0)
+            double_increase_condition = (df[day_rof]==False) & (df[forecast_time] >= (df[forecast_times[i]]*(1+(percent_change_threshold/100)))) & (df[forecast_time] != 0)
             df_doubled = df[double_increase_condition]
 
             # Checking if high water occurs in the next 6 hours (assuming 3 hour timesteps). If so, set high water hour accordingly
             high_water_condition = (df_doubled[forecast_time]>=df_doubled['high_water_threshold'])
             if len(df_doubled[high_water_condition]):
                 df_doubled.loc[high_water_condition, 'high_water_hour'] = forecast_time  # Identify the hour of high flow threshold conditions
-                df_doubled.loc[high_water_condition, 'double_increase'] = "Yes"
-                df_doubled.loc[high_water_condition, 'double_hour'] = forecast_time
+                df_doubled.loc[high_water_condition, 'in_rof'] = True
+                df_doubled.loc[high_water_condition, day_rof] = True
             
             if forecast_time not in forecast_times[-1:]:
-                high_water_condition = (df_doubled['high_water_hour'].isnull()) & (df_doubled[forecast_times[i+2]]>=df_doubled['high_water_threshold'])
+                high_water_condition = (df_doubled[forecast_times[i+2]]>=df_doubled['high_water_threshold'])
                 if len(df_doubled[high_water_condition]):
                     df_doubled.loc[high_water_condition, 'high_water_hour'] = forecast_times[i+2]  # Identify the hour of high flow threshold conditions
-                    df_doubled.loc[high_water_condition, 'double_increase'] = "Yes"
-                    df_doubled.loc[high_water_condition, 'double_hour'] = forecast_time
+                    df_doubled.loc[high_water_condition, 'in_rof'] = True
+                    df_doubled.loc[high_water_condition, day_rof] = True
 
             if forecast_time not in forecast_times[-2:]:
-                high_water_condition = (df_doubled['high_water_hour'].isnull()) & (df_doubled[forecast_times[i+3]]>=df_doubled['high_water_threshold'])
+                high_water_condition = (df_doubled[forecast_times[i+3]]>=df_doubled['high_water_threshold'])
                 if len(df_doubled[high_water_condition]):
                     df_doubled.loc[high_water_condition, 'high_water_hour'] = forecast_times[i+3]  # Identify the hour of high flow threshold conditions
-                    df_doubled.loc[high_water_condition, 'double_increase'] = "Yes"
-                    df_doubled.loc[high_water_condition, 'double_hour'] = forecast_time
-
-            df_doubled['time_cat'] = np.where(df_doubled['double_hour'].isin(forecast_times[:24]), "Day1", df_doubled['time_cat'])  # Add the time category of the 100% increase  # noqa: E501
-            df_doubled['time_cat'] = np.where(df_doubled['double_hour'].isin(forecast_times[24:48]), "Day2", df_doubled['time_cat'])  # we're capping the double hour criteria at hour 12, but continuing to look for high flow threshold below.  # noqa: E501
-            df_doubled['time_cat'] = np.where(df_doubled['double_hour'].isin(forecast_times[48:72]), "Day3", df_doubled['time_cat'])  # we're capping the double hour criteria at hour 12, but continuing to look for high flow threshold below.  # noqa: E501
-            df_doubled['time_cat'] = np.where(df_doubled['double_hour'].isin(forecast_times[72:120]), "Day4-5", df_doubled['time_cat'])  # we're capping the double hour criteria at hour 12, but continuing to look for high flow threshold below.  # noqa: E501
+                    df_doubled.loc[high_water_condition, 'in_rof'] = True
+                    df_doubled.loc[high_water_condition, day_rof] = True
 
             df.update(df_doubled)
-            
-        df = df[~df['double_hour'].isnull() & ~df['high_water_hour'].isnull()]  # Remove rows where rapid onset flooding wont occur
-        df['rapid_onset'] = df['time_cat']
+
+        df = df[df['day1_rof'] | df['day2_rof'] | df['day3_rof'] | df['day4_rof'] | df['day5_rof']]  # Remove rows where rapid onset flooding wont occur
 
         # Rename the rapid onset column to the ensemble reference hour
-        df_ensemble = df.filter(items=['rapid_onset']).rename(columns={"rapid_onset": ensemble})
+        df_ensemble = df.filter(items=['day1_rof', 'day2_rof', 'day3_rof', 'day4_rof','day5_rof'])
+        df_ensemble = df_ensemble.rename(columns={
+            "day1_rof": f"day1_rof_{ensemble}",
+            "day2_rof": f"day2_rof_{ensemble}",
+            "day3_rof": f"day3_rof_{ensemble}",
+            "day4_rof": f"day4_rof_{ensemble}",
+            "day5_rof": f"day5_rof_{ensemble}"
+        })
         ensembles_used.append(ensemble)  # Create a list of the reference hours used
         df_all = df_all.join(df_ensemble, on='feature_id')  # Add each ensemble dataframe to df_all as it's calculated.
-
+        
     # Calculate rapid onset flooding probability across ensemble members
     # These are the percentage values that we're going for.
     print("Consolidating and exporting data array.")
-    df_all['rapid_onset_prob_all'] = ((df_all[df_all[ensembles_used].notna()].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
-    df_all = df_all[df_all['rapid_onset_prob_all'] != 0].reset_index()
-    df_all['rapid_onset_prob_day1'] = ((df_all[df_all[ensembles_used] == "Day1"].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
-    df_all['rapid_onset_prob_day2'] = ((df_all[df_all[ensembles_used] == "Day2"].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
-    df_all['rapid_onset_prob_day3'] = ((df_all[df_all[ensembles_used] == "Day3"].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
-    df_all['rapid_onset_prob_day4_5'] = ((df_all[df_all[ensembles_used] == "Day4_5"].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all = df_all.drop(columns=['strm_order', 'high_water_threshold'])
+    df_all = df_all.replace(False, np.nan)
+    df_all = df_all.dropna(how="all")
+
+    day1_ensembles = [f"day1_rof_{ensemble}" for ensemble in ensembles_used]
+    day2_ensembles = [f"day2_rof_{ensemble}" for ensemble in ensembles_used]
+    day3_ensembles = [f"day3_rof_{ensemble}" for ensemble in ensembles_used]
+    day4_ensembles = [f"day4_rof_{ensemble}" for ensemble in ensembles_used]
+    day5_ensembles = [f"day5_rof_{ensemble}" for ensemble in ensembles_used]
+    days45_ensembles = day4_ensembles + day5_ensembles
+    all_enembles_used = day1_ensembles + day2_ensembles + day3_ensembles + day4_ensembles + day5_ensembles
+
+    df_all['rapid_onset_prob_all'] = ((df_all[all_enembles_used].count(axis=1) / len(all_enembles_used)) * 100).astype(int)
+    df_all['rapid_onset_prob_day1'] = ((df_all[day1_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all['rapid_onset_prob_day2'] = ((df_all[day2_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all['rapid_onset_prob_day3'] = ((df_all[day3_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all['rapid_onset_prob_day4_5'] = ((df_all[days45_ensembles].count(axis=1) / len(ensembles_used)) * 100).astype(int)  # noqa: E501
+    df_all = df_all.reset_index()
 
     # Format and return an array
     return df_all[["feature_id", "rapid_onset_prob_all", "rapid_onset_prob_day1", "rapid_onset_prob_day2", "rapid_onset_prob_day3", "rapid_onset_prob_day4_5"]]  # noqa: E501

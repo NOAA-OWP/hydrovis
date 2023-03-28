@@ -16,5 +16,5 @@ SELECT
 INTO publish.mrf_gfs_rapid_onset_flooding_probability_hucs_para
 FROM derived.huc8s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc8 = crosswalk.huc8
-JOIN publish.mrf_rapid_onset_flooding_probability AS rofp ON crosswalk.feature_id = rofp.feature_id
+JOIN publish.mrf_gfs_rapid_onset_flooding_probability_para AS rofp ON crosswalk.feature_id = rofp.feature_id
 GROUP BY hucs.huc8, hucs.low_order_reach_count, hucs.total_low_order_reach_length, hucs.total_low_order_reach_miles, hucs.geom
