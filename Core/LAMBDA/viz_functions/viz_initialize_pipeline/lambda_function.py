@@ -508,6 +508,7 @@ class configuration:
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     def get_product_metadata(self, specific_products=None, run_only=True):
         all_product_metadata = []
+        pipeline_run_time = int(self.reference_time.strftime("%H"))
         
         configuration_product_ymls = os.listdir(self.name)
         for configuration_product_yml in configuration_product_ymls:
@@ -515,6 +516,10 @@ class configuration:
 
             product_stream = open(yml_path, 'r')
             product_metadata = yaml.safe_load(product_stream)
+            
+            if product_metadata.get("run_times"):
+                if pipeline_run_time not in product_metadata.get("run_times"):
+                    continue
             
             all_product_metadata.append(product_metadata)
             

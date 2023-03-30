@@ -3,6 +3,8 @@ dependent_on: dependent_product_name  # (OPTIONAL) The name of the product that 
 configuration: configuration_name  # (REQUIRED) The configuration of the product (analysis_assim, short_range, etc)
 product_type: "vector"  # (REQUIRED) Type of product being created. Values can be "fim", "vector", or "raster"
 run: true  # (REQUIRED) Determines if this product is enabled or disabled
+run_times:  # (OPTIONAL) List of reference time hours that this product will run
+  - 00  # (REQUIRED) reference time hour to run
 
 ingest_files:  # (OPTIONAL) Dictionary dictating what filesets to ingest into the DB
   - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.f{{range:1,19,1,%03d}}.conus.nc  # (REQUIRED) File path to data with regex type format for dynamic handling
