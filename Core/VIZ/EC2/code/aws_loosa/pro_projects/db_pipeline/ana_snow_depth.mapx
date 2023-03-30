@@ -1,0 +1,430 @@
+{
+  "type" : "CIMMapDocument",
+  "version" : "2.7.0",
+  "build" : 26828,
+  "mapDefinition" : {
+    "type" : "CIMMap",
+    "name" : "ana snow depth",
+    "uRI" : "CIMPATH=map/map.xml",
+    "sourceModifiedTime" : {
+      "type" : "TimeInstant"
+    },
+    "metadataURI" : "CIMPATH=Metadata/b109088e8b7e9b33127ad9b64026997f.xml",
+    "useSourceMetadata" : true,
+    "illumination" : {
+      "type" : "CIMIlluminationProperties",
+      "ambientLight" : 75,
+      "sunPositionX" : -0.61237243569579003,
+      "sunPositionY" : 0.61237243569579003,
+      "sunPositionZ" : 0.5,
+      "illuminationSource" : "AbsoluteSunPosition",
+      "sunAzimuth" : 315,
+      "sunAltitude" : 30,
+      "showStars" : true,
+      "enableAmbientOcclusion" : true,
+      "enableEyeDomeLighting" : true
+    },
+    "layers" : [
+      "CIMPATH=snow_depth/ana_snow_depth_tif.xml"
+    ],
+    "defaultViewingMode" : "Map",
+    "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=ana_snow_depth/vizprocessing_publish_ana_snow_depth.xml"
+    ],
+    "defaultExtent" : {
+      "xmin" : -14258754.8954144157,
+      "ymin" : 2760395.72370361257,
+      "xmax" : -7039502.526796178,
+      "ymax" : 7870319.2109560268,
+      "spatialReference" : {
+        "wkid" : 102100,
+        "latestWkid" : 3857
+      }
+    },
+    "elevationSurfaces" : [
+      {
+        "type" : "CIMMapElevationSurface",
+        "elevationMode" : "BaseGlobeSurface",
+        "name" : "Ground",
+        "verticalExaggeration" : 1,
+        "mapElevationID" : "{6862BEE6-A14C-4B73-AD24-58143340B3AB}",
+        "color" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            100
+          ]
+        },
+        "surfaceTINShadingMode" : "Smooth",
+        "visibility" : true,
+        "expanded" : false
+      }
+    ],
+    "generalPlacementProperties" : {
+      "type" : "CIMMaplexGeneralPlacementProperties",
+      "invertedLabelTolerance" : 2,
+      "unplacedLabelColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          0,
+          0,
+          100
+        ]
+      },
+      "keyNumberGroups" : [
+        {
+          "type" : "CIMMaplexKeyNumberGroup",
+          "delimiterCharacter" : ".",
+          "horizontalAlignment" : "Left",
+          "maximumNumberOfLines" : 20,
+          "minimumNumberOfLines" : 2,
+          "name" : "Default",
+          "numberResetType" : "None",
+          "keyNumberMethod" : "PreventUnplacedLabels"
+        }
+      ],
+      "placementQuality" : "High"
+    },
+    "snappingProperties" : {
+      "type" : "CIMSnappingProperties",
+      "xYTolerance" : 10,
+      "xYToleranceUnit" : "SnapXYToleranceUnitPixel",
+      "snapToSketchEnabled" : true,
+      "snapRequestType" : "SnapRequestType_GeometricAndVisualSnapping",
+      "isZSnappingEnabled" : true
+    },
+    "spatialReference" : {
+      "wkid" : 102100,
+      "latestWkid" : 3857
+    },
+    "timeDisplay" : {
+      "type" : "CIMMapTimeDisplay",
+      "defaultTimeIntervalUnits" : "esriTimeUnitsUnknown",
+      "timeValue" : {
+        "type" : "TimeExtent",
+        "start" : null,
+        "end" : null,
+        "empty" : false
+      },
+      "timeRelation" : "esriTimeRelationOverlaps"
+    },
+    "colorModel" : "RGB",
+    "scaleDisplayFormat" : "Value",
+    "groundToGridCorrection" : {
+      "type" : "CIMGroundToGridCorrection",
+      "useDirection" : true,
+      "useScale" : true,
+      "scaleType" : "ConstantFactor",
+      "constantScaleFactor" : 1
+    },
+    "clippingMode" : "None",
+    "nearPlaneClipDistanceMode" : "Automatic",
+    "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+  },
+  "layerDefinitions" : [
+    {
+      "type" : "CIMRasterLayer",
+      "name" : "Snow Depth",
+      "uRI" : "CIMPATH=snow_depth/ana_snow_depth_tif.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "metadataURI" : "CIMPATH=Metadata/2574b62d4d34b258236443f2a02da011.xml",
+      "useSourceMetadata" : true,
+      "description" : "ana_snow_depth.tif",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{6862BEE6-A14C-4B73-AD24-58143340B3AB}"
+      },
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "dataConnection" : {
+        "type" : "CIMStandardDataConnection",
+        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\raster_tifs",
+        "workspaceFactory" : "Raster",
+        "dataset" : "ana_snow_depth.tif",
+        "datasetType" : "esriDTAny"
+      },
+      "colorizer" : {
+        "type" : "CIMRasterClassifyColorizer",
+        "resamplingType" : "NearestNeighbor",
+        "noDataColor" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            0
+          ]
+        },
+        "normalizationType" : "Nothing",
+        "classBreaks" : [
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 2,
+            "label" : "< 2 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                182,
+                98,
+                100,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 4,
+            "label" : "2 - 4 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                193,
+                63,
+                107,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 10,
+            "label" : "4 - 10 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                210,
+                30,
+                152,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 20,
+            "label" : "10 - 20 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                216,
+                15,
+                213,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 40,
+            "label" : "20 - 40 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                148,
+                9,
+                222,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 60,
+            "label" : "40 - 60 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                101,
+                48,
+                232,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 100,
+            "label" : "60 - 100 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                84,
+                81,
+                227,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 200,
+            "label" : "100 - 200 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                97,
+                144,
+                238,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 300,
+            "label" : "200 - 300 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                117,
+                200,
+                241,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 400,
+            "label" : "300 - 400 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                119,
+                242,
+                246,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 999999,
+            "label" : "> 400 inches",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                209,
+                243,
+                243.99610900878906,
+                100
+              ]
+            }
+          }
+        ],
+        "classificationMethod" : "Manual",
+        "colorRamp" : {
+          "type" : "CIMLinearContinuousColorRamp",
+          "colorSpace" : {
+            "type" : "CIMICCColorSpace",
+            "url" : "ESRI CIE Lab Conversion Profile"
+          },
+          "fromColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              60,
+              100,
+              96,
+              100
+            ]
+          },
+          "toColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              0,
+              100,
+              96,
+              100
+            ]
+          }
+        },
+        "field" : "Value",
+        "hillshadeZFactor" : 1,
+        "minimumBreak" : 0.0039370097219944,
+        "showInAscendingOrder" : false,
+        "numberFormat" : {
+          "type" : "CIMNumericFormat",
+          "alignmentOption" : "esriAlignRight",
+          "alignmentWidth" : 0,
+          "roundingOption" : "esriRoundNumberOfDecimals",
+          "roundingValue" : 6
+        }
+      },
+      "autoComputeStatsHistogram" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/2574b62d4d34b258236443f2a02da011.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230314</CreaDate><CreaTime>23175600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Snow Depth</resTitle></idCitation><idAbs>ana_snow_depth.tif</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/b109088e8b7e9b33127ad9b64026997f.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20180314</CreaDate><CreaTime>12304000</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACFAMgDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAoanrGnaLZtd6newWtspwZZnCjPp9aAPPNU+PnguxJW1kvL9hxm3gKj8320AcjdftF3dy\r\nzDS9AhiUcBrmcuT+CgY/M0Acxqfxt8c3aEW13a2X/XC2Un833UAc5N468bagS0/ibUgT2jmKD8lw\r\nKAKQ8S+KbC+t9Q/tnUJZYXDo0k7uAR6gnBFAH1H4B+IOl+OtLD2shS/gRftVs67WBxywGTlSc45+\r\ntAHE/HDwe2p/Z/EN7qk1vpNjEIpY0h81kZpANyrkdQeST2FAG18PviBpmsa+PCmiafJFpljYK0Nw\r\n6FDIRt524+UENkZ680AeoUAFABQAUAcxrfxA8LeHNVi03VtYhtbqRdwRlY4HbcQCF/HFAG9De21w\r\n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</Data></Thumbnail></Binary></metadata>\r\n"
+    }
+  ],
+  "tableDefinitions" : [
+    {
+      "type" : "CIMStandaloneTable",
+      "name" : "Service Metadata",
+      "uRI" : "CIMPATH=ana_snow_depth/vizprocessing_publish_ana_snow_depth.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "displayField" : "reference_time",
+      "editable" : true,
+      "dataConnection" : {
+        "type" : "CIMSqlQueryDataConnection",
+        "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6857366675744b576f6b392b6c2f4b4b4966783458536335384e724f65436a59717333384b3131303435576b4c526b332f74426379696f637277393159722f48302a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+        "workspaceFactory" : "SDE",
+        "dataset" : "vizprocessing.publish.%ana_snow_depth",
+        "datasetType" : "esriDTTable",
+        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_depth",
+        "oIDFields" : "reference_time",
+        "geometryType" : "esriGeometryNull",
+        "queryFields" : [
+          {
+            "name" : "reference_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "reference_time",
+            "length" : 60000
+          },
+          {
+            "name" : "valid_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "valid_time",
+            "length" : 60000
+          },
+          {
+            "name" : "update_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "update_time",
+            "length" : 60000
+          }
+        ]
+      },
+      "autoGenerateRowTemplates" : true,
+      "serviceTableID" : -1,
+      "showPopups" : true
+    }
+  ]
+}

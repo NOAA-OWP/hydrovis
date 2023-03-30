@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS publish.srf_max_high_flow_magnitude_hi;
 
 WITH HIGH_FLOW_MAG AS
 	(SELECT MAXFLOWS.FEATURE_ID,
+	        maxflows.nwm_vers,
+	        maxflows.reference_time,
 			MAXFLOWS.maxflow_48hour_cfs AS MAX_FLOW,
 			CASE
 							WHEN THRESHOLDS.HIGH_WATER_THRESHOLD = '-9999'::integer::double precision THEN 'Not Available'::text
