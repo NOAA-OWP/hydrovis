@@ -3,6 +3,19 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 <br/><br/>
 
+
+## v3.1.0 - 2023-3-30 - [PR #371](https://github.com/NOAA-OWP/hydrovis/pull/371)
+
+This merge addresses a request by WPOD to separate the Flow-Based and Stage-Based CatFIM magnitude-specific maps into individual layers, and to update certain aliases. Ordering of fields in the attribute table has also been improved.
+
+### Changes
+In the following files, the magnitude-specific maps were separated into individual sublayers. All layers still rely on the same database table, but definition queries were added to query the desired magnitude polygons. I have also changed `AHPS LID` to `NWS LID` and `Q` to `Flow` where applicable.
+
+- `/hydrovis/Core/VIZ/EC2/code/aws_loos/pro_projects/db_pipeline/flow_based_catfim.mapx`
+- `/hydrovis/Core/VIZ/EC2/code/aws_loos/pro_projects/db_pipeline/stage_based_catfim.mapx`
+
+<br/><br/>
+
 ## v3.0.4 - 2023-1-30 - [PR #50](https://github.com/NOAA-OWP/hydrovis-visualization/pull/50)
 
 This merge is to fix mapx fields and aliases from the FIM4 implementation, add stability for step functions, add src skill static service, be able to run nwm aep fim in pipeline
