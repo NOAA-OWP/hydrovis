@@ -9,6 +9,7 @@ sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 sudo systemctl daemon-reload
 sudo systemctl restart rsyslog
 
+
 echo "Disabling Vlab Hostkey Requirement"
 # Disable the need to require VLab's host key for the git clone commands
 # Couldn't seem to figure out how to properly add Vlab to the known_hosts file

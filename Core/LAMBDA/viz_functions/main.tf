@@ -295,7 +295,7 @@ resource "aws_lambda_function" "egis_health_checker" {
 
   environment {
     variables = {
-      GIS_HOST            = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
+      GIS_HOST = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
     }
   }
   s3_bucket        = aws_s3_object.egis_health_checker_zip_upload.bucket
@@ -312,13 +312,13 @@ resource "aws_lambda_function" "egis_health_checker" {
   }
 }
 
-resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes_egis_health_checker" {
   rule      = aws_cloudwatch_event_rule.every_five_minutes.name
   target_id = aws_lambda_function.egis_health_checker.function_name
   arn       = aws_lambda_function.egis_health_checker.arn
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda_egis_health_checker" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.egis_health_checker.function_name
