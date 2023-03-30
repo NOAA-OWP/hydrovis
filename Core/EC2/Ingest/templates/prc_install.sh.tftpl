@@ -10,14 +10,14 @@ sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 sudo systemctl daemon-reload
 sudo systemctl restart rsyslog
 
-echo "Installing HML Ingester"
+echo "Downloading HML Ingester Code"
 aws s3 cp s3://${deployment_bucket}/${hml_ingester_s3_key} /home/ec2-user/owp-hml-ingester.tar.gz
 tar -C /home/ec2-user -xzf /home/ec2-user/owp-hml-ingester.tar.gz
 
 cd /home/ec2-user/owp-hml-ingester
 
-# Update configs
-(echo "${r_host}"; echo "${r_password}"; echo "${db_host}"; echo "${db_password}") | sudo update_configs.sh hydrovis.${environment}
+echo "Setting up HML Ingester Environment"
+(echo "${r_host}"; echo "${r_password}"; echo "${db_host}"; echo "${db_password}") | sudo ./update_configs.sh hydrovis.${environment}
 
 echo "Building HML Ingester Docker"
 sudo docker-compose -f docker-compose_hydrovis_${environment}.yml up --build -d

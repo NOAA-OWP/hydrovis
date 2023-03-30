@@ -60,6 +60,10 @@ resource "aws_imagebuilder_image_recipe" "linux" {
   }
 
   component {
+    component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/amazon-cloudwatch-agent-linux/x.x.x"
+  }
+
+  component {
     component_arn = "arn:aws:imagebuilder:${var.region}:aws:component/docker-ce-linux/x.x.x"
   }
 
@@ -210,6 +214,28 @@ resource "aws_imagebuilder_component" "logging_setup" {
         name = "build"
         steps = [
           {
+            name = "upgrade_rsyslog"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [
+                "echo \"Upgrading Rsyslog\"",
+                <<-EOT
+                sudo tee /etc/yum.repos.d/rsyslog-daily-epel.repo<<EOF
+                [rsyslog_v8_daily]
+                name=Adiscon CentOS-7 - daily packages for x86_64
+                baseurl=http://rpms.adiscon.com/v8-stable-daily/epel-7/x86_64
+                enabled=1
+                gpgcheck=0
+                gpgkey=https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon
+                protect=1
+                EOF
+                EOT
+                ,
+                "yum upgrade rsyslog --disablerepo=amzn2-core -y",
+              ]
+            }
+          },
+          {
             name = "add_docker_log_driver"
             action = "ExecuteBash"
             inputs = {
@@ -229,20 +255,32 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "add_rsyslog_json_template"
+            name = "add_rsyslog_log_destination"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
-                echo "Adding Rsyslog Log Template"
-                sudo tee /etc/rsyslog.d/01-json-template.conf<<EOF
-                template(name="json-template" type="list") {
+                echo "Adding Rsyslog Destination Config"
+                sudo tee /etc/rsyslog.d/01-docker-logs.conf<<'EOF'
+
+                template(name="dockerjson" type="list") {
                   constant(value="{")
-                    constant(value="\"@timestamp\":\"")     property(name="timereported" dateFormat="rfc3339")
-                    constant(value="\",\"message\":\"")     property(name="msg" format="json")
-                    constant(value="\",\"sysloghost\":\"")  property(name="hostname")
-                    constant(value="\",\"programname\":\"") property(name="programname")
-                    constant(value="\",\"hydrovis_application\":\"") constant(value=\`echo \$HYDROVIS_APPLICATION\`)
+                    constant(value="\"@timestamp\":\"")        property(name="timereported" dateFormat="rfc3339")
+                    constant(value="\",\"host\":\"")           property(name="hostname")
+                    constant(value="\",\"programname\":\"")    property(name="programname")
+                    constant(value="\",\"application\":\"")    constant(value=`echo $HYDROVIS_APPLICATION`)
+                    constant(value="\",\"container_name\":\"") property(name="syslogtag" regex.type="ERE" regex.submatch="1" regex.expression="docker\\/(.+)\\[[0-9]+]")
+                    constant(value="\",\"message\":\"")        property(name="msg" format="json")
                   constant(value="\"}\n")
+                }
+
+                if $programname == 'docker' then {
+                  action(type="omfile" file="/var/log/docker-containers.log")
+                  action(type="omfile" file="/var/log/docker-containers-json.log" template="dockerjson")
+                }
+
+                if $syslogtag contains 'docker' then {
+                  action(type="omfile" file="/var/log/important.log")
+                  action(type="omfile" file="/var/log/important-json.log" template="dockerjson")
                 }
                 EOF
                 EOT
@@ -250,13 +288,40 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "add_rsyslog_log_destination"
+            name = "add_cloudwatch_agent_config"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
-                echo "Adding Rsyslog Destination Config"
-                sudo tee /etc/rsyslog.d/60-output.conf<<EOF
-                action(type="omfwd" template="json-template" target="logstash.hydrovis.internal" port="5001" protocol="udp")
+                echo "Adding CloudWatch Agent Configuration File"
+                sudo tee /opt/aws/amazon-cloudwatch-agent/config.json<<EOF
+                {
+                  "agent": {
+                    "metrics_collection_interval": 10,
+                    "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"
+                  },
+                  "logs": {
+                    "logs_collected": {
+                      "files": {
+                        "collect_list": [
+                          {
+                            "file_path": "/var/log/docker-containers-json.log",
+                            "log_group_name": "/aws/ec2/linux",
+                            "log_stream_name": "{instance_id}/docker",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/cloud-init-output.log",
+                            "log_group_name": "/aws/ec2/linux",
+                            "log_stream_name": "{instance_id}/cloudinit",
+                            "timezone": "UTC"
+                          }
+                        ]
+                      }
+                    },
+                    "log_stream_name": "unspecified",
+                    "force_flush_interval" : 15
+                  }
+                }
                 EOF
                 EOT
               ]
@@ -271,6 +336,16 @@ resource "aws_imagebuilder_component" "logging_setup" {
                 "sudo service docker restart",
                 "echo \"Restarting Rsyslog\"",
                 "sudo service rsyslog restart"
+              ]
+            }
+          },
+          {
+            name = "start_cloudwatch_agent"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [
+                "echo \"Starting CloudWatch Agent\"",
+                "sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/config.json",
               ]
             }
           }

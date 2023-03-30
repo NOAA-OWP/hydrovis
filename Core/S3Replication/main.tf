@@ -46,13 +46,15 @@ locals {
   buckets_and_bucket_users = {
     "hml" = {
       access_principal_arns = [
-        var.user_data-ingest-service-user_arn
+        var.user_data-ingest-service-user_arn,
+        "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE"
       ]
     }
     "nwm" = {
       access_principal_arns = [
         var.role_hydrovis-viz-proc-pipeline-lambda_arn,
-        var.role_hydrovis-rnr-role_arn
+        var.role_hydrovis-rnr-role_arn,
+        "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
       ]
     }
     "pcpanl" = {

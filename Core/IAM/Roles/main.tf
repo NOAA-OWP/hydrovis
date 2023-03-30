@@ -117,6 +117,11 @@ resource "aws_iam_role_policy" "HydroVISSSMPolicy" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "HydrovisSSMInstanceProfileRole-cloudwatch" {
+  role       = aws_iam_role.HydrovisSSMInstanceProfileRole.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 
 # hydrovis-viz-proc-pipeline-lambda Role
 resource "aws_iam_role" "hydrovis-viz-proc-pipeline-lambda" {

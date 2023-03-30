@@ -92,11 +92,11 @@ resource "aws_kms_key" "hydrovis-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = var.prod_account_id
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
           }
           Condition = {
             "StringEqualsIfExists" = {
-              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
             }
           }
           Resource = "*"
@@ -171,11 +171,11 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = var.prod_account_id
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
           }
           Condition = {
             "StringEqualsIfExists" = {
-              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
             }
           }
           Resource = "${aws_s3_bucket.hydrovis.arn}/*"
@@ -189,11 +189,11 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = var.prod_account_id
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
           }
           Condition = {
             "StringEqualsIfExists" = {
-              "aws:PrincipalArn" = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
             }
           }
           Resource = aws_s3_bucket.hydrovis.arn
