@@ -51,57 +51,18 @@ def lambda_handler(event, context):
         minutes_since_last_run = divmod((datetime.datetime.now() - pipeline.most_recent_start).total_seconds(), 60)[0] #Not sure this is working correctly.
         if minutes_since_last_run < 15:
             raise DuplicatePipelineException(f"Another {pipeline.configuration.name} pipeline started less than 15 minutes ago. Pausing for 15 minutes.")
-
-    # Split input files into groups based on ingest_table, so we can do one at a time. #TODO: This ends up with a nested list. Can't figure out how to remove that. May be better to just combine in nested loop below.
-    ingest_dicts = collections.defaultdict(list)
-    for ingest_dict in pipeline.ingest_files:
-        ingest_dicts[ingest_dict['target_table']].append(ingest_dict)
-    ingest_sets = list(ingest_dicts.values())
-    
-    # Adds a ingest_groups attribute the pipline. Loop through each ingest set to do a seperate insert per ingest table.
-    # TODO: Would be nice to combine the above collections thing and this loop to be the same thing. Probably makes sense to move to a viz_pipeline method.
-    pipeline.ingest_groups = []
-    ingest_tables = []
-    for ingest_set in ingest_sets:
-        target_table = ingest_set[0]['target_table'] #Requires the 0 index because of the nested list mentioned a few lines above. Would be good to clean up.
-        index_columns = ingest_set[0]['target_keys']
-        index_name = None
-        if target_table:
-            index_name = f"idx_{target_table.split('.')[-1:].pop()}_{index_columns.replace(', ', '_')[1:-1]}"
-        
-        ingest_datasets = []
-        for file in ingest_set:
-            ingest_datasets.append({
-                "file": file['s3_key']
-            })
-        
-        pipeline.ingest_groups.append({
-            "target_table": target_table,
-            "index_columns": index_columns,
-            "index_name": index_name,
-            "reference_time": pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "bucket": pipeline.configuration.input_bucket,
-            "keep_flows_at_or_above": 0.001, #TODO: Make this a pipeline class attribute, or env variable, or defined in the input args or something.
-            "ingest_datasets": ingest_datasets
-        })
-        
-        if target_table not in ingest_tables:
-            ingest_tables.append(target_table)
         
     # Establish the return_object dictionary - This is essentially the set of instructions for the AWS step function, based on the attributes of the viz_pipeline class.
     # TODO: Probably makes sense to move this to a print or to_dict method of the viz_pipeline class.
     return_object = {
-        "pipeline_info": {
-            "configuration": pipeline.configuration.name,
-            "job_type": pipeline.job_type,
-            "data_type": pipeline.configuration.data_type,
-            "keep_raw": pipeline.keep_raw,
-            "reference_time": pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "data_type": pipeline.configuration.data_type,
-            "pipeline_products": pipeline.pipeline_products,
-            "max_flows":  pipeline.pipeline_max_flows,
-            "sql_rename_dict": pipeline.sql_rename_dict
-        },  "ingest_groups": pipeline.ingest_groups
+        "configuration": pipeline.configuration.name,
+        "job_type": pipeline.job_type,
+        "data_type": pipeline.configuration.data_type,
+        "keep_raw": pipeline.keep_raw,
+        "reference_time": pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
+        "configuration_data_flow": pipeline.configuration.configuration_data_flow,
+        "pipeline_products": pipeline.pipeline_products,
+        "sql_rename_dict": pipeline.sql_rename_dict
     }
     
     # Invoke the step function with the dictionary we've not created.
@@ -181,10 +142,10 @@ class viz_lambda_pipeline:
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
         self.pipeline_products = self.configuration.products_to_run
-        self.pipeline_max_flows =  self.configuration.max_flows # Max_Flows will post-process BEFORE service post-processing
         
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
-        self.organize_db_import() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
+        if self.job_type == "past_event":
+            self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
         
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
@@ -215,60 +176,30 @@ class viz_lambda_pipeline:
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     
     ###################################
-    # This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict to relevant pipeline_info dictionary items.
-    # It produces one new pipeline class attribute: ingest_files, which is the list of S3 file paths and their respective db destination tables.
-    # TODO: Find someway to use an actual map to figure this all out - sooooo much looping and redundant assignments happening here. This is very messy
-    def organize_db_import(self, run_only=True): 
-        self.ingest_files = []
-        db_prefix = "" # copy the configuration db import metadata to a pipeline attribute
+    def organize_rename_dict(self, run_only=True): 
         
-        ##### If running a past event #####
-        if self.job_type == "past_event":
-            ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
-            if self.keep_raw:  # If storing raw data is desirable, add a ref_time prefix
-                db_prefix = ref_prefix
-            else:
-                db_prefix = ref_prefix #"temp_" - Using ref_prefix for now until I can think this through a little more. Need a way to remove these raw files for non keep_raw jobs.
+        def gen_dict_extract(key, var):
+            if hasattr(var,'items'):
+                for k, v in var.items():
+                    if k == key:
+                        yield v
+                    if isinstance(v, dict):
+                        for result in gen_dict_extract(key, v):
+                            yield result
+                    elif isinstance(v, list):
+                        for d in v:
+                            for result in gen_dict_extract(key, d):
+                                yield result
+        
+        sql_rename_dict = {}
+        ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
+        
+        for target_table in gen_dict_extract("target_table", self.configuration.configuration_data_flow):
+            target_table_name = target_table.split(".")[1]
+            new_table_name = f"{ref_prefix}{target_table_name}"
+            sql_rename_dict[target_table] = f"archive.{new_table_name}"
             
-            # Update target tables to use the archive schema with dynamic table names, and start a rename dictionary to pass through to the postprocess_sql function to use the correct tables.
-            for db_flow in self.db_data_flow_metadata:
-                db_flow['original_table'] = db_flow['target_table']
-                db_flow['target_table'] = 'archive' + '.' + db_prefix + 'raw_' + db_flow['target_table'].split('.')[1]
-                self.sql_rename_dict.update({db_flow['original_table']: db_flow['target_table']})
-            # Add new service tables as well
-            for service in self.pipeline_services:
-                self.sql_rename_dict.update({'publish.' + service['service']: 'archive' + '.' + ref_prefix + service['service']})
-            # Add new summary tables as well
-            for service in [service for service in self.pipeline_services if service['postprocess_summary'] is not None]:
-                for postprocess_summary in service['postprocess_summary']:
-                    self.sql_rename_dict.update({'publish.' + postprocess_summary: 'archive' + '.' + ref_prefix + postprocess_summary})
-        
-        ########
-        # Now, let's loop through all the input files in the configuration and assign db destination tables and keys now that we've completed the above logic.
-        added_files = {}
-        for product_name, target_table_data in self.configuration.product_input_files.items():
-            product_metadata = [product for product in self.pipeline_products if product['product'] == product_name][0]
-            for target_table, s3_keys in target_table_data.items():
-                product_metadata = [ingest for ingest in product_metadata['ingest_files'] if ingest['target_table'] == target_table][0]
-
-                target_table = product_metadata['target_table']
-                target_keys = product_metadata['target_keys']
-
-                if target_table not in added_files:
-                    added_files[target_table] = []
-
-                for s3_key in s3_keys:
-                    if s3_key in added_files[target_table]:
-                        continue
-
-                    self.ingest_files.append({'s3_key': s3_key, 'target_table': target_table, 'target_keys': target_keys}) # Add each file to the new pipeline ingest_files list.
-                    added_files[target_table].append(s3_key)
-                
-        if self.configuration.data_type != "channel":
-            for product in self.pipeline_products:
-                product_name = product['product']
-                product['input_files'] = sorted({x for v in self.configuration.product_input_files[product_name].values() for x in v})
-                product['bucket'] = self.configuration.input_bucket
+        self.sql_rename_dict = sql_rename_dict
     
     ###################################
     def __print__(self):
@@ -300,17 +231,18 @@ class configuration:
         self.reference_time = reference_time
         self.input_bucket = input_bucket
         self.products_to_run = self.get_product_metadata()
-        self.max_flows = []
-        for service in self.products_to_run:
-            self.max_flows.extend([max_flow for max_flow in service['max_flows'] if max_flow not in self.max_flows])
+        self.get_configuration_data_flow()  # Setup datasets dictionaries for general configuration
+        
+        for product in self.products_to_run:  # Remove configuration data flow keys from product info to be cleaner
+            product.pop('db_max_flows', 'No Key found')
+            product.pop('lambda_max_flows', 'No Key found')
+            product.pop('ingest_files', 'No Key found')
 
         self.data_type = 'channel'
         if 'forcing' in name:
             self.data_type = 'forcing'
         elif 'land' in name:
             self.data_type = 'land'
-        
-        self.input_files, self.product_input_files = self.generate_file_list(reference_time)
 
     ###################################
     # This method initializes the a configuration class from a s3_file class object by parsing the file path and name to determine the appropriate attributes.
@@ -354,66 +286,76 @@ class configuration:
     ###################################
     # This method generates a complete list of files based on the file pattern data in the admin.db_data_flows_metadata db table.
     # TODO: We should probably abstract the file pattern information in the database to a configuration database table to avoid redundant file patterns.
-    def generate_file_list(self, reference_time):
+    def generate_file_list(self, file_groups):
         all_input_files = []
-        product_input_files = {}
-        for product in self.products_to_run:
-            product_name = product['product']
+        target_table_input_files = {}
+        ingest_sets = {}
+        for file_group in file_groups:
 
-            if not product.get('ingest_files'):
-                continue
+            file_pattern = file_group['file_format']
+            file_window = file_group['file_window'] if file_group['file_window'] != 'None' else ""
+            file_window_step = file_group['file_step'] if file_group['file_step'] != 'None' else ""
+            target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
+            target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
+            target_keys = target_keys[1:-1].replace(" ","").split(",")
+            
+            if target_table not in target_table_input_files:
+                target_table_input_files[target_table] = {}
+                target_table_input_files[target_table]['s3_keys'] = []
+                target_table_input_files[target_table]['target_keys'] = []
+                
+            new_keys = [key for key in target_keys if key not in target_table_input_files[target_table]['target_keys'] and key]
+            target_table_input_files[target_table]['target_keys'].extend(new_keys)
+            
+            if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > self.reference_time:
+                file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
 
-            for ingest_fileset in product['ingest_files']:
-                print(ingest_fileset)
-                file_pattern = ingest_fileset['file_format']
-                file_window = ingest_fileset['file_window'] if ingest_fileset['file_window'] != 'None' else ""
-                file_window_step = ingest_fileset['file_step'] if ingest_fileset['file_step'] != 'None' else ""
-                target_table = ingest_fileset['target_table'] if ingest_fileset['target_table'] != 'None' else ""
-                target_keys = ingest_fileset['target_keys'] if ingest_fileset['target_keys'] != 'None' else ""
+            if file_window:
+                if not file_window_step:
+                    file_window_step = None
+                reference_dates = pd.date_range(self.reference_time-isodate.parse_duration(file_window), self.reference_time, freq=file_window_step)
+            else:
+                reference_dates = [self.reference_time]
+
+            tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
+            token_dict = {'datetime': [], 'range': []}
+            for token in tokens:
+                token_key = token.split(":")[0][2:]
+                token_value = token.split(":")[1][:-2]
+
+                token_dict[token_key].append(token_value)
                 
-                if not file_pattern:
-                    continue
-                
-                if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > reference_time:
-                    file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-    
-                if file_window:
-                    if not file_window_step:
-                        file_window_step = None
-                    reference_dates = pd.date_range(reference_time-isodate.parse_duration(file_window), reference_time, freq=file_window_step)
+            for reference_date in reference_dates:
+                reference_date_file = file_pattern
+                reference_date_files = []
+                for datetime_token in token_dict['datetime']:
+                    reference_date_file = self.parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
+
+                if token_dict['range']:
+                    for range_token in token_dict['range']:
+                        reference_date_files = self.parse_range_token_value(reference_date_file, range_token)
                 else:
-                    reference_dates = [reference_time]
-    
-                tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
-                token_dict = {'datetime': [], 'range': []}
-                for token in tokens:
-                    token_key = token.split(":")[0][2:]
-                    token_value = token.split(":")[1][:-2]
-    
-                    token_dict[token_key].append(token_value)
-    
-                if product_name not in product_input_files:
-                    product_input_files[product_name] = {}
-                    
-                if target_table not in product_input_files:
-                    product_input_files[product_name][target_table] = []
-                    
-                for reference_date in reference_dates:
-                    reference_date_file = file_pattern
-                    reference_date_files = []
-                    for datetime_token in token_dict['datetime']:
-                        reference_date_file = self.parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
-    
-                    if token_dict['range']:
-                        for range_token in token_dict['range']:
-                            reference_date_files = self.parse_range_token_value(reference_date_file, range_token)
-                    else:
-                        reference_date_files = [reference_date_file]
-    
-                    product_input_files[product_name][target_table].extend(reference_date_files)
-                    all_input_files.extend(file for file in reference_date_files if file not in all_input_files)
+                    reference_date_files = [reference_date_file]
 
-        return all_input_files, product_input_files
+                new_files = [file for file in reference_date_files if file not in target_table_input_files[target_table]['s3_keys']]
+                target_table_input_files[target_table]['s3_keys'].extend(new_files)
+
+        ingest_sets = []
+        for target_table, target_table_metadata in target_table_input_files.items():
+            target_keys = f"({','.join(target_table_metadata['target_keys'])})"
+            index_name = f"idx_{target_table.split('.')[-1:].pop()}_{target_keys.replace(', ', '_')[1:-1]}"
+            
+            ingest_sets.append({
+                "target_table": target_table, 
+                "ingest_datasets": target_table_metadata["s3_keys"], 
+                "index_columns": target_keys,
+                "index_name": index_name,
+                "reference_time": self.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "bucket": self.input_bucket,
+                "keep_flows_at_or_above": float(os.environ['INGEST_FLOW_THRESHOLD']),
+            })
+            
+        return ingest_sets
     
     ###################################
     # TODO: Might make sense to make this a nested function of the generate_file_list function.
@@ -534,3 +476,29 @@ class configuration:
             all_product_metadata = [product for product in all_product_metadata if product['name'] in specific_products]
             
         return all_product_metadata
+        
+    def get_configuration_data_flow(self):
+        self.db_max_flows = []
+        self.lambda_max_flows = []
+        self.ingest_groups = []
+        
+        for product in self.products_to_run:
+            if product.get('db_max_flows'):
+                self.db_max_flows.extend([max_flow for max_flow in product['db_max_flows'] if max_flow not in self.db_max_flows])
+                
+            if product.get('lambda_max_flows'):
+                self.lambda_max_flows.extend([max_flow for max_flow in product['lambda_max_flows'] if max_flow not in self.lambda_max_flows])
+                
+            if product.get('ingest_files'):
+                self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
+                
+        self.lambda_input_sets = self.generate_file_list(self.lambda_max_flows)
+        self.db_ingest_groups = self.generate_file_list(self.ingest_groups)
+        
+        self.configuration_data_flow = {
+            "db_max_flows": self.db_max_flows,
+            "db_ingest_groups": self.db_ingest_groups,
+            "lambda_max_flows": self.lambda_input_sets
+        }
+        
+        return
