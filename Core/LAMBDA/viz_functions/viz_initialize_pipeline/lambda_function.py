@@ -52,18 +52,7 @@ def lambda_handler(event, context):
         if minutes_since_last_run < 15:
             raise DuplicatePipelineException(f"Another {pipeline.configuration.name} pipeline started less than 15 minutes ago. Pausing for 15 minutes.")
         
-    # Establish the return_object dictionary - This is essentially the set of instructions for the AWS step function, based on the attributes of the viz_pipeline class.
-    # TODO: Probably makes sense to move this to a print or to_dict method of the viz_pipeline class.
-    return_object = {
-        "configuration": pipeline.configuration.name,
-        "job_type": pipeline.job_type,
-        "data_type": pipeline.configuration.data_type,
-        "keep_raw": pipeline.keep_raw,
-        "reference_time": pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
-        "configuration_data_flow": pipeline.configuration.configuration_data_flow,
-        "pipeline_products": pipeline.pipeline_products,
-        "sql_rename_dict": pipeline.sql_rename_dict
-    }
+    pipeline_runs = pipeline.check_for_multiple_pipeline_runs()
     
     # Invoke the step function with the dictionary we've not created.
     step_function_arn = os.environ["STEP_FUNCTION_ARN"]
@@ -71,20 +60,23 @@ def lambda_handler(event, context):
         try:
             #Invoke the step function.
             client = boto3.client('stepfunctions')
-            ref_time_short = pipeline.configuration.reference_time.strftime("%Y%m%dT%H%M")
-            short_config = pipeline.configuration.name.replace("puertorico", "prvi").replace("hawaii", "hi")
-            short_config = short_config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf").replace("replace_route", "rnr")
-            short_invoke = pipeline.invocation_type.replace("manual", "man").replace("eventbridge", "bdg")
-            pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
-            client.start_execution(
-                stateMachineArn = step_function_arn,
-                name = pipeline_name,
-                input= json.dumps(return_object)
-            )
+            for pipeline_run in pipeline_runs:
+                ref_time_short = pipeline.configuration.reference_time.strftime("%Y%m%dT%H%M")
+                short_config = pipeline_run['configuration'].replace("puertorico", "prvi").replace("hawaii", "hi")
+                short_config = short_config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf").replace("replace_route", "rnr")
+                short_invoke = pipeline.invocation_type.replace("manual", "man").replace("eventbridge", "bdg")
+                pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
+            
+                client.start_execution(
+                    stateMachineArn = step_function_arn,
+                    name = pipeline_name,
+                    input= json.dumps(pipeline_run)
+                )
             print(f"Invoked: {step_function_arn}")
         except Exception as e:
             print(f"Couldn't invoke - update later. ({e})")
-    return return_object
+            
+    return pipeline_runs
 
 ###################################################################################################################################################
 ################################################################### Viz Classes ###################################################################
@@ -150,6 +142,57 @@ class viz_lambda_pipeline:
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
             self.__print__() 
+            
+    ###################################
+    def check_for_multiple_pipeline_runs(self):
+        lambda_max_flow_dependent_products = [product for product in self.pipeline_products if product['lambda_max_flow_dependent']]
+        db_max_flow_dependent_products = [product for product in self.pipeline_products if not product['lambda_max_flow_dependent']]
+
+        pipeline_runs = []
+        if lambda_max_flow_dependent_products and db_max_flow_dependent_products:
+            lambda_run = {
+                "configuration": f"lmf_{self.configuration.name}",
+                "job_type": self.job_type,
+                "data_type": self.configuration.data_type,
+                "keep_raw": self.keep_raw,
+                "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "configuration_data_flow": {
+                    "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="lambda"],
+                    "lambda_max_flows": self.configuration.lambda_input_sets,
+                    "db_ingest_groups": []
+                },
+                "pipeline_products": lambda_max_flow_dependent_products,
+                "sql_rename_dict": self.sql_rename_dict
+            }
+            
+            db_run = {
+                "configuration": f"dmf_{self.configuration.name}",
+                "job_type": self.job_type,
+                "data_type": self.configuration.data_type,
+                "keep_raw": self.keep_raw,
+                "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "configuration_data_flow": {
+                    "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="database"],
+                    "lambda_max_flows": [],
+                    "db_ingest_groups": self.configuration.db_ingest_groups
+                },
+                "pipeline_products": db_max_flow_dependent_products,
+                "sql_rename_dict": self.sql_rename_dict
+            }
+            pipeline_runs = [lambda_run, db_run]
+        else:
+            pipeline_runs = [{
+                "configuration": self.configuration.name,
+                "job_type": self.job_type,
+                "data_type": self.configuration.data_type,
+                "keep_raw": self.keep_raw,
+                "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "configuration_data_flow": self.configuration.configuration_data_flow,
+                "pipeline_products": self.pipeline_products,
+                "sql_rename_dict": self.sql_rename_dict
+            }]
+        
+        return pipeline_runs
     
     ###################################
     # This method gathers information on the last pipeline run for the given configuration
@@ -198,6 +241,12 @@ class viz_lambda_pipeline:
             target_table_name = target_table.split(".")[1]
             new_table_name = f"{ref_prefix}{target_table_name}"
             sql_rename_dict[target_table] = f"archive.{new_table_name}"
+        
+        for product in self.pipeline_products:
+            for target_table in gen_dict_extract("target_table", product):
+                target_table_name = target_table.split(".")[1]
+                new_table_name = f"{ref_prefix}{target_table_name}"
+                sql_rename_dict[target_table] = f"archive.{new_table_name}"
             
         self.sql_rename_dict = sql_rename_dict
     
@@ -483,10 +532,12 @@ class configuration:
         self.ingest_groups = []
         
         for product in self.products_to_run:
+            product['lambda_max_flow_dependent'] = False
             if product.get('db_max_flows'):
                 self.db_max_flows.extend([max_flow for max_flow in product['db_max_flows'] if max_flow not in self.db_max_flows])
                 
             if product.get('lambda_max_flows'):
+                product['lambda_max_flow_dependent'] = True
                 self.lambda_max_flows.extend([max_flow for max_flow in product['lambda_max_flows'] if max_flow not in self.lambda_max_flows])
                 
             if product.get('ingest_files'):
