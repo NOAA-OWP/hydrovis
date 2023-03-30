@@ -210,6 +210,15 @@ module "private-route53" {
   vpc_main_id = module.vpc.vpc_main.id
 }
 
+# Route53 DNS
+module "public-route53" {
+  source = "./Route53/public"
+  environment = local.env.environment
+  region = local.env.region
+  r53_public_zone_id = local.env.r53_public_zone_id
+  egis_health_checker_alarm = module.viz-lambda-functions.egis_healthcheck_alarm
+}
+
 # SGs
 module "security-groups" {
   source = "./SecurityGroups"

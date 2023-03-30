@@ -264,6 +264,96 @@ resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
   }
 }
 
+##################################
+## EGIS Health Checker Function ##
+##################################
+data "archive_file" "egis_health_checker_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/egis_health_checker/lambda_function.py"
+
+  output_path = "${path.module}/temp/egis_health_checker_${var.environment}_${var.region}.zip"
+}
+
+resource "aws_s3_object" "egis_health_checker_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/egis_health_checker.zip"
+  source      = data.archive_file.egis_health_checker_zip.output_path
+  source_hash = filemd5(data.archive_file.egis_health_checker_zip.output_path)
+}
+
+resource "aws_lambda_function" "egis_health_checker" {
+  function_name = "egis_health_checker_${var.environment}"
+  description   = "Lambda function to ping WRDS API and format outputs for processing."
+  memory_size   = 512
+  timeout       = 300
+
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+
+  environment {
+    variables = {
+      GIS_HOST            = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
+    }
+  }
+  s3_bucket        = aws_s3_object.egis_health_checker_zip_upload.bucket
+  s3_key           = aws_s3_object.egis_health_checker_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.egis_health_checker_zip.output_path)
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.requests_layer
+  ]
+  tags = {
+    "Name" = "egis_health_checker_${var.environment}"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+  rule      = aws_cloudwatch_event_rule.every_five_minutes.name
+  target_id = aws_lambda_function.egis_health_checker.function_name
+  arn       = aws_lambda_function.egis_health_checker.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.egis_health_checker.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn
+}
+
+resource "aws_lambda_function_event_invoke_config" "egis_health_checker" {
+  function_name          = resource.aws_lambda_function.egis_health_checker.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["egis_healthcheck_errors"].arn
+    }
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
+  alarm_name                = "${var.environment}_egis_healthcheck"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm       = 1
+  evaluation_periods        = 1
+
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = 600
+  statistic           = "Sum"
+  threshold           = 2
+  treat_missing_data   = "notBreaching"
+
+  dimensions = {
+    FunctionName = resource.aws_lambda_function.egis_health_checker.function_name
+  }
+}
+
 ########################
 ## Max Flows Function ##
 ########################
@@ -1816,6 +1906,10 @@ output "wrds_api_handler" {
   value = aws_lambda_function.viz_wrds_api_handler
 }
 
+output "egis_health_checker" {
+  value = aws_lambda_function.egis_health_checker
+}
+
 output "viz_pipeline_step_function" {
   value = aws_sfn_state_machine.viz_pipeline_step_function
 }
@@ -1830,4 +1924,8 @@ output "optimize_rasters" {
 
 output "raster_processing" {
   value = module.image_based_lambdas.raster_processing
+}
+
+output "egis_healthcheck_alarm" {
+  value = aws_cloudwatch_metric_alarm.egis_healthcheck_errors
 }
