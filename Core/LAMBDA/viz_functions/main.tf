@@ -140,6 +140,10 @@ variable "requests_layer" {
   type = string
 }
 
+variable "yaml_layer" {
+  type = string
+}
+
 variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
@@ -161,6 +165,7 @@ locals {
   service_suffix = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
   raster_output_prefix = "processing_outputs"
   ecr_repository_image_tag = "latest"
+  ingest_flow_threshold = .001
 
   max_flows_subscriptions = toset([
     "nwm_channel_ana"
@@ -388,12 +393,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN   = var.viz_pipeline_step_function_arn
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
+      STEP_FUNCTION_ARN     = var.viz_pipeline_step_function_arn
+      DATA_BUCKET_UPLOAD    = var.fim_data_bucket
+      INGEST_FLOW_THRESHOLD = local.ingest_flow_threshold
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
@@ -403,7 +405,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
   layers = [
-    var.psycopg2_sqlalchemy_layer,
+    var.yaml_layer,
     var.viz_lambda_shared_funcs_layer,
     var.pandas_layer
   ]
@@ -731,10 +733,6 @@ resource "aws_lambda_function" "viz_publish_service" {
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz/db_pipeline/pro_project_data/sd_files/"
       SERVICE_TAG         = local.service_suffix
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
@@ -744,7 +742,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
   layers = [
-    var.psycopg2_sqlalchemy_layer,
+    var.yaml_layer,
     var.arcgis_python_api_layer,
     var.viz_lambda_shared_funcs_layer
   ]
@@ -828,6 +826,10 @@ output "wrds_api_handler" {
 
 output "hand_fim_processing" {
   value = module.image_based_lambdas.hand_fim_processing
+}
+
+output "schism_fim_processing" {
+  value = module.image_based_lambdas.schism_fim_processing
 }
 
 output "optimize_rasters" {

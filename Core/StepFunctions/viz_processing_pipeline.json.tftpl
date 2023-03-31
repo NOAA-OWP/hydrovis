@@ -1,10 +1,46 @@
 {
   "Comment": "A description of my state machine",
-  "StartAt": "Input Data Groups",
+  "StartAt": "Python Max Flow Processing",
   "States": {
+    "Python Max Flow Processing": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Python - Max Flows",
+        "States": {
+          "Python - Max Flows": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${max_flows_arn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "Next": "Input Data Groups",
+      "ItemsPath": "$.configuration_data_flow.lambda_max_flows",
+      "ResultPath": null
+    },
     "Input Data Groups": {
       "Type": "Map",
-      "Next": "Max Flows Processing",
       "Iterator": {
         "StartAt": "Postprocess SQL - Input Data Prep",
         "States": {
@@ -77,13 +113,13 @@
             "ResultPath": null,
             "Next": "Postprocess SQL - Input Data Prep Finish",
             "Parameters": {
-              "file.$": "$$.Map.Item.Value.file",
-              "target_table.$": "$.map.target_table",
-              "bucket.$": "$.map.bucket",
-              "reference_time.$": "$.map.reference_time",
-              "keep_flows_at_or_above.$": "$.map.keep_flows_at_or_above"
+              "file.$": "$$.Map.Item.Value",
+              "target_table.$": "$.map_item.target_table",
+              "bucket.$": "$.map_item.bucket",
+              "reference_time.$": "$.reference_time",
+              "keep_flows_at_or_above.$": "$.map_item.keep_flows_at_or_above"
             },
-            "ItemsPath": "$.map.ingest_datasets"
+            "ItemsPath": "$.map_item.ingest_datasets"
           },
           "Postprocess SQL - Input Data Prep Finish": {
             "Type": "Task",
@@ -115,15 +151,16 @@
         }
       },
       "ResultPath": null,
-      "ItemsPath": "$.ingest_groups",
+      "ItemsPath": "$.configuration_data_flow.db_ingest_groups",
       "Parameters": {
-        "map.$": "$$.Map.Item.Value",
-        "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
-      }
+        "map_item.$": "$$.Map.Item.Value",
+        "reference_time.$": "$.reference_time",
+        "sql_rename_dict.$": "$.sql_rename_dict"
+      },
+      "Next": "DB Max Flows Processing"
     },
-    "Max Flows Processing": {
+    "DB Max Flows Processing": {
       "Type": "Map",
-      "Next": "Services Processing",
       "Iterator": {
         "StartAt": "Postprocess SQL - Max Flows",
         "States": {
@@ -134,10 +171,7 @@
             "Parameters": {
               "FunctionName": "${db_postprocess_sql_arn}",
               "Payload": {
-                "args": {
-                  "map.$": "$",
-                  "sql_rename_dict.$": "$.sql_rename_dict"
-                },
+                "args.$": "$",
                 "step": "max_flows",
                 "folder": "max_flows"
               }
@@ -160,16 +194,16 @@
         }
       },
       "ResultPath": null,
-      "ItemsPath": "$.pipeline_info.max_flows",
+      "ItemsPath": "$.configuration_data_flow.db_max_flows",
       "Parameters": {
         "map_item.$": "$$.Map.Item.Value",
-        "max_flows.$": "$$.Map.Item.Value",
-        "reference_time.$": "$.pipeline_info.reference_time",
-        "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
+        "reference_time.$": "$.reference_time",
+        "sql_rename_dict.$": "$.sql_rename_dict"
       },
-      "MaxConcurrency": 5
+      "MaxConcurrency": 5,
+      "Next": "Product Processing"
     },
-    "Services Processing": {
+    "Product Processing": {
       "Type": "Map",
       "Iterator": {
         "StartAt": "FIM vs Non-FIM Services",
@@ -275,10 +309,33 @@
                     {
                       "Variable": "$.fim_config",
                       "StringMatches": "*coastal*",
-                      "Next": "Process Coastal (SCHISM) FIM"
+                      "Next": "SCHISM Max Flows"
                     }
                   ],
                   "Default": "FIM Data Preparation - Setup HUC Branch Data"
+                },
+                "SCHISM Max Flows": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "OutputPath": "$.Payload",
+                  "Parameters": {
+                    "Payload.$": "$",
+                    "FunctionName": "${max_flows_arn}"
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "Process Coastal (SCHISM) FIM"
                 },
                 "Process Coastal (SCHISM) FIM": {
                   "Type": "Task",
@@ -337,7 +394,7 @@
                     }
                   ],
                   "Next": "HUC Processing Map",
-                  "ResultPath": "$.hand_fim_processing_payload",
+                  "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
                     "huc_branches_to_process.$": "$.Payload.huc_branches_to_process",
                     "db_fim_table.$": "$.Payload.db_fim_table",
@@ -357,7 +414,7 @@
                         "Type": "Task",
                         "Resource": "arn:aws:states:::states:startExecution.sync:2",
                         "Parameters": {
-                          "StateMachineArn": "${hand_fim_processing_step_function_arn}",
+                          "StateMachineArn": "arn:aws:states:us-east-1:526904826677:stateMachine:huc_processing_ti_new_infrastructure",
                           "Name.$": "$.state_machine_name",
                           "Input": {
                             "huc_branches_to_process.$": "$.huc_branches_to_process",
@@ -374,16 +431,16 @@
                       }
                     }
                   },
-                  "ItemsPath": "$.hand_fim_processing_payload.huc_branches_to_process",
+                  "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
                   "ResultPath": null,
                   "Next": "Postprocess SQL - FIM Config",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
-                    "db_fim_table.$": "$.hand_fim_processing_payload.db_fim_table",
-                    "data_bucket.$": "$.hand_fim_processing_payload.data_bucket",
-                    "data_prefix.$": "$.hand_fim_processing_payload.data_prefix",
-                    "reference_time.$": "$.hand_fim_processing_payload.reference_time",
-                    "fim_config.$": "$.hand_fim_processing_payload.fim_config",
+                    "db_fim_table.$": "$.huc_processing_payload.db_fim_table",
+                    "data_bucket.$": "$.huc_processing_payload.data_bucket",
+                    "data_prefix.$": "$.huc_processing_payload.data_prefix",
+                    "reference_time.$": "$.huc_processing_payload.reference_time",
+                    "fim_config.$": "$.huc_processing_payload.fim_config",
                     "service.$": "$.service",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
                   },
@@ -466,10 +523,7 @@
             "Parameters": {
               "FunctionName": "${db_postprocess_sql_arn}",
               "Payload": {
-                "args": {
-                  "map.$": "$",
-                  "sql_rename_dict.$": "$.sql_rename_dict"
-                },
+                "args.$": "$",
                 "step": "products",
                 "folder": "products"
               }
@@ -582,7 +636,7 @@
                 }
               }
             },
-            "ItemsPath": "$.product.postprocess_summaries",
+            "ItemsPath": "$.product.product_summaries",
             "Parameters": {
               "product.$": "$.product",
               "map_item.$": "$.map_item",
@@ -690,12 +744,11 @@
       },
       "Parameters": {
         "product.$": "$$.Map.Item.Value",
-        "map_item.$": "$$.Map.Item.Value.postprocess_product",
-        "reference_time.$": "$.pipeline_info.reference_time",
-        "job_type.$": "$.pipeline_info.job_type",
-        "sql_rename_dict.$": "$.pipeline_info.sql_rename_dict"
+        "reference_time.$": "$.reference_time",
+        "job_type.$": "$.job_type",
+        "sql_rename_dict.$": "$.sql_rename_dict"
       },
-      "ItemsPath": "$.pipeline_info.pipeline_products",
+      "ItemsPath": "$.pipeline_products",
       "MaxConcurrency": 15,
       "ResultSelector": {
         "error.$": "$[?(@.error)]"

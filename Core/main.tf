@@ -304,6 +304,7 @@ module "viz_lambda_functions" {
   arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
   psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
   requests_layer                = module.lambda_layers.requests.arn
+  yaml_layer                    = module.lambda_layers.yaml.arn
   viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
@@ -325,15 +326,16 @@ module "step_functions" {
 
   lambda_role = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   environment = local.env.environment
-  schism_fim_processing_arn = module.viz_lambda_functions
   optimize_rasters_arn = module.viz_lambda_functions.optimize_rasters.arn
   update_egis_data_arn = module.viz_lambda_functions.update_egis_data.arn
   fim_data_prep_arn = module.viz_lambda_functions.fim_data_prep.arn
-  hand_fim_processing_arn = module.viz_lambda_functions
   db_postprocess_sql_arn = module.viz_lambda_functions.db_postprocess_sql.arn
   db_ingest_arn = module.viz_lambda_functions.db_ingest.arn
   raster_processing_arn = module.viz_lambda_functions.raster_processing.arn
   publish_service_arn = module.viz_lambda_functions.publish_service.arn
+  max_flows_arn = module.viz_lambda_functions.max_flows.arn
+  hand_fim_processing_arn = module.viz_lambda_functions.hand_fim_processing_arn.arn
+  schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics              = module.sns.email_sns_topics
 }
 

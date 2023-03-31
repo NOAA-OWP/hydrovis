@@ -17,7 +17,7 @@ max_flows:
     target_table: cache.max_flows_ana
     target_keys: (feature_id, streamflow)
     method: database
-    max_flows_sql_file: ana_max_flows.sql
+    max_flows_sql_file: ana_max_flows
 
 postprocess_sql:
   sql_file: ana_high_flow_magnitude

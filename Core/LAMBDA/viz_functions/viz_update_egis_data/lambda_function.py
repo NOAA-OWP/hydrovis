@@ -10,6 +10,9 @@ def lambda_handler(event, context):
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
     
+    if job_type == "past_event":
+        return
+    
     # Don't want to run for reference services because they already exist in the EGIS DB
     if event['args']['product']['configuration'] == "reference":
         return
@@ -19,7 +22,9 @@ def lambda_handler(event, context):
         summary_key = next(iter(summary_dict))
         tables = summary_dict[summary_key]
     else:
-        tables = [event['args']['map_item']]
+        tables = [event['args']['product']['postprocess_sql']['target_table']]
+        
+    tables = [table.split(".")[1] for table in tables]
     
     ################### Unstage EGIS Tables ###################
     if step == "unstage":
@@ -36,17 +41,20 @@ def lambda_handler(event, context):
                     dest_tables.append(t)
         # Services without FIM Configs
         else:
-            dest_tables = [event['args']['product']['postprocess_product']]
+            dest_tables = [event['args']['product']['postprocess_sql']['target_table']]
+            
         # Services with Postprocess Summaries
-        if len(event['args']['product']['postprocess_summaries']) > 0:
+        if len(event['args']['product']['product_summaries']) > 0:
             summary_tables = []
-            summary_list = event['args']['product']['postprocess_summaries']
+            summary_list = event['args']['product']['product_summaries']
             for summary_dict in summary_list:
                 for summary, tables in summary_dict.items(): 
                     for table in tables:
                         summary_tables.append(table)
             dest_tables = dest_tables + summary_tables
-        dest_tables = [f"services.{table}" for table in dest_tables]
+            
+        dest_tables = [f"services.{table.split('.')[1]}" for table in dest_tables]
+
         unstage_db_tables(egis_db, dest_tables)
         return True
     

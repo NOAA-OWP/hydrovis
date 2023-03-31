@@ -52,7 +52,7 @@ def lambda_handler(event, context):
         if minutes_since_last_run < 15:
             raise DuplicatePipelineException(f"Another {pipeline.configuration.name} pipeline started less than 15 minutes ago. Pausing for 15 minutes.")
         
-    pipeline_runs = pipeline.check_for_multiple_pipeline_runs()
+    pipeline_runs = pipeline.get_pipeline_runs()
     
     # Invoke the step function with the dictionary we've not created.
     step_function_arn = os.environ["STEP_FUNCTION_ARN"]
@@ -144,7 +144,7 @@ class viz_lambda_pipeline:
             self.__print__() 
             
     ###################################
-    def check_for_multiple_pipeline_runs(self):
+    def get_pipeline_runs(self):
         lambda_max_flow_dependent_products = [product for product in self.pipeline_products if product['lambda_max_flow_dependent']]
         db_max_flow_dependent_products = [product for product in self.pipeline_products if not product['lambda_max_flow_dependent']]
 
@@ -392,14 +392,13 @@ class configuration:
         ingest_sets = []
         for target_table, target_table_metadata in target_table_input_files.items():
             target_keys = f"({','.join(target_table_metadata['target_keys'])})"
-            index_name = f"idx_{target_table.split('.')[-1:].pop()}_{target_keys.replace(', ', '_')[1:-1]}"
+            index_name = f"idx_{target_table.split('.')[-1:].pop()}_{target_keys.replace(',', '_')[1:-1]}"
             
             ingest_sets.append({
                 "target_table": target_table, 
                 "ingest_datasets": target_table_metadata["s3_keys"], 
                 "index_columns": target_keys,
                 "index_name": index_name,
-                "reference_time": self.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "bucket": self.input_bucket,
                 "keep_flows_at_or_above": float(os.environ['INGEST_FLOW_THRESHOLD']),
             })
@@ -520,6 +519,18 @@ class configuration:
             if product_metadata.get("run_times"):
                 if pipeline_run_time not in product_metadata.get("run_times"):
                     continue
+            
+            if not product_metadata.get("dependent_on"):
+                product_metadata['dependent_on'] = ""
+            
+            if not product_metadata.get("fim_configs"):
+                product_metadata['fim_configs'] = []
+            
+            if not product_metadata.get("postprocess_sql"):
+                product_metadata['postprocess_sql'] = {}
+            
+            if not product_metadata.get("product_summaries"):
+                product_metadata['product_summaries'] = []
             
             all_product_metadata.append(product_metadata)
             
