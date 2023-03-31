@@ -36,10 +36,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -9393552.88432426378,
-      "ymin" : 4843752.00193005614,
-      "xmax" : -9374585.37919515744,
-      "ymax" : 4857147.25612837821,
+      "xmin" : -9175887.30386825278,
+      "ymin" : 4870907.1256162459,
+      "xmax" : -9170790.87684677914,
+      "ymax" : 4874506.33041367028,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -1658,6 +1658,15 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
+        "definitionExpression" : "interval_stage <> 0",
+        "definitionExpressionName" : "Query 1",
+        "definitionFilterChoices" : [
+          {
+            "type" : "CIMDefinitionFilter",
+            "name" : "Query 1",
+            "definitionExpression" : "interval_stage <> 0"
+          }
+        ],
         "displayField" : "name",
         "editable" : true,
         "fieldDescriptions" : [
@@ -1742,7 +1751,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage",
-            "fieldName" : "stage",
+            "fieldName" : "interval_stage",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -1751,6 +1760,20 @@
               "roundingValue" : 2
             },
             "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Stage",
+            "fieldName" : "stage",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfSignificantDigits",
+              "roundingValue" : 2
+            },
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -1778,20 +1801,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "interval_stage",
-            "fieldName" : "interval_stage",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
-            },
             "visible" : false,
             "searchMode" : "Exact"
           }
@@ -2213,7 +2222,7 @@
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -2889,7 +2898,7 @@
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -3565,7 +3574,7 @@
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -4241,7 +4250,7 @@
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -4917,7 +4926,7 @@
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
