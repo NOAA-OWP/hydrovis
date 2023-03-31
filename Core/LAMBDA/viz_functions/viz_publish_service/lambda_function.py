@@ -3,6 +3,7 @@ import os
 import time
 from arcgis.gis import GIS
 from viz_classes import s3_file, database
+import yaml
 
 def lambda_handler(event, context):
     
@@ -152,13 +153,9 @@ def lambda_handler(event, context):
     return True
     
 def get_service_metadata(service):
-    import psycopg2.extras
-        
-    connection = database("viz").get_db_connection()
-    with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute(f"SELECT * FROM admin.services WHERE service = '{service}'")
-        column_names = [desc[0] for desc in cur.description]
-        response = cur.fetchall()
-        cur.close()
-    connection.close()
-    return list(map(lambda x: dict(zip(column_names, x)), response))[0]
+    yml_path = os.path.join("services", f"{service}.yml")
+
+    service_stream = open(yml_path, 'r')
+    service_metadata = yaml.safe_load(service_stream)
+    
+    return service_metadata
