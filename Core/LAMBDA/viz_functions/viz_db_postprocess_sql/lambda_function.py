@@ -101,7 +101,7 @@ def max_flows_already_processed(sql_path, reference_time, sql_replace):
         return False
         
     if result[0] == reference_time:
-        print("NOTE: {sql_path} was already executed for reference time {reference_time}")
+        print(f"NOTE: {sql_path} was already executed for reference time {reference_time}")
         return True
     else:
         return False

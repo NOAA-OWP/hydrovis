@@ -65,6 +65,8 @@ def lambda_handler(event, context):
                 # Load the NetCDF file into a dataframe
                 ds = xr.open_dataset(download_path)
                 df = ds.to_dataframe().reset_index()
+                df['nwm_vers'] = df['NWM_version_number'].str.replace("v","").astype("float")
+                df = df.drop(columns=['NWM_version_number'])
                 ds.close()
                 df_toLoad = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
     

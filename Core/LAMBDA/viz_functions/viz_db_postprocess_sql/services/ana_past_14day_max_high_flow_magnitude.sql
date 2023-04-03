@@ -8,7 +8,7 @@ SELECT channels.feature_id,
 	hfm_14day.nwm_vers,
 	hfm_14day.reference_time,
 	hfm_14day.reference_time AS valid_time,
-	hfm_14day.max_flow_7day_cfs AS max_flow_7day_cfs,
+	hfm_7day.max_flow_7day_cfs AS max_flow_7day_cfs,
 	CASE
 					WHEN max_flow_7day_cfs >= thresholds.rf_50_0_17C THEN '2'
 					WHEN max_flow_7day_cfs >= thresholds.rf_25_0_17C THEN '4'
@@ -39,6 +39,7 @@ SELECT channels.feature_id,
 INTO publish.ana_past_14day_max_high_flow_magnitude
 FROM derived.channels_CONUS channels
 JOIN derived.recurrence_flows_CONUS thresholds ON (channels.feature_id = thresholds.feature_id)
+JOIN cache.max_flows_ana_7day hfm_7day ON (channels.feature_id = hfm_7day.feature_id)
 JOIN cache.max_flows_ana_14day hfm_14day ON (channels.feature_id = hfm_14day.feature_id)
 WHERE (thresholds.high_water_threshold > 0)
 				AND hfm_14day.max_flow_14day_cfs >= thresholds.high_water_threshold

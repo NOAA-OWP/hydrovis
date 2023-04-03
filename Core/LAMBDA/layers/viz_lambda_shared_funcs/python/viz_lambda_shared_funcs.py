@@ -8,6 +8,8 @@ import urllib.parse
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
 
+class MissingS3FileException(Exception):
+    """ my custom exception class """
 
 def get_secret_password(secret_name, region_name, key):
     """
@@ -537,3 +539,56 @@ def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=
         print(f"Renaming {dest_table} to {dest_final_table}")
         dest_engine.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
         dest_engine.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
+
+def check_if_file_exists(bucket, file):
+    import requests
+    from viz_classes import s3_file
+    import xarray as xr
+    s3 = boto3.client('s3')
+
+    if "https" in file:
+        if requests.head(file).status_code == 200:
+            print(f"{file} exists.")
+            return file
+        else:
+            raise Exception(f"https file doesn't seem to exist: {file}")
+        
+    else:
+        if s3_file(bucket, file).check_existence():
+            print(f"{file} exists in {bucket}")
+            return file
+        else:
+            if "/prod" in file:
+                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+                if requests.head(google_file).status_code == 200:
+                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+                    return google_file
+            elif "/para" in file:
+                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+                if requests.head(para_nomads_file).status_code == 200:
+                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
+                    
+                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
+                    
+                    
+                    tries = 0
+                    while tries < 3:
+                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
+                        
+                        try:
+                            xr.open_dataset(download_path)
+                            tries = 3
+                        except:
+                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
+                            os.remove(download_path)
+                            tries +=1
+                    
+                    print(f"Saving {file} to {bucket} for archiving")
+                    s3.upload_file(download_path, bucket, file)
+                    os.remove(download_path)
+                    return file
+            else:
+                raise Exception("Code could not handle request for file")
+
+
+        raise MissingS3FileException(f"{file} does not exist on S3.")

@@ -159,7 +159,7 @@ class viz_lambda_pipeline:
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="lambda"],
                     "lambda_max_flows": self.configuration.lambda_input_sets,
-                    "db_ingest_groups": []
+                    "db_ingest_groups": [db_ingest for db_ingest in self.configuration.db_ingest_groups if db_ingest['data_origin']=="lambda"]
                 },
                 "pipeline_products": lambda_max_flow_dependent_products,
                 "sql_rename_dict": self.sql_rename_dict
@@ -174,7 +174,7 @@ class viz_lambda_pipeline:
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="database"],
                     "lambda_max_flows": [],
-                    "db_ingest_groups": self.configuration.db_ingest_groups
+                    "db_ingest_groups": [db_ingest for db_ingest in self.configuration.db_ingest_groups if db_ingest['data_origin']=="raw"]
                 },
                 "pipeline_products": db_max_flow_dependent_products,
                 "sql_rename_dict": self.sql_rename_dict
@@ -275,7 +275,7 @@ class viz_lambda_pipeline:
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
-    def __init__(self, name, reference_time=None, input_bucket=None, input_files=None, step=None): #TODO: Futher build out ref time range.
+    def __init__(self, name, reference_time=None, input_bucket=None): #TODO: Futher build out ref time range.
         self.name = name
         self.reference_time = reference_time
         self.input_bucket = input_bucket
@@ -296,9 +296,8 @@ class configuration:
     ###################################
     # This method initializes the a configuration class from a s3_file class object by parsing the file path and name to determine the appropriate attributes.
     @classmethod
-    def from_s3_file(cls, s3_file, previous_forecasts=0, return_input_files=True, mrf_timestep=3): #TODO:Figure out impact on Corey's stuff to set this to default 3.
+    def from_s3_file(cls, s3_file):
         filename = s3_file.key
-        input_files = []
         if 'max_flows' in filename:
             matches = re.findall(r"max_flows/(.*)/(\d{8})/\D*_(\d+day_)?(\d{2})_max_flows.*", filename)[0]
             date = matches[1]
@@ -335,8 +334,11 @@ class configuration:
     ###################################
     # This method generates a complete list of files based on the file pattern data in the admin.db_data_flows_metadata db table.
     # TODO: We should probably abstract the file pattern information in the database to a configuration database table to avoid redundant file patterns.
-    def generate_file_list(self, file_groups):
-        all_input_files = []
+    def generate_ingest_groups_file_list(self, file_groups, data_origin="raw", bucket=None):
+        
+        if not bucket:
+            bucket = self.input_bucket
+            
         target_table_input_files = {}
         ingest_sets = {}
         for file_group in file_groups:
@@ -366,25 +368,10 @@ class configuration:
             else:
                 reference_dates = [self.reference_time]
 
-            tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
-            token_dict = {'datetime': [], 'range': []}
-            for token in tokens:
-                token_key = token.split(":")[0][2:]
-                token_value = token.split(":")[1][:-2]
-
-                token_dict[token_key].append(token_value)
-                
+            token_dict = self.get_file_tokens(file_pattern)
+    
             for reference_date in reference_dates:
-                reference_date_file = file_pattern
-                reference_date_files = []
-                for datetime_token in token_dict['datetime']:
-                    reference_date_file = self.parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
-
-                if token_dict['range']:
-                    for range_token in token_dict['range']:
-                        reference_date_files = self.parse_range_token_value(reference_date_file, range_token)
-                else:
-                    reference_date_files = [reference_date_file]
+                reference_date_files = self.get_formatted_files(file_pattern, token_dict, reference_date)
 
                 new_files = [file for file in reference_date_files if file not in target_table_input_files[target_table]['s3_keys']]
                 target_table_input_files[target_table]['s3_keys'].extend(new_files)
@@ -399,16 +386,58 @@ class configuration:
                 "ingest_datasets": target_table_metadata["s3_keys"], 
                 "index_columns": target_keys,
                 "index_name": index_name,
-                "bucket": self.input_bucket,
+                "bucket": bucket,
                 "keep_flows_at_or_above": float(os.environ['INGEST_FLOW_THRESHOLD']),
+                "data_origin": data_origin
             })
             
         return ingest_sets
+        
+    ###################################
+    def generate_lambda_max_flows_file_list(self, file_groups):
+        lambda_max_flow_ingest_sets = []
+        db_ingest_sets = []
+        for file_group in file_groups:
+            output_file = file_group['output_file']
+            
+            token_dict = self.get_file_tokens(output_file)
+            formatted_output_file = self.get_formatted_files(output_file, token_dict, self.reference_time)[0]
+            
+            lambda_max_flow_file_set = self.generate_ingest_groups_file_list([file_group])
+            lambda_max_flow_ingest_sets.append({
+                "fileset": lambda_max_flow_file_set[0]['ingest_datasets'],
+                "fileset_bucket": lambda_max_flow_file_set[0]['bucket'],
+                "output_file": formatted_output_file,
+                "output_file_bucket": os.environ['MAX_VALS_BUCKET'],
+            })
+            
+            db_ingest_file_groups = [{
+                'file_format': formatted_output_file, 
+                'file_step': "", 
+                'file_window': "", 
+                'target_table': file_group['target_table'], 
+                'target_keys': file_group['target_keys']
+            }]
+            db_ingest_file_set = self.generate_ingest_groups_file_list(db_ingest_file_groups, data_origin="lambda", bucket=os.environ['MAX_VALS_BUCKET'])[0]
+            db_ingest_sets.append(db_ingest_file_set)
+    
+        return lambda_max_flow_ingest_sets, db_ingest_sets
+
+    ###################################
+    def get_file_tokens(self, file_pattern):
+        token_dict = {}
+        tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
+        token_dict = {'datetime': [], 'range': []}
+        for token in tokens:
+            token_key = token.split(":")[0][2:]
+            token_value = token.split(":")[1][:-2]
+    
+            token_dict[token_key].append(token_value)
+        
+        return token_dict
     
     ###################################
-    # TODO: Might make sense to make this a nested function of the generate_file_list function.
-    @staticmethod
-    def parse_range_token_value(reference_date_file, range_token):
+    def parse_range_token_value(self, reference_date_file, range_token):
         range_min = 0
         range_step = 1
         number_format = '%01d'
@@ -443,9 +472,7 @@ class configuration:
         return new_input_files
     
     ###################################
-    # TODO: Might make sense to make this a nested function of the generate_file_list function.
-    @staticmethod
-    def parse_datetime_token_value(input_file, reference_date, datetime_token):
+    def parse_datetime_token_value(self, input_file, reference_date, datetime_token):
         og_datetime_token = datetime_token
         if "reftime" in datetime_token:
             reftime = datetime_token.split(",")[0].replace("reftime", "")
@@ -472,6 +499,21 @@ class configuration:
         new_input_file = input_file.replace(f"{{{{datetime:{og_datetime_token}}}}}", datetime_value)
 
         return new_input_file
+
+    ###################################
+    def get_formatted_files(self, file_pattern, token_dict, reference_date):
+        reference_date_file = file_pattern
+        reference_date_files = []
+        for datetime_token in token_dict['datetime']:
+            reference_date_file = self.parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
+    
+        if token_dict['range']:
+            for range_token in token_dict['range']:
+                reference_date_files = self.parse_range_token_value(reference_date_file, range_token)
+        else:
+            reference_date_files = [reference_date_file]
+            
+        return reference_date_files
     
     ################################### 
     # This method uses the shared_funcs s3_file class and checks existence on S3 for a full file_list.
@@ -559,8 +601,11 @@ class configuration:
             if product.get('ingest_files'):
                 self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
                 
-        self.lambda_input_sets = self.generate_file_list(self.lambda_max_flows)
-        self.db_ingest_groups = self.generate_file_list(self.ingest_groups)
+        self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
+        
+        
+        self.lambda_input_sets, lambda_derived_db_ingest_sets = self.generate_lambda_max_flows_file_list(self.lambda_max_flows)
+        self.db_ingest_groups.extend(lambda_derived_db_ingest_sets)
         
         self.configuration_data_flow = {
             "db_max_flows": self.db_max_flows,

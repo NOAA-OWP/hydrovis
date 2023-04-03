@@ -9,9 +9,7 @@ def lambda_handler(event, context):
     step = event['step']
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
-    
-    if job_type == "past_event":
-        return
+    sql_rename_dict = event['args']['sql_rename_dict']
     
     # Don't want to run for reference services because they already exist in the EGIS DB
     if event['args']['product']['configuration'] == "reference":
@@ -87,7 +85,9 @@ def lambda_handler(event, context):
                 cleanup_cache(cache_bucket, table, reference_time)
     
             elif job_type == 'past_event':
-                viz_schema = 'archive'
+                new_table = sql_rename_dict[f"publish.{table}"]
+                viz_schema = new_table.split(".")[0]
+                table = new_table.split(".")[1]
                 cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
        
        ################### Image Services ###################

@@ -2,8 +2,6 @@ product: ana_high_flow_magnitude
 configuration: analysis_assim
 product_type: "vector"
 run: true
-services: 
-  - ana_high_flow_magnitude
 
 ingest_files:
     - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc

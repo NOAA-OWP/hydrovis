@@ -2,34 +2,34 @@ product: ana_past_14day_max_high_flow_magnitude
 configuration: analysis_assim
 product_type: "vector"
 run: true
-services: 
-  - ana_past_14day_max_high_flow_magnitude
+run_times:
+  - 00
 
-max_flows:
+db_max_flows:
   - name: 7_day_max_flows
     target_table: cache.max_flows_ana_7day
     target_keys: (feature_id, streamflow)
     method: lambda
-    max_flows_sql_file: ana_7day_max_flows.sql
-    preprocess:
-      - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
-        file_step: 1H
-        file_window: P7D
-        output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_7day_00_max_flows.nc
-        target_table: ingest.nwm_channel_rt_ana_7day_max
-        target_keys: (feature_id, streamflow)
+    max_flows_sql_file: ana_7day_max_flows
   - name: 14_day_max_flows
     target_table: cache.max_flows_ana_14day
     target_keys: (feature_id, streamflow)
     method: lambda
-    max_flows_sql_file: ana_14day_max_flows.sql
-    preprocess:
-      - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
-        file_step: 1H
-        file_window: P14D
-        output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_14day_00_max_flows.nc
-        target_table: ingest.nwm_channel_rt_ana_14day_max
-        target_keys: (feature_id, streamflow)
+    max_flows_sql_file: ana_14day_max_flows
+        
+lambda_max_flows:
+  - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+    file_step: 1H
+    file_window: P7D
+    output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_7day_00_max_flows.nc
+    target_table: ingest.nwm_channel_rt_ana_7day_max
+    target_keys: (feature_id, streamflow)
+  - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+    file_step: 1H
+    file_window: P14D
+    output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_14day_00_max_flows.nc
+    target_table: ingest.nwm_channel_rt_ana_14day_max
+    target_keys: (feature_id, streamflow)
 
 postprocess_sql:
   sql_file: ana_past_14day_max_high_flow_magnitude
