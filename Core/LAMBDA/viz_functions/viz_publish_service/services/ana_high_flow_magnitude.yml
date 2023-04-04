@@ -3,7 +3,7 @@ summary: High Flow Magnitude
 description: Depicts the magnitude of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. This service is derived 
   from the analysis and assimilation configuration of the NWM over the contiguous U.S. Shown are reaches with flow at or above high water thresholds. 
   Reaches are colored by the annual exceedance probability (AEP) of their current flow. High water thresholds (regionally varied) and AEPs were derived 
-  using the 40-year NWM v2.1 reanalysis simulation. Updated hourly
+  using the 40-year NWM v2.1 reanalysis simulation. Updated hourly.
 tags: high flow, magnitude, national water model, nwm
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server

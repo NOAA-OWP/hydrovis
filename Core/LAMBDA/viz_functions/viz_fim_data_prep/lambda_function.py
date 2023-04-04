@@ -1,9 +1,7 @@
 import boto3
-import re
 import os
 import datetime
 import time
-import json
 import numpy as np
 import pandas as pd
 
@@ -34,35 +32,26 @@ def lambda_handler(event, context):
     
 def setup_branch_iteration(event):
     fim_config = event['args']['fim_config']
-    service_data = event['args']['service']
+    fim_config_name = fim_config['name']
+    target_table = fim_config['target_table']
+    product = event['args']['product']['product']
+    configuration = event['args']['product']['configuration']
     reference_time = event['args']['reference_time']
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
-    service = service_data['service']
-    configuration = service_data['configuration']
     sql_replace = event['args']['sql_rename_dict']
     one_off = event['args'].get("hucs")
+    
+    if sql_replace.get(target_table):
+        target_table = sql_replace.get(target_table)
     
     print(f"Running FIM for {configuration} for {reference_time}")
     db_type = "viz"
     viz_db = database(db_type=db_type)
 
     # Find the sql file, and replace any items in the dictionary
-    sql_path = f'data_sql/{fim_config}.sql'
+    sql_path = f'data_sql/{fim_config_name}.sql'
     sql = open(sql_path, 'r').read().lower()
     df_streamflows = viz_db.run_sql_in_db(sql)
-
-    table = fim_config
-    target_schema = "ingest"
-    if configuration == "reference": #recurrence flow fim
-        if "catchments" in service:
-            target_schema = "fim_catchments"
-        db_type = "egis"
-        target_table = f"{target_schema}.{table}"
-    elif len(sql_replace) > 0: #past events
-        target_schema = "archive"
-        target_table = sql_replace[f"ingest.{fim_config}"]
-    else: #everything else
-        target_table = f"{target_schema}.{table}"
 
     setup_db_table(target_table, reference_time, db_type, sql_replace)
     
@@ -71,7 +60,7 @@ def setup_branch_iteration(event):
     else:
         hucs_to_process = df_streamflows['huc'].unique()
         
-    print(f"Kicking off {len(hucs_to_process)} hucs for {service} for {reference_time}")
+    print(f"Kicking off {len(hucs_to_process)} hucs for {product} for {reference_time}")
 
     df_streamflows['data_key'] = None
     for huc in hucs_to_process:
@@ -80,7 +69,7 @@ def setup_branch_iteration(event):
         if huc_data.empty:
             continue
         
-        csv_key = write_data_csv_file(service, fim_config, huc, reference_date, huc_data)
+        csv_key = write_data_csv_file(product, fim_config_name, huc, reference_date, huc_data)
         df_streamflows.loc[df_streamflows['huc'] == huc, 'data_key'] = csv_key
         
     s3 = boto3.client('s3')
@@ -94,11 +83,11 @@ def setup_branch_iteration(event):
     df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
     for index, df in enumerate(df_streamflows_split):
         # Key for the csv file that will be stored in S3
-        csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{service}/{fim_config}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
+        csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
         s3_keys.append(csv_key)
     
         # Save the dataframe as a local netcdf file
-        tmp_csv = f'/tmp/{service}.csv'
+        tmp_csv = f'/tmp/{product}.csv'
         df.to_csv(tmp_csv, index=False)
     
         # Upload the csv file into S3
@@ -112,8 +101,8 @@ def setup_branch_iteration(event):
         'data_bucket': PROCESSED_OUTPUT_BUCKET,
         'data_prefix': PROCESSED_OUTPUT_PREFIX,
         'reference_time': reference_time,
-        'fim_config': fim_config,
-        'service': service,
+        'fim_config': fim_config_name,
+        'product': product,
     }
     
     return return_object
@@ -140,7 +129,7 @@ def setup_db_table(db_fim_table, reference_time, db_type="viz", sql_replace=None
         Sets up the necessary tables in a postgis data for later ingest from the huc processing functions
 
         Args:
-            configuration(str): service configuration for the service being ran (i.e. srf, srf_hi, etc)
+            configuration(str): product configuration for the product being ran (i.e. srf, srf_hi, etc)
             reference_time(str): Reference time of the data being ran
             sql_replace(dict): An optional dictionary by which to use to create a new table if needed
     """
@@ -191,7 +180,7 @@ def setup_db_table(db_fim_table, reference_time, db_type="viz", sql_replace=None
     
     return db_fim_table
 
-def write_data_csv_file(service, fim_config, huc, reference_date, huc_data):
+def write_data_csv_file(product, fim_config, huc, reference_date, huc_data):
     '''
         Write the subsetted streamflow data to a csv so that the huc processing lambdas can grab it
 
@@ -210,7 +199,7 @@ def write_data_csv_file(service, fim_config, huc, reference_date, huc_data):
     hour = reference_date.strftime("%H")
 
     # Key for the csv file that will be stored in S3
-    csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{service}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+    csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
 
     # Save the dataframe as a local netcdf file
     tmp_csv = f'/tmp/{huc}.csv'

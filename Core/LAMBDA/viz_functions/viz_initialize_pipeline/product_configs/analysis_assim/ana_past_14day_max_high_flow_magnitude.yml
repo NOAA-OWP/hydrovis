@@ -37,4 +37,3 @@ postprocess_sql:
 
 services:
   - ana_past_14day_max_high_flow_magnitude
-

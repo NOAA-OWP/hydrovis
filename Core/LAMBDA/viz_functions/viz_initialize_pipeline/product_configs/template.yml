@@ -41,10 +41,13 @@ fim_configs:  # (OPTIONAL) List of fim configurations to run
         file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
         file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
         output_file: output/path/to/date.{{datetime:%Y%m%d}}/data.nc  # (REQUIRED) File path to output data. The datetime regex will end up being the reference time of the product run
+    postprocess:  # (OPTIONAL) Dictionary dictating what files to postprocess for the fim config if needed
+      sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the fim_config postprocess sql file
+      target_table: publish.inundation  # (REQUIRED) Name of the DB table where fim_config postprocess sql be be added
 
 postprocess_sql:  # (OPTIONAL) List of postprocess sql files to run in the postprocess sql lambda function
   sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the ingest postprocess sql file
-  target_table: ingest.inundation  # (REQUIRED) Name of the DB table where the fileset will be imported
+  target_table: publish.product  # (REQUIRED) Name of the DB table where the fileset will be imported
 
 product_summaries:  # (OPTIONAL) List of dictionaries which provides the names of the summary sql files to run in the postprocess sql lambda function and their table output results
   - sql_file:  product_summary_sql_file_name  # (REQUIRED) Name of the summary sql file ran in the postprocess sql lambda function

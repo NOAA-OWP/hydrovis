@@ -25,7 +25,6 @@ import os
 import json
 import isodate
 import pandas as pd
-from botocore.exceptions import ClientError
 from viz_classes import s3_file, database # We use some common custom classes in this lambda layer, in addition to the viz_pipeline and configuration classes defined below.
 import yaml
 
@@ -95,7 +94,7 @@ def lambda_handler(event, context):
 
 class viz_lambda_pipeline:
     
-    def __init__(self, start_event, print_init=True, step=None):
+    def __init__(self, start_event, print_init=True):
         # At present, we're always initializing from a lambda event
         self.start_event = start_event
         if self.start_event.get("detail-type") == "Scheduled Event":
@@ -112,24 +111,24 @@ class viz_lambda_pipeline:
 
         if self.start_event.get("detail-type") == "Scheduled Event":
             config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
-            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket, step=step)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
         elif self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
             configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
+            self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket)
         # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
         elif self.invocation_type == "manual":
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
-                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'), step=step)
+                self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
                 self.start_file = most_recent_file
                 configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
-                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket, step=step)
+                self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket)
         
         # Get some other useful attributes for the pipeline, given the attributes we now have.
         self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
@@ -198,23 +197,21 @@ class viz_lambda_pipeline:
     # This method gathers information on the last pipeline run for the given configuration
     # TODO: This should totally be in the configuration class... and we should abstract a view to access this information.
     def get_last_run_info(self):
+        last_run_info = {}
+        target_table = [data_flow['target_table'] for data_flow in self.configuration.configuration_data_flow['db_ingest_groups']][0]
         viz_db = database(db_type="viz")
         with viz_db.get_db_connection() as connection:
+            last_run_info[target_table] = {}
             cur = connection.cursor()
             cur.execute(f"""
-                        SELECT max(reference_time) as reference_time, last_update
-                        FROM (SELECT max(update_time) as last_update from admin.ingest_status a
-                                JOIN admin.pipeline_data_flows b ON a.target = b.target_table
-                                JOIN admin.services c on b.service = c.service
-                                WHERE configuration = '{self.configuration.name}' and status = 'Import Started' AND step = 'ingest') as last_start
-                        JOIN admin.ingest_status a ON last_start.last_update = a.update_time
-                        JOIN admin.pipeline_data_flows b on a.target = b.target_table
-                        JOIN admin.services c ON b.service = c.service
-                        WHERE c.configuration = '{self.configuration.name}' AND b.step = 'ingest'
-                        GROUP BY last_update
-                        """)
+                SELECT max(reference_time) as reference_time, last_update
+                FROM (SELECT max(update_time) as last_update from admin.ingest_status a
+                        WHERE target = '{target_table}' and status = 'Import Started') as last_start
+                JOIN admin.ingest_status a ON last_start.last_update = a.update_time
+                GROUP BY last_update
+            """)
             try:
-                return cur.fetchone()[0], cur.fetchone()[1]
+                return cur.fetchone()[0], ur.fetchone()[1]
             except: #if nothing logged in db, return generic datetimes in the past
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     

@@ -1,4 +1,4 @@
-product: ana_high_flow_magnitude
+product: ana_streamflow
 configuration: analysis_assim
 product_type: "vector"
 run: true
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: ana_max_flows
 
 postprocess_sql:
-  sql_file: ana_high_flow_magnitude
-  target_table: publish.ana_high_flow_magnitude
+  sql_file: ana_streamflow
+  target_table: publish.ana_streamflow
 
 services:
-  - ana_high_flow_magnitude
+  - ana_streamflow

@@ -12,17 +12,30 @@ def lambda_handler(event, context):
     if step in ["products", "fim_config"]:
         if event['args']['product']['configuration'] == "reference":
             return
-    
+        
     if folder == 'admin':
          run_admin_tasks(event, folder, step, sql_replace)
     else:
         # TODO: Clean up this conditional logic to be more readable.
         if step == 'summaries':
-                sql_file = f"{event['args']['map']['map_item']}/{next(iter(event['args']['map_item']))}"
+            folder = os.path.join(folder, event['args']['product']['product'])
+            sql_file = event['args']['postprocess_summary']['sql_file']
+            
         elif step == "max_flows":
             sql_file = event['args']['map_item']['max_flows_sql_file']
-        elif step == 'products':
+            
+        elif step == 'fim_config':
+            if not event['args']['fim_config'].get('postprocess'):
+                return
+            
+            sql_file = event['args']['fim_config']['postprocess']['sql_file']
+            
+        else:
+            if not event['args']['product'].get('postprocess_sql'):
+                return
+            
             sql_file = event['args']['product']['postprocess_sql']['sql_file']
+        
             
         sql_path = f"{folder}/{sql_file}.sql"
         

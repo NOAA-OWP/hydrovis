@@ -36,7 +36,7 @@ def lambda_handler(event, context):
     huc8_branch = event['huc8_branch']
     db_fim_table = event['db_fim_table']
     reference_time = event['reference_time']
-    service = event['service']
+    product = event['product']
     fim_config = event['fim_config']
     data_bucket = event['data_bucket']
     data_prefix = event['data_prefix']
@@ -53,7 +53,7 @@ def lambda_handler(event, context):
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        subsetted_streams = f"{data_prefix}/{service}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+        subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
 
         print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
 
@@ -99,7 +99,7 @@ def lambda_handler(event, context):
     
     process_db.engine.dispose()
     
-    print(f"Successfully processed tif for HUC {huc8} and branch {branch} for {service} for {reference_time}")
+    print(f"Successfully processed tif for HUC {huc8} and branch {branch} for {product} for {reference_time}")
 
     return
 

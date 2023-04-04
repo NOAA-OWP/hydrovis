@@ -1,6 +1,6 @@
-product: ana_high_flow_magnitude
+product: ana_inundation
 configuration: analysis_assim
-product_type: "vector"
+product_type: "fim"
 run: true
 
 ingest_files:
@@ -17,9 +17,22 @@ db_max_flows:
     method: database
     max_flows_sql_file: ana_max_flows
 
-postprocess_sql:
-  sql_file: ana_high_flow_magnitude
-  target_table: publish.ana_high_flow_magnitude
+fim_configs:
+  - name: ana_inundation
+    target_table: ingest.ana_inundation
+    postprocess:
+      sql_file: ana_inundation
+      target_table: publish.ana_inundation
+  
+product_summaries:
+  - sql_file:  src_skill
+    target_table:
+      - publish.ana_inundation_src_skill
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.ana_inundation_building_footprints
+      - publish.ana_inundation_counties
+      - publish.ana_inundation_hucs
 
 services:
-  - ana_high_flow_magnitude
+  - ana_inundation
