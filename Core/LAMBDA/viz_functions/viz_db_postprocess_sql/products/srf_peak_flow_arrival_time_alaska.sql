@@ -1,10 +1,10 @@
-DROP TABLE IF EXISTS publish.srf_peak_flow_arrival_time_alaska_para;
+DROP TABLE IF EXISTS publish.srf_peak_flow_arrival_time_alaska;
 
 WITH arrival_time AS (
      SELECT 
          forecasts.feature_id,
          max(forecasts.forecast_hour)+1 AS t_normal
-     FROM ingest.nwm_channel_rt_srf_alaska_para AS forecasts
+     FROM ingest.nwm_channel_rt_srf_alaska AS forecasts
      GROUP BY forecasts.feature_id
     )
 SELECT
@@ -20,11 +20,11 @@ SELECT
     channels.name,
     channels.huc6,
     channels.geom
-INTO publish.srf_peak_flow_arrival_time_alaska_para
-FROM ingest.nwm_channel_rt_srf_alaska_para AS forecasts 
+INTO publish.srf_peak_flow_arrival_time_alaska
+FROM ingest.nwm_channel_rt_srf_alaska AS forecasts 
 
 -- Join in max flows on max streamflow to only get peak flows
-JOIN cache.max_flows_srf_alaska_para AS max_flows
+JOIN cache.max_flows_srf_alaska AS max_flows
     ON forecasts.feature_id = max_flows.feature_id AND forecasts.streamflow = max_flows.maxflow_15hour_cms
 
 -- Join in channels data to get reach metadata and geometry

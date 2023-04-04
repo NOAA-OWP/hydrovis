@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_streamflow_alaska_para;
+DROP TABLE IF EXISTS publish.ana_streamflow_alaska;
 
 SELECT
     ana.feature_id,
@@ -13,6 +13,6 @@ SELECT
     channels.name,
     channels.huc6,
     channels.geom
-INTO publish.ana_streamflow_alaska_para
-FROM cache.max_flows_ana_alaska_para as ana
+INTO publish.ana_streamflow_alaska
+FROM cache.max_flows_ana_alaska as ana
 left join derived.channels_alaska as channels ON channels.feature_id = ana.feature_id::bigint;
