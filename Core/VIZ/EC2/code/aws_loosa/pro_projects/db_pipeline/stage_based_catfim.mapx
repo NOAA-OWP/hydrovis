@@ -35,10 +35,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -10042414.0540662669,
-      "ymin" : 3794700.82092288323,
-      "xmax" : -10037550.6777432077,
-      "ymax" : 3798135.4403768396,
+      "xmin" : -10043933.54418171,
+      "ymin" : 3794757.52702452661,
+      "xmax" : -10036031.1876277644,
+      "ymax" : 3798078.73427519621,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -1701,18 +1701,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage <> 0",
+        "definitionExpression" : "interval_stage <> 0 And magnitude = 'action'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage <> 0"
-          },
-          {
-            "type" : "CIMDefinitionFilter",
-            "name" : "Query 2",
-            "definitionExpression" : "magnitude = 'action'"
+            "definitionExpression" : "interval_stage <> 0 And magnitude = 'action'"
           }
         ],
         "displayField" : "name",
@@ -3017,6 +3012,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -3063,13 +3059,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage <> 0",
+        "definitionExpression" : "interval_stage <> 0 And magnitude = 'minor'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage <> 0"
+            "definitionExpression" : "interval_stage <> 0 And magnitude = 'minor'"
           }
         ],
         "displayField" : "name",
@@ -4373,6 +4369,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -4419,13 +4416,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage <> 0",
+        "definitionExpression" : "interval_stage <> 0 And magnitude = 'moderate'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage <> 0"
+            "definitionExpression" : "interval_stage <> 0 And magnitude = 'moderate'"
           }
         ],
         "displayField" : "name",
@@ -5730,6 +5727,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -5776,13 +5774,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage <> 0",
+        "definitionExpression" : "interval_stage <> 0 And magnitude = 'major'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage <> 0"
+            "definitionExpression" : "interval_stage <> 0 And magnitude = 'major'"
           }
         ],
         "displayField" : "name",
@@ -7087,6 +7085,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -7117,6 +7116,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{019DF820-BDA4-4783-84EF-8DA6118FA665}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "minScale" : 750000,
       "showLegends" : true,
@@ -7132,18 +7132,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0",
+        "definitionExpression" : "interval_stage = 0 AND magnitude = 'record'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0"
-          },
-          {
-            "type" : "CIMDefinitionFilter",
-            "name" : "Query 2",
-            "definitionExpression" : "magnitude = 'record'"
+            "definitionExpression" : "interval_stage = 0 AND magnitude = 'record'"
           }
         ],
         "displayField" : "name",
