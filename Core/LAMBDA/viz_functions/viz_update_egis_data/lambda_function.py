@@ -1,6 +1,7 @@
 import boto3
 import os
 from viz_classes import database, s3_file
+from viz_lambda_shared_funcs import gen_dict_extract
 from datetime import datetime, timedelta
 
 ###################################
@@ -19,19 +20,6 @@ def lambda_handler(event, context):
     
     ################### Unstage EGIS Tables ###################
     if step == "unstage":
-        
-        def gen_dict_extract(key, var):
-            if hasattr(var,'items'):
-                for k, v in var.items():
-                    if k == key:
-                        yield v
-                    if isinstance(v, dict):
-                        for result in gen_dict_extract(key, v):
-                            yield result
-                    elif isinstance(v, list):
-                        for d in v:
-                            for result in gen_dict_extract(key, d):
-                                yield result
         
         target_tables = gen_dict_extract("target_table", event['args'])
         all_tables = [table for table in target_tables if type(table) is not list] + [table for table_list in target_tables if type(table) is list for table in table_list]

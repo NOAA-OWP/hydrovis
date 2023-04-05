@@ -26,6 +26,7 @@ import json
 import isodate
 import pandas as pd
 from viz_classes import s3_file, database # We use some common custom classes in this lambda layer, in addition to the viz_pipeline and configuration classes defined below.
+from viz_lambda_shared_funcs import gen_dict_extract
 import yaml
 
 ###################################################################################################################################################
@@ -216,21 +217,7 @@ class viz_lambda_pipeline:
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     
     ###################################
-    def organize_rename_dict(self, run_only=True): 
-        
-        def gen_dict_extract(key, var):
-            if hasattr(var,'items'):
-                for k, v in var.items():
-                    if k == key:
-                        yield v
-                    if isinstance(v, dict):
-                        for result in gen_dict_extract(key, v):
-                            yield result
-                    elif isinstance(v, list):
-                        for d in v:
-                            for result in gen_dict_extract(key, d):
-                                yield result
-        
+    def organize_rename_dict(self, run_only=True):     
         sql_rename_dict = {}
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
