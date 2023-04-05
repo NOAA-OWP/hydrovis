@@ -1,8 +1,13 @@
+import json
 import os
+from datetime import datetime, timedelta
 import xarray
 import pandas as pd
 import numpy as np
 import boto3
+import botocore
+import urllib.parse
+import time
 import tempfile
 
 from viz_lambda_shared_funcs import get_configuration, check_if_file_exists
@@ -37,11 +42,10 @@ def lambda_handler(event, context):
     """
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration")
-    fileset = event['map_item']['fileset']
-    fileset_bucket = event['map_item']['fileset_bucket']
-    output_file = event['map_item']['output_file']
-    output_file_bucket = event['map_item']['output_file_bucket']
-    reference_time = event['reference_time']
+    fileset = event['lambda_max_flow']['fileset']
+    fileset_bucket = event['lambda_max_flow']['fileset_bucket']
+    output_file = event['lambda_max_flow']['output_file']
+    output_file_bucket = event['lambda_max_flow']['output_file_bucket']
 
     print(f"Creating {output_file}")
     # Once the files exist, calculate the max flows

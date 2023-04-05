@@ -22,7 +22,7 @@ def lambda_handler(event, context):
             sql_file = event['args']['postprocess_summary']['sql_file']
             
         elif step == "max_flows":
-            sql_file = event['args']['map_item']['max_flows_sql_file']
+            sql_file = event['args']['db_max_flow']['max_flows_sql_file']
             
         elif step == 'fim_config':
             if not event['args']['fim_config'].get('postprocess'):
@@ -48,9 +48,9 @@ def lambda_handler(event, context):
 
 # Special function to handle admin-only sql tasks
 def run_admin_tasks(event, folder, step, sql_replace):
-    target_table = event['args']['map_item']['target_table']
-    index_columns = event['args']['map_item']['index_columns']
-    index_name = event['args']['map_item']['index_name']
+    target_table = event['args']['db_ingest_group']['target_table']
+    index_columns = event['args']['db_ingest_group']['index_columns']
+    index_name = event['args']['db_ingest_group']['index_name']
     target_schema = target_table.split('.')[0]
     target_table_only = target_table.split('.')[-1]
     
@@ -61,10 +61,6 @@ def run_admin_tasks(event, folder, step, sql_replace):
     sql_replace.update({"{index_columns}": index_columns})
     
     if step == 'ingest_prep':
-        # if target table is not the original table, run the create command to create the table
-        #if target_table != original_table:
-            #sql_replace.update({"{original_table}": original_table})
-            #run_sql('admin/create_table_from_original.sql', sql_replace)
         run_sql('admin/ingest_prep.sql', sql_replace)
 
     if step == 'ingest_finish':
@@ -72,8 +68,6 @@ def run_admin_tasks(event, folder, step, sql_replace):
         sql_replace.update({"{rows_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         run_sql('admin/ingest_finish.sql', sql_replace)
     
-    
-
 # Run sql from string or file, and replace any items basd on the sql_replace dictionary.
 def run_sql(sql_path_or_str, sql_replace=None):
     result = None

@@ -37,7 +37,12 @@
       },
       "Next": "Input Data Groups",
       "ItemsPath": "$.configuration_data_flow.lambda_max_flows",
-      "ResultPath": null
+      "ResultPath": null,
+      "ItemSelector": {
+        "lambda_max_flow.$": "$$.Map.Item.Value",
+        "reference_time.$": "$.reference_time",
+        "sql_rename_dict.$": "$.sql_rename_dict"
+      }
     },
     "Input Data Groups": {
       "Type": "Map",
@@ -114,12 +119,12 @@
             "Next": "Postprocess SQL - Input Data Prep Finish",
             "Parameters": {
               "file.$": "$$.Map.Item.Value",
-              "target_table.$": "$.map_item.target_table",
-              "bucket.$": "$.map_item.bucket",
+              "target_table.$": "$.db_ingest_group.target_table",
+              "bucket.$": "$.db_ingest_group.bucket",
               "reference_time.$": "$.reference_time",
-              "keep_flows_at_or_above.$": "$.map_item.keep_flows_at_or_above"
+              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above"
             },
-            "ItemsPath": "$.map_item.ingest_datasets"
+            "ItemsPath": "$.db_ingest_group.ingest_datasets"
           },
           "Postprocess SQL - Input Data Prep Finish": {
             "Type": "Task",
@@ -153,7 +158,7 @@
       "ResultPath": null,
       "ItemsPath": "$.configuration_data_flow.db_ingest_groups",
       "Parameters": {
-        "map_item.$": "$$.Map.Item.Value",
+        "db_ingest_group.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
@@ -196,7 +201,7 @@
       "ResultPath": null,
       "ItemsPath": "$.configuration_data_flow.db_max_flows",
       "Parameters": {
-        "map_item.$": "$$.Map.Item.Value",
+        "db_max_flow.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
@@ -230,7 +235,7 @@
                 "Next": "Raster Processing"
               }
             ],
-            "Default": "Postprocess SQL - Service"
+            "Default": "Postprocess SQL - Product"
           },
           "Raster Processing": {
             "Type": "Task",
@@ -257,7 +262,7 @@
           },
           "Map": {
             "Type": "Map",
-            "Next": "Postprocess SQL - Service",
+            "Next": "Postprocess SQL - Product",
             "Iterator": {
               "StartAt": "Optimize Rasters",
               "States": {
@@ -299,17 +304,18 @@
           },
           "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Parallelize Summaries",
+            "Next": "Postprocess SQL - Product",
             "Iterator": {
-              "StartAt": "Choice",
+              "StartAt": "Inland vs Coastal Inundation",
               "States": {
-                "Choice": {
+                "Inland vs Coastal Inundation": {
                   "Type": "Choice",
                   "Choices": [
                     {
-                      "Variable": "$.fim_config",
+                      "Variable": "$.fim_config.name",
                       "StringMatches": "*coastal*",
-                      "Next": "SCHISM Max Flows"
+                      "Next": "SCHISM Max Flows",
+                      "Comment": "Coastal FIM Config"
                     }
                   ],
                   "Default": "FIM Data Preparation - Setup HUC Branch Data"
@@ -319,8 +325,11 @@
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "OutputPath": "$.Payload",
                   "Parameters": {
-                    "Payload.$": "$",
-                    "FunctionName": "${max_flows_arn}"
+                    "FunctionName": "${max_flows_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "setup_coastal_processing"
+                    }
                   },
                   "Retry": [
                     {
@@ -402,7 +411,7 @@
                     "data_prefix.$": "$.Payload.data_prefix",
                     "reference_time.$": "$.Payload.reference_time",
                     "fim_config.$": "$.Payload.fim_config",
-                    "service.$": "$.Payload.service"
+                    "product.$": "$.Payload.product"
                   }
                 },
                 "HUC Processing Map": {
@@ -414,7 +423,7 @@
                         "Type": "Task",
                         "Resource": "arn:aws:states:::states:startExecution.sync:2",
                         "Parameters": {
-                          "StateMachineArn": "arn:aws:states:us-east-1:526904826677:stateMachine:huc_processing_ti_new_infrastructure",
+                          "StateMachineArn": "${hand_fim_processing_step_function_arn}",
                           "Name.$": "$.state_machine_name",
                           "Input": {
                             "huc_branches_to_process.$": "$.huc_branches_to_process",
@@ -423,7 +432,7 @@
                             "data_prefix.$": "$.data_prefix",
                             "reference_time.$": "$.reference_time",
                             "fim_config.$": "$.fim_config",
-                            "service.$": "$.service.service",
+                            "product.$": "$.product",
                             "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
                         },
@@ -432,7 +441,6 @@
                     }
                   },
                   "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
-                  "ResultPath": null,
                   "Next": "Postprocess SQL - FIM Config",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
@@ -441,10 +449,11 @@
                     "data_prefix.$": "$.huc_processing_payload.data_prefix",
                     "reference_time.$": "$.huc_processing_payload.reference_time",
                     "fim_config.$": "$.huc_processing_payload.fim_config",
-                    "service.$": "$.service",
-                    "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config, $$.Map.Item.Index)"
+                    "product.$": "$.product",
+                    "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config.name, $$.Map.Item.Index)"
                   },
-                  "MaxConcurrency": 4
+                  "MaxConcurrency": 4,
+                  "ResultPath": null
                 },
                 "Postprocess SQL - FIM Config": {
                   "Type": "Task",
@@ -453,13 +462,14 @@
                     "FunctionName": "${db_postprocess_sql_arn}",
                     "Payload": {
                       "args": {
-                        "map.$": "$",
-                        "map_item.$": "$.fim_config",
+                        "job_type.$": "$.job_type",
                         "reference_time.$": "$.reference_time",
+                        "product.$": "$.product",
+                        "fim_config.$": "$.fim_config",
                         "sql_rename_dict.$": "$.sql_rename_dict"
                       },
                       "step": "fim_config",
-                      "folder": "services"
+                      "folder": "fim_configs"
                     }
                   },
                   "Retry": [
@@ -475,8 +485,8 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "ResultPath": null,
-                  "Next": "Update EGIS Data - FIM Config"
+                  "Next": "Update EGIS Data - FIM Config",
+                  "ResultPath": null
                 },
                 "Update EGIS Data - FIM Config": {
                   "Type": "Task",
@@ -484,7 +494,13 @@
                   "Parameters": {
                     "FunctionName": "${update_egis_data_arn}",
                     "Payload": {
-                      "args.$": "$",
+                      "args": {
+                        "job_type.$": "$.job_type",
+                        "reference_time.$": "$.reference_time",
+                        "product.$": "$.product",
+                        "fim_config.$": "$.fim_config",
+                        "sql_rename_dict.$": "$.sql_rename_dict"
+                      },
                       "step": "update_fim_config_data"
                     }
                   },
@@ -506,18 +522,17 @@
                 }
               }
             },
-            "ItemsPath": "$.service.fim_configs",
+            "ItemsPath": "$.product.fim_configs",
             "Parameters": {
               "fim_config.$": "$$.Map.Item.Value",
-              "map_item.$": "$$.Map.Item.Value",
-              "job_type.$": "$.job_type",
-              "service.$": "$.service",
+              "product.$": "$.product",
               "reference_time.$": "$.reference_time",
+              "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict"
             },
             "ResultPath": null
           },
-          "Postprocess SQL - Service": {
+          "Postprocess SQL - Product": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
@@ -541,10 +556,10 @@
                 "Comment": "Lambda Service Errors"
               }
             ],
-            "Next": "Update EGIS Data - Service",
+            "Next": "Update EGIS Data - Product",
             "ResultPath": null
           },
-          "Update EGIS Data - Service": {
+          "Update EGIS Data - Product": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
@@ -582,12 +597,7 @@
                   "Parameters": {
                     "FunctionName": "${db_postprocess_sql_arn}",
                     "Payload": {
-                      "args": {
-                        "map.$": "$",
-                        "map_item.$": "$.postprocess_summary",
-                        "reference_time.$": "$.reference_time",
-                        "sql_rename_dict.$": "$.sql_rename_dict"
-                      },
+                      "args.$": "$",
                       "step": "summaries",
                       "folder": "summaries"
                     }
@@ -639,7 +649,6 @@
             "ItemsPath": "$.product.product_summaries",
             "Parameters": {
               "product.$": "$.product",
-              "map_item.$": "$.map_item",
               "reference_time.$": "$.reference_time",
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict",

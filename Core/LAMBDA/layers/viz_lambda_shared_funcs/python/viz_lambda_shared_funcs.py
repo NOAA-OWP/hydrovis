@@ -592,3 +592,92 @@ def check_if_file_exists(bucket, file):
 
 
         raise MissingS3FileException(f"{file} does not exist on S3.")
+    
+def parse_range_token_value(reference_date_file, range_token):
+    range_min = 0
+    range_step = 1
+    number_format = '%01d'
+
+    parts = range_token.split(',')
+    num_parts = len(parts)
+
+    if num_parts == 1:
+        range_max = parts[0]
+    elif num_parts == 2:
+        range_min, range_max = parts
+    elif num_parts == 3:
+        range_min, range_max, range_step = parts
+    elif num_parts == 4:
+        range_min, range_max, range_step, number_format = parts
+    else:
+        raise ValueError("Invalid Token Used")
+
+    try:
+        range_min = int(range_min)
+        range_max = int(range_max)
+        range_step = int(range_step)
+    except ValueError:
+        raise ValueError("Ranges must be integers")
+
+    new_input_files = []
+    for i in range(range_min, range_max, range_step):
+        range_value = number_format % i
+        new_input_file = reference_date_file.replace(f"{{{{range:{range_token}}}}}", range_value)
+        new_input_files.append(new_input_file)
+
+    return new_input_files
+
+
+def get_file_tokens(file_pattern):
+    token_dict = {}
+    tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
+    token_dict = {'datetime': [], 'range': []}
+    for token in tokens:
+        token_key = token.split(":")[0][2:]
+        token_value = token.split(":")[1][:-2]
+
+        token_dict[token_key].append(token_value)
+        
+    return token_dict
+
+def parse_datetime_token_value(input_file, reference_date, datetime_token):
+    og_datetime_token = datetime_token
+    if "reftime" in datetime_token:
+        reftime = datetime_token.split(",")[0].replace("reftime", "")
+        datetime_token = datetime_token.split(",")[-1].replace(" ","")
+        arithmetic = reftime[0]
+        date_delta_value = int(reftime[1:][:-1])
+        date_delta = reftime[1:][-1]
+
+        if date_delta.upper() == "M":
+            date_delta = datetime.timedelta(minutes=date_delta_value)
+        elif date_delta.upper() == "H":
+            date_delta = datetime.timedelta(hours=date_delta_value)
+        elif date_delta.upper() == "D":
+            date_delta = datetime.timedelta(days=date_delta_value)
+        else:
+            raise Exception("timedelta is only configured for minutes, hours, and days")
+
+        if arithmetic == "+":
+            reference_date = reference_date + date_delta
+        else:
+            reference_date = reference_date - date_delta
+
+    datetime_value = reference_date.strftime(datetime_token)
+    new_input_file = input_file.replace(f"{{{{datetime:{og_datetime_token}}}}}", datetime_value)
+
+    return new_input_file
+
+def get_formatted_files(file_pattern, token_dict, reference_date):
+    reference_date_file = file_pattern
+    reference_date_files = []
+    for datetime_token in token_dict['datetime']:
+        reference_date_file = parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
+
+    if token_dict['range']:
+        for range_token in token_dict['range']:
+            reference_date_files = parse_range_token_value(reference_date_file, range_token)
+    else:
+        reference_date_files = [reference_date_file]
+        
+    return reference_date_files
