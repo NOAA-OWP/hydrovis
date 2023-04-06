@@ -3,8 +3,7 @@ import os
 import rioxarray as rxr
 from rasterio.crs import CRS
 from datetime import datetime
-import requests
-from viz_classes import s3_file
+from viz_lambda_shared_funcs import check_if_file_exists
 
 OUTPUT_BUCKET = os.environ['OUTPUT_BUCKET']
 OUTPUT_PREFIX = os.environ['OUTPUT_PREFIX']
@@ -30,17 +29,10 @@ def lambda_handler(event, context):
     return event
 
 def open_raster(bucket, file, variable):
-    print(f"Opening {variable} in raster for {file}")
-    s3 = boto3.client('s3')
-
-    file = check_if_file_exists(bucket, file)
-    download_path = f'/tmp/{os.path.basename(file)}'
-    print(f"--> Downloading {file} to {download_path}")
-    if 'https://storage.googleapis.com/national-water-model' in file:
-        open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
-    else:
-        s3.download_file(bucket, file, download_path)
+    download_path = check_if_file_exists(bucket, file, download=True)
+    print(f"--> Downloaded {file} to {download_path}")
     
+    print(f"Opening {variable} in raster for {file}")
     ds = rxr.open_rasterio(download_path, variable=variable)
     
     # for some files like NBM alaska, the line above opens the attribute itself
@@ -120,51 +112,3 @@ def sum_rasters(bucket, input_files, variable):
             data_sum += data.sel(time=data.time[time_index])
     print("Done adding rasters!")
     return data_sum, crs
-
-def check_if_file_exists(bucket, file):
-    if "https" in file:
-        if requests.head(file).status_code == 200:
-            print(f"{file} exists.")
-            return file
-        else:
-            raise Exception(f"https file doesn't seem to exist: {file}")
-        
-    else:
-        if s3_file(bucket, file).check_existence():
-            print("File exists on S3.")
-            return file
-        else:
-            if "/prod" in file:
-                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-                if requests.head(google_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-                    return google_file
-            elif "/para" in file:
-                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
-                if requests.head(para_nomads_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
-                    
-                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
-                    
-                    
-                    tries = 0
-                    while tries < 3:
-                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
-                        
-                        try:
-                            xr.open_dataset(download_path)
-                            tries = 3
-                        except:
-                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
-                            os.remove(download_path)
-                            tries +=1
-                    
-                    print(f"Saving {file} to {bucket} for archiving")
-                    s3.upload_file(download_path, bucket, file)
-                    os.remove(download_path)
-                    return file
-            else:
-                raise Exception("Code could not handle request for file")
-
-
-        raise MissingS3FileException(f"{file} does not exist on S3.")

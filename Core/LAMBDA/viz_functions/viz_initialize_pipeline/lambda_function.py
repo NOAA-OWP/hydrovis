@@ -26,7 +26,7 @@ import json
 import isodate
 import pandas as pd
 from viz_classes import s3_file, database # We use some common custom classes in this lambda layer, in addition to the viz_pipeline and configuration classes defined below.
-from viz_lambda_shared_funcs import gen_dict_extract
+from viz_lambda_shared_funcs import get_file_tokens, get_formatted_files, gen_dict_extract
 import yaml
 
 ###################################################################################################################################################
@@ -45,12 +45,12 @@ def lambda_handler(event, context):
 
     # If an automated pipeline run, check to see when the last reference time and start time was, and throw an exceptions accordingly
     # TODO: I'm not sure if this is really working. Improve the logic here and in the pipeline init to be smarter about this. e.g. only unfinished pipelines, variable wait time, etc.
-    if pipeline.invocation_type == 'sns' or pipeline.invocation_type == 'lambda':
-        if pipeline.configuration.reference_time <= pipeline.most_recent_ref_time:
-            raise Exception(f"{pipeline.most_recent_ref_time} already ran. Aborting {pipeline.configuration.reference_time}.")
-        minutes_since_last_run = divmod((datetime.datetime.now() - pipeline.most_recent_start).total_seconds(), 60)[0] #Not sure this is working correctly.
-        if minutes_since_last_run < 15:
-            raise DuplicatePipelineException(f"Another {pipeline.configuration.name} pipeline started less than 15 minutes ago. Pausing for 15 minutes.")
+    #if pipeline.invocation_type == 'sns' or pipeline.invocation_type == 'lambda':
+        #if pipeline.configuration.reference_time <= pipeline.most_recent_ref_time:
+            #raise Exception(f"{pipeline.most_recent_ref_time} already ran. Aborting {pipeline.configuration.reference_time}.")
+        #minutes_since_last_run = divmod((datetime.datetime.now() - pipeline.most_recent_start).total_seconds(), 60)[0] #Not sure this is working correctly.
+        #if minutes_since_last_run < 15:
+            #raise DuplicatePipelineException(f"Another {pipeline.configuration.name} pipeline started less than 15 minutes ago. Pausing for 15 minutes.")
         
     pipeline_runs = pipeline.get_pipeline_runs()
     
@@ -131,8 +131,8 @@ class viz_lambda_pipeline:
                 configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
                 self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket)
         
-        # Get some other useful attributes for the pipeline, given the attributes we now have.
-        self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
+        # need to figure out this get last run info stuff. Maybe change the queried field from target to configuration
+        #self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
         self.pipeline_products = self.configuration.products_to_run
         
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
@@ -217,7 +217,7 @@ class viz_lambda_pipeline:
                 return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
     
     ###################################
-    def organize_rename_dict(self, run_only=True):     
+    def organize_rename_dict(self):
         sql_rename_dict = {}
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
@@ -352,10 +352,10 @@ class configuration:
             else:
                 reference_dates = [self.reference_time]
 
-            token_dict = self.get_file_tokens(file_pattern)
+            token_dict = get_file_tokens(file_pattern)
     
             for reference_date in reference_dates:
-                reference_date_files = self.get_formatted_files(file_pattern, token_dict, reference_date)
+                reference_date_files = get_formatted_files(file_pattern, token_dict, reference_date)
 
                 new_files = [file for file in reference_date_files if file not in target_table_input_files[target_table]['s3_keys']]
                 target_table_input_files[target_table]['s3_keys'].extend(new_files)
@@ -384,8 +384,8 @@ class configuration:
         for file_group in file_groups:
             output_file = file_group['output_file']
             
-            token_dict = self.get_file_tokens(output_file)
-            formatted_output_file = self.get_formatted_files(output_file, token_dict, self.reference_time)[0]
+            token_dict = get_file_tokens(output_file)
+            formatted_output_file = get_formatted_files(output_file, token_dict, self.reference_time)[0]
             
             lambda_max_flow_file_set = self.generate_ingest_groups_file_list([file_group])
             lambda_max_flow_ingest_sets.append({
@@ -406,98 +406,6 @@ class configuration:
             db_ingest_sets.append(db_ingest_file_set)
     
         return lambda_max_flow_ingest_sets, db_ingest_sets
-
-    ###################################
-    def get_file_tokens(self, file_pattern):
-        token_dict = {}
-        tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
-        token_dict = {'datetime': [], 'range': []}
-        for token in tokens:
-            token_key = token.split(":")[0][2:]
-            token_value = token.split(":")[1][:-2]
-    
-            token_dict[token_key].append(token_value)
-        
-        return token_dict
-    
-    ###################################
-    def parse_range_token_value(self, reference_date_file, range_token):
-        range_min = 0
-        range_step = 1
-        number_format = '%01d'
-
-        parts = range_token.split(',')
-        num_parts = len(parts)
-
-        if num_parts == 1:
-            range_max = parts[0]
-        elif num_parts == 2:
-            range_min, range_max = parts
-        elif num_parts == 3:
-            range_min, range_max, range_step = parts
-        elif num_parts == 4:
-            range_min, range_max, range_step, number_format = parts
-        else:
-            raise ValueError("Invalid Token Used")
-
-        try:
-            range_min = int(range_min)
-            range_max = int(range_max)
-            range_step = int(range_step)
-        except ValueError:
-            raise ValueError("Ranges must be integers")
-
-        new_input_files = []
-        for i in range(range_min, range_max, range_step):
-            range_value = number_format % i
-            new_input_file = reference_date_file.replace(f"{{{{range:{range_token}}}}}", range_value)
-            new_input_files.append(new_input_file)
-
-        return new_input_files
-    
-    ###################################
-    def parse_datetime_token_value(self, input_file, reference_date, datetime_token):
-        og_datetime_token = datetime_token
-        if "reftime" in datetime_token:
-            reftime = datetime_token.split(",")[0].replace("reftime", "")
-            datetime_token = datetime_token.split(",")[-1].replace(" ","")
-            arithmetic = reftime[0]
-            date_delta_value = int(reftime[1:][:-1])
-            date_delta = reftime[1:][-1]
-
-            if date_delta.upper() == "M":
-                date_delta = datetime.timedelta(minutes=date_delta_value)
-            elif date_delta.upper() == "H":
-                date_delta = datetime.timedelta(hours=date_delta_value)
-            elif date_delta.upper() == "D":
-                date_delta = datetime.timedelta(days=date_delta_value)
-            else:
-                raise Exception("timedelta is only configured for minutes, hours, and days")
-
-            if arithmetic == "+":
-                reference_date = reference_date + date_delta
-            else:
-                reference_date = reference_date - date_delta
-            
-        datetime_value = reference_date.strftime(datetime_token)
-        new_input_file = input_file.replace(f"{{{{datetime:{og_datetime_token}}}}}", datetime_value)
-
-        return new_input_file
-
-    ###################################
-    def get_formatted_files(self, file_pattern, token_dict, reference_date):
-        reference_date_file = file_pattern
-        reference_date_files = []
-        for datetime_token in token_dict['datetime']:
-            reference_date_file = self.parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
-    
-        if token_dict['range']:
-            for range_token in token_dict['range']:
-                reference_date_files = self.parse_range_token_value(reference_date_file, range_token)
-        else:
-            reference_date_files = [reference_date_file]
-            
-        return reference_date_files
     
     ################################### 
     # This method uses the shared_funcs s3_file class and checks existence on S3 for a full file_list.
@@ -584,9 +492,7 @@ class configuration:
                 
             if product.get('ingest_files'):
                 self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
-                
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
-        
         
         self.lambda_input_sets, lambda_derived_db_ingest_sets = self.generate_lambda_max_flows_file_list(self.lambda_max_flows)
         self.db_ingest_groups.extend(lambda_derived_db_ingest_sets)

@@ -40,15 +40,8 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": "${schism_fim_processing_arn}",
-              "Payload": {
-                "step": "iteration",
-                "args": {
-                  "huc.$": "$.huc8",
-                  "reference_time.$": "$.reference_time",
-                  "configuration.$": "$.configuration"
-                }
-              }
+              "FunctionName": ${schism_fim_processing_arn},
+              "Payload.$": "$"
             },
             "Retry": [
               {
@@ -112,9 +105,15 @@
       },
       "ItemsPath": "$.result.huc_list",
       "ItemSelector": {
-        "huc8.$": "$$.Map.Item.Value",
-        "reference_time.$": "$.reference_time",
-        "configuration.$": "$.configuration"
+        "step": "iteration",
+        "huc.$": "$$.Map.Item.Value",
+        "args": {
+          "job_type.$": "$.job_type",
+          "reference_time.$": "$.reference_time",
+          "product.$": "$.product",
+          "fim_config.$": "$.fim_config",
+          "sql_rename_dict.$": "$.sql_rename_dict"
+        }
       },
       "Next": "Move Rasters to Published Folder",
       "ResultPath": "$.result"

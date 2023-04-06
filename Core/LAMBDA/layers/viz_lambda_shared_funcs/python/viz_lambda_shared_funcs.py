@@ -540,58 +540,71 @@ def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=
         dest_engine.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
         dest_engine.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
 
-def check_if_file_exists(bucket, file):
+def check_if_file_exists(bucket, file, download=False):
     import requests
     from viz_classes import s3_file
     import xarray as xr
+    import tempfile
+    
     s3 = boto3.client('s3')
+    file_exists = False
+
+    tempdir = tempfile.mkdtemp()
+    download_path = os.path.join(tempdir, os.path.basename(file))\
 
     if "https" in file:
         if requests.head(file).status_code == 200:
             print(f"{file} exists.")
-            return file
         else:
-            raise Exception(f"https file doesn't seem to exist: {file}")
-        
+            raise Exception(f"https file doesn't seem to exist: {file}")   
     else:
         if s3_file(bucket, file).check_existence():
+            file_exists = True
             print(f"{file} exists in {bucket}")
-            return file
         else:
             if "/prod" in file:
-                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-                if requests.head(google_file).status_code == 200:
+                file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+                if requests.head(file).status_code == 200:
+                    file_exists = True
                     print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-                    return google_file
             elif "/para" in file:
-                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
-                if requests.head(para_nomads_file).status_code == 200:
+                file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+                if requests.head(file).status_code == 200:
+                    file_exists = True
                     print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
-                    
-                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
-                    
-                    
-                    tries = 0
-                    while tries < 3:
-                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
-                        
-                        try:
-                            xr.open_dataset(download_path)
-                            tries = 3
-                        except:
-                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
-                            os.remove(download_path)
-                            tries +=1
-                    
-                    print(f"Saving {file} to {bucket} for archiving")
-                    s3.upload_file(download_path, bucket, file)
-                    os.remove(download_path)
-                    return file
             else:
                 raise Exception("Code could not handle request for file")
 
+        if not file_exists:
+            raise MissingS3FileException(f"{file} does not exist on S3.")
 
-        raise MissingS3FileException(f"{file} does not exist on S3.")
+    
+    if download:
+        if "https" in file:
+            print(f"Downloading {file} from https")
+            tries = 0
+            while tries < 3:
+                open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
+                
+                try:
+                    xr.open_dataset(download_path)
+                    tries = 3
+                except:
+                    print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
+                    tries +=1
+
+            if "para" in file:
+                print(f"Uploading {file} to {bucket}")
+                s3.upload_file(download_path, bucket, file)
+                if not download:
+                    os.remove(download_path)    
+        else:
+            print(f"Downloading {file} from s3")
+            s3.download_file(bucket, file, download_path)
+        
+        return download_path
+    
+    return file
     
 def parse_range_token_value(reference_date_file, range_token):
     range_min = 0

@@ -48,25 +48,18 @@ METERS_TO_FT = 3.281
 
 def lambda_handler(event, context):
     step = event['step']
-    args = event['args']
+    reference_time = event['args']['reference_time']
+    sql_rename_dict = event['args']['sql_rename_dict']
+    fim_config = event['args']['fim_config']['name']
+    product = event['args']['product']['product']
+    target_table = event['args']['fim_config']['target_table']
+    max_elevs_file_bucket = event['args']['fim_config']['max_elevs_file_bucket']
+    max_elevs_file = event['args']['fim_config']['max_elevs_file']
+    schism_fim_s3_uri = f's3://{max_elevs_file_bucket}/{max_elevs_file}'
+
+    reference_date = dt.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     
-    if 'schism_fim_s3_uri' in args:
-        schism_fim_s3_uri = args['schism_fim_s3_uri']
-        configuration = re.search('/(\w+_\w+_coastal_\w+)/', schism_fim_s3_uri)[0][1:-1]
-        ref_date_str = re.search('[0-9]{8}/', schism_fim_s3_uri)[0][1:-1]
-    elif all(x in args for x in ['reference_time', 'configuration']):
-        configuration = args['configuration']
-        short_config = configuration.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf")  # noqa
-        max_vals_config = configuration
-        if 'medium_range' in configuration:
-            daybin = configuration.split('_')[-1]
-            if 'day' in daybin:
-                max_vals_config = '_'.join(configuration.split('_')[:-1])
-   
-        reference_time = args['reference_time']
-        ref_date_str = ''.join(reference_time.split(' ')[0].split('-'))
-        hour = reference_time.split(' ')[1].split(':')[0]
-        schism_fim_s3_uri = f's3://{MAX_VALS_BUCKET}/max_elevs/{max_vals_config}/{ref_date_str}/{short_config}_{hour}_max_elevs.nc'
+    print(f"Processing the {fim_config} fim config")
         
     if step == 'setup':
         temp_folder = tempfile.gettempdir()
@@ -75,30 +68,32 @@ def lambda_handler(event, context):
         with open(local_csv_fpath, 'r') as f:
             hucs = f.read().strip().split('\n')[1:]
         engine = database(db_type="viz").engine
-        engine.execute(f'DROP TABLE IF EXISTS publish.{configuration}_inundation;')
+        engine.execute(f'DROP TABLE IF EXISTS {target_table};')
         engine.dispose()
         return hucs
     elif step == 'iteration':
-        huc = args['huc']
-        depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, configuration, ref_date_str)
+        huc = event['huc']
+        depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table)
         return {
             'output_bucket': OUTPUTS_BUCKET,
             'output_key': depth_key
         }
 
-def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
+def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table):
     domain = [d for d in DOMAINS if d in schism_fim_s3_uri][0]
-    if '_max_elevs.nc' in schism_fim_s3_uri:
-        hour = re.search('[^\d][0-9]{2}_max_elevs.nc', schism_fim_s3_uri)[0][1:3]
-    else:
-        hour = re.search('[^\d][0-9]{2}[^\d]', schism_fim_s3_uri)[0][1:3]
-    depth_key = f'{OUTPUTS_PREFIX}/{nwm_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
+    full_ref_time = reference_date.strftime("%Y-%m-%D %H:%M:%S UTC")
+    ref_date_str = reference_date.strftime("%Y%m%D")
+    hour = reference_date.strftime("%H")
+
+    target_table_schema = target_table.split(".")[0]
+    target_table = target_table.split(".")[1]
+
+    depth_key = f'{OUTPUTS_PREFIX}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
     coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
     masks_root = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/masks'
     temp_folder = tempfile.mkdtemp()
     bounds = None
-    full_ref_time = '{}-{}-{} {}:00:00 UTC'.format(ref_date_str[0:2], ref_date_str[2:4], ref_date_str[4:6], hour)
 
     print("Executing lambda handler...")
     print(f"Writing tempfiles to {temp_folder}")
@@ -147,7 +142,6 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
     update_time = dt.datetime.now().strftime('%y-%m-%d %H:%M%S UTC')
 
     attributes = {
-        'fim_version': '4_0_13_1',
         'huc8': huc,
         'ref_time': full_ref_time,
         'update_time': update_time
@@ -167,7 +161,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
         polygon_df.rename_geometry('geom', inplace=True)
         for attempt in range(attempts):
             try:
-                polygon_df.to_postgis(f'{nwm_config}_inundation', con=process_db.engine, schema='publish', if_exists='append')
+                polygon_df.to_postgis(target_table, con=process_db.engine, schema=target_table_schema, if_exists='append')
                 break
             except Exception as e:
                 if attempt == attempts - 1:
@@ -179,7 +173,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
     print("Removing temp files...")
     rmtree(temp_folder)
 
-    print(f"Successfully processed SCHISM FIM for HUC {huc} of {nwm_config} for {ref_date_str}")
+    print(f"Successfully processed SCHISM FIM for HUC {huc} of {fim_config} for {ref_date_str}")
     return depth_key
 
 #

@@ -323,7 +323,6 @@
                 "SCHISM Max Flows": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
-                  "OutputPath": "$.Payload",
                   "Parameters": {
                     "FunctionName": "${max_flows_arn}",
                     "Payload": {
@@ -344,7 +343,8 @@
                       "BackoffRate": 2
                     }
                   ],
-                  "Next": "Process Coastal (SCHISM) FIM"
+                  "Next": "Process Coastal (SCHISM) FIM",
+                  "OutputPath": "$.Payload"
                 },
                 "Process Coastal (SCHISM) FIM": {
                   "Type": "Task",
@@ -352,10 +352,11 @@
                   "Parameters": {
                     "StateMachineArn": "${schism_fim_processing_step_function_arn}",
                     "Input": {
-                      "configuration.$": "$.fim_config",
+                      "fim_config.$": "$.fim_config",
                       "reference_time.$": "$.reference_time",
                       "job_type.$": "$.job_type",
-                      "service.$": "$.service"
+                      "product.$": "$.product",
+                      "sql_rename_dict.$": "$.sql_rename_dict"
                     }
                   },
                   "Next": "Add \"_inundation\" to $.map_item (",

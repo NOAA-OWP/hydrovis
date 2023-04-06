@@ -1,16 +1,13 @@
-import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import xarray
 import pandas as pd
 import numpy as np
 import boto3
-import botocore
-import urllib.parse
-import time
 import tempfile
+import isodate
 
-from viz_lambda_shared_funcs import get_configuration, check_if_file_exists
+from viz_lambda_shared_funcs import get_file_tokens, get_formatted_files, check_if_file_exists
 
 CACHE_DAYS = os.environ['CACHE_DAYS']
 MAX_PROPS = {
@@ -42,17 +39,48 @@ def lambda_handler(event, context):
     """
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration")
-    fileset = event['lambda_max_flow']['fileset']
-    fileset_bucket = event['lambda_max_flow']['fileset_bucket']
-    output_file = event['lambda_max_flow']['output_file']
-    output_file_bucket = event['lambda_max_flow']['output_file_bucket']
-
+    
+    if event["step"] == "setup_coastal_processing":
+        config_name = event['args']['fim_config']['name']
+        print(f"Getting fileset for {config_name}")
+        
+        file_pattern = event['args']['fim_config']['preprocess']['file_format']
+        file_step = event['args']['fim_config']['preprocess']['file_step']
+        file_window = event['args']['fim_config']['preprocess']['file_window']
+        fileset_bucket = event['args']['fim_config']['preprocess']['fileset_bucket']
+        output_file = event['args']['fim_config']['preprocess']['output_file']
+        output_file_bucket = event['args']['fim_config']['preprocess']['output_file_bucket']
+        reference_time = event['args']['reference_time']
+        reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
+        
+        file_step = None if file_step == "None" else file_step
+        file_window = None if file_window == "None" else file_window
+        
+        fileset = generate_file_list(file_pattern, file_step, file_window, reference_date)
+        
+        token_dict = get_file_tokens(output_file)
+        output_file = get_formatted_files(output_file, token_dict, reference_date)[0]
+        
+        event['args']['fim_config'].pop("preprocess")
+        event['args']['fim_config']['max_elevs_file_bucket'] = output_file_bucket
+        event['args']['fim_config']['max_elevs_file'] = output_file
+        
+        return_object = event['args']
+    else:
+        fileset = event['lambda_max_flow']['fileset']
+        fileset_bucket = event['lambda_max_flow']['fileset_bucket']
+        output_file = event['lambda_max_flow']['output_file']
+        output_file_bucket = event['lambda_max_flow']['output_file_bucket']
+        reference_time = event['reference_time']
+        
+        return_object = event['lambda_max_flow']
+        
     print(f"Creating {output_file}")
     # Once the files exist, calculate the max flows
     aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
     print(f"Successfully created {output_file} in {output_file_bucket}")
 
-    print("Done")
+    return return_object
 
 
 def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file):
@@ -76,20 +104,6 @@ def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_fi
     print(f"--> Creating {output_file}")
     write_netcdf(max_result, output_file_bucket, output_file)  # creates the output NetCDF file
 
-
-def download_file(data_bucket, file_path, download_path):
-    s3 = boto3.client('s3')
-    
-    file_path = check_if_file_exists(data_bucket, file_path)
-
-    try:
-        s3.download_file(data_bucket, file_path, download_path)
-        return True
-    except Exception as e:
-        print(f"File failed to download {file_path}: {e}")
-        return False
-
-
 def aggregate_max(fileset_bucket, fileset, max_props):
     """
         Iterates through a times series of National Water Model (NWM) channel_rt output NetCDF files, and finds
@@ -107,13 +121,10 @@ def aggregate_max(fileset_bucket, fileset, max_props):
     identifiers = None
     max_vals = None
     extras = None
-    
-    tempdir = tempfile.mkdtemp()
 
     for file in fileset:
-        download_path = os.path.join(tempdir, os.path.basename(file))
-        print(f"--> Downloading {file} to {download_path}")
-        download_file(fileset_bucket, file, download_path)
+        print(f"--> Downloading {file}")
+        download_path = check_if_file_exists(fileset_bucket, file, download=True)
         
         with xarray.open_dataset(download_path) as ds:
             temp_vals = ds[max_var].values.flatten()  # imports the values from each file
@@ -180,3 +191,24 @@ def write_netcdf(max_result, output_file_bucket, output_file):
     # Upload the local max vals file to the S3 bucket
     s3.upload_file(tmp_netcdf, output_file_bucket, output_file)
     os.remove(tmp_netcdf)
+    
+def generate_file_list(file_pattern, file_step, file_window, reference_time):
+    file_list = [] 
+    if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > reference_time:
+        file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+
+    if file_window:
+        if not file_step:
+            file_step = None
+        reference_dates = pd.date_range(reference_time-isodate.parse_duration(file_window), reference_time, freq=file_step)
+    else:
+        reference_dates = [reference_time]
+
+    token_dict = get_file_tokens(file_pattern)
+
+    for reference_date in reference_dates:
+        reference_date_files = get_formatted_files(file_pattern, token_dict, reference_date)
+
+        file_list = [file for file in reference_date_files if file not in file_list]
+        
+    return file_list
