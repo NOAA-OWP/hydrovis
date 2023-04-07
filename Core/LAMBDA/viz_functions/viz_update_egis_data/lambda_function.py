@@ -11,16 +11,12 @@ def lambda_handler(event, context):
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
     
-    if job_type == "past_event":
-        return
-    
-    # Don't want to run for reference services because they already exist in the EGIS DB
+    # Don't want to run for reference products because they already exist in the EGIS DB
     if event['args']['product']['configuration'] == "reference":
         return
     
     ################### Unstage EGIS Tables ###################
-    if step == "unstage":
-        
+    if step == "unstage" and job_type != "past_event":
         target_tables = gen_dict_extract("target_table", event['args'])
         all_tables = [table for table in target_tables if type(table) is not list] + [table for table_list in target_tables if type(table) is list for table in table_list]
         publish_tables = [table for table in all_tables if table.startswith("publish")]
@@ -31,117 +27,95 @@ def lambda_handler(event, context):
         
         return True
     
+    ################### Move Rasters ###################
+    if event['args'].get('output_rasters'):
+        s3 = boto3.resource('s3')
+        product_name = event['args']['product']['product']
+        mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
+        
+        workspace_rasters = event['args']['output_rasters']
+        s3_bucket = event['args']['output_bucket']
+        
+        for s3_key in workspace_rasters:
+            s3_object = {"Bucket": s3_bucket, "Key": s3_key}
+            
+            processing_prefix = s3_key.split(product_name,1)[0]
+            cache_path = s3_key.split(product_name, 1)[1].replace('/workspace/tif', '')
+            cache_key = f"{processing_prefix}{product_name}/cache{cache_path}"
+
+            print(f"Caching {s3_key} at {cache_key}")
+            s3.meta.client.copy(s3_object, s3_bucket, cache_key)
+            
+            print("Deleting tif workspace raster")
+            s3.Object(s3_bucket, s3_key).delete()
+
+            raster_name = os.path.basename(s3_key).replace(".tif", "")
+            mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
+            published_prefix = f"{processing_prefix}{product_name}/published/{raster_name}"
+            
+            for extension in mrf_extensions:
+                mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
+                mrf_published_raster = f"{published_prefix}.{extension}"
+                
+                if job_type == 'auto':
+                    print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
+                    s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
+            
+                print("Deleting a mrf workspace raster")
+                s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+    
     ################### Stage EGIS Tables ###################
+    if step == "update_summary_data":
+        tables =  event['args']['postprocess_summary']['target_table']
+    elif step == "update_fim_config_data":
+        if not event['args']['fim_config'].get('postprocess'):
+            return
+        
+        tables = [event['args']['fim_config']['postprocess']['target_table']]
+    elif step == "update_raster_data":
+        if not event['args']['product'].get('postprocess_sql'):
+            return
+        
+        tables = [event['args']['product']['postprocess_sql']['target_table']]
     else:
-        if step == "update_summary_data":
-            tables =  event['args']['postprocess_summary']['target_table']
-        elif step == "update_fim_config_data":
-            if not event['args']['fim_config'].get('postprocess'):
-                return
+        if not event['args']['product'].get('postprocess_sql'):
+            return
+        
+        tables = [event['args']['product']['postprocess_sql']['target_table']]
+        
+    tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
+    
+    product_type = event['args']['product']['product_type']
+    ## For Staging and Caching - Loop through all the tables relevant to the current step
+    for table in tables:
+        staged_table = f"{table}_stage"
+        viz_db = database(db_type="viz")
+        egis_db = database(db_type="egis")
             
-            tables = [event['args']['fim_config']['postprocess']['target_table']]
-        else:
-            if not event['args']['product'].get('postprocess_sql'):
-                return
+        if job_type == 'auto':
+            viz_schema = 'publish'
             
-            tables = [event['args']['product']['postprocess_sql']['target_table']]
+            # Get columns of the table
+            with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+                    cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+                    column_names = [desc[0] for desc in cur.description]
+                    columns = ', '.join(column_names)
             
-        tables = [table.split(".")[1] for table in tables]
-        
-        product_type = event['args']['product']['product_type']
-        ## For Staging and Caching - Loop through all the tables relevant to the current step
-        for table in tables:
-            staged_table = f"{table}_stage"
-            ################### Vector Services ###################
-            if product_type in ["vector", "fim"]:
-                viz_db = database(db_type="viz")
-                egis_db = database(db_type="egis")
-                
-                if job_type == 'auto':
-                    viz_schema = 'publish'
-                    
-                    # Get columns of the table
-                    with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-                            cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-                            column_names = [desc[0] for desc in cur.description]
-                            columns = ', '.join(column_names)
-                    
-                    # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
-                    try: # Try copying the data
-                        stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-                    except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
-                        refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                        stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-        
-                    cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
-                    cleanup_cache(cache_bucket, table, reference_time)
-        
-                elif job_type == 'past_event':
-                    viz_schema = 'archive'
-                    cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
-           
-           ################### Image Services ###################
-            else:
-                if job_type == 'auto':
-                    viz_schema = 'publish'
-                    viz_db = database(db_type="viz")
-                    egis_db = database(db_type="egis")
-                    service_name = event['args']['service']['service']
-                    
-                    # Get columns of the table
-                    with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-                            cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-                            column_names = [desc[0] for desc in cur.description]
-                            columns = ', '.join(column_names)
-                    
-                    # Copy the 1-row metadata table to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
-                    try: # Try copying the data
-                        stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
-                    except Exception as e:  # If it doesn't work initially, try refreshing the foreign schema and try again.
-                        refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                        stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=False) #Copy the publish table from the vizprc db to the egis db, using fdw
-                    
-                s3 = boto3.resource('s3')
-                service_name = event['args']['service']['service']
-                mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
-                
-                if 'output_raster_info_list' in event['args']:
-                    info_list = event['args']['output_raster_info_list']
-                    workspace_rasters = [i['output_raster'] for i in info_list if 'output_raster' in i and i['output_raster']]
-                    s3_bucket = [i['output_bucket'] for i in info_list if 'output_bucket' in i and i['output_bucket']][0]
-                else:
-                    workspace_rasters = event['args']['output_rasters']
-                    s3_bucket = event['args']['output_bucket']
-                
-                for s3_key in workspace_rasters:
-                    s3_object = {"Bucket": s3_bucket, "Key": s3_key}
-                    
-                    processing_prefix = s3_key.split(service_name,1)[0]
-                    cache_path = s3_key.split(service_name, 1)[1].replace('/workspace/tif', '')
-                    cache_key = f"{processing_prefix}{service_name}/cache{cache_path}"
-        
-                    print(f"Caching {s3_key} at {cache_key}")
-                    s3.meta.client.copy(s3_object, s3_bucket, cache_key)
-                    
-                    print("Deleting tif workspace raster")
-                    s3.Object(s3_bucket, s3_key).delete()
-        
-                    raster_name = os.path.basename(s3_key).replace(".tif", "")
-                    mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
-                    published_prefix = f"{processing_prefix}{service_name}/published/{raster_name}"
-                    
-                    for extension in mrf_extensions:
-                        mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
-                        mrf_published_raster = f"{published_prefix}.{extension}"
-                        
-                        if job_type == 'auto':
-                            print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
-                            s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
-                    
-                        print("Deleting a mrf workspace raster")
-                        s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
-        
-        return True
+            # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
+            try: # Try copying the data
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+            except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
+                refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
+                stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+
+            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
+            cleanup_cache(cache_bucket, table, reference_time)
+
+        elif job_type == 'past_event':
+            viz_schema = 'archive'
+            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
+    
+    return True
 
 ###################################
 # This function uses the aws_s3 postgresql extension to directly write csv files of the specified table to S3. Geometry is stored in WKT.

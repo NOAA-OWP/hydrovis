@@ -1,13 +1,17 @@
+import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import xarray
 import pandas as pd
 import numpy as np
 import boto3
+import botocore
+import urllib.parse
+import time
 import tempfile
 import isodate
 
-from viz_lambda_shared_funcs import get_file_tokens, get_formatted_files, check_if_file_exists
+from viz_lambda_shared_funcs import check_if_file_exists, get_file_tokens, get_formatted_files
 
 CACHE_DAYS = os.environ['CACHE_DAYS']
 MAX_PROPS = {
@@ -40,7 +44,7 @@ def lambda_handler(event, context):
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration")
     
-    if event["step"] == "setup_coastal_processing":
+    if event["step"] == "fim_config_max_file":
         config_name = event['args']['fim_config']['name']
         print(f"Getting fileset for {config_name}")
         
@@ -62,8 +66,8 @@ def lambda_handler(event, context):
         output_file = get_formatted_files(output_file, token_dict, reference_date)[0]
         
         event['args']['fim_config'].pop("preprocess")
-        event['args']['fim_config']['max_elevs_file_bucket'] = output_file_bucket
-        event['args']['fim_config']['max_elevs_file'] = output_file
+        event['args']['fim_config']['max_file_bucket'] = output_file_bucket
+        event['args']['fim_config']['max_file'] = output_file
         
         return_object = event['args']
     else:
@@ -103,6 +107,20 @@ def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_fi
 
     print(f"--> Creating {output_file}")
     write_netcdf(max_result, output_file_bucket, output_file)  # creates the output NetCDF file
+
+
+def download_file(data_bucket, file_path, download_path):
+    s3 = boto3.client('s3')
+    
+    file_path = check_if_file_exists(data_bucket, file_path)
+
+    try:
+        s3.download_file(data_bucket, file_path, download_path)
+        return True
+    except Exception as e:
+        print(f"File failed to download {file_path}: {e}")
+        return False
+
 
 def aggregate_max(fileset_bucket, fileset, max_props):
     """

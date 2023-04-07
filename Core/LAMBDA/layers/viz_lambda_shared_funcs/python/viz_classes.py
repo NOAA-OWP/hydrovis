@@ -11,6 +11,20 @@ from botocore.exceptions import ClientError
 class database: #TODO: Should we be creating a connection/engine upon initialization, or within each method like we are now?
     def __init__(self, db_type):
         self.type = db_type.upper()
+        self._engine = None
+        self._connection = None
+    
+    @property
+    def engine(self):
+        if not self._engine:
+            self._engine = self.get_db_engine()
+        return self._engine
+
+    @property
+    def connection(self):
+        if not self._connection:
+            self._connection = self.get_db_connection()
+        return self._connection
     
     ###################################
     def get_db_credentials(self):
@@ -39,7 +53,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def get_db_values(self, table, columns):
         import pandas as pd
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if not type(columns) == list:
             raise Exception("columns argument must be a list of column names")
         columns = ",".join(columns)
@@ -53,7 +67,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         import pandas as pd
         schema = table_name.split(".")[0]
         table = table_name.split(".")[-1]
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if drop_first:
             print(f"---> Dropping {table_name} if it exists")
             db_engine.execute(f'DROP TABLE IF EXISTS {table_name};')  # Drop the stage table if it exists
@@ -72,7 +86,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def run_sql_file_in_db(self, sql_file):
         sql = open(sql_file, 'r').read()
-        with self.get_db_connection() as db_connection:
+        with self.connection as db_connection:
             try:
                 cur = db_connection.cursor()
                 print(f"---> Running {sql_file}")
@@ -86,7 +100,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         if sql.endswith(".sql"):
             sql = open(sql, 'r').read()
             
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if not return_geodataframe:
             import pandas as pd
             df = pd.read_sql(sql, db_engine)
@@ -100,7 +114,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def get_est_row_count_in_table(self, table):
         print(f"Getting estimated total rows in {table}.")
-        with self.get_db_connection() as db_connection:
+        with self.connection as db_connection:
             try:
                 cur = db_connection.cursor()
                 sql = f"""
@@ -120,7 +134,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def move_data_to_another_db(self, dest_db_type, origin_table, dest_table, stage=True, add_oid=True, add_geom_index=True, chunk_size=200000):
         import pandas as pd
-        origin_engine = self.get_db_engine()
+        origin_engine = self.engine
         dest_db = self.__class__(dest_db_type)
         dest_engine = dest_db.get_db_engine()
         if stage:
@@ -158,7 +172,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         retention_prefix = f"ref_{retention_cutoff.strftime('%Y%m%d_%H%M_')}"
         new_archive_table = f"archive.{ref_prefix}{table}"
         cutoff_archive_table = f"archive.{retention_prefix}{table}"
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         db_engine.execute(f'DROP TABLE IF EXISTS {new_archive_table};')
         db_engine.execute(f'DROP TABLE IF EXISTS {cutoff_archive_table};')
         db_engine.execute(f'SELECT * INTO {new_archive_table} FROM publish.{table};')

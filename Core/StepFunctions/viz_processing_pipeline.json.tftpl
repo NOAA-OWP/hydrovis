@@ -306,28 +306,28 @@
             "Type": "Map",
             "Next": "Postprocess SQL - Product",
             "Iterator": {
-              "StartAt": "Inland vs Coastal Inundation",
+              "StartAt": "Fim Config Preprocessing",
               "States": {
-                "Inland vs Coastal Inundation": {
+                "Fim Config Preprocessing": {
                   "Type": "Choice",
                   "Choices": [
                     {
-                      "Variable": "$.fim_config.name",
-                      "StringMatches": "*coastal*",
-                      "Next": "SCHISM Max Flows",
-                      "Comment": "Coastal FIM Config"
+                      "Variable": "$.fim_config.preprocess",
+                      "IsPresent": true,
+                      "Comment": "Max Flows Processing",
+                      "Next": "FIM Config Max File"
                     }
                   ],
-                  "Default": "FIM Data Preparation - Setup HUC Branch Data"
+                  "Default": "FIM Data Preparation"
                 },
-                "SCHISM Max Flows": {
+                "FIM Config Max File": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
                     "FunctionName": "${max_flows_arn}",
                     "Payload": {
                       "args.$": "$",
-                      "step": "setup_coastal_processing"
+                      "step": "fim_config_max_file"
                     }
                   },
                   "Retry": [
@@ -343,51 +343,17 @@
                       "BackoffRate": 2
                     }
                   ],
-                  "Next": "Process Coastal (SCHISM) FIM",
+                  "Next": "FIM Data Preparation",
                   "OutputPath": "$.Payload"
                 },
-                "Process Coastal (SCHISM) FIM": {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::states:startExecution.sync:2",
-                  "Parameters": {
-                    "StateMachineArn": "${schism_fim_processing_step_function_arn}",
-                    "Input": {
-                      "fim_config.$": "$.fim_config",
-                      "reference_time.$": "$.reference_time",
-                      "job_type.$": "$.job_type",
-                      "product.$": "$.product",
-                      "sql_rename_dict.$": "$.sql_rename_dict"
-                    }
-                  },
-                  "Next": "Add \"_inundation\" to $.map_item (",
-                  "ResultPath": null
-                },
-                "Add \"_inundation\" to $.map_item (": {
-                  "Type": "Pass",
-                  "Next": "Add \"_inundation\" to $.map_item (1)",
-                  "Parameters": {
-                    "input.$": "$",
-                    "mods": {
-                      "map_item.$": "States.Format('{}_inundation', $.map_item)"
-                    }
-                  }
-                },
-                "Add \"_inundation\" to $.map_item (1)": {
-                  "Type": "Pass",
-                  "Next": "Update EGIS Data - FIM Config",
-                  "Parameters": {
-                    "output.$": "States.JsonMerge($.input, $.mods, false)"
-                  },
-                  "OutputPath": "$.output"
-                },
-                "FIM Data Preparation - Setup HUC Branch Data": {
+                "FIM Data Preparation": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
                     "FunctionName": "${fim_data_prep_arn}",
                     "Payload": {
                       "args.$": "$",
-                      "step": "setup_branch_iteration"
+                      "step": "setup_fim_config"
                     }
                   },
                   "Retry": [
@@ -403,16 +369,50 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "HUC Processing Map",
+                  "Next": "Coastal vs Inland Inundation",
                   "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
-                    "huc_branches_to_process.$": "$.Payload.huc_branches_to_process",
-                    "db_fim_table.$": "$.Payload.db_fim_table",
+                    "hucs_to_process.$": "$.Payload.hucs_to_process",
                     "data_bucket.$": "$.Payload.data_bucket",
-                    "data_prefix.$": "$.Payload.data_prefix",
-                    "reference_time.$": "$.Payload.reference_time",
-                    "fim_config.$": "$.Payload.fim_config",
-                    "product.$": "$.Payload.product"
+                    "data_prefix.$": "$.Payload.data_prefix"
+                  }
+                },
+                "Coastal vs Inland Inundation": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "Variable": "$.fim_config.name",
+                      "StringMatches": "*coastal*",
+                      "Next": "Process Coastal (SCHISM) FIM"
+                    }
+                  ],
+                  "Default": "HUC Processing Map"
+                },
+                "Process Coastal (SCHISM) FIM": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::states:startExecution.sync:2",
+                  "Parameters": {
+                    "StateMachineArn": "${schism_fim_processing_step_function_arn}",
+                    "Input": {
+                      "fim_config.$": "$.fim_config",
+                      "reference_time.$": "$.reference_time",
+                      "job_type.$": "$.job_type",
+                      "product.$": "$.product",
+                      "sql_rename_dict.$": "$.sql_rename_dict",
+                      "data_bucket.$": "$.huc_processing_payload.data_bucket",
+                      "data_prefix.$": "$.huc_processing_payload.data_prefix",
+                      "hucs_to_process.$": "$.huc_processing_payload.hucs_to_process"
+                    }
+                  },
+                  "Next": "Postprocess SQL - FIM Config",
+                  "ResultSelector": {
+                    "job_type.$": "$.Output.job_type",
+                    "reference_time.$": "$.Output.reference_time",
+                    "product.$": "$.Output.product",
+                    "fim_config.$": "$.Output.fim_config",
+                    "output_bucket.$": "$.Output.data_bucket",
+                    "sql_rename_dict.$": "$.Output.sql_rename_dict",
+                    "output_rasters.$": "$.Output.hucs_to_process"
                   }
                 },
                 "HUC Processing Map": {
@@ -441,15 +441,15 @@
                       }
                     }
                   },
-                  "ItemsPath": "$.huc_processing_payload.huc_branches_to_process",
+                  "ItemsPath": "$.huc_processing_payload.hucs_to_process",
                   "Next": "Postprocess SQL - FIM Config",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
-                    "db_fim_table.$": "$.huc_processing_payload.db_fim_table",
+                    "db_fim_table.$": "$.fim_config.target_table",
                     "data_bucket.$": "$.huc_processing_payload.data_bucket",
                     "data_prefix.$": "$.huc_processing_payload.data_prefix",
-                    "reference_time.$": "$.huc_processing_payload.reference_time",
-                    "fim_config.$": "$.huc_processing_payload.fim_config",
+                    "reference_time.$": "$.reference_time",
+                    "fim_config.$": "$.fim_config.name",
                     "product.$": "$.product",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config.name, $$.Map.Item.Index)"
                   },
@@ -462,13 +462,7 @@
                   "Parameters": {
                     "FunctionName": "${db_postprocess_sql_arn}",
                     "Payload": {
-                      "args": {
-                        "job_type.$": "$.job_type",
-                        "reference_time.$": "$.reference_time",
-                        "product.$": "$.product",
-                        "fim_config.$": "$.fim_config",
-                        "sql_rename_dict.$": "$.sql_rename_dict"
-                      },
+                      "args.$": "$",
                       "step": "fim_config",
                       "folder": "fim_configs"
                     }
@@ -495,13 +489,7 @@
                   "Parameters": {
                     "FunctionName": "${update_egis_data_arn}",
                     "Payload": {
-                      "args": {
-                        "job_type.$": "$.job_type",
-                        "reference_time.$": "$.reference_time",
-                        "product.$": "$.product",
-                        "fim_config.$": "$.fim_config",
-                        "sql_rename_dict.$": "$.sql_rename_dict"
-                      },
+                      "args.$": "$",
                       "step": "update_fim_config_data"
                     }
                   },

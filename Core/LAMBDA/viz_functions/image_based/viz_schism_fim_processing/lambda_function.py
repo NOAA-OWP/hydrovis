@@ -36,9 +36,6 @@ DEM_RESOLUTION = 30
 GRID_SIZE = DEM_RESOLUTION / 111000 # calc degrees, assume 111km/degree
 INPUTS_BUCKET = os.environ['INPUTS_BUCKET']
 INPUTS_PREFIX = os.environ['INPUTS_PREFIX']
-MAX_VALS_BUCKET = os.environ['MAX_VALS_BUCKET']
-OUTPUTS_BUCKET = os.environ['OUTPUTS_BUCKET']
-OUTPUTS_PREFIX = os.environ['OUTPUTS_PREFIX']
 AWS_SESSION = AWSSession()
 S3 = boto3.client('s3')
 DOMAINS = ['atlgulf', 'pacific', 'hawaii', 'puertorico']
@@ -53,33 +50,23 @@ def lambda_handler(event, context):
     fim_config = event['args']['fim_config']['name']
     product = event['args']['product']['product']
     target_table = event['args']['fim_config']['target_table']
-    max_elevs_file_bucket = event['args']['fim_config']['max_elevs_file_bucket']
-    max_elevs_file = event['args']['fim_config']['max_elevs_file']
+    max_elevs_file_bucket = event['args']['fim_config']['max_file_bucket']
+    max_elevs_file = event['args']['fim_config']['max_file']
     schism_fim_s3_uri = f's3://{max_elevs_file_bucket}/{max_elevs_file}'
 
     reference_date = dt.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     
     print(f"Processing the {fim_config} fim config")
-        
-    if step == 'setup':
-        temp_folder = tempfile.gettempdir()
-        local_csv_fpath = os.path.join(temp_folder, 'hucs.csv')
-        S3.download_file(INPUTS_BUCKET, f'{INPUTS_PREFIX}/hucs/hucs.csv', local_csv_fpath)
-        with open(local_csv_fpath, 'r') as f:
-            hucs = f.read().strip().split('\n')[1:]
-        engine = database(db_type="viz").engine
-        engine.execute(f'DROP TABLE IF EXISTS {target_table};')
-        engine.dispose()
-        return hucs
-    elif step == 'iteration':
-        huc = event['huc']
-        depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table)
-        return {
-            'output_bucket': OUTPUTS_BUCKET,
-            'output_key': depth_key
-        }
+    huc = event['huc']
+    output_bucket = event['output_bucket']
+    output_prefix = event['output_prefix']
 
-def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table):
+    depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix)
+    return {
+        "output_raster": depth_key
+    }
+
+def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix):
     domain = [d for d in DOMAINS if d in schism_fim_s3_uri][0]
     full_ref_time = reference_date.strftime("%Y-%m-%D %H:%M:%S UTC")
     ref_date_str = reference_date.strftime("%Y%m%D")
@@ -88,7 +75,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     target_table_schema = target_table.split(".")[0]
     target_table = target_table.split(".")[1]
 
-    depth_key = f'{OUTPUTS_PREFIX}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
+    depth_key = f'{output_prefix}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
     coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
     masks_root = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/masks'
@@ -130,8 +117,8 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     # apply masks
     masked_grid = mask_fim(wse_grid, masks_root, domain, temp_folder)
     
-    print(f"Uploading depth grid to AWS at s3://{OUTPUTS_BUCKET}/{depth_key}")
-    S3.upload_file(masked_grid, OUTPUTS_BUCKET, depth_key)
+    print(f"Uploading depth grid to AWS at s3://{output_bucket}/{depth_key}")
+    S3.upload_file(masked_grid, output_bucket, depth_key)
 
     # translate all > 0 depth values to 1 for wet (everything else [dry] already 0)
     binary_fim = fim_to_binary(masked_grid, temp_folder)
@@ -512,7 +499,7 @@ def raster_to_polygon_dataframe(input_raster, attributes):
     
     return gpd_polygonized_raster
 
-def mosaic_rasters(raster_s3_uris):
+def mosaic_rasters(raster_s3_uris, output_bucket):
     temp_dir = tempfile.mkdtemp()
     temp_result_fpath = os.path.join(temp_dir, 'mosaic.tif')
     if len(raster_s3_uris) == 0:
@@ -538,7 +525,7 @@ def mosaic_rasters(raster_s3_uris):
         memfile = MemoryFile()
         memfiles.append(memfile.open(**meta))
         memfiles[-1].write(data[0], 1)
-        S3.delete_object(Bucket=OUTPUTS_BUCKET, Key=uri.split(OUTPUTS_BUCKET)[1][1:])
+        S3.delete_object(Bucket=output_bucket, Key=uri.split(output_bucket)[1][1:])
     merged_ras, merged_trans = merge(memfiles, method=pre121_max)
     for m in memfiles:
         m.close()

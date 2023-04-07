@@ -24,13 +24,35 @@ def lambda_handler(event, context):
                              and runtime environment
     """
     
-    if event['step'] == "setup_branch_iteration":
-        return setup_branch_iteration(event)
+    if event['step'] == "setup_fim_config":
+        if "coastal" in event['args']['fim_config']['name']:
+            return setup_coastal_inundation(event)
+        else:
+            return setup_hand_inundation(event)
     else:
         return get_branch_iteration(event)
-        
     
-def setup_branch_iteration(event):
+def setup_coastal_inundation(event):
+    target_table = event['args']['fim_config']['target_table']
+
+    print("Getting hucs to process")
+    with open('hucs.csv', 'r') as f:
+        hucs = f.read().strip().split('\n')[1:]
+        
+    print(f"Dropping {target_table}")
+    engine = database(db_type="viz").engine
+    engine.execute(f'DROP TABLE IF EXISTS {target_table};')
+    engine.dispose()
+    
+    return_object = {
+        'hucs_to_process': hucs,
+        'data_bucket': PROCESSED_OUTPUT_BUCKET,
+        'data_prefix': PROCESSED_OUTPUT_PREFIX
+    }
+    
+    return return_object  
+    
+def setup_hand_inundation(event):
     fim_config = event['args']['fim_config']
     fim_config_name = fim_config['name']
     target_table = fim_config['target_table']
@@ -96,13 +118,9 @@ def setup_branch_iteration(event):
         os.remove(tmp_csv)
 
     return_object = {
-        'huc_branches_to_process': s3_keys,
-        'db_fim_table': target_table,
+        'hucs_to_process': s3_keys,
         'data_bucket': PROCESSED_OUTPUT_BUCKET,
-        'data_prefix': PROCESSED_OUTPUT_PREFIX,
-        'reference_time': reference_time,
-        'fim_config': fim_config_name,
-        'product': product,
+        'data_prefix': PROCESSED_OUTPUT_PREFIX
     }
     
     return return_object
