@@ -492,6 +492,13 @@ class configuration:
                 
             if product.get('ingest_files'):
                 self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
+                
+            if product.get('fim_configs'):
+                for fim_config in product['fim_configs']:
+                    if fim_config.get('preprocess'):
+                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_BUCKET']
+                        fim_config['preprocess']['fileset_bucket'] = self.input_bucket
+                
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
         
         self.lambda_input_sets, lambda_derived_db_ingest_sets = self.generate_lambda_max_flows_file_list(self.lambda_max_flows)

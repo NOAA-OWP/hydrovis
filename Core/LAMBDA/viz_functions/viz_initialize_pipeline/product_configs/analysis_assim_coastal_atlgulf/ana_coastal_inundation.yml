@@ -1,0 +1,40 @@
+product: ana_coastal_inundation
+configuration: analysis_assim_coastal_atlgulf
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: coastal_pacific
+    target_table: ingest.ana_coastal_pacific
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_pacific/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.pacific.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/analysis_assim_coastal_pacific/{{datetime:%Y%m%d}}/ana_coastal_pacific_{{datetime:%H}}_max_elevs.nc
+    postprocess:
+      sql_file: ana_coastal_pacific
+      target_table: publish.ana_coastal_pacific
+  - name: coastal_atlgulf
+    target_table: ingest.ana_coastal_atlgulf
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_atlgulf/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/analysis_assim_coastal_atlgulf/{{datetime:%Y%m%d}}/ana_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
+    postprocess:
+      sql_file: ana_coastal_atlgulf
+      target_table: publish.ana_coastal_atlgulf
+  
+product_summaries:
+  - sql_file:  src_skill
+    target_table:
+      - publish.ana_coastal_inundation_src_skill
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.ana_coastal_inundation_building_footprints
+      - publish.ana_coastal_inundation_counties
+      - publish.ana_coastal_inundation_hucs
+
+services:
+  - ana_coastal_inundation_extent
+  - ana_coastal_inundation_depth

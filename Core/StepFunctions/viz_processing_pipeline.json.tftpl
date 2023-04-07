@@ -15,8 +15,11 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "Payload.$": "$",
-              "FunctionName": "${max_flows_arn}"
+              "FunctionName": "${max_flows_arn}",
+              "Payload": {
+                "args.$": "$",
+                "step": "ingest_max_flows"
+              }
             },
             "Retry": [
               {
@@ -433,7 +436,7 @@
                             "data_prefix.$": "$.data_prefix",
                             "reference_time.$": "$.reference_time",
                             "fim_config.$": "$.fim_config",
-                            "product.$": "$.product",
+                            "product.$": "$.product.product",
                             "AWS_STEP_FUNCTIONS_STARTED_BY_EXECUTION_ID.$": "$$.Execution.Id"
                           }
                         },

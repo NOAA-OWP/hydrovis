@@ -434,10 +434,10 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     local_hydrotable = "/tmp/hydrotable.csv"
     local_data = "/tmp/data.csv"
     
-    print("Downloading hydrotable")
+    print(f"Downloading {hydrotable_key} from {FIM_BUCKET}")
     s3.download_file(FIM_BUCKET, hydrotable_key, local_hydrotable)
 
-    print("Downloading streamflow data")
+    print(f"Downloading {subsetted_streams} from {subsetted_streams_bucket}")
     s3.download_file(subsetted_streams_bucket, subsetted_streams, local_data)
     
     df_hydro = pd.read_csv(local_hydrotable)
