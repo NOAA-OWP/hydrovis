@@ -31,10 +31,7 @@ def lambda_handler(event, context):
             sql_file = event['args']['fim_config']['postprocess']['sql_file']
             
         else:
-            if not event['args']['product'].get('postprocess_sql'):
-                return
-            
-            sql_file = event['args']['product']['postprocess_sql']['sql_file']
+            sql_file = event['args']['postprocess_sql']['sql_file']
         
             
         sql_path = f"{folder}/{sql_file}.sql"

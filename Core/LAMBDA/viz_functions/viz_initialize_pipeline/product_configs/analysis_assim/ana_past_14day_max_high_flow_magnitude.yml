@@ -32,8 +32,8 @@ lambda_max_flows:
     target_keys: (feature_id, streamflow)
 
 postprocess_sql:
-  sql_file: ana_past_14day_max_high_flow_magnitude
-  target_table: publish.ana_past_14day_max_high_flow_magnitude
+  - sql_file: ana_past_14day_max_high_flow_magnitude
+    target_table: publish.ana_past_14day_max_high_flow_magnitude
 
 services:
   - ana_past_14day_max_high_flow_magnitude

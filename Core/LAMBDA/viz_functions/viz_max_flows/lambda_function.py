@@ -1,17 +1,12 @@
-import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import xarray
 import pandas as pd
 import numpy as np
 import boto3
-import botocore
-import urllib.parse
-import time
 import tempfile
-import isodate
 
-from viz_lambda_shared_funcs import check_if_file_exists, get_file_tokens, get_formatted_files
+from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
 
 CACHE_DAYS = os.environ['CACHE_DAYS']
 MAX_PROPS = {
@@ -61,9 +56,7 @@ def lambda_handler(event, context):
         file_window = None if file_window == "None" else file_window
         
         fileset = generate_file_list(file_pattern, file_step, file_window, reference_date)
-        
-        token_dict = get_file_tokens(output_file)
-        output_file = get_formatted_files(output_file, token_dict, reference_date)[0]
+        output_file = generate_file_list(output_file, None, None, reference_date)[0]
         
         event['args']['fim_config'].pop("preprocess")
         event['args']['fim_config']['max_file_bucket'] = output_file_bucket
@@ -209,24 +202,3 @@ def write_netcdf(max_result, output_file_bucket, output_file):
     # Upload the local max vals file to the S3 bucket
     s3.upload_file(tmp_netcdf, output_file_bucket, output_file)
     os.remove(tmp_netcdf)
-    
-def generate_file_list(file_pattern, file_step, file_window, reference_time):
-    file_list = [] 
-    if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > reference_time:
-        file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-
-    if file_window:
-        if not file_step:
-            file_step = None
-        reference_dates = pd.date_range(reference_time-isodate.parse_duration(file_window), reference_time, freq=file_step)
-    else:
-        reference_dates = [reference_time]
-
-    token_dict = get_file_tokens(file_pattern)
-
-    for reference_date in reference_dates:
-        reference_date_files = get_formatted_files(file_pattern, token_dict, reference_date)
-
-        file_list = [file for file in reference_date_files if file not in file_list]
-        
-    return file_list

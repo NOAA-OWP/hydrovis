@@ -11,6 +11,20 @@ from botocore.exceptions import ClientError
 class database: #TODO: Should we be creating a connection/engine upon initialization, or within each method like we are now?
     def __init__(self, db_type):
         self.type = db_type.upper()
+        self._engine = None
+        self._connection = None
+    
+    @property
+    def engine(self):
+        if not self._engine:
+            self._engine = self.get_db_engine()
+        return self._engine
+
+    @property
+    def connection(self):
+        if not self._connection:
+            self._connection = self.get_db_connection()
+        return self._connection
     
     ###################################
     def get_db_credentials(self):
@@ -39,7 +53,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def get_db_values(self, table, columns):
         import pandas as pd
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if not type(columns) == list:
             raise Exception("columns argument must be a list of column names")
         columns = ",".join(columns)
@@ -53,7 +67,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         import pandas as pd
         schema = table_name.split(".")[0]
         table = table_name.split(".")[-1]
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if drop_first:
             print(f"---> Dropping {table_name} if it exists")
             db_engine.execute(f'DROP TABLE IF EXISTS {table_name};')  # Drop the stage table if it exists
@@ -72,7 +86,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def run_sql_file_in_db(self, sql_file):
         sql = open(sql_file, 'r').read()
-        with self.get_db_connection() as db_connection:
+        with self.connection as db_connection:
             try:
                 cur = db_connection.cursor()
                 print(f"---> Running {sql_file}")
@@ -86,7 +100,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         if sql.endswith(".sql"):
             sql = open(sql, 'r').read()
             
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         if not return_geodataframe:
             import pandas as pd
             df = pd.read_sql(sql, db_engine)
@@ -100,7 +114,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def get_est_row_count_in_table(self, table):
         print(f"Getting estimated total rows in {table}.")
-        with self.get_db_connection() as db_connection:
+        with self.connection as db_connection:
             try:
                 cur = db_connection.cursor()
                 sql = f"""
@@ -120,7 +134,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def move_data_to_another_db(self, dest_db_type, origin_table, dest_table, stage=True, add_oid=True, add_geom_index=True, chunk_size=200000):
         import pandas as pd
-        origin_engine = self.get_db_engine()
+        origin_engine = self.engine
         dest_db = self.__class__(dest_db_type)
         dest_engine = dest_db.get_db_engine()
         if stage:
@@ -158,7 +172,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         retention_prefix = f"ref_{retention_cutoff.strftime('%Y%m%d_%H%M_')}"
         new_archive_table = f"archive.{ref_prefix}{table}"
         cutoff_archive_table = f"archive.{retention_prefix}{table}"
-        db_engine = self.get_db_engine()
+        db_engine = self.engine
         db_engine.execute(f'DROP TABLE IF EXISTS {new_archive_table};')
         db_engine.execute(f'DROP TABLE IF EXISTS {cutoff_archive_table};')
         db_engine.execute(f'SELECT * INTO {new_archive_table} FROM publish.{table};')
@@ -185,6 +199,80 @@ class s3_file:
             data_bucket = event['data_bucket']
             data_key = event['data_key']
         return cls(data_bucket, data_key)
+
+    ###################################
+    @classmethod
+    def from_eventbridge(cls, event):
+        configuration = event['resources'][0].split("/")[-1]
+        eventbridge_time = datetime.datetime.strptime(event['time'], '%Y-%m-%dT%H:%M:%SZ')
+
+        para = False
+        if "_para" in configuration:
+            para = True
+
+        if "coastal" in configuration:
+            base_config = configuration
+            nwm_file_type = 'total_water'
+            domain = 'coastal'
+            configuration = base_config
+        else:
+            if "analysis_assim" in configuration:
+                base_config = "analysis_assim"
+            elif "short_range" in configuration:
+                base_config = "short_range"
+            elif "medium_range_gfs" in configuration:
+                base_config = "medium_range_gfs"
+            elif "medium_range_nbm" in configuration:
+                base_config = "medium_range_nbm"
+
+            nwm_file_type = configuration.split(base_config)[0][:-1]
+            domain = configuration.split(base_config)[-1]
+            if domain:
+                domain = domain[1:]
+                domain = domain.replace("_para", "")
+                configuration = f"{base_config}_{domain}"
+            else:
+                domain = "conus"
+                configuration = base_config
+
+        if nwm_file_type == "forcing":
+            configuration = f"{nwm_file_type}_{configuration}"
+
+        if "analysis_assim" in base_config:
+            if "14day" in configuration:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0, hour=0)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
+        elif "short_range" in base_config:
+            if domain in ["hawaii", "puertorico"]:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=3)
+            elif domain == "alaska":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=2)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
+        elif "medium_range" in base_config:
+            if nwm_file_type == "forcing":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=5)
+            elif domain == "alaska":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
+            elif domain == "coastal":
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=13)
+            else:
+                reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
+
+        bucket = os.environ.get("DATA_BUCKET_UPLOAD") if os.environ.get("DATA_BUCKET_UPLOAD") else "nomads"
+
+        if "14day" not in configuration:
+            reference_time = reference_time - datetime.timedelta(hours=1)
+            
+        if para and "_para" not in configuration:
+            configuration = f"{configuration}_para"
+        
+        return configuration, reference_time, bucket
 
     ###################################
     @classmethod

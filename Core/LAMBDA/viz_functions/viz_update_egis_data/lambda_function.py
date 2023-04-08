@@ -34,6 +34,7 @@ def lambda_handler(event, context):
         mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
         
         workspace_rasters = event['args']['output_rasters']
+        workspace_rasters = [raster for raster in workspace_rasters if raster]
         s3_bucket = event['args']['output_bucket']
         
         for s3_key in workspace_rasters:

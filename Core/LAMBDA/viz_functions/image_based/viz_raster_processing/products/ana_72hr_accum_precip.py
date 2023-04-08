@@ -1,12 +1,8 @@
 import sys
-import os
 sys.path.append("../utils")
-from lambda_function import open_raster, sum_rasters, create_raster, upload_raster
+from lambda_function import sum_rasters, create_raster, upload_raster
 
-def main(service_data, reference_time):
-    bucket = service_data["bucket"]
-    input_files = service_data["input_files"]
-    service_name = service_data['service']
+def main(product_name, data_bucket, input_files, reference_time):
     reversed_input_files = sorted(input_files, reverse=True)
     
     all_uploaded_rasters = []
@@ -21,7 +17,7 @@ def main(service_data, reference_time):
         hour1 = hours[0]-1
         hour2 = hours[1]
     
-        data_sum, crs = sum_rasters(bucket, reversed_input_files[hour1:hour2], "RAINRATE")
+        data_sum, crs = sum_rasters(data_bucket, reversed_input_files[hour1:hour2], "RAINRATE")
         
         data_sum = data_sum * 3600 / 25.4
         data_sum = data_sum.round(2)
@@ -36,7 +32,7 @@ def main(service_data, reference_time):
         
         raster_name = f"past_{hour2}hour_accum_precipitation"
 
-        uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
+        uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
         all_uploaded_rasters.append(uploaded_raster)
     
     return all_uploaded_rasters

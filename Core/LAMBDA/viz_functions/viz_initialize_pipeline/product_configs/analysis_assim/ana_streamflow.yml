@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: ana_max_flows
 
 postprocess_sql:
-  sql_file: ana_streamflow
-  target_table: publish.ana_streamflow
+  - sql_file: ana_streamflow
+    target_table: publish.ana_streamflow
 
 services:
   - ana_streamflow

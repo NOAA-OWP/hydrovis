@@ -11,9 +11,6 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/analysis_assim_coastal_pacific/{{datetime:%Y%m%d}}/ana_coastal_pacific_{{datetime:%H}}_max_elevs.nc
-    postprocess:
-      sql_file: ana_coastal_pacific
-      target_table: publish.ana_coastal_pacific
   - name: coastal_atlgulf
     target_table: ingest.ana_coastal_atlgulf
     preprocess:
@@ -21,9 +18,12 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/analysis_assim_coastal_atlgulf/{{datetime:%Y%m%d}}/ana_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
-    postprocess:
-      sql_file: ana_coastal_atlgulf
-      target_table: publish.ana_coastal_atlgulf
+      
+postprocess_sql:
+  - sql_file: ana_coastal_depth
+    target_table: publish.ana_coastal_depth
+  - sql_file: ana_coastal_extent
+    target_table: publish.ana_coastal_extent
   
 product_summaries:
   - sql_file:  src_skill

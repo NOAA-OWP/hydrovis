@@ -1,0 +1,16 @@
+product: ana_72hr_accum_precip
+configuration: forcing_analysis_assim
+product_type: "raster"
+run: true
+
+raster_input_files:
+  file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/forcing_analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.forcing.tm00.conus.nc
+  file_step: 1H
+  file_window: P3D
+      
+postprocess_sql:
+  - sql_file: ana_72hr_accum_precip
+    target_table: publish.ana_72hr_accum_precip
+
+services:
+  - ana_72hr_accum_precip

@@ -3,30 +3,37 @@ import os
 import rioxarray as rxr
 from rasterio.crs import CRS
 from datetime import datetime
-from viz_lambda_shared_funcs import check_if_file_exists
+from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
 
 OUTPUT_BUCKET = os.environ['OUTPUT_BUCKET']
 OUTPUT_PREFIX = os.environ['OUTPUT_PREFIX']
 
-class MissingS3FileException(Exception):
-    """ my custom exception class """
-
 def lambda_handler(event, context):
-    service_name = event['service']['service']
-    try:
-        func = getattr(__import__(f"services.{service_name}", fromlist=["main"]), "main")
-    except AttributeError:
-        raise Exception(f'function not found {service_name}')
+    product_name = event['product']['product']
 
-    uploaded_rasters = func(event['service'], event['reference_time'])
+    file_pattern = event['product']['raster_input_files']['file_format']
+    file_step = event['product']['raster_input_files']['file_step']
+    file_window = event['product']['raster_input_files']['file_window']
+    bucket = event['product']['raster_input_files']['bucket']
+    reference_time = event['reference_time']
+    reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
 
-    event['output_rasters'] = uploaded_rasters
-    event['output_bucket'] = OUTPUT_BUCKET
+    file_step = None if file_step == "None" else file_step
+    file_window = None if file_window == "None" else file_window
     
-    del event['service']['input_files']
-    del event['service']['bucket']
+    input_files = generate_file_list(file_pattern, file_step, file_window, reference_date)
+
+    try:
+        func = getattr(__import__(f"products.{product_name}", fromlist=["main"]), "main")
+    except AttributeError:
+        raise Exception(f'function not found {product_name}')
+
+    uploaded_rasters = func(product_name, bucket, input_files, reference_time)
         
-    return event
+    return {
+        "output_rasters": uploaded_rasters,
+        "output_bucket": OUTPUT_BUCKET
+    }
 
 def open_raster(bucket, file, variable):
     download_path = check_if_file_exists(bucket, file, download=True)
@@ -74,12 +81,12 @@ def create_raster(data, crs):
     
     return local_raster
 
-def upload_raster(reference_time, local_raster, service_name, raster_name):
+def upload_raster(reference_time, local_raster, product_name, raster_name):
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
     
-    s3_raster_key = f"{OUTPUT_PREFIX}/{service_name}/{date}/{hour}/workspace/tif/{raster_name}.tif"
+    s3_raster_key = f"{OUTPUT_PREFIX}/{product_name}/{date}/{hour}/workspace/tif/{raster_name}.tif"
     
     print(f"--> Uploading raster to s3://{OUTPUT_BUCKET}/{s3_raster_key}")
     s3 = boto3.client('s3')
