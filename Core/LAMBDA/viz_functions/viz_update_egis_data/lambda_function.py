@@ -73,16 +73,8 @@ def lambda_handler(event, context):
             return
         
         tables = [event['args']['fim_config']['postprocess']['target_table']]
-    elif step == "update_raster_data":
-        if not event['args']['product'].get('postprocess_sql'):
-            return
-        
-        tables = [event['args']['product']['postprocess_sql']['target_table']]
     else:
-        if not event['args']['product'].get('postprocess_sql'):
-            return
-        
-        tables = [event['args']['product']['postprocess_sql']['target_table']]
+        tables = [event['args']['postprocess_sql']['target_table']]
         
     tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
     
@@ -141,12 +133,12 @@ def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom
         if add_oid:
             print(f"---> Adding an OID to the {dest_table}")
             cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
-        if add_geom_index:
+        if add_geom_index and "geom" in columns:
             print(f"---> Adding an spatial index to the {dest_table}")
             cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
             if 'geom_xy' in columns:
                 cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
-        if update_srid:
+        if update_srid and "geom" in columns:
             print(f"---> Updating SRID to {update_srid}")
             cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
 

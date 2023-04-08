@@ -32,6 +32,15 @@
                 "IntervalSeconds": 2,
                 "MaxAttempts": 6,
                 "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
+                  "MissingS3FileException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 120,
+                "MaxAttempts": 35,
+                "Comment": "Missing S3 File"
               }
             ],
             "End": true
@@ -238,7 +247,7 @@
                 "Next": "Raster Processing"
               }
             ],
-            "Default": "Postprocess SQL - Product"
+            "Default": "Product Postprocessing"
           },
           "Raster Processing": {
             "Type": "Task",
@@ -261,11 +270,15 @@
               }
             ],
             "Next": "Map",
-            "OutputPath": "$.Payload"
+            "ResultPath": "$.output_rasters",
+            "ResultSelector": {
+              "output_rasters.$": "$.Payload.output_rasters",
+              "output_bucket.$": "$.Payload.output_bucket"
+            }
           },
           "Map": {
             "Type": "Map",
-            "Next": "Postprocess SQL - Product",
+            "Next": "Product Postprocessing",
             "Iterator": {
               "StartAt": "Optimize Rasters",
               "States": {
@@ -294,20 +307,90 @@
                 }
               }
             },
-            "ItemsPath": "$.output_rasters",
+            "ItemsPath": "$.output_rasters.output_rasters",
             "Parameters": {
               "output_raster.$": "$$.Map.Item.Value",
-              "service.$": "$.service",
+              "output_bucket.$": "$.output_rasters.output_bucket"
+            },
+            "ResultPath": null
+          },
+          "Product Postprocessing": {
+            "Type": "Map",
+            "ItemProcessor": {
+              "ProcessorConfig": {
+                "Mode": "INLINE"
+              },
+              "StartAt": "Postprocess SQL - Product",
+              "States": {
+                "Postprocess SQL - Product": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "products",
+                      "folder": "products"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "Next": "Update EGIS Data - Product"
+                },
+                "Update EGIS Data - Product": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "arn:aws:lambda:us-east-1:526904826677:function:viz_update_egis_data_ti_new_infrastructure",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "update_product_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "End": true
+                }
+              }
+            },
+            "Next": "Parallelize Summaries",
+            "ItemsPath": "$.product.postprocess_sql",
+            "ItemSelector": {
+              "product.$": "$.product",
               "reference_time.$": "$.reference_time",
-              "map_item.$": "$.map_item",
               "job_type.$": "$.job_type",
-              "output_bucket.$": "$.output_bucket"
+              "sql_rename_dict.$": "$.sql_rename_dict",
+              "postprocess_sql.$": "$$.Map.Item.Value"
             },
             "ResultPath": null
           },
           "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Postprocess SQL - Product",
+            "Next": "Product Postprocessing",
             "Iterator": {
               "StartAt": "Fim Config Preprocessing",
               "States": {
@@ -344,6 +427,15 @@
                       "IntervalSeconds": 2,
                       "MaxAttempts": 6,
                       "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "MissingS3FileException"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 120,
+                      "MaxAttempts": 35,
+                      "Comment": "Missing S3 File"
                     }
                   ],
                   "Next": "FIM Data Preparation",
@@ -523,59 +615,6 @@
               "sql_rename_dict.$": "$.sql_rename_dict"
             },
             "ResultPath": null
-          },
-          "Postprocess SQL - Product": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${db_postprocess_sql_arn}",
-              "Payload": {
-                "args.$": "$",
-                "step": "products",
-                "folder": "products"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2,
-                "Comment": "Lambda Service Errors"
-              }
-            ],
-            "Next": "Update EGIS Data - Product",
-            "ResultPath": null
-          },
-          "Update EGIS Data - Product": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${update_egis_data_arn}",
-              "Payload": {
-                "args.$": "$",
-                "step": "update_service_data"
-              }
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2,
-                "Comment": "Lambda Service Errors"
-              }
-            ],
-            "ResultPath": null,
-            "Next": "Parallelize Summaries"
           },
           "Parallelize Summaries": {
             "Type": "Map",
