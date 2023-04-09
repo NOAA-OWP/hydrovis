@@ -1,0 +1,34 @@
+product: ana_coastal_inundation_prvi
+configuration: analysis_assim_coastal_puertorico
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: ana_coastal_prvi
+    target_table: ingest.ana_coastal_prvi
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_puertorico/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.puertorico.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/analysis_assim_coastal_puertorico/{{datetime:%Y%m%d}}/ana_coastal_puertorico_{{datetime:%H}}_max_elevs.nc
+      
+postprocess_sql:
+  - sql_file: ana_coastal_inundation_prvi_depth
+    target_table: publish.ana_coastal_inundation_prvi_depth
+  - sql_file: ana_coastal_inundation_prvi_extent
+    target_table: publish.ana_coastal_inundation_prvi_extent
+  
+product_summaries:
+  - sql_file:  src_skill
+    target_table:
+      - publish.ana_coastal_inundation_prvi_src_skill
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.ana_coastal_inundation_prvi_building_footprints
+      - publish.ana_coastal_inundation_prvi_counties
+      - publish.ana_coastal_inundation_prvi_hucs
+
+services:
+  - ana_coastal_inundation_prvi_extent
+  - ana_coastal_inundation_prvi_depth

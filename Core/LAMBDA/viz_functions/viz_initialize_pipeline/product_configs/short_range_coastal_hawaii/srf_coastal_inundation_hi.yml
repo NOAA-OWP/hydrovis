@@ -1,0 +1,34 @@
+product: srf_max_coastal_inundation_hi
+configuration: short_range_coastal_hawaii
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: srf_max_coastal_inundation_hi
+    target_table: ingest.srf_max_coastal_inundation_hi
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/short_range_coastal_hawaii/nwm.t{{datetime:%H}}z.short_range_coastal.total_water.f{{range:1,49,1,%03d}}.hawaii.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/short_range_coastal_hawaii/{{datetime:%Y%m%d}}/srf_max_coastal_hi_{{datetime:%H}}_max_elevs.nc
+      
+postprocess_sql:
+  - sql_file: srf_max_coastal_inundation_hi_depth
+    target_table: publish.srf_max_coastal_inundation_hi_depth
+  - sql_file: srf_max_coastal_inundation_hi_extent
+    target_table: publish.srf_max_coastal_inundation_hi_extent
+  
+product_summaries:
+  - sql_file:  src_skill
+    target_table:
+      - publish.srf_max_coastal_inundation_hi_src_skill
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.srf_max_coastal_inundation_hi_building_footprints
+      - publish.srf_max_coastal_inundation_hi_counties
+      - publish.srf_max_coastal_inundation_hi_hucs
+
+services:
+  - srf_max_coastal_inundation_hi_extent
+  - srf_max_coastal_inundation_hi_depth

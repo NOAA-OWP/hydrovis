@@ -8,8 +8,10 @@ import yaml
 def lambda_handler(event, context):
     
     s3 = boto3.client('s3')
-    service_metadata = get_service_metadata(event['service'])
-    service_name = service_metadata['service']
+    folder = event['folder']
+    service_name = event['args']['service']
+    service_metadata = get_service_metadata(folder, service_name)
+    
     service_tag = os.getenv('SERVICE_TAG')
     service_name_publish = service_name + service_tag
     folder = service_metadata['egis_folder']
@@ -152,8 +154,8 @@ def lambda_handler(event, context):
             
     return True
     
-def get_service_metadata(service):
-    yml_path = os.path.join("services", f"{service}.yml")
+def get_service_metadata(folder, service_name):
+    yml_path = os.path.join("services", folder, f"{service_name}.yml")
 
     service_stream = open(yml_path, 'r')
     service_metadata = yaml.safe_load(service_stream)

@@ -18,7 +18,7 @@
               "FunctionName": "${max_values_arn}",
               "Payload": {
                 "args.$": "$",
-                "step": "ingest_max_flows"
+                "step": "ingest_max_file"
               }
             },
             "Retry": [
@@ -353,7 +353,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "arn:aws:lambda:us-east-1:526904826677:function:viz_update_egis_data_ti_new_infrastructure",
+                    "FunctionName": "${update_egis_data_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "update_product_data"
@@ -476,8 +476,8 @@
                   "Type": "Choice",
                   "Choices": [
                     {
-                      "Variable": "$.fim_config.name",
-                      "StringMatches": "*coastal*",
+                      "Variable": "$.fim_config.fim_type",
+                      "StringMatches": "coastal",
                       "Next": "Process Coastal (SCHISM) FIM"
                     }
                   ],
@@ -747,8 +747,8 @@
                   "Parameters": {
                     "FunctionName": "${publish_service_arn}",
                     "Payload": {
-                      "service.$": "$",
-                      "step": "publish"
+                      "args.$": "$",
+                      "folder.$": "$.product.configuration"
                     }
                   },
                   "Retry": [
@@ -770,7 +770,14 @@
               }
             },
             "Next": "Pass",
-            "ItemsPath": "$.product.services"
+            "ItemsPath": "$.product.services",
+            "ItemSelector": {
+              "product.$": "$.product",
+              "reference_time.$": "$.reference_time",
+              "job_type.$": "$.job_type",
+              "sql_rename_dict.$": "$.sql_rename_dict",
+              "service.$": "$$.Map.Item.Value"
+            }
           },
           "Pass": {
             "Type": "Pass",
