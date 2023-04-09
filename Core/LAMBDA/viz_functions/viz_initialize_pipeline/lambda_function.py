@@ -14,7 +14,6 @@ Returns:
     dictionary: The details of the pipeline and files to ingest, to serve as input to the step function.
 """
 ################################################################################
-import collections
 import datetime
 import time
 import re

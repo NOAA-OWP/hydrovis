@@ -6,7 +6,7 @@ variable "environment" {
   type        = string
 }
 
-variable "max_flows_arn" {
+variable "max_values_arn" {
   type        = string
 }
 
@@ -75,7 +75,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     role_arn = var.lambda_role
 
     definition = templatefile("${path.module}/viz_processing_pipeline.json.tftpl", {
-        max_flows_arn = var.max_flows_arn
+        max_values_arn = var.max_values_arn
         db_postprocess_sql_arn = var.db_postprocess_sql_arn
         db_ingest_arn      = var.db_ingest_arn
         raster_processing_arn = var.raster_processing_arn

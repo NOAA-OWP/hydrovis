@@ -2,7 +2,7 @@ import boto3
 import os
 import time
 from arcgis.gis import GIS
-from viz_classes import s3_file, database
+from viz_classes import s3_file
 import yaml
 
 def lambda_handler(event, context):

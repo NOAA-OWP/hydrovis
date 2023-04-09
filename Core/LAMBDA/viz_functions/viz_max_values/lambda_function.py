@@ -61,23 +61,19 @@ def lambda_handler(event, context):
         event['args']['fim_config'].pop("preprocess")
         event['args']['fim_config']['max_file_bucket'] = output_file_bucket
         event['args']['fim_config']['max_file'] = output_file
-        
-        return_object = event['args']
     else:
-        fileset = event['lambda_max_flow']['fileset']
-        fileset_bucket = event['lambda_max_flow']['fileset_bucket']
-        output_file = event['lambda_max_flow']['output_file']
-        output_file_bucket = event['lambda_max_flow']['output_file_bucket']
-        reference_time = event['reference_time']
-        
-        return_object = event['lambda_max_flow']
+        fileset = event['args']['lambda_max_flow']['fileset']
+        fileset_bucket = event['args']['lambda_max_flow']['fileset_bucket']
+        output_file = event['args']['lambda_max_flow']['output_file']
+        output_file_bucket = event['args']['lambda_max_flow']['output_file_bucket']
+        reference_time = event['args']['reference_time']
         
     print(f"Creating {output_file}")
     # Once the files exist, calculate the max flows
     aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
     print(f"Successfully created {output_file} in {output_file_bucket}")
 
-    return return_object
+    return event['args']
 
 
 def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file):

@@ -236,7 +236,7 @@ module "sns" {
 
   environment               = local.env.environment
   nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_flows_data_bucket = module.s3.buckets["fim"].bucket
+  nwm_max_values_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
   error_email_list          = local.env.sns_email_lists
 }
@@ -291,7 +291,7 @@ module "viz_lambda_functions" {
   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
   fim_output_bucket             = module.s3.buckets["fim"].bucket
-  max_flows_bucket              = module.s3.buckets["fim"].bucket
+  max_values_bucket              = module.s3.buckets["fim"].bucket
   deployment_bucket            = module.s3.buckets["deployment"].bucket
   viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
@@ -333,7 +333,7 @@ module "step_functions" {
   db_ingest_arn = module.viz_lambda_functions.db_ingest.arn
   raster_processing_arn = module.viz_lambda_functions.raster_processing.arn
   publish_service_arn = module.viz_lambda_functions.publish_service.arn
-  max_flows_arn = module.viz_lambda_functions.max_flows.arn
+  max_values_arn = module.viz_lambda_functions.max_values.arn
   hand_fim_processing_arn = module.viz_lambda_functions.hand_fim_processing_arn.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics              = module.sns.email_sns_topics
@@ -458,7 +458,7 @@ module "monitoring" {
   ]
   deployment_bucket                    = module.s3.buckets["deployment"].bucket
   lambda_trigger_functions             = [
-    module.viz_lambda_functions.max_flows.function_name,
+    module.viz_lambda_functions.max_values.function_name,
     module.ingest_lambda_functions.hml_reciever.function_name,
     module.viz_lambda_functions.db_ingest.function_name
   ]
@@ -599,7 +599,7 @@ module "viz_ec2" {
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_flows_data_bucket   = module.s3.buckets["fim"].bucket
+  nwm_max_values_data_bucket   = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]

@@ -42,7 +42,7 @@ variable "fim_version" {
   type = string
 }
 
-variable "max_flows_bucket" {
+variable "max_values_bucket" {
   type = string
 }
 
@@ -545,7 +545,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 
     environment_variable {
       name  = "MAX_VALS_BUCKET"
-      value = var.max_flows_bucket
+      value = var.max_values_bucket
     }
 
     environment_variable {

@@ -15,7 +15,7 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${max_flows_arn}",
+              "FunctionName": "${max_values_arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "ingest_max_flows"
@@ -410,7 +410,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${max_flows_arn}",
+                    "FunctionName": "${max_values_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"

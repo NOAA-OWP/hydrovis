@@ -50,7 +50,7 @@ variable "fim_output_bucket" {
   type        = string
 }
 
-variable "nwm_max_flows_data_bucket" {
+variable "nwm_max_values_data_bucket" {
   description = "S3 bucket for NWM max flows data"
   type        = string
 }
@@ -211,7 +211,7 @@ data "cloudinit_config" "pipeline_setup" {
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
       FIM_OUTPUT_BUCKET              = var.fim_output_bucket
-      NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
+      NWM_MAX_VALUES_DATA_BUCKET      = var.nwm_max_values_data_bucket
       RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
       DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
       DEPLOYMENT_DATA_OBJECT         = aws_s3_object.setup_upload.key

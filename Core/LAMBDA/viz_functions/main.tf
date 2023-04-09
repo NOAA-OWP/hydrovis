@@ -38,7 +38,7 @@ variable "deployment_bucket" {
   type        = string
 }
 
-variable "max_flows_bucket" {
+variable "max_values_bucket" {
   description = "S3 bucket where the outputted max flows will live."
   type        = string
 }
@@ -167,10 +167,6 @@ locals {
   ecr_repository_image_tag = "latest"
   ingest_flow_threshold = .001
 
-  max_flows_subscriptions = toset([
-    "nwm_channel_ana"
-  ])
-
   initialize_pipeline_subscriptions = toset([
     "nwm_channel_ana",
     "nwm_forcing_ana",
@@ -223,7 +219,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   environment {
     variables = {
       DATASERVICES_HOST                 = var.dataservices_ip
-      PROCESSED_OUTPUT_BUCKET           = var.max_flows_bucket
+      PROCESSED_OUTPUT_BUCKET           = var.max_values_bucket
       PROCESSED_OUTPUT_PREFIX           = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
     }
@@ -274,26 +270,26 @@ resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
   }
 }
 
-########################
-## Max Flows Function ##
-########################
-data "archive_file" "max_flows_zip" {
+#########################
+## Max Values Function ##
+#########################
+data "archive_file" "max_values_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_max_flows/lambda_function.py"
+  source_file = "${path.module}/viz_max_values/lambda_function.py"
 
-  output_path = "${path.module}/viz_max_flows_${var.environment}.zip"
+  output_path = "${path.module}/viz_max_values_${var.environment}.zip"
 }
 
-resource "aws_s3_object" "max_flows_zip_upload" {
+resource "aws_s3_object" "max_values_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_max_flows.zip"
-  source      = data.archive_file.max_flows_zip.output_path
-  source_hash = filemd5(data.archive_file.max_flows_zip.output_path)
+  key         = "viz/viz_max_values.zip"
+  source      = data.archive_file.max_values_zip.output_path
+  source_hash = filemd5(data.archive_file.max_values_zip.output_path)
 }
 
-resource "aws_lambda_function" "viz_max_flows" {
-  function_name = "viz_max_flows_${var.environment}"
+resource "aws_lambda_function" "viz_max_values" {
+  function_name = "viz_max_values_${var.environment}"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
@@ -309,7 +305,7 @@ resource "aws_lambda_function" "viz_max_flows" {
   environment {
     variables = {
       CACHE_DAYS         = 1
-      MAX_VALS_BUCKET   = var.max_flows_bucket
+      MAX_VALS_BUCKET   = var.max_values_bucket
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
       VIZ_DB_DATABASE     = var.viz_db_name
       VIZ_DB_HOST         = var.viz_db_host
@@ -318,9 +314,9 @@ resource "aws_lambda_function" "viz_max_flows" {
       DATA_BUCKET_UPLOAD  = var.fim_data_bucket
     }
   }
-  s3_bucket        = aws_s3_object.max_flows_zip_upload.bucket
-  s3_key           = aws_s3_object.max_flows_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.max_flows_zip.output_path)
+  s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
+  s3_key           = aws_s3_object.max_values_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.max_values_zip.output_path)
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -335,32 +331,7 @@ resource "aws_lambda_function" "viz_max_flows" {
   ]
 
   tags = {
-    "Name" = "viz_max_flows_${var.environment}"
-  }
-}
-
-resource "aws_sns_topic_subscription" "max_flows_subscriptions" {
-  for_each  = local.max_flows_subscriptions
-  topic_arn = var.sns_topics["${each.value}"].arn
-  protocol  = "lambda"
-  endpoint  = resource.aws_lambda_function.viz_max_flows.arn
-}
-
-resource "aws_lambda_permission" "max_flows_permissions" {
-  for_each      = local.max_flows_subscriptions
-  action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.viz_max_flows.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = var.sns_topics["${each.value}"].arn
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_max_flows" {
-  function_name          = resource.aws_lambda_function.viz_max_flows.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
+    "Name" = "viz_max_values_${var.environment}"
   }
 }
 
@@ -729,7 +700,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_PASSWORD        = var.egis_portal_password
       GIS_HOST            = local.egis_host
       GIS_USERNAME        = "hydrovis.proc"
-      PUBLISH_FLAG_BUCKET = var.max_flows_bucket
+      PUBLISH_FLAG_BUCKET = var.max_values_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz/db_pipeline/pro_project_data/sd_files/"
       SERVICE_TAG         = local.service_suffix
@@ -772,7 +743,7 @@ module "image_based_lambdas" {
   account_id  = var.account_id
   region      = var.region
   deployment_bucket = var.deployment_bucket
-  max_flows_bucket = var.max_flows_bucket
+  max_values_bucket = var.max_values_bucket
   raster_output_bucket = var.fim_output_bucket
   raster_output_prefix = local.raster_output_prefix
   lambda_role = var.lambda_role
@@ -792,8 +763,8 @@ module "image_based_lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "max_flows" {
-  value = aws_lambda_function.viz_max_flows
+output "max_values" {
+  value = aws_lambda_function.viz_max_values
 }
 
 output "initialize_pipeline" {

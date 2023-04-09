@@ -6,7 +6,7 @@ import os
 
 def kickoff_viz_lambdas():
     client = boto3.client('lambda')
-    max_flows_lambda = f"viz_max_flows_{consts.hydrovis_env_map[os.environ['VIZ_ENVIRONMENT']]}"
+    max_values_lambda = f"viz_max_values_{consts.hydrovis_env_map[os.environ['VIZ_ENVIRONMENT']]}"
     ingest_lambda = f"viz_db_ingest_{consts.hydrovis_env_map[os.environ['VIZ_ENVIRONMENT']]}"
     postprocess_lambda = f"viz_db_postprocess_{consts.hydrovis_env_map[os.environ['VIZ_ENVIRONMENT']]}"
 
@@ -14,12 +14,12 @@ def kickoff_viz_lambdas():
     current_datetime = datetime.utcnow()
     current_date = current_datetime.strftime("%Y%m%d")
     latest_0Z_ana_file = f"common/data/model/com/nwm/prod/nwm.{current_date}/analysis_assim/nwm.t00z.analysis_assim.channel_rt.tm00.conus.nc"  # noqa: E501
-    max_flows_payload = {"data_key": latest_0Z_ana_file, "data_bucket": os.environ['NWM_DATA_BUCKET']}
+    max_values_payload = {"data_key": latest_0Z_ana_file, "data_bucket": os.environ['NWM_DATA_BUCKET']}
 
     client.invoke(
-        FunctionName=max_flows_lambda,
+        FunctionName=max_values_lambda,
         InvocationType='Event',
-        Payload=bytes(json.dumps(max_flows_payload), "utf-8")
+        Payload=bytes(json.dumps(max_values_payload), "utf-8")
     )
 
     nwm_configurations = [

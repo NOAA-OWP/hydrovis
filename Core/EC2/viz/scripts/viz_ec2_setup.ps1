@@ -130,7 +130,7 @@ $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
 $env:WRDS_HOST = $WRDS_HOST
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
-$env:NWM_MAX_FLOWS_DATA_BUCKET = $NWM_MAX_FLOWS_DATA_BUCKET
+$env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
 $env:RNR_MAX_FLOWS_DATA_BUCKET = $RNR_MAX_FLOWS_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
@@ -156,7 +156,7 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("WRDS_HOST", $env:WRDS_HOST, "2")
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
-[Environment]::SetEnvironmentVariable("NWM_MAX_FLOWS_DATA_BUCKET", $env:NWM_MAX_FLOWS_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("RNR_MAX_FLOWS_DATA_BUCKET", $env:RNR_MAX_FLOWS_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
