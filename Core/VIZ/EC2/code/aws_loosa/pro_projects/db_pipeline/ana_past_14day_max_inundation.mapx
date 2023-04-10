@@ -203,6 +203,10 @@
       },
       {
         "type" : "CIMScale",
+        "value" : 400000
+      },
+      {
+        "type" : "CIMScale",
         "value" : 500000
       },
       {
@@ -5879,6 +5883,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : false,
       "displayCacheType" : "Permanent",
@@ -12156,6 +12161,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
