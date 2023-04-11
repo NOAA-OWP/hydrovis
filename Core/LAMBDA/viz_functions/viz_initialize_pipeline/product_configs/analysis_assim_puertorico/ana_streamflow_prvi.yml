@@ -1,5 +1,5 @@
 product: ana_streamflow_prvi
-configuration: analysis_assim_hawaii
+configuration: analysis_assim_puertorico
 product_type: "vector"
 run: true
 

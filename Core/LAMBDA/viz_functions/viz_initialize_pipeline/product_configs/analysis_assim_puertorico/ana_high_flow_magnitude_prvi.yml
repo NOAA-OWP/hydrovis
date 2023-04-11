@@ -1,5 +1,5 @@
 product: ana_high_flow_magnitude_prvi
-configuration: analysis_assim_hawaii
+configuration: analysis_assim_puertorico
 product_type: "vector"
 run: true
 
