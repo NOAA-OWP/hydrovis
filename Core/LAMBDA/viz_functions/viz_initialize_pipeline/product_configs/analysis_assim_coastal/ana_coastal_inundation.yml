@@ -12,7 +12,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/analysis_assim_coastal_pacific/{{datetime:%Y%m%d}}/ana_coastal_pacific_{{datetime:%H}}_max_elevs.nc
-  - name: coastal_atlgulf
+  - name: ana_coastal_atlgulf
     target_table: ingest.ana_coastal_atlgulf
     fim_type: coastal
     preprocess:
@@ -26,16 +26,6 @@ postprocess_sql:
     target_table: publish.ana_coastal_inundation_depth
   - sql_file: ana_coastal_inundation_extent
     target_table: publish.ana_coastal_inundation_extent
-  
-product_summaries:
-  - sql_file:  src_skill
-    target_table:
-      - publish.ana_coastal_inundation_src_skill
-  - sql_file:  building_footprints_fimpact
-    target_table:
-      - publish.ana_coastal_inundation_building_footprints
-      - publish.ana_coastal_inundation_counties
-      - publish.ana_coastal_inundation_hucs
 
 services:
   - ana_coastal_inundation_extent

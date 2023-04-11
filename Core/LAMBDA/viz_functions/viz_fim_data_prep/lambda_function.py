@@ -25,34 +25,11 @@ def lambda_handler(event, context):
     """
     
     if event['step'] == "setup_fim_config":
-        if "coastal" in event['args']['fim_config']['name']:
-            return setup_coastal_inundation(event)
-        else:
-            return setup_hand_inundation(event)
+        return setup_huc_inundation(event)
     else:
         return get_branch_iteration(event)
     
-def setup_coastal_inundation(event):
-    target_table = event['args']['fim_config']['target_table']
-
-    print("Getting hucs to process")
-    with open('hucs.csv', 'r') as f:
-        hucs = f.read().strip().split('\n')[1:]
-        
-    print(f"Dropping {target_table}")
-    engine = database(db_type="viz").engine
-    engine.execute(f'DROP TABLE IF EXISTS {target_table};')
-    engine.dispose()
-    
-    return_object = {
-        'hucs_to_process': hucs,
-        'data_bucket': PROCESSED_OUTPUT_BUCKET,
-        'data_prefix': PROCESSED_OUTPUT_PREFIX
-    }
-    
-    return return_object  
-    
-def setup_hand_inundation(event):
+def setup_huc_inundation(event):
     fim_config = event['args']['fim_config']
     fim_config_name = fim_config['name']
     target_table = fim_config['target_table']
@@ -73,55 +50,69 @@ def setup_hand_inundation(event):
     # Find the sql file, and replace any items in the dictionary
     sql_path = f'data_sql/{fim_config_name}.sql'
     sql = open(sql_path, 'r').read().lower()
-    df_streamflows = viz_db.run_sql_in_db(sql)
 
     setup_db_table(target_table, reference_time, db_type, sql_replace)
     
-    if one_off:
-        hucs_to_process = one_off
+    fim_type = fim_config['fim_type']
+    if fim_type == "coastal":
+        print("Running coastal SCHISM workflow")
+        hucs = viz_db.run_sql_in_db(sql)
+        hucs = list(hucs['huc'].values)
+    
+        return_object = {
+            'hucs_to_process': hucs,
+            'data_bucket': PROCESSED_OUTPUT_BUCKET,
+            'data_prefix': PROCESSED_OUTPUT_PREFIX
+        }
     else:
-        hucs_to_process = df_streamflows['huc'].unique()
-        
-    print(f"Kicking off {len(hucs_to_process)} hucs for {product} for {reference_time}")
+        print("Running inland HAND workflow")
+        df_streamflows = viz_db.run_sql_in_db(sql)
 
-    df_streamflows['data_key'] = None
-    for huc in hucs_to_process:
-        huc_data = df_streamflows[df_streamflows['huc'] == huc]  # get data for this huc only
-        
-        if huc_data.empty:
-            continue
-        
-        csv_key = write_data_csv_file(product, fim_config_name, huc, reference_date, huc_data)
-        df_streamflows.loc[df_streamflows['huc'] == huc, 'data_key'] = csv_key
-        
-    s3 = boto3.client('s3')
+        if one_off:
+            hucs_to_process = one_off
+        else:
+            hucs_to_process = df_streamflows['huc'].unique()
+            
+        print(f"Kicking off {len(hucs_to_process)} hucs for {product} for {reference_time}")
 
-    # Parses the forecast key to get the necessary metadata for the output file
-    date = reference_date.strftime("%Y%m%d")
-    hour = reference_date.strftime("%H")
-    
-    s3_keys = []
-    df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
-    df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
-    for index, df in enumerate(df_streamflows_split):
-        # Key for the csv file that will be stored in S3
-        csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
-        s3_keys.append(csv_key)
-    
-        # Save the dataframe as a local netcdf file
-        tmp_csv = f'/tmp/{product}.csv'
-        df.to_csv(tmp_csv, index=False)
-    
-        # Upload the csv file into S3
-        print(f"Uploading {csv_key}")
-        s3.upload_file(tmp_csv, PROCESSED_OUTPUT_BUCKET, csv_key)
-        os.remove(tmp_csv)
+        df_streamflows['data_key'] = None
+        for huc in hucs_to_process:
+            huc_data = df_streamflows[df_streamflows['huc'] == huc]  # get data for this huc only
+            
+            if huc_data.empty:
+                continue
+            
+            csv_key = write_data_csv_file(product, fim_config_name, huc, reference_date, huc_data)
+            df_streamflows.loc[df_streamflows['huc'] == huc, 'data_key'] = csv_key
+            
+        s3 = boto3.client('s3')
 
-    return_object = {
-        'hucs_to_process': s3_keys,
-        'data_bucket': PROCESSED_OUTPUT_BUCKET,
-        'data_prefix': PROCESSED_OUTPUT_PREFIX
-    }
+        # Parses the forecast key to get the necessary metadata for the output file
+        date = reference_date.strftime("%Y%m%d")
+        hour = reference_date.strftime("%H")
+        
+        s3_keys = []
+        df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
+        df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
+        for index, df in enumerate(df_streamflows_split):
+            # Key for the csv file that will be stored in S3
+            csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
+            s3_keys.append(csv_key)
+        
+            # Save the dataframe as a local netcdf file
+            tmp_csv = f'/tmp/{product}.csv'
+            df.to_csv(tmp_csv, index=False)
+        
+            # Upload the csv file into S3
+            print(f"Uploading {csv_key}")
+            s3.upload_file(tmp_csv, PROCESSED_OUTPUT_BUCKET, csv_key)
+            os.remove(tmp_csv)
+
+        return_object = {
+            'hucs_to_process': s3_keys,
+            'data_bucket': PROCESSED_OUTPUT_BUCKET,
+            'data_prefix': PROCESSED_OUTPUT_PREFIX
+        }
     
     return return_object
     

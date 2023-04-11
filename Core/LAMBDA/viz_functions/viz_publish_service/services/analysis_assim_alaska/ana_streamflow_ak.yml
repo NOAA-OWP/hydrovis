@@ -1,7 +1,7 @@
 service: ana_streamflow_ak
 summary: Streamflow Analysis for the state of Alaska
 description: Depicts the streamflow output from the operational National Water Model (NWM) analysis and assimilation for Alaska. Updated hourly.
-tags: high flow, magnitude, national water model, nwm, ana, alaksa, ak
+tags: streamflow, national water model, nwm, ana, alaksa, ak
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm

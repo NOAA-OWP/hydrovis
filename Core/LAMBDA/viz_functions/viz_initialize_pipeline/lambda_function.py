@@ -459,6 +459,11 @@ class configuration:
             
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
+            else:
+                for fim_config in product_metadata['fim_configs']:
+                    if fim_config.get('preprocess'):
+                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_BUCKET']
+                        fim_config['preprocess']['fileset_bucket'] = self.input_bucket
             
             if not product_metadata.get("postprocess_sql"):
                 product_metadata['postprocess_sql'] = []
@@ -492,12 +497,6 @@ class configuration:
                 
             if product.get('ingest_files'):
                 self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
-                
-            if product.get('fim_configs'):
-                for fim_config in product['fim_configs']:
-                    if fim_config.get('preprocess'):
-                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_BUCKET']
-                        fim_config['preprocess']['fileset_bucket'] = self.input_bucket
                 
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
         

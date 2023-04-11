@@ -68,7 +68,7 @@ def lambda_handler(event, context):
 
 def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix):
     domain = [d for d in DOMAINS if d in schism_fim_s3_uri][0]
-    full_ref_time = reference_date.strftime("%Y-%m-%D %H:%M:%S UTC")
+    full_ref_time = reference_date.strftime("%Y-%m-%d %H:%M:%S UTC")
     ref_date_str = reference_date.strftime("%Y%m%D")
     hour = reference_date.strftime("%H")
 
@@ -126,12 +126,9 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     # We shouldn't need to clip since the raster is already at the HUC level
     # clipped_result = clip_to_shape(binary_fim, bounds)
 
-    update_time = dt.datetime.now().strftime('%y-%m-%d %H:%M%S UTC')
-
     attributes = {
         'huc8': huc,
-        'ref_time': full_ref_time,
-        'update_time': update_time
+        'reference_time': full_ref_time
     }
 
     polygon_df = raster_to_polygon_dataframe(binary_fim, attributes)
