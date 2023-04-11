@@ -457,6 +457,9 @@ class configuration:
             if not product_metadata.get("dependent_on"):
                 product_metadata['dependent_on'] = ""
             
+            if product_metadata.get("raster_input_files"):
+                product_metadata['raster_input_files']['bucket'] = self.input_bucket
+            
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
             else:
