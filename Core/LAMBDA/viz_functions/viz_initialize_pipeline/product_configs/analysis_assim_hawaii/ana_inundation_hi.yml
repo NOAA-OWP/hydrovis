@@ -26,14 +26,10 @@ fim_configs:
       target_table: publish.ana_inundation_hi
   
 product_summaries:
-  - sql_file:  src_skill
-    target_table:
-      - publish.ana_inundation_hi_src_skill
   - sql_file:  building_footprints_fimpact
     target_table:
-      - publish.ana_inundation_hi_building_footprints
-      - publish.ana_inundation_hi_counties
-      - publish.ana_inundation_hi_hucs
+      - publish.ana_inundation_building_footprints_hi
+      - publish.ana_inundation_counties_hi
 
 services:
   - ana_inundation_hi
