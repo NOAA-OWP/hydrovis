@@ -442,9 +442,10 @@ class configuration:
         all_product_metadata = []
         pipeline_run_time = int(self.reference_time.strftime("%H"))
         
-        configuration_product_ymls = os.listdir(self.name)
+        product_configs_dir = os.path.join('product_configs', self.name)
+        configuration_product_ymls = os.listdir(product_configs_dir)
         for configuration_product_yml in configuration_product_ymls:
-            yml_path = os.path.join(self.name, configuration_product_yml)
+            yml_path = os.path.join(product_configs_dir, configuration_product_yml)
 
             product_stream = open(yml_path, 'r')
             product_metadata = yaml.safe_load(product_stream)
@@ -460,7 +461,7 @@ class configuration:
                 product_metadata['fim_configs'] = []
             
             if not product_metadata.get("postprocess_sql"):
-                product_metadata['postprocess_sql'] = {}
+                product_metadata['postprocess_sql'] = []
             
             if not product_metadata.get("product_summaries"):
                 product_metadata['product_summaries'] = []

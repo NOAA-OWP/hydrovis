@@ -32,6 +32,8 @@ db_max_flows:
     max_flows_sql_file: ana_14day_max_flows
 
 postprocess_sql:
+  - sql_file: ana_past_7day_max_high_flow_magnitude
+    target_table: publish.ana_past_7day_max_high_flow_magnitude
   - sql_file: ana_past_14day_max_high_flow_magnitude
     target_table: publish.ana_past_14day_max_high_flow_magnitude
 

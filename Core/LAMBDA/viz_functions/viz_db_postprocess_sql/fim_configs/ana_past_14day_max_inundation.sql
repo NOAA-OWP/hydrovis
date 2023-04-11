@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation_14d;
+DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation;
 
 SELECT  
 	inun.hydro_id,
@@ -19,6 +19,6 @@ SELECT
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
 	'ana_past_14day' AS config
-INTO publish.ana_past_14day_max_inundation_14d
-FROM ingest.ana_past_14day_max_inundation_14d as inun 
+INTO publish.ana_past_14day_max_inundation
+FROM ingest.ana_past_14day_max_inundation as inun 
 left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;

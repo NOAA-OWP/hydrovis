@@ -98,19 +98,6 @@ def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_fi
     write_netcdf(max_result, output_file_bucket, output_file)  # creates the output NetCDF file
 
 
-def download_file(data_bucket, file_path, download_path):
-    s3 = boto3.client('s3')
-    
-    file_path = check_if_file_exists(data_bucket, file_path)
-
-    try:
-        s3.download_file(data_bucket, file_path, download_path)
-        return True
-    except Exception as e:
-        print(f"File failed to download {file_path}: {e}")
-        return False
-
-
 def aggregate_max(fileset_bucket, fileset, max_props):
     """
         Iterates through a times series of National Water Model (NWM) channel_rt output NetCDF files, and finds
