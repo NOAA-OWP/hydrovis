@@ -529,7 +529,7 @@ class configuration:
             
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter};")
+            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' AND max_flow_method != 'lambda' {service_filter} {run_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()
