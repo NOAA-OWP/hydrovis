@@ -4,6 +4,7 @@ product_type: "raster"
 run: true
 
 raster_input_files:
+  product_file: 18hour_accum_precip
   file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/forcing_short_range/nwm.t{{datetime:%H}}z.short_range.forcing.f{{range:1,19,1,%03d}}.conus.nc
   file_step: None
   file_window: None

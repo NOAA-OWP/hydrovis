@@ -4,12 +4,11 @@ from lambda_function import sum_rasters, create_raster, upload_raster
 
 def main(product_name, data_bucket, input_files, reference_time):
     reversed_input_files = sorted(input_files, reverse=True)
-    
     all_uploaded_rasters = []
 
-    ###########################
+    ######################################
     ## Past 72 Hour Precip in intervals ##
-    ###########################
+    ######################################
     
     hour_intervals = [[1, 1], [2, 3], [4, 6], [7, 12], [13, 24], [25, 48], [49, 72]]
     total_sum = None

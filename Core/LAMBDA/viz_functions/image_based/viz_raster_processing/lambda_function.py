@@ -14,6 +14,7 @@ def lambda_handler(event, context):
     file_pattern = event['product']['raster_input_files']['file_format']
     file_step = event['product']['raster_input_files']['file_step']
     file_window = event['product']['raster_input_files']['file_window']
+    product_file = event['product']['raster_input_files']['product_file']
     bucket = event['product']['raster_input_files']['bucket']
     reference_time = event['reference_time']
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
@@ -24,9 +25,9 @@ def lambda_handler(event, context):
     input_files = generate_file_list(file_pattern, file_step, file_window, reference_date)
 
     try:
-        func = getattr(__import__(f"products.{product_name}", fromlist=["main"]), "main")
+        func = getattr(__import__(f"products.{product_file}", fromlist=["main"]), "main")
     except AttributeError:
-        raise Exception(f'function not found {product_name}')
+        raise Exception(f'product_file not found for {product_file}')
 
     uploaded_rasters = func(product_name, bucket, input_files, reference_time)
         

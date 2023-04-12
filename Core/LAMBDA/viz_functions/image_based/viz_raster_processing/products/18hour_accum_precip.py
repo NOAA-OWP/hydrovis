@@ -1,14 +1,10 @@
 import sys
-import os
 sys.path.append("..")
-from lambda_function import open_raster, sum_rasters, create_raster, upload_raster
+from lambda_function import sum_rasters, create_raster, upload_raster
 
-def main(service_data, reference_time):
-    bucket = service_data["bucket"]
-    input_files = service_data["input_files"]
-    service_name = service_data['service']
-
+def main(product_name, data_bucket, input_files, reference_time):
     hour_intervals = [[1, 1], [2, 2], [3, 3], [4, 6], [7, 9], [10, 12], [13, 15], [16, 18]]
+    
     ###################
     ## Hourly Precip ##
     ###################
@@ -19,7 +15,7 @@ def main(service_data, reference_time):
         hour1 = hours[0]-1
         hour2 = hours[1]
     
-        data_sum, crs = sum_rasters(bucket, input_files[hour1:hour2], "RAINRATE")
+        data_sum, crs = sum_rasters(data_bucket, input_files[hour1:hour2], "RAINRATE")
         
         data_sum = data_sum * 3600 / 25.4
         data_sum = data_sum.round(2)
@@ -38,7 +34,7 @@ def main(service_data, reference_time):
         else:
             raster_name = f"{hours[0]}hour-{hours[1]}hour_accum_precipitation"
 
-        uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
+        uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
         all_uploaded_rasters.append(uploaded_raster)
 
     ###################
@@ -48,7 +44,7 @@ def main(service_data, reference_time):
     local_raster = create_raster(total_sum, crs)
     raster_name = "1hour-18hour_accum_precipitation"
 
-    uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
+    uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
     all_uploaded_rasters.append(uploaded_raster)
 
     return all_uploaded_rasters
