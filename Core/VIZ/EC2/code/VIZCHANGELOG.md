@@ -3,6 +3,18 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 <br/><br/>
 
+## v3.2.0 - 2023-4-5 - [PR #403](https://github.com/NOAA-OWP/hydrovis/pull/403)
+
+This merge activates the 1ft intervals for Stage-Based CatFIM. Intervals begin at Action stage and increment by 1 ft until the Major stage + 5ft is reached. Sublayers are created for each category. Each category has an intervals layer and the threshold layer.
+
+Also includes a minor update to all inundation map services, to limit the scale of drawing, in order to improve render performance.
+
+## Changes
+- `/hydrovis/Core/VIZ/EC2/code/aws_loos/pro_projects/db_pipeline/stage_based_catfim.mapx`
+- `/hydrovis/Core/VIZ/EC2/code/aws_loos/pro_projects/db_pipeline/<service>_inundation.mapx`
+
+<br/><br/>
+
 
 ## v3.1.0 - 2023-3-30 - [PR #371](https://github.com/NOAA-OWP/hydrovis/pull/371)
 
