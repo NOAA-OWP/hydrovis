@@ -88,13 +88,19 @@ def run_sql(sql_path_or_str, sql_replace=None):
     print(f"Finished executing the SQL statement above.")
     return result
 
-def max_flows_already_processed(sql_path, reference_time):
+def max_flows_already_processed(sql_path, reference_time, sql_replace):
     sql = open(sql_path, 'r').read().lower()
+    for word, replacement in sql_replace.items():
+        sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
     schema, table = re.search('into (\w+)\.(\w+)', sql).groups()
     sql = f'SELECT reference_time FROM {schema}.{table} LIMIT 1;'
-    result = run_sql(sql)[0]
-    if result == reference_time:
-        print("NOTE: {sql_path} was already executed for reference time {reference_time}")
+    result = run_sql(sql)
+    
+    if not result:
+        return False
+        
+    if result[0] == reference_time:
+        print(f"NOTE: {sql_path} was already executed for reference time {reference_time}")
         return True
     else:
         return False
