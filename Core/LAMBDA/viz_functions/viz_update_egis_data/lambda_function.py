@@ -17,8 +17,12 @@ def lambda_handler(event, context):
     
     ################### Unstage EGIS Tables ###################
     if step == "unstage" and job_type != "past_event":
-        target_tables = gen_dict_extract("target_table", event['args'])
-        all_tables = [table for table in target_tables if type(table) is not list] + [table for table_list in target_tables if type(table) is list for table in table_list]
+        target_tables = list(gen_dict_extract("target_table", event['args']))
+        all_single_tables = [table for table in target_tables if type(table) is not list]
+        all_list_tables = [table for table in target_tables if type(table) is list]
+        all_list_tables = [table for table_list in all_list_tables for table in table_list]
+        
+        all_tables = all_single_tables + all_list_tables
         publish_tables = [table for table in all_tables if table.startswith("publish")]
         dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
 

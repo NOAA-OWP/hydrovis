@@ -6,4 +6,4 @@ credits: Add, comma, delimited, credits  # (REQUIRED) Credits for the service
 egis_server: server_name  # (REQUIRED) The server where the service will be published
 egis_folder: folder_name  # (REQUIRED) The folder where the service will reside
 feature_service: false  # (REQUIRED) Boolean indicating whether the service will be a feature service
-public_service: true  # (REQUIRED) Boolean indicating if the service will be public or internal
+public_service: false  # (REQUIRED) Boolean indicating if the service will be public or internal

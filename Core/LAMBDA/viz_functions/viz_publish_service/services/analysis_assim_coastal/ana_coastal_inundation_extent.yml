@@ -1,13 +1,11 @@
 service: ana_coastal_inundation_extent
-summary: Analysis and Assimilation Coastal Inundation Extent
-description: 'Depicts the inundation extent of the National Water Model (NWM) total water level forecast. Updated hourly.
-
-  Estimated Impacted Buildings: Depicts building footprints that intersect inundation extents. The source of the building data is the FEMA USA Structures 
-  dataset: https://gis-fema.hub.arcgis.com/pages/usa-structures (as of August, 2022). Occupancy type data is only available for AL, CA, FL, GA, LA, MS, NC, SC, TX, and VA at this time. 
-  Also shown are a relative density heatmap of potentially impacted buildings (based on extent), county, and HUC level summary layers.'
+summary: Coastal Inundation Analysis Extent
+description: Depicts the inundation extent of the National Water Model (NWM) total water level forecast.
+  This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. 
+  Updated hourly.
 tags: national water model, nwm, ana, conus, schism, coastal, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false

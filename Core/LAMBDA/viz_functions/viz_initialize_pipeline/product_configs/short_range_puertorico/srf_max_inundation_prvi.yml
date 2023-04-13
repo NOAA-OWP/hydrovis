@@ -1,6 +1,6 @@
 product: srf_max_inundation_prvi
 configuration: short_range_puertorico
-product_type: "vector"
+product_type: "fim"
 run: true
 
 ingest_files:
@@ -26,14 +26,10 @@ fim_configs:
       target_table: publish.srf_max_inundation_prvi
   
 product_summaries:
-  - sql_file:  src_skill
-    target_table:
-      - publish.srf_max_inundation_prvi_src_skill
   - sql_file:  building_footprints_fimpact
     target_table:
-      - publish.srf_max_inundation_prvi_building_footprints
-      - publish.srf_max_inundation_prvi_counties
-      - publish.srf_max_inundation_prvi_hucs
+      - publish.srf_max_inundation_building_footprints_prvi
+      - publish.srf_max_inundation_counties_prvi
 
 services:
   - srf_max_inundation_prvi

@@ -1,5 +1,5 @@
 service: ana_high_flow_magnitude_hi
-summary: High Flow Magnitude for Hawaii
+summary: High Flow Magnitude Analysis for Hawaii
 description: 'Depicts the magnitude of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. 
   This service is derived from the analysis and assimilation configuration of the NWM over Hawaii. Shown are reaches with flow at 
   or above high water thresholds. Reaches are colored by the annual exceedance probability (AEP) of their current flow. High 
@@ -10,4 +10,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false

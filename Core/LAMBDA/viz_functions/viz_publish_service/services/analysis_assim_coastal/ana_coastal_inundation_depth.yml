@@ -1,9 +1,11 @@
 service: ana_coastal_inundation_depth
-summary: Analysis and Assimilation Coastal Inundation Depth
-description: Depicts the inundation depth of the National Water Model (NWM) total water level forecast. Updated hourly.
+summary: Coastal Inundation Analysis Depth
+description: Depicts the inundation depth of the National Water Model (NWM) total water level forecast. 
+  This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. 
+  Updated hourly.
 tags: national water model, nwm, ana, conus, schism, coastal, fim, inundation, depth
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false

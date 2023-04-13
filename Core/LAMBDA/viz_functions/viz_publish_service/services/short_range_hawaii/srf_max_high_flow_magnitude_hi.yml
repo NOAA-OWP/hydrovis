@@ -1,0 +1,14 @@
+service: srf_max_high_flow_magnitude_hi
+summary: Short-Range Maximum High Flow Magnitude Forecast for Hawaii
+description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast over the next 
+  48 hours where the NWM is signaling high water. This service is derived from the short-range configuration 
+  of the NWM over Hawaii. Shown are reaches with peak flow at or above high water thresholds. Reaches are 
+  colored by the annual exceedance probability (AEP) of their peak flow. High water thresholds and AEPs were 
+  derived from USGS regression equations found at https://pubs.usgs.gov/sir/2010/5035/sir2010-5035_text.pdf. 
+  Updated every 12 hours.
+tags: high flow, magnitude, national water model, nwm, srf, short, range, hawaii, hi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

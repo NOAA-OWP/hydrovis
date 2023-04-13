@@ -1,5 +1,5 @@
 service: ana_high_flow_magnitude_prvi
-summary: High Flow Magnitude for Puerto Rico and Virgin Islands
+summary: High Flow Magnitude Analysis for Puerto Rico and Virgin Islands
 description: 'Depicts the magnitude of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. 
   This service is derived from the analysis and assimilation configuration of the NWM over Puerto Rico and the U.S. Virgin Islands. 
   Shown are reaches with flow at or above high water thresholds. Reaches are colored by the annual exceedance probability (AEP) 
@@ -10,4 +10,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false

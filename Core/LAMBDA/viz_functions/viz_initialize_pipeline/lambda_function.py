@@ -220,13 +220,13 @@ class viz_lambda_pipeline:
         sql_rename_dict = {}
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
-        for target_table in gen_dict_extract("target_table", self.configuration.configuration_data_flow):
+        for target_table in list(gen_dict_extract("target_table", self.configuration.configuration_data_flow)):
             target_table_name = target_table.split(".")[1]
             new_table_name = f"{ref_prefix}{target_table_name}"
             sql_rename_dict[target_table] = f"archive.{new_table_name}"
         
         for product in self.pipeline_products:
-            for target_table in gen_dict_extract("target_table", product):
+            for target_table in list(gen_dict_extract("target_table", product)):
                 target_table_name = target_table.split(".")[1]
                 new_table_name = f"{ref_prefix}{target_table_name}"
                 sql_rename_dict[target_table] = f"archive.{new_table_name}"
@@ -405,36 +405,6 @@ class configuration:
             db_ingest_sets.append(db_ingest_file_set)
     
         return lambda_max_flow_ingest_sets, db_ingest_sets
-    
-    ################################### 
-    # This method uses the shared_funcs s3_file class and checks existence on S3 for a full file_list.
-    def check_input_files(self, file_threshold=100, retry=True, retry_limit=10):
-        total_files = len(self.input_files)
-        non_existent_files = []
-        for key in self.input_files: #TODO: Set this back up as a list comprehension... not sure how to do that with the class initialization
-            file = s3_file(self.input_bucket, key)
-            if not file.check_existence():
-                non_existent_files.append(file)
-        if retry:
-            files_ready = False
-            retries = 0
-            while not files_ready and retries < retry_limit:
-                non_existent_files = [file for file in non_existent_files if not file.check_existence()]
-                if not non_existent_files:
-                    files_ready = True
-                else:
-                    print(f"Waiting 1 minute until checking for files again. Missing files {non_existent_files}")
-                    time.sleep(60)
-                    retries += 1
-        available_files = []
-        for key in self.input_files: #TODO: Set this back up as a list comprehension... not sure how to do that with the class initialization
-            file = s3_file(self.input_bucket, key) 
-            if file not in non_existent_files:
-                available_files.append(file)
-        if non_existent_files:
-            if (len(available_files) * 100 / total_files) < file_threshold:
-                raise Exception(f"Error - Failed to get the following files: {non_existent_files}")
-        return True
     
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
