@@ -1,0 +1,33 @@
+product: rfc_5day_max_downstream_streamflow
+configuration: rfc
+product_type: "vector"
+run: true
+run_times:
+  - '*:00'
+  - '*:15'
+  - '*:30'
+  - '*:45'
+
+ingest_files:
+    - file_format: max_flows/replace_route/{{datetime:%Y%m%d}}/rnr_{{datetime:%H}}_max_flows.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.rnr_max_flows
+      target_keys: (feature_id)
+    - file_format: max_stage/ahps/{{datetime:%Y%m%d}}/{{datetime:%H_%M}}_ahps_metadata.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.ahps_metadata
+      target_keys: (nws_lid)
+
+postprocess_sql:
+  - sql_file: rfc_5day_max_downstream_streamflow
+    target_table: publish.rfc_5day_max_downstream_streamflow
+  
+product_summaries:
+  - sql_file:  rfc_points
+    target_table:
+      - publish.rfc_5day_max_downstream_streamflow_rfc_points
+
+services:
+  - rfc_5day_max_downstream_inundation

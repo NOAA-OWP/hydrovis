@@ -281,25 +281,13 @@ class configuration:
     @classmethod
     def from_s3_file(cls, s3_file):
         filename = s3_file.key
-        if 'max_flows' in filename:
-            matches = re.findall(r"max_flows/(.*)/(\d{8})/\D*_(\d+day_)?(\d{2})_max_flows.*", filename)[0]
-            date = matches[1]
-            hour = matches[3]
-            configuration_name = matches[0]
-            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
-        elif 'max_stage' in filename:
+        if 'max_stage' in filename:
             matches = re.findall(r"max_stage/(.*)/(\d{8})/(\d{2})_(\d{2})_ahps_(.*).csv", filename)[0]
             date = matches[1]
             hour = matches[2]
             minute = matches[3]
-            configuration_name = matches[0]
+            configuration_name = "rfc"
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:{minute[-2:]}:00", '%Y-%m-%d %H:%M:%S')
-        elif 'max_elevs' in filename:	
-            matches = re.findall(r"max_elevs/(.*)/(\d{8})/\D*_(mem\d_)?(\d+day_)?(\d{2})_max_elevs.*", filename)[0]
-            date = matches[1]
-            hour = matches[-1]	
-            configuration_name = matches[0]	
-            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
         else:
             if 'analysis_assim' in filename:
                 matches = re.findall(r"(.*)/nwm.(\d{8})/(.*)/nwm.t(\d{2})z\.(.*)\..*\.tm(.*)\.(.*)\.nc", filename)[0]
@@ -317,10 +305,7 @@ class configuration:
     ###################################
     # This method generates a complete list of files based on the file pattern data in the admin.db_data_flows_metadata db table.
     # TODO: We should probably abstract the file pattern information in the database to a configuration database table to avoid redundant file patterns.
-    def generate_ingest_groups_file_list(self, file_groups, data_origin="raw", bucket=None):
-        
-        if not bucket:
-            bucket = self.input_bucket
+    def generate_ingest_groups_file_list(self, file_groups, data_origin="raw"):
             
         target_table_input_files = {}
         ingest_sets = {}
@@ -363,6 +348,14 @@ class configuration:
         for target_table, target_table_metadata in target_table_input_files.items():
             target_keys = f"({','.join(target_table_metadata['target_keys'])})"
             index_name = f"idx_{target_table.split('.')[-1:].pop()}_{target_keys.replace(',', '_')[1:-1]}"
+
+            ingest_file = target_table_metadata["s3_keys"][0]
+            if "rnr" in ingest_file:
+                bucket=os.environ['RNR_DATA_BUCKET']
+            elif "max" in ingest_file:
+                bucket=os.environ['MAX_VALS_DATA_BUCKET']
+            else:
+                bucket = self.input_bucket
             
             ingest_sets.append({
                 "target_table": target_table, 
@@ -401,7 +394,7 @@ class configuration:
                 'target_table': file_group['target_table'], 
                 'target_keys': file_group['target_keys']
             }]
-            db_ingest_file_set = self.generate_ingest_groups_file_list(db_ingest_file_groups, data_origin="lambda", bucket=os.environ['MAX_VALS_BUCKET'])[0]
+            db_ingest_file_set = self.generate_ingest_groups_file_list(db_ingest_file_groups, data_origin="lambda")[0]
             db_ingest_sets.append(db_ingest_file_set)
     
         return lambda_max_flow_ingest_sets, db_ingest_sets
@@ -410,7 +403,7 @@ class configuration:
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
     def get_product_metadata(self, specific_products=None, run_only=True):
         all_product_metadata = []
-        pipeline_run_time = int(self.reference_time.strftime("%H"))
+        pipeline_run_time = self.reference_time.strftime("%H:%M")
         
         product_configs_dir = os.path.join('product_configs', self.name)
         configuration_product_ymls = os.listdir(product_configs_dir)
@@ -421,7 +414,14 @@ class configuration:
             product_metadata = yaml.safe_load(product_stream)
             
             if product_metadata.get("run_times"):
-                if pipeline_run_time not in product_metadata.get("run_times"):
+                all_run_times = []
+                for run_time in product_metadata.get("run_times"):
+                    if "*:" in run_time:
+                        all_run_times.extend([f"{hour:02d}:{run_time.split(':')[-1]}" for hour in range(24)])
+                    else:
+                        all_run_times.append(run_time)
+                
+                if pipeline_run_time not in all_run_times:
                     continue
             
             if not product_metadata.get("dependent_on"):

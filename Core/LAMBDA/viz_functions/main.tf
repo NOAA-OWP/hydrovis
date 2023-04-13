@@ -43,6 +43,11 @@ variable "max_values_bucket" {
   type        = string
 }
 
+variable "rnr_data_bucket" {
+  description = "S3 bucket where the rnr max flows will live."
+  type        = string
+}
+
 variable "viz_cache_bucket" {
   description = "S3 bucket where the viz cache shapefiles will live."
   type        = string
@@ -219,7 +224,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   environment {
     variables = {
       DATASERVICES_HOST                 = var.dataservices_ip
-      PROCESSED_OUTPUT_BUCKET           = var.max_values_bucket
+      MAX_VALS_BUCKET                   = var.max_values_bucket
       PROCESSED_OUTPUT_PREFIX           = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
     }
@@ -305,12 +310,6 @@ resource "aws_lambda_function" "viz_max_values" {
   environment {
     variables = {
       CACHE_DAYS         = 1
-      MAX_VALS_BUCKET   = var.max_values_bucket
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
       DATA_BUCKET_UPLOAD  = var.fim_data_bucket
     }
   }
@@ -366,7 +365,13 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
     variables = {
       STEP_FUNCTION_ARN     = var.viz_pipeline_step_function_arn
       DATA_BUCKET_UPLOAD    = var.fim_data_bucket
+      MAX_VALS_DATA_BUCKET  = var.max_values_bucket
+      RNR_DATA_BUCKET       = var.rnr_data_bucket
       INGEST_FLOW_THRESHOLD = local.ingest_flow_threshold
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket

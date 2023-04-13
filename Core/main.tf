@@ -291,8 +291,9 @@ module "viz_lambda_functions" {
   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket               = module.s3.buckets["deployment"].bucket
   fim_output_bucket             = module.s3.buckets["fim"].bucket
-  max_values_bucket              = module.s3.buckets["fim"].bucket
-  deployment_bucket            = module.s3.buckets["deployment"].bucket
+  max_values_bucket             = module.s3.buckets["fim"].bucket
+  rnr_data_bucket               = module.s3.buckets["rnr"].bucket
+  deployment_bucket             = module.s3.buckets["deployment"].bucket
   viz_cache_bucket              = module.s3.buckets["fim"].bucket
   fim_version                   = local.env.fim_version
   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn

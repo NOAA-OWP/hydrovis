@@ -3,7 +3,7 @@ configuration: analysis_assim
 product_type: "vector"
 run: true
 run_times:
-  - 00
+  - 00:00
         
 lambda_max_flows:
   - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
