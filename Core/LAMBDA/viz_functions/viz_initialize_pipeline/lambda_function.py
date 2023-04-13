@@ -388,7 +388,7 @@ class configuration:
                 "fileset": lambda_max_flow_file_set[0]['ingest_datasets'],
                 "fileset_bucket": lambda_max_flow_file_set[0]['bucket'],
                 "output_file": formatted_output_file,
-                "output_file_bucket": os.environ['MAX_VALS_BUCKET'],
+                "output_file_bucket": os.environ['MAX_VALS_DATA_BUCKET'],
             })
             
             db_ingest_file_groups = [{
@@ -439,7 +439,7 @@ class configuration:
             else:
                 for fim_config in product_metadata['fim_configs']:
                     if fim_config.get('preprocess'):
-                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_BUCKET']
+                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
             
             if not product_metadata.get("postprocess_sql"):

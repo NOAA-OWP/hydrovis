@@ -31,6 +31,7 @@ def lambda_handler(event, context):
             sql_file = event['args']['fim_config']['postprocess']['sql_file']
             
         else:
+            folder = os.path.join(folder, event['args']['product']['configuration'])
             sql_file = event['args']['postprocess_sql']['sql_file']
         
             
