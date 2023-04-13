@@ -1,0 +1,7 @@
+product: possible_coastal_omission
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - possible_coastal_omission

@@ -1,0 +1,12 @@
+service: nwm_aep_fim
+summary: Depicts flood inundation extents derived from NWM high water threshold, annual exceedance 
+  probabilities and the Height Above Nearest Drainage (HAND) technique.
+description: Depicts the inundation extent of the National Water Model (NWM) high water threshold and 
+  annual exceedance probabilities. High water thresholds (regionally varied) and AEPs were derived 
+  using the 40-year NWM v2.1 reanalysis simulation. This is a static service and not a forecast service.
+tags: nws, flood, categorical, hand, fim, inundation, height, above, nearest, drainage, aep, recurrence
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: fim_libs
+feature_service: false
+public_service: false

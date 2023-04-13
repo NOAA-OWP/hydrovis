@@ -1,0 +1,7 @@
+product: fim_performance
+configuration: reference
+product_type: "fim"
+run: true
+
+services:
+  - fim_performance

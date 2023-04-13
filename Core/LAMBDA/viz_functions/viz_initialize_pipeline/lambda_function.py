@@ -105,7 +105,11 @@ class viz_lambda_pipeline:
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
         else: 
             self.invocation_type = "manual"
+        
         self.job_type = "auto" if not self.start_event.get('reference_time') else "past_event" # We assume that the specification of a reference_time in the payload correlates to a past_event run.
+        if start_event.get('configuration') == "reference":
+            self.job_type = "auto"
+        
         self.keep_raw = True if self.job_type == "past_event" and self.start_event.get('keep_raw') else False # Keep_raw will determine if a past_event run preserves the raw ingest data tables in the archive schema, or recycles them.
         self.start_time = datetime.datetime.fromtimestamp(time.time())
 

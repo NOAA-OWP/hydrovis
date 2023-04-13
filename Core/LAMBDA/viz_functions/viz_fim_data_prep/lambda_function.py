@@ -44,14 +44,17 @@ def setup_huc_inundation(event):
         target_table = sql_replace.get(target_table)
     
     print(f"Running FIM for {configuration} for {reference_time}")
-    db_type = "viz"
-    viz_db = database(db_type=db_type)
+    viz_db = database(db_type="viz")
+    if configuration == "reference":
+        process_db = database(db_type="egis")
+    else:
+        process_db = viz_db
 
     # Find the sql file, and replace any items in the dictionary
     sql_path = f'data_sql/{fim_config_name}.sql'
     sql = open(sql_path, 'r').read().lower()
 
-    setup_db_table(target_table, reference_time, db_type, sql_replace)
+    setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)
     
     fim_type = fim_config['fim_type']
     if fim_type == "coastal":
@@ -133,7 +136,7 @@ def get_branch_iteration(event):
     return return_object
 
 
-def setup_db_table(db_fim_table, reference_time, db_type="viz", sql_replace=None):
+def setup_db_table(db_fim_table, reference_time, viz_db, process_db, sql_replace=None):
     """
         Sets up the necessary tables in a postgis data for later ingest from the huc processing functions
 
@@ -146,12 +149,6 @@ def setup_db_table(db_fim_table, reference_time, db_type="viz", sql_replace=None
     db_schema = db_fim_table.split('.')[0]
 
     print(f"Setting up {db_fim_table}")
-    # Connect to the postgis DB
-    viz_db = database(db_type="viz")
-    if db_type == "viz":
-        process_db = viz_db
-    else:
-        process_db = database(db_type=db_type)
         
     with viz_db.get_db_connection() as connection:
         cur = connection.cursor()
