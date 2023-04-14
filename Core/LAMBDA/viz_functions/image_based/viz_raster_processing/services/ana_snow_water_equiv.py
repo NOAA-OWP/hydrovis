@@ -4,6 +4,9 @@ sys.path.append("../utils")
 from lambda_function import open_raster, sum_rasters, create_raster, upload_raster
 
 def main(service_data, reference_time):
+    bucket = service_data["bucket"]
+    input_files = service_data["input_files"]
+    service_name = service_data['service']
 
     ### ABOVE THIS WILL BE THE SAME
 
@@ -21,4 +24,4 @@ def main(service_data, reference_time):
     raster_name = service_name
     uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
 
-return [uploaded_raster] 
+    return [uploaded_raster] 
