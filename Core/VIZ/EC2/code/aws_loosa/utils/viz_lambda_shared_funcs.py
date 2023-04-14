@@ -7,6 +7,8 @@ import re
 import urllib.parse
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
+from aws_loosa.consts.paths import AWS_LOOSA_DIR
+import yaml
 
 
 def get_secret_password(secret_name, region_name, key):
@@ -434,37 +436,37 @@ def get_db_values(table, columns, db_type="viz"):
 
     return df
 
+def get_dir(folder_path, folder_name):
+    dir = os.path.dirname(folder_path)
+    if os.path.basename(dir) == folder_name:
+        return dir
+    else:
+        return get_dir(dir, folder_name)
 
-def get_service_metadata(include_ingest_sources=True, include_latest_ref_time=False):
+
+def get_service_metadata():
     """
-    This function pulls service metadata from the admin.services database table.
+    This function pulls service metadata from the services tables in the publish service lambda.
 
     Returns:
-        results (dictionary): A python dictionary containing the database table data.
+        results (list): a list of dictionaries containing the service metadata.
     """
-    import psycopg2.extras
+    all_service_metadata = []
 
-    if include_ingest_sources is True:
-        extra_sql = " join admin.services_ingest_sources ON admin.services.service = admin.services_ingest_sources.service"
-    else:
-        extra_sql = ""
+    core_dir = get_dir(AWS_LOOSA_DIR, "core")
+    service_metadata_dir = os.path.join(core_dir, "LAMBDA", "viz_functions", "viz_publish_service", "services")
 
-    if include_latest_ref_time is True:
-        extra_sql += """ LEFT OUTER JOIN (SELECT service as service2, to_char(min(reference_time)::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') as reference_time
-                        FROM admin.services_ingest_sources a JOIN
-			            (SELECT target, max(reference_time) as reference_time FROM admin.ingest_status where status='Import Complete' group by target) b
-		                ON a.ingest_table = b.target group by service) AS ref_times
-                        on admin.services.service = ref_times.service2"""
+    for configuration in os.listdir(service_metadata_dir):
+        configuration_service_dir = os.path.join(service_metadata_dir, configuration)
+        for service in os.listdir(configuration_service_dir):
+            service_yml = os.path.join(configuration_service_dir, service)
+
+            service_stream = open(service_yml, 'r')
+            service_metadata = yaml.safe_load(service_stream)
+
+            all_service_metadata.append(service_metadata)
     
-    connection = get_db_connection("viz")
-    with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute(f"SELECT * FROM admin.services{extra_sql};")
-        column_names = [desc[0] for desc in cur.description]
-        response = cur.fetchall()
-        cur.close()
-    connection.close()
-    return list(map(lambda x: dict(zip(column_names, x)), response))
-
+    return all_service_metadata
 
 def load_df_into_db(table_name, db_engine, df):
     import pandas as pd

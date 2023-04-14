@@ -102,13 +102,18 @@ def update_db_sd_files():
     baseline_aprx_path = os.path.join(paths.PRO_PROJECT_DIR, "Empty_Project.aprx")
     mapx_fpaths = [os.path.join(mapx_dpath, file) for file in os.listdir(mapx_dpath)]
 
-    services_data = get_service_metadata(include_ingest_sources=False, include_latest_ref_time=False)
+    services_data = get_service_metadata()
 
     for mapx_fpath in mapx_fpaths:
         service_name = os.path.basename(mapx_fpath).split(".")[0]
         print(f"Creating SD file for {service_name}...")
         
-        service_data = [item for item in services_data if item['service'] == service_name][0]
+        service_data = [item for item in services_data if item['service'] == service_name]
+        if not service_data:
+            print(f"Metadata not found for {service_name}")
+            continue
+
+        service_data = service_data[0]
         temp_aprx = arcpy.mp.ArcGISProject(baseline_aprx_path)
         temp_aprx.importDocument(mapx_fpath)
         temp_aprx_fpath = os.path.join(sd_folder, f'{service_name}.aprx')
@@ -116,7 +121,9 @@ def update_db_sd_files():
         aprx = arcpy.mp.ArcGISProject(temp_aprx_fpath)
         
         sd_file = create_sd_file(aprx, service_name, sd_folder, conn_str, service_data)
-        
+        if not sd_file:
+            continue
+
         del temp_aprx
         del aprx
         os.remove(temp_aprx_fpath)
@@ -131,6 +138,11 @@ def update_db_sd_files():
 
 def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     sd_service_name = f"{service_name}{consts.SERVICE_NAME_TAG}"
+    sd_file = f"C:\\Users\\arcgis\\sd_creation\\{service_name}"
+
+    if os.path.exists(sd_file):
+        print(f"SD file already created for {service_name}")
+        return
 
     if service_dict.get(service_name):
         schema = service_dict.get(service_name)
@@ -308,7 +320,14 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     sd_output_filename = os.path.join(sd_folder, sd_filename)
     if os.path.exists(sd_output_filename):
         os.remove(sd_output_filename)
-    arcpy.StageService_server(sddraft_output_filename, sd_output_filename)
+    try:
+        arcpy.StageService_server(sddraft_output_filename, sd_output_filename)
+    except Exception as e:
+        print(e)
+        return
+
+    file2 = open(sd_file,"w+")
+    file2.close()
 
     os.remove(sddraft_output_filename)
 
