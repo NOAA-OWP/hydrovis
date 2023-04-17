@@ -178,9 +178,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\..\\Dev\\ana_24hr_snow_melt_hydrovis\\ana_24hr_snow_melt.gdb",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_24hr_snow_melt\\published",
         "workspaceFactory" : "FileGDB",
-        "dataset" : "Diff_ana_24h1",
+        "dataset" : "ana_24hr_snow_melt.mrf",
         "datasetType" : "esriDTRasterDataset"
       },
       "colorizer" : {
