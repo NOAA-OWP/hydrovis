@@ -149,9 +149,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\raster_tifs",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_soil_moisture_ice_content\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_soil_moisture_ice_content.tif",
+        "dataset" : "ana_soil_moisture_ice_content.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
