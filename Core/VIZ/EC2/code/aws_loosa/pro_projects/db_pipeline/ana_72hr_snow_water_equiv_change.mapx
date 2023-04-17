@@ -147,9 +147,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\..\\Downloads",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published"",
         "workspaceFactory" : "Raster",
-        "dataset" : "swe_change24hr.tif",
+        "dataset" : "ana_24hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -444,9 +444,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\..\\Downloads",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "swe_change48hr.tif",
+        "dataset" : "ana_48hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -741,9 +741,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\..\\Downloads",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "swe_change72hr.tif",
+        "dataset" : "ana_72hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
