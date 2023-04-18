@@ -4,11 +4,14 @@ sys.path.append("../utils")
 from lambda_function import open_raster, sum_rasters, create_raster, upload_raster
 
 def main(service_data, reference_time):
-
+    bucket = service_data["bucket"]
+    input_files = service_data["input_files"]
+    service_name = service_data['service']
+    reversed_input_files = sorted(input_files, reverse=True)
     ### ABOVE THIS WILL BE THE SAME
 
     variable = "SNEQV"
-    data_temp, crs = open_raster(bucket, input_files[0], variable)
+    data_temp, crs = open_raster(bucket, reversed_input_files[0], variable)
     #data, crs = open_raster(bucket, reversed_input_files[0], variable)
     data_nan = data_temp.where(data_temp != -99990)
     data = data_nan / 254  #Convert kg/m2 to in, conversion should be 25.4
@@ -21,4 +24,4 @@ def main(service_data, reference_time):
     raster_name = service_name
     uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
 
-return [uploaded_raster] 
+    return [uploaded_raster] 
