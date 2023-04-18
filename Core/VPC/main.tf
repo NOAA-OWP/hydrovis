@@ -109,7 +109,7 @@ resource "aws_subnet" "egis_private_a" {
   cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 4)
   availability_zone = "${var.region}a"
   tags = {
-    Name = "hydrovis-egis-${var.environment}-prv-sn-a"
+    Name = "hv-vpp-egis-${var.environment}-prv-sn-a"
   }
 }
 
@@ -118,7 +118,7 @@ resource "aws_subnet" "egis_private_b" {
   cidr_block        = cidrsubnet(var.vpc_ip_block, 4, 3)
   availability_zone = "${var.region}b"
   tags = {
-    Name = "hydrovis-egis-${var.environment}-prv-sn-b"
+    Name = "hv-vpp-egis-${var.environment}-prv-sn-b"
   }
 }
 

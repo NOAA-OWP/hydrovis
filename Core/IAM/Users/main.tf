@@ -113,7 +113,7 @@ output "user_WRDSServiceAccount" {
 }
 
 output "user_S3ReplicationDataServiceAccount" {
-  value = var.environment == "prod" ? aws_iam_user.S3ReplicationDataServiceAccount[0] : { arn = "" }
+  value = var.environment == "prod" ? aws_iam_user.S3ReplicationDataServiceAccount[0] : aws_iam_user.WRDSServiceAccount
 }
 
 output "user_FIMServiceAccount" {

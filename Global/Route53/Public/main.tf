@@ -107,18 +107,18 @@ resource "aws_route53_hosted_zone_dnssec" "public" {
 
 
 # Health Check and Failover DNS Records
-resource "aws_route53_health_check" "egis_health_check" {
-  for_each = var.egis_health_checks
+# resource "aws_route53_health_check" "egis_health_check" {
+#   for_each = var.egis_health_checks
 
-  type                            = "CLOUDWATCH_METRIC"
-  cloudwatch_alarm_name           = each.value["alarm_name"]
-  cloudwatch_alarm_region         = each.key
-  insufficient_data_health_status = "LastKnownStatus"
+#   type                            = "CLOUDWATCH_METRIC"
+#   cloudwatch_alarm_name           = each.value["alarm_name"]
+#   cloudwatch_alarm_region         = each.key
+#   insufficient_data_health_status = "LastKnownStatus"
 
-  tags = {
-    Name = "egis-health-check-${each.key}"
-  }
-}
+#   tags = {
+#     Name = "egis-health-check-${each.key}"
+#   }
+# }
 resource "aws_route53_record" "egis_alb" {
   for_each = var.egis_health_checks
 
