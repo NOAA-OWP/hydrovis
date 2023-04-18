@@ -147,7 +147,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published"",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_24hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
