@@ -15,6 +15,9 @@ def main(service_data, reference_time):
     current_snow, crs = open_raster(bucket, reversed_input_files[0], variable)
     past_snow, crs = open_raster(bucket, reversed_input_files[1], variable)
 
+    current_snow = current_snow.sel(time = current_snow.time[0])
+    past_snow = past_snow.sel(time = past_snow.time[0])
+
     # format the missing error coded fields with NaN
     current_snow_nan = current_snow.where(current_snow != -99990)
     current = current_snow_nan / 254  #Convert kg/m2 to in, moving decimal right once
@@ -28,8 +31,8 @@ def main(service_data, reference_time):
     make_snow_difference = snow_difference.where(snow_difference > 0, snow_difference, 0)
 
     # finalize raster
-    local_raster = create_raster(data, crs)
+    local_raster = create_raster(make_snow_difference, crs)
     raster_name = service_name
     uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
 
-    return [uploaded_raster] 
+    return [uploaded_raster]
