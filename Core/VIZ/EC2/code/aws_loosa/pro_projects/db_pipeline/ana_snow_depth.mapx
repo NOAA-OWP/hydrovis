@@ -154,9 +154,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\..\\raster_tifs",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_snow_depth\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_snow_depth.tif",
+        "dataset" : "ana_snow_depth.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {

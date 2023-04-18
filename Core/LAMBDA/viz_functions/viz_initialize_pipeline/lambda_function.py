@@ -267,9 +267,9 @@ class viz_lambda_pipeline:
                     self.ingest_files.append({'s3_key': s3_key, 'original_table': original_table, 'ingest_table': ingest_table, 'ingest_keys': ingest_keys}) # Add each file to the new pipeline ingest_files list.
                     added_files[ingest_table].append(s3_key)
                 
-        if self.configuration.data_type != "channel":
-            for service in self.pipeline_services:
-                service_name = service['service']
+        for service in self.pipeline_services:
+            service_name = service['service']
+            if any(data_type in service_name for data_type in ["soil", "precip", "snow"]):
                 service['input_files'] = sorted({x for v in self.configuration.service_input_files[service_name].values() for x in v})
                 service['bucket'] = self.configuration.input_bucket
     
@@ -529,7 +529,7 @@ class configuration:
             
         connection = database("viz").get_db_connection()
         with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' {service_filter} {run_filter};")
+            cur.execute(f"SELECT * FROM admin.services WHERE configuration = '{self.name}' AND max_flow_method != 'lambda' {service_filter} {run_filter};")
             column_names = [desc[0] for desc in cur.description]
             response = cur.fetchall()
             cur.close()

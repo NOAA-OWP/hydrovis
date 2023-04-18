@@ -1,6 +1,6 @@
 ADDED:
-  - ana_anomaly_para
-  - srf_high_water_probability_para
-  - mrf_gfs_high_water_probability_para
-  - mrf_gfs_rapid_onset_flooding_probability_para
-  - srf_rapid_onset_flooding_probability_para
+  - ana_anomaly
+  - srf_high_water_probability
+  - mrf_high_water_probability
+  - mrf_rapid_onset_flooding_probability
+  - srf_rapid_onset_flooding_probability

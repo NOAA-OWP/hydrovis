@@ -17,4 +17,4 @@ def main(service_data, reference_time):
     raster_name = service_name
     uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
 
-    return uploaded_raster
+    return [uploaded_raster]
