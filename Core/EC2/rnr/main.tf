@@ -59,6 +59,11 @@ variable "rnr_versions" {
   type = map(string)
 }
 
+variable "iam_role_arn" {
+  description = "Role to use to reboot the ec2 instance."
+  type        = string
+}
+
 locals {
   cloudinit_config_data = {
     write_files = [
@@ -191,4 +196,40 @@ data "cloudinit_config" "startup" {
       ${jsonencode(local.cloudinit_config_data)}
     END
   }
+}
+
+resource "aws_sfn_state_machine" "reboot_replace_route_ec2_step_function" {
+  name     = "reboot_replace_route_ec2_${var.environment}"
+  role_arn = var.iam_role_arn
+
+  definition = <<EOF
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Reboot Replace and Route EC2",
+  "States": {
+    "Reboot Replace and Route EC2": {
+      "Type": "Task",
+      "End": true,
+      "Parameters": {
+        "InstanceIds": [
+          "${aws_instance.replace_and_route.id}"
+        ]
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:rebootInstances"
+    }
+  }
+}
+EOF
+}
+
+resource "aws_cloudwatch_event_rule" "daily_at_2330" {
+  name                = "daily_at_2330"
+  description         = "Fires every day at 23:30"
+  schedule_expression = "cron(30 23 * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
+  rule      = aws_cloudwatch_event_rule.daily_at_2330.name
+  arn       = aws_sfn_state_machine.reboot_replace_route_ec2_step_function.arn
+  role_arn  = var.iam_role_arn
 }
