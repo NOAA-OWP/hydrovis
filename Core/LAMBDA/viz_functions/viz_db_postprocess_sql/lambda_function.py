@@ -25,7 +25,7 @@ def lambda_handler(event, context):
             sql_file = event['args']['map']['map_item']
         sql_path = f"{folder}/{sql_file}.sql"
         
-        if step == 'max_flows' and max_flows_already_processed(sql_path, reference_time):
+        if step == 'max_flows' and max_flows_already_processed(sql_path, reference_time, sql_replace):
             return True
         
         run_sql(sql_path, sql_replace)
