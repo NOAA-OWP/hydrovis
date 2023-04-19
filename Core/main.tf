@@ -20,13 +20,13 @@ locals {
 }
 
 provider "aws" {
-  region                  = local.env.region
-  profile                 = local.env.environment
+  region                   = local.env.region
+  profile                  = local.env.environment
   shared_credentials_files = ["/cloud/aws/credentials"]
 
   default_tags {
     tags = merge(local.env.tags, {
-      CreatedBy            = "Terraform"
+      CreatedBy = "Terraform"
     })
   }
 }
@@ -234,11 +234,11 @@ module "vpces" {
 module "sns" {
   source = "./SNS"
 
-  environment               = local.env.environment
-  nwm_data_bucket           = module.s3-replication.buckets["nwm"].bucket
+  environment                = local.env.environment
+  nwm_data_bucket            = module.s3-replication.buckets["nwm"].bucket
   nwm_max_values_data_bucket = module.s3.buckets["fim"].bucket
-  rnr_max_flows_data_bucket = module.s3.buckets["rnr"].bucket
-  error_email_list          = local.env.sns_email_lists
+  rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
+  error_email_list           = local.env.sns_email_lists
 }
 
 # RDS
@@ -275,8 +275,8 @@ data "aws_db_instance" "egis_rds" {
 module "lambda_layers" {
   source = "./LAMBDA/layers"
 
-  environment        = local.env.environment
-  viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
+  environment       = local.env.environment
+  viz_environment   = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
   deployment_bucket = module.s3.buckets["deployment"].bucket
 }
 
@@ -284,40 +284,40 @@ module "lambda_layers" {
 module "viz_lambda_functions" {
   source = "./LAMBDA/viz_functions"
 
-  environment                   = local.env.environment
-  account_id                    = local.env.account_id
-  region                        = local.env.region
-  viz_authoritative_bucket      = module.s3.buckets["deployment"].bucket
-  nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
-  fim_data_bucket               = module.s3.buckets["deployment"].bucket
-  fim_output_bucket             = module.s3.buckets["fim"].bucket
-  max_values_bucket             = module.s3.buckets["fim"].bucket
-  rnr_data_bucket               = module.s3.buckets["rnr"].bucket
-  deployment_bucket             = module.s3.buckets["deployment"].bucket
-  viz_cache_bucket              = module.s3.buckets["fim"].bucket
-  fim_version                   = local.env.fim_version
-  lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-  sns_topics                    = module.sns.sns_topics
-  email_sns_topics              = module.sns.email_sns_topics
-  es_logging_layer              = module.lambda_layers.es_logging.arn
-  xarray_layer                  = module.lambda_layers.xarray.arn
-  pandas_layer                  = module.lambda_layers.pandas.arn
-  arcgis_python_api_layer       = module.lambda_layers.arcgis_python_api.arn
-  psycopg2_sqlalchemy_layer     = module.lambda_layers.psycopg2_sqlalchemy.arn
-  requests_layer                = module.lambda_layers.requests.arn
-  yaml_layer                    = module.lambda_layers.yaml.arn
-  viz_lambda_shared_funcs_layer = module.lambda_layers.viz_lambda_shared_funcs.arn
-  db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
-  nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
-  db_lambda_subnets             = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-  viz_db_host                   = module.rds-viz.rds-viz-processing.address
-  viz_db_name                   = local.env.viz_db_name
-  viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-  egis_db_host                  = data.aws_db_instance.egis_rds.address
-  egis_db_name                  = local.env.egis_db_name
-  egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_portal_password          = local.env.viz_ec2_hydrovis_egis_pass
-  dataservices_ip               = module.data-services.dataservices-ip
+  environment                    = local.env.environment
+  account_id                     = local.env.account_id
+  region                         = local.env.region
+  viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
+  nwm_data_bucket                = module.s3-replication.buckets["nwm"].bucket
+  fim_data_bucket                = module.s3.buckets["deployment"].bucket
+  fim_output_bucket              = module.s3.buckets["fim"].bucket
+  max_values_bucket              = module.s3.buckets["fim"].bucket
+  rnr_data_bucket                = module.s3.buckets["rnr"].bucket
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
+  viz_cache_bucket               = module.s3.buckets["fim"].bucket
+  fim_version                    = local.env.fim_version
+  lambda_role                    = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  sns_topics                     = module.sns.sns_topics
+  email_sns_topics               = module.sns.email_sns_topics
+  es_logging_layer               = module.lambda_layers.es_logging.arn
+  xarray_layer                   = module.lambda_layers.xarray.arn
+  pandas_layer                   = module.lambda_layers.pandas.arn
+  arcgis_python_api_layer        = module.lambda_layers.arcgis_python_api.arn
+  psycopg2_sqlalchemy_layer      = module.lambda_layers.psycopg2_sqlalchemy.arn
+  requests_layer                 = module.lambda_layers.requests.arn
+  yaml_layer                     = module.lambda_layers.yaml.arn
+  viz_lambda_shared_funcs_layer  = module.lambda_layers.viz_lambda_shared_funcs.arn
+  db_lambda_security_groups      = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  nat_sg_group                   = module.security-groups.hydrovis-nat-sg.id
+  db_lambda_subnets              = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  viz_db_host                    = module.rds-viz.rds-viz-processing.address
+  viz_db_name                    = local.env.viz_db_name
+  viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+  egis_db_host                   = data.aws_db_instance.egis_rds.address
+  egis_db_name                   = local.env.egis_db_name
+  egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
+  dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
 }
 
@@ -325,26 +325,27 @@ module "viz_lambda_functions" {
 module "step_functions" {
   source = "./StepFunctions"
 
-  lambda_role = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-  environment = local.env.environment
-  optimize_rasters_arn = module.viz_lambda_functions.optimize_rasters.arn
-  update_egis_data_arn = module.viz_lambda_functions.update_egis_data.arn
-  fim_data_prep_arn = module.viz_lambda_functions.fim_data_prep.arn
-  db_postprocess_sql_arn = module.viz_lambda_functions.db_postprocess_sql.arn
-  db_ingest_arn = module.viz_lambda_functions.db_ingest.arn
-  raster_processing_arn = module.viz_lambda_functions.raster_processing.arn
-  publish_service_arn = module.viz_lambda_functions.publish_service.arn
-  max_values_arn = module.viz_lambda_functions.max_values.arn
-  hand_fim_processing_arn = module.viz_lambda_functions.hand_fim_processing_arn.arn
+  lambda_role               = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  environment               = local.env.environment
+  optimize_rasters_arn      = module.viz_lambda_functions.optimize_rasters.arn
+  update_egis_data_arn      = module.viz_lambda_functions.update_egis_data.arn
+  fim_data_prep_arn         = module.viz_lambda_functions.fim_data_prep.arn
+  db_postprocess_sql_arn    = module.viz_lambda_functions.db_postprocess_sql.arn
+  db_ingest_arn             = module.viz_lambda_functions.db_ingest.arn
+  raster_processing_arn     = module.viz_lambda_functions.raster_processing.arn
+  publish_service_arn       = module.viz_lambda_functions.publish_service.arn
+  max_values_arn            = module.viz_lambda_functions.max_values.arn
+  hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing_arn.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
-  email_sns_topics              = module.sns.email_sns_topics
+  email_sns_topics          = module.sns.email_sns_topics
+  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id] 
 }
 
 # Simple Service Notifications
 module "eventbridge" {
   source = "./EventBridge"
 
-  scheduled_rules                = local.env.nwm_3_0_event_bridge_targets
+  scheduled_rules = local.env.nwm_3_0_event_bridge_targets
 }
 
 # MQ
@@ -433,7 +434,7 @@ module "monitoring" {
   account_id                    = local.env.account_id
   region                        = local.env.region
   opensearch_security_group_ids = [module.security-groups.opensearch-access.id]
-  data_subnet_ids               = [
+  data_subnet_ids = [
     module.vpc.subnet_hydrovis-sn-prv-data1a.id,
     module.vpc.subnet_hydrovis-sn-prv-data1b.id
   ]
@@ -449,16 +450,16 @@ module "monitoring" {
   execution_role_arn = module.iam-roles.role_hydrovis-ecs-task-execution.arn
 
   # LogIngest Module
-  ami_owner_account_id                 = local.env.ami_owner_account_id
-  logstash_instance_subnet_id          = module.vpc.subnet_hydrovis-sn-prv-app1a.id
-  logstash_instance_availability_zone  = module.vpc.subnet_hydrovis-sn-prv-app1a.availability_zone
-  logstash_instance_profile_name       = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
+  ami_owner_account_id                = local.env.ami_owner_account_id
+  logstash_instance_subnet_id         = module.vpc.subnet_hydrovis-sn-prv-app1a.id
+  logstash_instance_availability_zone = module.vpc.subnet_hydrovis-sn-prv-app1a.availability_zone
+  logstash_instance_profile_name      = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
   logstash_instance_security_group_ids = [
     module.security-groups.opensearch-access.id,
     module.security-groups.ssm-session-manager-sg.id
   ]
-  deployment_bucket                    = module.s3.buckets["deployment"].bucket
-  lambda_trigger_functions             = [
+  deployment_bucket = module.s3.buckets["deployment"].bucket
+  lambda_trigger_functions = [
     module.viz_lambda_functions.max_values.function_name,
     module.ingest_lambda_functions.hml_reciever.function_name,
     module.viz_lambda_functions.db_ingest.function_name
@@ -601,7 +602,7 @@ module "viz_ec2" {
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_values_data_bucket   = module.s3.buckets["fim"].bucket
+  nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
@@ -637,14 +638,14 @@ module "sagemaker" {
 module "sync_wrds_location_db" {
   source = "./SyncWrdsLocationDB"
 
-  environment               = local.env.environment
-  region                    = local.env.region
-  iam_role_arn              = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
-  email_sns_topics          = module.sns.email_sns_topics
-  requests_lambda_layer     = module.lambda_layers.requests.arn
-  rds_bastion_id            = module.rds-bastion.instance-id
-  test_data_services_id     = module.data-services.dataservices-test-instance-id
-  lambda_security_groups    = [module.security-groups.hydrovis-RDS.id]
-  lambda_subnets            = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
-  db_dumps_bucket           = module.s3.buckets["deployment"].bucket
+  environment            = local.env.environment
+  region                 = local.env.region
+  iam_role_arn           = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
+  email_sns_topics       = module.sns.email_sns_topics
+  requests_lambda_layer  = module.lambda_layers.requests.arn
+  rds_bastion_id         = module.rds-bastion.instance-id
+  test_data_services_id  = module.data-services.dataservices-test-instance-id
+  lambda_security_groups = [module.security-groups.hydrovis-RDS.id]
+  lambda_subnets         = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
+  db_dumps_bucket        = module.s3.buckets["deployment"].bucket
 }

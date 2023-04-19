@@ -198,38 +198,10 @@ data "cloudinit_config" "startup" {
   }
 }
 
-resource "aws_sfn_state_machine" "reboot_replace_route_ec2_step_function" {
-  name     = "reboot_replace_route_ec2_${var.environment}"
-  role_arn = var.iam_role_arn
+#############
+## Outputs ##
+#############
 
-  definition = <<EOF
-{
-  "Comment": "A description of my state machine",
-  "StartAt": "Reboot Replace and Route EC2",
-  "States": {
-    "Reboot Replace and Route EC2": {
-      "Type": "Task",
-      "End": true,
-      "Parameters": {
-        "InstanceIds": [
-          "${aws_instance.replace_and_route.id}"
-        ]
-      },
-      "Resource": "arn:aws:states:::aws-sdk:ec2:rebootInstances"
-    }
-  }
-}
-EOF
-}
-
-resource "aws_cloudwatch_event_rule" "daily_at_2330" {
-  name                = "daily_at_2330"
-  description         = "Fires every day at 23:30"
-  schedule_expression = "cron(30 23 * * ? *)"
-}
-
-resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
-  rule      = aws_cloudwatch_event_rule.daily_at_2330.name
-  arn       = aws_sfn_state_machine.reboot_replace_route_ec2_step_function.arn
-  role_arn  = var.iam_role_arn
+output "ec2" {
+  value = aws_instance.replace_and_route
 }

@@ -51,6 +51,35 @@ variable "email_sns_topics" {
   type        = map(any)
 }
 
+variable "aws_instances_to_reboot" {
+  type        = list(string)
+}
+
+################################################
+##     Reboot EC2 Instances Step Function     ##
+################################################
+
+resource "aws_sfn_state_machine" "reboot_ec2_instances_step_function" {
+    name     = "reboot_ec2_instances_${var.environment}"
+    role_arn = var.lambda_role
+
+    definition = templatefile("${path.module}/reboot_ec2_instances.json.tftpl", {
+        aws_instances_to_reboot = var.aws_instances_to_reboot
+    })
+}
+
+resource "aws_cloudwatch_event_rule" "daily_at_2330" {
+  name                = "daily_at_2330"
+  description         = "Fires every day at 23:30"
+  schedule_expression = "cron(30 23 * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
+  rule      = aws_cloudwatch_event_rule.daily_at_2330.name
+  arn       = aws_sfn_state_machine.reboot_ec2_instances_step_function.arn
+  role_arn  = var.lambda_role
+}
+
 ##################################################
 ##     Viz Process Schism FIM Step Function     ##
 ##################################################
@@ -136,4 +165,8 @@ output "viz_pipeline_step_function" {
 
 output "schism_fim_processing_step_function" {
   value = aws_sfn_state_machine.schism_fim_processing_step_function
+}
+
+output "reboot_ec2_instances_step_function" {
+  value = aws_sfn_state_machine.reboot_ec2_instances_step_function
 }

@@ -1,0 +1,14 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Reboot Replace and Route EC2",
+  "States": {
+    "Reboot Replace and Route EC2": {
+      "Type": "Task",
+      "End": true,
+      "Parameters": {
+        "InstanceIds": ${jsonencode(aws_instances_to_reboot)}
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:rebootInstances"
+    }
+  }
+}
