@@ -191,6 +191,14 @@ resource "null_resource" "viz_raster_processing_cluster" {
   }
 }
 
+data "aws_lambda_function" "viz_raster_processing" {
+  function_name = local.viz_raster_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_raster_processing_cluster
+  ]
+}
+
 ##############################
 ## OPTIMIZE RASTERS LAMBDA ##
 ##############################
@@ -289,6 +297,14 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name} --profile ${var.environment}"
   }
+}
+
+data "aws_lambda_function" "viz_optimize_rasters" {
+  function_name = local.viz_optimize_rasters_lambda_name
+
+  depends_on = [
+    null_resource.viz_optimize_rasters_cluster
+  ]
 }
 
 ################################
@@ -456,6 +472,15 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   }
 }
 
+data "aws_lambda_function" "viz_hand_fim_processing" {
+  function_name = local.viz_hand_fim_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_hand_fim_processing_cluster
+  ]
+}
+
+
 ################################
 ## SCHISM HUC PROCESSING LAMBDA ##
 ################################
@@ -611,18 +636,27 @@ resource "null_resource" "viz_schism_fim_processing_cluster" {
   }
 }
 
+data "aws_lambda_function" "viz_schism_fim_processing" {
+  function_name = local.viz_schism_fim_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_schism_fim_processing_cluster
+  ]
+}
+
+
 output "hand_fim_processing" {
-  value = local.viz_hand_fim_processing_lambda_name
+  value = data.aws_lambda_function.viz_hand_fim_processing
 }
 
 output "schism_fim_processing" {
-  value = local.viz_schism_fim_processing_lambda_name
+  value = data.aws_lambda_function.viz_schism_fim_processing
 }
 
 output "optimize_rasters" {
-  value = local.viz_optimize_rasters_lambda_name
+  value = data.aws_lambda_function.viz_optimize_rasters
 }
 
 output "raster_processing" {
-  value = local.viz_raster_processing_lambda_name
+  value = data.aws_lambda_function.viz_raster_processing
 }

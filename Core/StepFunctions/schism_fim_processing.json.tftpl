@@ -14,7 +14,7 @@
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "Parameters": {
-              "FunctionName": ${schism_fim_processing_arn},
+              "FunctionName": "${schism_fim_processing_arn}",
               "Payload.$": "$"
             },
             "Retry": [

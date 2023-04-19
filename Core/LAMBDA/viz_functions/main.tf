@@ -170,7 +170,7 @@ locals {
   service_suffix = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
   raster_output_prefix = "processing_outputs"
   ecr_repository_image_tag = "latest"
-  ingest_flow_threshold = .001
+  ingest_flow_threshold = 0.001
 
   initialize_pipeline_subscriptions = toset([
     "nwm_channel_ana",

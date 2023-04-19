@@ -335,7 +335,7 @@ module "step_functions" {
   raster_processing_arn     = module.viz_lambda_functions.raster_processing.arn
   publish_service_arn       = module.viz_lambda_functions.publish_service.arn
   max_values_arn            = module.viz_lambda_functions.max_values.arn
-  hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing_arn.arn
+  hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics          = module.sns.email_sns_topics
   aws_instances_to_reboot   = [module.rnr_ec2.ec2.id] 

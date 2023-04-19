@@ -196,6 +196,7 @@ data "cloudinit_config" "pipeline_setup" {
     content_type = "text/x-shellscript"
     filename     = "prc_setup.ps1"
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
+      VIZ_DATA_HASH                  = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
       Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
       EGIS_HOST                      = local.egis_host
       VIZ_ENVIRONMENT                = var.environment
@@ -286,12 +287,6 @@ resource "aws_instance" "viz_pipeline" {
 
   user_data                   = data.cloudinit_config.pipeline_setup.rendered
   user_data_replace_on_change = true
-
-  lifecycle {
-    replace_triggered_by = [
-      filemd5(data.archive_file.viz_pipeline_zip.output_path)
-    ]
-  }
 }
 
 
