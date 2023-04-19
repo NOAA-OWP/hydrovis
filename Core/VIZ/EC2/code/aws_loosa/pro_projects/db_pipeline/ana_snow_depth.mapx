@@ -33,9 +33,9 @@
       "CIMPATH=ana_snow_depth/vizprocessing_publish_ana_snow_depth.xml"
     ],
     "defaultExtent" : {
-      "xmin" : -14258754.8954144157,
+      "xmin" : -14513932.120643612,
       "ymin" : 2760395.72370361257,
-      "xmax" : -7039502.526796178,
+      "xmax" : -6784325.30156698078,
       "ymax" : 7870319.2109560268,
       "spatialReference" : {
         "wkid" : 102100,
@@ -176,13 +176,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 2,
-            "label" : "< 2 inches",
+            "label" : "< 2\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                182,
-                98,
-                100,
+                209,
+                243,
+                243.99610900878906,
                 100
               ]
             }
@@ -190,13 +190,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 4,
-            "label" : "2 - 4 inches",
+            "label" : "2 - 4\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                193,
-                63,
-                107,
+                119,
+                242,
+                246,
                 100
               ]
             }
@@ -204,13 +204,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 10,
-            "label" : "4 - 10 inches",
+            "label" : "4 - 10\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                210,
-                30,
-                152,
+                117,
+                200,
+                241,
                 100
               ]
             }
@@ -218,13 +218,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 20,
-            "label" : "10 - 20 inches",
+            "label" : "10 - 20\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                216,
-                15,
-                213,
+                97,
+                144,
+                238,
                 100
               ]
             }
@@ -232,13 +232,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 40,
-            "label" : "20 - 40 inches",
+            "label" : "20 - 40\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                148,
-                9,
-                222,
+                84,
+                81,
+                227,
                 100
               ]
             }
@@ -246,7 +246,7 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 60,
-            "label" : "40 - 60 inches",
+            "label" : "40 - 60\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
@@ -260,13 +260,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 100,
-            "label" : "60 - 100 inches",
+            "label" : "60 - 100\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                84,
-                81,
-                227,
+                148,
+                9,
+                222,
                 100
               ]
             }
@@ -274,13 +274,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 200,
-            "label" : "100 - 200 inches",
+            "label" : "100 - 200\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                97,
-                144,
-                238,
+                216,
+                15,
+                213,
                 100
               ]
             }
@@ -288,13 +288,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 300,
-            "label" : "200 - 300 inches",
+            "label" : "200 - 300\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                117,
-                200,
-                241,
+                210,
+                30,
+                152,
                 100
               ]
             }
@@ -302,13 +302,13 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 400,
-            "label" : "300 - 400 inches",
+            "label" : "300 - 400\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                119,
-                242,
-                246,
+                193,
+                63,
+                107,
                 100
               ]
             }
@@ -320,9 +320,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                209,
-                243,
-                243.99610900878906,
+                182,
+                98,
+                100,
                 100
               ]
             }
@@ -357,7 +357,7 @@
         "field" : "Value",
         "hillshadeZFactor" : 1,
         "minimumBreak" : 0.0039370097219944,
-        "showInAscendingOrder" : false,
+        "showInAscendingOrder" : true,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
           "alignmentOption" : "esriAlignRight",

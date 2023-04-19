@@ -34,9 +34,9 @@
       "CIMPATH=ana_soil_moisture/vizprocessing_publish_ana_soil_moisture.xml"
     ],
     "defaultExtent" : {
-      "xmin" : -15617261.8857680373,
+      "xmin" : -15958762.7505056355,
       "ymin" : 1489604.4249374494,
-      "xmax" : -5955816.10263550375,
+      "xmax" : -5614315.23789790459,
       "ymax" : 8328158.64180492051,
       "spatialReference" : {
         "wkid" : 102100,
@@ -126,8 +126,10 @@
       "name" : "Soil Saturation",
       "uRI" : "CIMPATH=ana_soil_moisture/ana_soil_moisture_tif.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant"
+        "type" : "TimeInstant",
+        "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/0419b74f62fe3bf1fe86d7f06cf0c677.xml",
       "useSourceMetadata" : true,
       "description" : "ana_soil_moisture.tif",
       "layerElevation" : {
@@ -173,9 +175,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                5,
-                48,
-                97,
+                103,
+                0,
+                31,
                 100
               ]
             }
@@ -184,104 +186,6 @@
             "type" : "CIMRasterClassBreak",
             "upperBound" : 0.20000000000000001,
             "label" : "10  –  20 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                36.778209686279297,
-                107,
-                174.55641174316406,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.29999999999999999,
-            "label" : "20  –  30 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                84.556419372558594,
-                158.11283874511719,
-                201,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.40000000000000002,
-            "label" : "30  –  40 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                167,
-                207.66535949707031,
-                228,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.5,
-            "label" : "40  –  50 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                225.88716125488281,
-                237,
-                243.11283874511719,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.59999999999999998,
-            "label" : "50  –  60 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                250.33462524414063,
-                231.44357299804688,
-                220.33462524414063,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.69999999999999996,
-            "label" : "60  –  70 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                247,
-                183,
-                153,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.80000000000000004,
-            "label" : "70  –  80 %",
-            "color" : {
-              "type" : "CIMRGBColor",
-              "values" : [
-                220.66537475585938,
-                111.33463287353516,
-                88.778205871582031,
-                100
-              ]
-            }
-          },
-          {
-            "type" : "CIMRasterClassBreak",
-            "upperBound" : 0.90000000000000002,
-            "label" : "80  –  90 %",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
@@ -294,14 +198,112 @@
           },
           {
             "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.29999999999999999,
+            "label" : "20  –  30 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                220.66537475585938,
+                111.33463287353516,
+                88.778205871582031,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.40000000000000002,
+            "label" : "30  –  40 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                247,
+                183,
+                153,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.5,
+            "label" : "40  –  50 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                250.33462524414063,
+                231.44357299804688,
+                220.33462524414063,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.59999999999999998,
+            "label" : "50  –  60 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                225.88716125488281,
+                237,
+                243.11283874511719,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.69999999999999996,
+            "label" : "60  –  70 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                167,
+                207.66535949707031,
+                228,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.80000000000000004,
+            "label" : "70  –  80 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                84.556419372558594,
+                158.11283874511719,
+                201,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.90000000000000002,
+            "label" : "80  –  90 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                36.778209686279297,
+                107,
+                174.55641174316406,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
             "upperBound" : 1,
             "label" : "90  –  100 %",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                103,
-                0,
-                31,
+                5,
+                48,
+                97,
                 100
               ]
             }
@@ -662,7 +664,7 @@
         "field" : "Value",
         "hillshadeZFactor" : 1,
         "minimumBreak" : 0.10000000149012001,
-        "showInAscendingOrder" : false,
+        "showInAscendingOrder" : true,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
           "alignmentOption" : "esriAlignRight",
@@ -674,6 +676,11 @@
     }
   ],
   "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/0419b74f62fe3bf1fe86d7f06cf0c677.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230419</CreaDate><CreaTime>15523500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/eb8dce9a80c4a368940b9302a29c82e5.xml",

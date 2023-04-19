@@ -34,10 +34,10 @@
       "CIMPATH=ana_soil_moisture_ice_content/vizprocessing_publish_ana_soil_moisture_ice_content.xml"
     ],
     "defaultExtent" : {
-      "xmin" : -15459343.5088251643,
-      "ymin" : 1424411.76479305048,
-      "xmax" : -5665145.03554271907,
-      "ymax" : 8356930.84876251873,
+      "xmin" : -15805536.7518568709,
+      "ymin" : 1424411.76479305,
+      "xmax" : -5318951.79251101334,
+      "ymax" : 8356930.84876251966,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -175,9 +175,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                220,
                 0,
-                219,
+                227,
+                224,
                 100
               ]
             }
@@ -189,9 +189,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
-                169,
                 0,
-                230,
+                129,
+                215,
                 100
               ]
             }
@@ -217,9 +217,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
+                169,
                 0,
-                129,
-                215,
+                230,
                 100
               ]
             }
@@ -231,9 +231,9 @@
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
+                220,
                 0,
-                227,
-                224,
+                219,
                 100
               ]
             }
@@ -268,7 +268,7 @@
         "field" : "Value",
         "hillshadeZFactor" : 1,
         "minimumBreak" : 0.01,
-        "showInAscendingOrder" : false,
+        "showInAscendingOrder" : true,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
           "alignmentOption" : "esriAlignLeft",
@@ -296,7 +296,7 @@
   "tableDefinitions" : [
     {
       "type" : "CIMStandaloneTable",
-      "name" : "ana soil moisture ice content - Service Metadata",
+      "name" : "Service Metadata",
       "uRI" : "CIMPATH=ana_soil_moisture_ice_content/vizprocessing_publish_ana_soil_moisture_ice_content.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
