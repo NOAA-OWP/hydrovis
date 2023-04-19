@@ -242,6 +242,14 @@ data "cloudinit_config" "pipeline_setup" {
 ## VIZ PIPELINE ##
 ##################
 
+data "archive_file" "viz_pipeline_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/../../VIZ/EC2/code"
+
+  output_path = "${path.module}/viz_pipeline_${var.environment}.zip"
+}
+
 resource "aws_instance" "viz_pipeline" {
   ami                    = data.aws_ami.windows.id
   iam_instance_profile   = var.ec2_instance_profile_name
@@ -278,6 +286,12 @@ resource "aws_instance" "viz_pipeline" {
 
   user_data                   = data.cloudinit_config.pipeline_setup.rendered
   user_data_replace_on_change = true
+
+  lifecycle {
+    replace_triggered_by = [
+      filemd5(data.archive_file.viz_pipeline_zip.output_path)
+    ]
+  }
 }
 
 
