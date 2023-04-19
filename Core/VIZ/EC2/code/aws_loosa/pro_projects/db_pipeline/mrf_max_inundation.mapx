@@ -204,6 +204,10 @@
       },
       {
         "type" : "CIMScale",
+        "value" : 400000
+      },
+      {
+        "type" : "CIMScale",
         "value" : 500000
       },
       {
@@ -5872,6 +5876,7 @@
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
       },
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : false,
       "displayCacheType" : "Permanent",
@@ -12128,6 +12133,7 @@
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
       },
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : false,
       "displayCacheType" : "Permanent",
@@ -18385,6 +18391,7 @@
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
       },
       "layerType" : "Operational",
+      "minScale" : 400000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",

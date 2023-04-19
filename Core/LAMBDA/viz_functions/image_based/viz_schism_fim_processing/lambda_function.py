@@ -78,7 +78,6 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     depth_key = f'{output_prefix}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
     coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
-    masks_root = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/masks'
     temp_folder = tempfile.mkdtemp()
     bounds = None
 
@@ -115,7 +114,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
         return
 
     # apply masks
-    masked_grid = mask_fim(wse_grid, masks_root, domain, temp_folder)
+    masked_grid = mask_fim(wse_grid, domain, temp_folder)
     
     print(f"Uploading depth grid to AWS at s3://{output_bucket}/{depth_key}")
     S3.upload_file(masked_grid, output_bucket, depth_key)
@@ -404,17 +403,16 @@ class Mask:
             rst, geoms, crop=self.crop, invert=self.invert, nodata=NO_DATA)
         return out_image, out_transform
 
-def mask_fim(input_fim, masks_root, domain, temp_folder):
+def mask_fim(input_fim, domain, temp_folder):
     out_meta = {}
+    masks_prefix = f'{INPUTS_PREFIX}/masks/{domain}'
+
+    result = S3.list_objects(Bucket=INPUTS_BUCKET, Prefix=masks_prefix)
+    mask_prefixes = result.get('Contents')
+    mask_uris = [f"zip+s3://{INPUTS_BUCKET}/{m['Key']}" for m in mask_prefixes]
 
     # list of mask locations and "interior" or "exterior" (see Mask Class)
-    mask_list = [
-        Mask(f'{masks_root}/mask_water_polygon_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_nwm_lakes_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_levee_protected_area_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_schism_boundary_{domain}.zip', "exterior"),
-        Mask(f'{masks_root}/mask_us_boundary.zip', "exterior")
-    ]
+    mask_list = [Mask(uri, re.search('[inex]{2}terior', uri)[0]) for uri in mask_uris]
 
     current_raster = input_fim
     for mask_number, mask in enumerate(mask_list, 1):

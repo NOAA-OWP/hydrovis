@@ -74,8 +74,8 @@ class AnaAnomaly(AWSEgisPublishingProcess):
 
         self._log.info("Adding latest data")
         df['latest_flow'] = (ds_latest.streamflow * 35.3147).round(2)
-        df['reference_time'] = latest_date.strftime("%Y-%m-%d %H:%M UTC")
-        df['valid_time'] = latest_date.strftime("%Y-%m-%d %H:%M UTC")
+        df['reference_time'] = latest_date.strftime("%Y-%m-%d %H:%M:%S UTC")
+        df['valid_time'] = latest_date.strftime("%Y-%m-%d %H:%M:%S UTC")
 
         self._log.info("Removing unnecessary rows")
         df = df.loc[~((df['average_flow_7day'] == 0) & (df['average_flow_14day'] == 0) & (df['prcntle_95'] == 0))]

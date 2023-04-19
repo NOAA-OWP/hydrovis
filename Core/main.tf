@@ -549,6 +549,7 @@ module "rnr_ec2" {
   nomads_url                     = local.env.rnr_nomads_url
   s3_url                         = local.env.rnr_s3_url
   rnr_versions                   = local.env.rnr_versions
+  iam_role_arn                   = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
 }
 
 module "egis_license_manager" {
