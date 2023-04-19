@@ -1,19 +1,15 @@
 import sys
-import os
 sys.path.append("../utils")
-from lambda_function import open_raster, sum_rasters, create_raster, upload_raster
+from lambda_function import open_raster, create_raster, upload_raster
 
-def main(service_data, reference_time):
+def main(product_name, data_bucket, input_files, reference_time):
     # assign variables
-    bucket = service_data["bucket"]
-    input_files = service_data["input_files"]
-    service_name = service_data['service']
     reversed_input_files = sorted(input_files, reverse=True)
     variable = "SNEQV"
 
     # get the two land files from today and yesterday (24 hours apart)
-    current_snow, crs = open_raster(bucket, reversed_input_files[0], variable)
-    past_snow, crs = open_raster(bucket, reversed_input_files[1], variable)
+    current_snow, crs = open_raster(data_bucket, reversed_input_files[0], variable)
+    past_snow, crs = open_raster(data_bucket, reversed_input_files[1], variable)
 
     current_snow = current_snow.sel(time = current_snow.time[0])
     past_snow = past_snow.sel(time = past_snow.time[0])
@@ -32,7 +28,7 @@ def main(service_data, reference_time):
 
     # finalize raster
     local_raster = create_raster(make_snow_difference, crs)
-    raster_name = service_name
-    uploaded_raster = upload_raster(reference_time, local_raster, service_name, raster_name)
+    raster_name = product_name
+    uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
 
     return [uploaded_raster]
