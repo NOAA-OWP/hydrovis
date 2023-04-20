@@ -20,8 +20,9 @@ from aws_loosa.processing_pipeline.utils.process import PipelineProcess
 from aws_loosa.processing_pipeline.cli import validation
 
 from aws_loosa.consts import egis as consts, paths,  monitoring as mon_consts, TOTAL_PROCESSES_ENV_VAR
-from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
-from aws_loosa.utils.shared_funcs import add_update_time, add_ref_time, update_field_name, get_db_values
+from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH, MAPX_DIR, EMPTY_PRO_PROJECT_DIR
+from aws_loosa.utils.shared_funcs import add_update_time, add_ref_time, update_field_name
+from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata
 
 import arcgis
 import arcpy
@@ -99,15 +100,27 @@ class AWSEgisPublishingProcess(PipelineProcess):
         total_processes = os.environ.get(TOTAL_PROCESSES_ENV_VAR, 0)
         self._log.info(f"{total_processes} processes are expected to be running.")
 
-        df_services = get_db_values("admin.services", ["*"]).set_index("service")
+        services_data = get_service_metadata()
+        service_data = [item for item in services_data if item['service'] == self.service_name]
+        if not service_data:
+            raise(f"Metadata not found for {self.service_name}")
 
-        self.server_name = df_services.loc[self.service_name, "egis_server"]
-        self.folder_name = df_services.loc[self.service_name, "egis_folder"]
-        self.enable_feature_service = df_services.loc[self.service_name, "feature_service"]
-        self.public_service = df_services.loc[self.service_name, "public_service"]
-        self.tags = df_services.loc[self.service_name, "tags"]
-        self.summary = df_services.loc[self.service_name, "summary"]
-        self.item_credits = df_services.loc[self.service_name, "credits"]
+        service_data = service_data[0]
+
+        if self.service_name.startswith("ana"):
+            self.configuration = "analysis_assim"
+        elif self.service_name.startswith("srf"):
+            self.configuration = "short_range"
+        elif self.service_name.startswith("mrf"):
+            self.configuration = "medium_range"
+
+        self.server_name = service_data["egis_server"]
+        self.folder_name = service_data["egis_folder"]
+        self.enable_feature_service = service_data["feature_service"]
+        self.public_service = service_data["public_service"]
+        self.tags = service_data["tags"]
+        self.summary = service_data["summary"]
+        self.item_credits = service_data["credits"]
         experimental_addition = """
             <br><br>The NWS is accepting comments through December 31, 2022 on the Experimental NWC Visualization Services. 
             This service is one of many Experimental NWC Visualization Services. 
@@ -117,7 +130,7 @@ class AWSEgisPublishingProcess(PipelineProcess):
             <br><br>Link to metadata: https://nws.weather.gov/products/PDD/SDD_ExpNWCVisualizationServices_2022.pdf
         """
 
-        self.description =  df_services.loc[self.service_name, "description"] 
+        self.description =  service_data["description"] 
         if self.public_service:
             self.description = self.description + experimental_addition
 
@@ -137,7 +150,7 @@ class AWSEgisPublishingProcess(PipelineProcess):
                 self.service_name)
 
         if not self.proproject_location:
-            self.proproject_location = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "ec2", f"{self.service_name}.mapx")
+            self.proproject_location = os.path.join(MAPX_DIR, self.configuration, f"{self.service_name}.mapx")
 
         # DYNAMIC LOCATIONS
         if not self.cache_location:
@@ -694,9 +707,8 @@ class AWSEgisPublishingProcess(PipelineProcess):
             if not os.path.exists(sd_folder):
                 os.makedirs(sd_folder)
 
-            mapx_dpath = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "ec2")
-            baseline_aprx_path = os.path.join(__file__.split("aws_loosa")[0], "aws_loosa", "pro_projects", "Empty_Project.aprx")
-            mapx_fpath = os.path.join(mapx_dpath, f"{self.service_name}.mapx")
+            baseline_aprx_path = os.path.join(EMPTY_PRO_PROJECT_DIR, "Empty_Project.aprx")
+            mapx_fpath = self.proproject_location
 
             if self.service_type == 'MapService':
                 temp_aprx = arcpy.mp.ArcGISProject(baseline_aprx_path)

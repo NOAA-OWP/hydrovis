@@ -11,7 +11,11 @@ NWM_MAX_VALUES_DATA_BUCKET = os.environ.get('NWM_MAX_VALUES_DATA_BUCKET')
 # REPOSITORY PATHS
 AWS_LOOSA_DIR = os.path.dirname(aws_loosa.__file__)
 PIPELINES_DIR = os.path.join(AWS_LOOSA_DIR, 'pipelines')
-PRO_PROJECT_DIR = os.path.join(AWS_LOOSA_DIR, 'pro_projects')
+VISUALIZATIONS_DIR = os.path.dirname(AWS_LOOSA_DIR)
+CODE_SOURCE_DIR = os.path.dirname(VISUALIZATIONS_DIR)
+HYDROVIS_DIR = os.path.dirname(CODE_SOURCE_DIR)
+MAPX_DIR = os.path.join(HYDROVIS_DIR, 'Core', 'LAMBDA', 'viz_functions', 'viz_publish_service', 'services')
+EMPTY_PRO_PROJECT_DIR = os.path.join(AWS_LOOSA_DIR, 'utils')
 
 # Connection Files
 CONNECTION_FILES_DIR = f"{PUBLISHED_ROOT}\\connection_files"

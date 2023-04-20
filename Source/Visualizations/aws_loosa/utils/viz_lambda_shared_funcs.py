@@ -7,7 +7,7 @@ import re
 import urllib.parse
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
-from aws_loosa.consts.paths import AWS_LOOSA_DIR
+from aws_loosa.consts.paths import AWS_LOOSA_DIR, MAPX_DIR
 import yaml
 
 
@@ -453,12 +453,12 @@ def get_service_metadata():
     """
     all_service_metadata = []
 
-    core_dir = get_dir(AWS_LOOSA_DIR, "hydrovis")
-    service_metadata_dir = os.path.join(core_dir, "Core", "LAMBDA", "viz_functions", "viz_publish_service", "services")
-
-    for configuration in os.listdir(service_metadata_dir):
-        configuration_service_dir = os.path.join(service_metadata_dir, configuration)
+    for configuration in os.listdir(MAPX_DIR):
+        configuration_service_dir = os.path.join(MAPX_DIR, configuration)
         for service in os.listdir(configuration_service_dir):
+            if not service.endswith(".yml"):
+                continue
+
             service_yml = os.path.join(configuration_service_dir, service)
 
             service_stream = open(service_yml, 'r')

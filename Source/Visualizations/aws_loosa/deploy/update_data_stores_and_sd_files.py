@@ -8,7 +8,7 @@ import re
 import boto3
 import xml.dom.minidom as DOM
 
-from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH
+from aws_loosa.consts.paths import HYDROVIS_S3_CONNECTION_FILE_PATH, MAPX_DIR
 from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata
 
 s3 = boto3.resource('s3')
@@ -98,9 +98,8 @@ def update_db_sd_files():
     if not os.path.exists(sd_folder):
         os.makedirs(sd_folder)
 
-    mapx_dpath = os.path.join(paths.PRO_PROJECT_DIR, "db_pipeline")
     baseline_aprx_path = os.path.join(paths.PRO_PROJECT_DIR, "Empty_Project.aprx")
-    mapx_fpaths = [os.path.join(mapx_dpath, file) for file in os.listdir(mapx_dpath)]
+    mapx_fpaths = [os.path.join(MAPX_DIR, file) for file in os.listdir(MAPX_DIR) if file.endswith(".mapx")]
 
     services_data = get_service_metadata()
 
