@@ -267,6 +267,15 @@
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
+              },
+              {
+                "ErrorEquals": [
+                  "MissingS3FileException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 120,
+                "MaxAttempts": 35,
+                "Comment": "Missing S3 File"
               }
             ],
             "Next": "Map",
