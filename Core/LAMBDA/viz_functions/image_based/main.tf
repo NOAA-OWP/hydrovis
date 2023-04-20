@@ -85,12 +85,26 @@ locals {
 ## RASTER PROCESSING LAMBDA ##
 ##############################
 
+resource "local_file" "viz_classes_rp" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_raster_processing/viz_classes.py"
+}
+
+resource "local_file" "viz_lambda_shared_funcs_rp" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_lambda_shared_funcs.py")
+  filename       = "${path.module}/viz_raster_processing/viz_lambda_shared_funcs.py"
+}
+
 data "archive_file" "raster_processing_zip" {
   type = "zip"
 
   source_dir = "${path.module}/viz_raster_processing"
 
   output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
+
+  depends_on = [
+    local_file.viz_classes_rp, viz_lambda_shared_funcs_rp
+  ]
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
@@ -311,6 +325,11 @@ data "aws_lambda_function" "viz_optimize_rasters" {
 ## HAND HUC PROCESSING LAMBDA ##
 ################################
 
+resource "local_file" "viz_classes_hf" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_hand_fim_processing/viz_classes.py"
+}
+
 data "archive_file" "hand_fim_processing_zip" {
   type = "zip"
 
@@ -459,6 +478,10 @@ resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
     type            = "S3"
     location        = "${aws_s3_object.hand_fim_processing_zip_upload.bucket}/${aws_s3_object.hand_fim_processing_zip_upload.key}"
   }
+
+  depends_on = [
+    local_file.viz_classes_hf
+  ]
 }
 
 resource "null_resource" "viz_hand_fim_processing_cluster" {
@@ -481,9 +504,14 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 }
 
 
-################################
+##################################
 ## SCHISM HUC PROCESSING LAMBDA ##
-################################
+##################################
+
+resource "local_file" "viz_classes_sf" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_schism_fim_processing/viz_classes.py"
+}
 
 data "archive_file" "schism_processing_zip" {
   type = "zip"
@@ -623,6 +651,10 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
     type            = "S3"
     location        = "${aws_s3_object.schism_zip_upload.bucket}/${aws_s3_object.schism_zip_upload.key}"
   }
+
+  depends_on = [
+    local_file.viz_classes_sf
+  ]
 }
 
 resource "null_resource" "viz_schism_fim_processing_cluster" {
