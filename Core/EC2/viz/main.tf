@@ -246,7 +246,7 @@ data "cloudinit_config" "pipeline_setup" {
 data "archive_file" "viz_pipeline_zip" {
   type = "zip"
 
-  source_dir = "${path.module}/../../VIZ/EC2/code"
+  source_dir = "${path.module}/../../../Source/Visualizations"
 
   output_path = "${path.module}/viz_pipeline_${var.environment}.zip"
 }

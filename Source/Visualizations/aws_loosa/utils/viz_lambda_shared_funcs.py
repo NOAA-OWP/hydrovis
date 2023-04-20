@@ -453,8 +453,8 @@ def get_service_metadata():
     """
     all_service_metadata = []
 
-    core_dir = get_dir(AWS_LOOSA_DIR, "core")
-    service_metadata_dir = os.path.join(core_dir, "LAMBDA", "viz_functions", "viz_publish_service", "services")
+    core_dir = get_dir(AWS_LOOSA_DIR, "hydrovis")
+    service_metadata_dir = os.path.join(core_dir, "Core", "LAMBDA", "viz_functions", "viz_publish_service", "services")
 
     for configuration in os.listdir(service_metadata_dir):
         configuration_service_dir = os.path.join(service_metadata_dir, configuration)

@@ -90,7 +90,7 @@ if (Test-Path -Path $USER_PYTHON) {
 } 
 
 $VIZ_DIR="C:\Users\$SERVICE_ACCOUNT\NWC\viz"
-$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Core\VIZ\EC2\code"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\VisualizationCode"
 $PIPELINES_CONFIG = "$AWS_SERVICE_REPO\aws_loosa\deploy\pipelines_config.yml"
 $NSSM = "C:\Programs\nssm.exe"
 
