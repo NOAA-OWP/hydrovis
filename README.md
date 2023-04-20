@@ -1,4 +1,4 @@
-﻿# HydroViz Development & Operations of Infrastructure as Code
+﻿# HydroVIS Development & Operations of Infrastructure as Code
 
 This repository should contain all the information about the system, to ensure that any change  (source code, documentation, policies, users etc.) is tracked.
 
@@ -17,7 +17,7 @@ In order to use this repository, you need to do the following:
 
 # Developing new features
 
-The workflow for developing new features in Hydrovis is as follows:
+The workflow for developing new features in HydroVIS is as follows:
 
  - Create a new feature branch from the existing `uat` branch.
  - Copy relevant resources from the `Core` folder into the `Dev` folder and/or use the existing `Dev/main.tf` as a template for a new feature module.
