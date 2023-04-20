@@ -238,7 +238,7 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
 }
 
 LogWrite "INSTALLING AWS SERVICE REPO"
-$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Core\VIZ\EC2\code"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Source\Visualizations"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
