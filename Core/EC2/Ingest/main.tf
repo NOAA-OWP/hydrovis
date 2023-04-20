@@ -85,8 +85,8 @@ locals {
 resource "aws_s3_object" "owp_hml_ingester" {
   bucket = var.deployment_data_bucket
   key    = "ingest/owp-hml-ingester.tar.gz"
-  source = "${path.module}/../../../Source/RnR/owp-hml-ingester.tar.gz"
-  source_hash = filemd5("${path.module}/../../../Source/RnR/owp-hml-ingester.tar.gz")
+  source = "${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz"
+  source_hash = filemd5("${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz")
 }
 
 #################
