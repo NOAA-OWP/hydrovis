@@ -340,7 +340,7 @@ resource "aws_lambda_function" "viz_max_values" {
 data "archive_file" "initialize_pipeline_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_initialize_pipeline/lambda_function.py"
+  source_dir = "${path.module}/viz_initialize_pipeline"
 
   output_path = "${path.module}/viz_initialize_pipeline_${var.environment}.zip"
 }
@@ -679,7 +679,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_update_egis_data_destina
 data "archive_file" "publish_service_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_publish_service/lambda_function.py"
+  source_dir = "${path.module}/viz_publish_service"
 
   output_path = "${path.module}/viz_publish_service_${var.environment}.zip"
 }
