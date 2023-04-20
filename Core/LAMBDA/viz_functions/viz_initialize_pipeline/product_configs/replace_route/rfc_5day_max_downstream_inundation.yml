@@ -1,12 +1,7 @@
 product: rfc_5day_max_downstream_inundation
-configuration: rfc
+configuration: replace_route
 product_type: "fim"
 run: true
-run_times:
-  - '*:00'
-  - '*:15'
-  - '*:30'
-  - '*:45'
 
 ingest_files:
     - file_format: max_flows/replace_route/{{datetime:%Y%m%d}}/rnr_{{datetime:%H}}_max_flows.csv

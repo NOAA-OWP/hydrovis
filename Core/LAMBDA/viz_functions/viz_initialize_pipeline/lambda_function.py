@@ -285,7 +285,13 @@ class configuration:
     @classmethod
     def from_s3_file(cls, s3_file):
         filename = s3_file.key
-        if 'max_stage' in filename:
+        if 'max_flows' in filename:
+            matches = re.findall(r"max_flows/(.*)/(\d{8})/\D*_(\d+day_)?(\d{2})_max_flows.*", filename)[0]
+            date = matches[1]
+            hour = matches[3]
+            configuration_name = matches[0]
+            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
+        elif 'max_stage' in filename:
             matches = re.findall(r"max_stage/(.*)/(\d{8})/(\d{2})_(\d{2})_ahps_(.*).csv", filename)[0]
             date = matches[1]
             hour = matches[2]
