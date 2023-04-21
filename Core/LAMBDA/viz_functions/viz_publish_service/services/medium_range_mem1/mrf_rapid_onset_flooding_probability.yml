@@ -1,0 +1,20 @@
+service: mrf_rapid_onset_flooding_probability
+summary: Medium-Range Rapid Onset Flooding Probability Forecast
+description: Depicts the probability of forecast rapid onset flooding over the next 
+  10 days using ensembles from the medium-range configuration of the National Water 
+  Model (NWM) over the contiguous U.S. Shown are reaches that are expected to have 
+  flow at or above high water thresholds on Day 1, Day 2, Day 3, Days 4-5, and Days 
+  1-5 using the 7 ensemble members of the medium-range forecast. Reaches are colored 
+  by the probability that they will meet or exceed rapid onset conditions on Day 1, 
+  Day 2, Day 3, Days 4-5, and Days 1-5. Probabilities are computed as the % agreement 
+  across the 7 ensemble members, equally weighted. Hotspots show average 1-5 day rapid 
+  onset flooding probability, weighted by reach length, for USGS HUC8 basins with 
+  greater than 10% of NWM feature length meeting rapid onset criteria in the next 5 
+  days. High water thresholds (regionally varied) were derived using the 40-year NWM 
+  v2.1 reanalysis simulation. Updated every 6 hours.
+tags: medium, range, forecast, streamflow, rapid, onset, flood, probability, national, water, model, nwm
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

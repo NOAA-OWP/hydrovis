@@ -1,0 +1,10 @@
+service: ana_24hr_snow_melt
+summary: 24-Hour Snow Melt Analysis
+description: Depicts snow melt over the past 24 hours derived from the operational 
+  National Water Model (NWM) analysis and assimilation. Updated daily.
+tags: national, water, model, nwm, snow, melt, ana
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false
