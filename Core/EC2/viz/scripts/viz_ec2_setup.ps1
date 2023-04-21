@@ -280,10 +280,6 @@ if ($EXISTING_PUBLISHED_FLAGS) {
     aws s3 rm $FLAGS_ROOT --recursive
 }
 
-LogWrite "Kicking of viz lambdas"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\kick_off_lambdas.py"
-
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
 
