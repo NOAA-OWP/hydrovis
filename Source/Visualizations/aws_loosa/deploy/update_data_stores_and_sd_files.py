@@ -9,7 +9,7 @@ import boto3
 import xml.dom.minidom as DOM
 
 from aws_loosa.consts import paths
-from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata
+from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata, get_mapx_files
 
 s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')
@@ -86,9 +86,11 @@ def create_sde_file():
 
 
 def update_db_sd_files():
+    print("Updating mapx files and creating SD files")
     sd_folder = os.path.join(paths.AUTHORITATIVE_ROOT, "sd_files")
     deployment_bucket = os.environ['DEPLOYMENT_DATA_BUCKET']
 
+    print("Creating connection string to DB")
     conn_str = arcpy.management.CreateDatabaseConnectionString(
         "POSTGRESQL", os.environ['EGIS_DB_HOST'], username=os.environ['EGIS_DB_USERNAME'],
         password=os.environ['EGIS_DB_PASSWORD'], database=os.environ['EGIS_DB_DATABASE']
@@ -99,8 +101,8 @@ def update_db_sd_files():
         os.makedirs(sd_folder)
 
     baseline_aprx_path = os.path.join(paths.EMPTY_PRO_PROJECT_DIR, "Empty_Project.aprx")
-    mapx_fpaths = [os.path.join(paths.MAPX_DIR, file) for file in os.listdir(paths.MAPX_DIR) if file.endswith(".mapx")]
 
+    mapx_fpaths = get_mapx_files()
     services_data = get_service_metadata()
 
     for mapx_fpath in mapx_fpaths:
@@ -137,7 +139,11 @@ def update_db_sd_files():
 
 def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     sd_service_name = f"{service_name}{consts.SERVICE_NAME_TAG}"
-    sd_file = f"C:\\Users\\arcgis\\sd_creation\\{service_name}"
+    sd_creation_folder = "C:\\Users\\arcgis\\sd_creation"
+    sd_file = os.path.join(sd_creation_folder, service_name)
+
+    if not os.path.exists(sd_creation_folder):
+        os.makedirs(sd_creation_folder)
 
     if os.path.exists(sd_file):
         print(f"SD file already created for {service_name}")
