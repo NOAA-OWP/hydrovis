@@ -488,7 +488,7 @@
   "tableDefinitions" : [
     {
       "type" : "CIMStandaloneTable",
-      "name" : "ana 24hr snow melt - Service Metadata",
+      "name" : "Service Metadata",
       "uRI" : "CIMPATH=past_24_hour_snow_melt/vizprocessing_publish_ana_24hr_snow_melt.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
