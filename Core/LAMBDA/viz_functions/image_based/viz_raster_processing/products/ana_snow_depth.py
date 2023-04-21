@@ -7,10 +7,11 @@ def main(product_name, data_bucket, input_files, reference_time):
 
     data_temp, crs = open_raster(data_bucket, input_files[0], variable)
     data_nan = data_temp.where(data_temp != -99990000)
-    data = (data_nan * 39.3701)/1000  #Convert m to in
+    data = (data_nan * 39.3701)/10000  #Convert m to in
     data = data.round(2)
 
     local_raster = create_raster(data, crs)
-    uploaded_raster = upload_raster(reference_time, local_raster, product_name, product_name)
+    raster_name = product_name
+    uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
 
     return [uploaded_raster]
