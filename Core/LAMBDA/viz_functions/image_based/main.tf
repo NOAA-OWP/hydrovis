@@ -103,7 +103,8 @@ data "archive_file" "raster_processing_zip" {
   output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
 
   depends_on = [
-    local_file.viz_classes_rp, viz_lambda_shared_funcs_rp
+    local_file.viz_classes_rp,
+    local_file.viz_lambda_shared_funcs_rp
   ]
 }
 
