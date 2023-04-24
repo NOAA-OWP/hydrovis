@@ -55,6 +55,10 @@ resource "aws_vpc_endpoint" "ec2messages" {
   ]
   vpc_endpoint_type = "Interface"
   vpc_id            = var.vpc_main_id
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-ec2messages"
+  }
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -66,6 +70,10 @@ resource "aws_vpc_endpoint" "s3" {
   service_name      = "com.amazonaws.${var.region}.s3"
   vpc_endpoint_type = "Gateway"
   vpc_id            = var.vpc_main_id
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-s3"
+  }
 }
 
 resource "aws_vpc_endpoint" "ssm" {
@@ -80,6 +88,10 @@ resource "aws_vpc_endpoint" "ssm" {
   ]
   vpc_endpoint_type = "Interface"
   vpc_id            = var.vpc_main_id
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-ssm"
+  }
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -94,6 +106,10 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   ]
   vpc_endpoint_type = "Interface"
   vpc_id            = var.vpc_main_id
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-ssmmessages"
+  }
 }
 
 resource "aws_vpc_endpoint" "cloudwatch_logs" {
@@ -108,4 +124,8 @@ resource "aws_vpc_endpoint" "cloudwatch_logs" {
   ]
   vpc_endpoint_type = "Interface"
   vpc_id            = var.vpc_main_id
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-logs"
+  }
 }

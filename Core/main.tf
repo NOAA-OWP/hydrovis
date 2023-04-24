@@ -307,34 +307,34 @@ module "mq-ingest" {
   mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
 }
 
-# RDS
-module "rds-ingest" {
-  source = "./RDS/ingest"
+# # RDS
+# module "rds-ingest" {
+#   source = "./RDS/ingest"
 
-  environment               = local.env.environment
-  subnet-a                  = module.vpc.subnet_private_a.id
-  subnet-b                  = module.vpc.subnet_private_b.id
-  db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  rds_kms_key               = module.kms.key_arns["rds-ingest"]
-  db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
+#   environment               = local.env.environment
+#   subnet-a                  = module.vpc.subnet_private_a.id
+#   subnet-b                  = module.vpc.subnet_private_b.id
+#   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+#   rds_kms_key               = module.kms.key_arns["rds-ingest"]
+#   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
 
-  private_route_53_zone = module.private-route53.zone
-}
+#   private_route_53_zone = module.private-route53.zone
+# }
 
-module "rds-viz" {
-  source = "./RDS/viz"
+# module "rds-viz" {
+#   source = "./RDS/viz"
 
-  environment                       = local.env.environment
-  subnet-a                          = module.vpc.subnet_private_a.id
-  subnet-b                          = module.vpc.subnet_private_b.id
-  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  rds_kms_key                       = module.kms.key_arns["rds-viz"]
-  db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
-  viz_db_name                       = local.env.viz_db_name
-  role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
+#   environment                       = local.env.environment
+#   subnet-a                          = module.vpc.subnet_private_a.id
+#   subnet-b                          = module.vpc.subnet_private_b.id
+#   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+#   rds_kms_key                       = module.kms.key_arns["rds-viz"]
+#   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+#   viz_db_name                       = local.env.viz_db_name
+#   role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
 
-  private_route_53_zone = module.private-route53.zone
-}
+#   private_route_53_zone = module.private-route53.zone
+# }
 
 # # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
