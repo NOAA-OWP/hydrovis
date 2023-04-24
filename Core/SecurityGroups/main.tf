@@ -6,14 +6,6 @@ variable "nwave_ip_block" {
   type = string
 }
 
-variable "vpc_ip_block" {
-  type = string
-}
-
-# variable "nwc_ip_block" {
-#   type = string
-# }
-
 variable "vpc_main_id" {
   type = string
 }
@@ -21,24 +13,88 @@ variable "vpc_main_id" {
 variable "vpc_main_cidr_block" {
   type = string
 }
-variable "subnet_a_cidr_block" {
-  type = string
-}
-
-variable "subnet_b_cidr_block" {
-  type = string
-}
-
-variable "public_route_peering_ip_block" {
-  type = string
-}
 
 
-locals {
-  hydrovis-RDS_ingress_default = [
+resource "aws_security_group" "rabbitmq" {
+  name = "hv-vpp-${var.environment}-rabbitmq"
+  description = "Allows rabbit MQ connection and dashboard"
+  vpc_id = var.vpc_main_id
+
+  egress = [
     {
       cidr_blocks = [
-        var.vpc_ip_block,
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 0
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+
+  ingress = [
+    {
+      cidr_blocks = [
+        var.vpc_main_cidr_block,
+      ]
+      description      = ""
+      from_port        = 443
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 443
+    },
+    {
+      cidr_blocks = [
+        var.vpc_main_cidr_block,
+      ]
+      description      = ""
+      from_port        = 5671
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 5671
+    },
+  ]
+  
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-rabbitmq"
+  }
+}
+
+resource "aws_security_group" "rds" {
+  name = "hv-vpp-${var.environment}-rds"
+  description = "RDS access"
+  vpc_id = var.vpc_main_id
+
+  egress = [
+    {
+      cidr_blocks = [
+        "0.0.0.0/0",
+      ]
+      description      = ""
+      from_port        = 0
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "-1"
+      security_groups  = []
+      self             = false
+      to_port          = 0
+    },
+  ]
+
+  ingress = [
+    {
+      cidr_blocks = [
+        var.vpc_main_cidr_block,
       ]
       description      = ""
       from_port        = 22
@@ -51,7 +107,7 @@ locals {
     },
     {
       cidr_blocks = [
-        var.vpc_ip_block,
+        var.vpc_main_cidr_block,
       ]
       description      = ""
       from_port        = 5432
@@ -63,306 +119,17 @@ locals {
       to_port          = 5432
     },
   ]
-
-  hydrovis-RDS_ingress = var.public_route_peering_ip_block != "" ? concat(
-    local.hydrovis-RDS_ingress_default,
-    [
-      {
-        cidr_blocks      = [
-            var.public_route_peering_ip_block,
-          ]
-        description      = "Peering from Dev"
-        from_port        = 5432
-        ipv6_cidr_blocks = []
-        prefix_list_ids  = []
-        protocol         = "tcp"
-        security_groups  = []
-        self             = false
-        to_port          = 5432
-      },
-    ]
-  ) : local.hydrovis-RDS_ingress_default
-}
-
-
-resource "aws_security_group" "opensearch-access" {
-  description = "Allow inbound traffic to OpenSearch from VPC CIDR"
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-  ingress = [
-    {
-      cidr_blocks = [
-        var.vpc_main_cidr_block,
-        var.nwave_ip_block,
-      ]
-      description      = ""
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks = [
-        var.vpc_main_cidr_block,
-        var.nwave_ip_block,
-      ]
-      description      = ""
-      from_port        = 80
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 80
-    },
-  ]
-  name = "opensearch-access"
+  
   tags = {
-    "Name" = "opensearch-access"
+    "Name" = "hv-vpp-${var.environment}-rds"
   }
-  vpc_id = var.vpc_main_id
 }
 
-# Not really used?
-# resource "aws_security_group" "hv-allow-NWC-access" {
-#   description = "Allow NWC vpn users access to Portal"
-#   ingress = [
-#     {
-#       cidr_blocks = [
-#         "0.0.0.0/0",
-#         var.nwc_ip_block,
-#       ]
-#       description      = ""
-#       from_port        = 443
-#       ipv6_cidr_blocks = []
-#       prefix_list_ids  = []
-#       protocol         = "tcp"
-#       security_groups  = []
-#       self             = false
-#       to_port          = 443
-#     },
-#   ]
-#   name = "hv-${var.environment}-allow-NWC-access"
-#   tags = {
-#     "Name" = "hv-${var.environment}-internet-443-from-NWC"
-#   }
-#   vpc_id = var.vpc_main_id
-# }
-
-resource "aws_security_group" "hv-rabbitmq" {
-  description = "Allows rabbit MQ connection and dashboard"
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-  ingress = [
-    {
-      cidr_blocks = [
-        var.vpc_ip_block,
-      ]
-      description      = ""
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks = [
-        var.vpc_ip_block,
-      ]
-      description      = ""
-      from_port        = 5671
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 5671
-    },
-    {
-      cidr_blocks = [
-        var.subnet_b_cidr_block,
-      ]
-      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-b"
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks = [
-        var.subnet_b_cidr_block,
-      ]
-      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-b"
-      from_port        = 5671
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 5671
-    },
-    {
-      cidr_blocks = [
-        var.subnet_a_cidr_block,
-      ]
-      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-a"
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks = [
-        var.subnet_a_cidr_block,
-      ]
-      description      = "Access from subnet hydrovis-vpp-${var.environment}-prv-sn-a"
-      from_port        = 5671
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 5671
-    },
-  ]
-  name = "hv-${var.environment}-rabbitmq"
-  tags = {
-    "vpc"  = "${var.environment}"
-    "Name" = "hv-${var.environment}-rabbitmq"
-  }
-  vpc_id = var.vpc_main_id
-}
-
-resource "aws_security_group" "hv-test-loadbalancer-sg" {
-  description = "Security group for testing ALB access from internet"
-  ingress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description = ""
-      from_port   = 443
-      ipv6_cidr_blocks = [
-        "::/0",
-      ]
-      prefix_list_ids = []
-      protocol        = "tcp"
-      security_groups = []
-      self            = false
-      to_port         = 443
-    },
-  ]
-  name = "hv-${var.environment}-test-loadbalancer-sg"
-  tags = {
-    "Name" = "hv-${var.environment}-test-loadbalancer-sg"
-  }
-  vpc_id = var.vpc_main_id
-}
-
-resource "aws_security_group" "hydrovis-RDS" {
-  description = "${upper(var.environment)} RDS access"
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-  ingress = local.hydrovis-RDS_ingress
-  name = "hydrovis-${upper(var.environment)}-RDS"
-  tags = {
-    "vpc"  = "${var.environment}"
-    "Name" = "hydrovis-${upper(var.environment)}-RDS"
-  }
-  vpc_id = var.vpc_main_id
-}
-
-resource "aws_security_group" "hydrovis-nat-sg" {
-  description = "Security group for NAT instance for hydrovis ${upper(var.environment)} VPC"
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-  ingress = [
-    {
-      cidr_blocks = [
-        var.vpc_main_cidr_block,
-      ]
-      description      = "Allow all inbound traffic from private subnets"
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-  name = "hydrovis-${var.environment}-nat-sg"
-  tags = {
-    "Name" = "hydrovis-${var.environment}-nat-sg"
-  }
-  vpc_id = var.vpc_main_id
-}
-
-resource "aws_security_group" "ssm-session-manager-sg" {
+resource "aws_security_group" "vpc_access" {
+  name = "ssm-session-manager-sg"
   description = "allow access to VPC endpoints"
+  vpc_id = var.vpc_main_id
+
   egress = [
     {
       cidr_blocks = [
@@ -378,6 +145,7 @@ resource "aws_security_group" "ssm-session-manager-sg" {
       to_port          = 0
     },
   ]
+
   ingress = [
     {
       cidr_blocks = [
@@ -401,15 +169,17 @@ resource "aws_security_group" "ssm-session-manager-sg" {
     ]
   }
   
-  name = "ssm-session-manager-sg"
+  
   tags = {
-    "Name" = "ssm-session-manager-sg"
+    "Name" = "hv-vpp-${var.environment}-vpc-access"
   }
-  vpc_id = var.vpc_main_id
 }
 
-resource "aws_security_group" "egis-overlord" {
+resource "aws_security_group" "egis_overlord" {
+  name = "hv-${var.environment == "prod" ? "prd" : var.environment}-egis-ptl-gis-img-gp"
   description = "Allow inbound traffic to eGIS environment"
+  vpc_id = var.vpc_main_id
+  
   egress = [
     {
       cidr_blocks = [
@@ -425,6 +195,7 @@ resource "aws_security_group" "egis-overlord" {
       to_port          = 0
     },
   ]
+
   ingress = [
     {
       cidr_blocks = [
@@ -551,41 +322,23 @@ resource "aws_security_group" "egis-overlord" {
     ]
   }
   
-  name = "hv-${var.environment == "prod" ? "prd" : var.environment}-egis-ptl-gis-img-gp"
   tags = {
     "Name" = "hv-${var.environment == "prod" ? "prd" : var.environment}-egis-ptl-gis-img-gp"
   }
-  vpc_id = var.vpc_main_id
 }
 
-output "egis-overlord" {
-  value = aws_security_group.egis-overlord
+output "rabbitmq" {
+  value = aws_security_group.rabbitmq
 }
 
-output "opensearch-access" {
-  value = aws_security_group.opensearch-access
+output "rds" {
+  value = aws_security_group.rds
 }
 
-# output "hv-allow-NWC-access" {
-#   value = aws_security_group.hv-allow-NWC-access
-# }
-
-output "hv-rabbitmq" {
-  value = aws_security_group.hv-rabbitmq
+output "vpc_access" {
+  value = aws_security_group.vpc_access
 }
 
-output "hv-test-loadbalancer-sg" {
-  value = aws_security_group.hv-test-loadbalancer-sg
-}
-
-output "hydrovis-RDS" {
-  value = aws_security_group.hydrovis-RDS
-}
-
-output "hydrovis-nat-sg" {
-  value = aws_security_group.hydrovis-nat-sg
-}
-
-output "ssm-session-manager-sg" {
-  value = aws_security_group.ssm-session-manager-sg
+output "egis_overlord" {
+  value = aws_security_group.egis_overlord
 }

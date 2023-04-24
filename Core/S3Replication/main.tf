@@ -34,11 +34,11 @@ variable "user_data-ingest-service-user_arn" {
   type = string
 }
 
-variable "role_hydrovis-viz-proc-pipeline-lambda_arn" {
+variable "role_viz_pipeline_arn" {
   type = string
 }
 
-variable "role_hydrovis-rnr-role_arn" {
+variable "role_rnr_arn" {
   type = string
 }
 
@@ -52,8 +52,8 @@ locals {
     }
     "nwm" = {
       access_principal_arns = [
-        var.role_hydrovis-viz-proc-pipeline-lambda_arn,
-        var.role_hydrovis-rnr-role_arn,
+        var.role_viz_pipeline_arn,
+        var.role_rnr_arn,
         "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
       ]
     }

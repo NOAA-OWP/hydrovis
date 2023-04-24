@@ -26,7 +26,7 @@ variable "viz_db_name" {
   type = string
 }
 
-variable "role_hydrovis-rds-s3-export_arn" {
+variable "role_rds_s3_export_arn" {
   type = string
 }
 
@@ -88,7 +88,7 @@ resource "aws_db_instance" "hydrovis" {
 resource "aws_db_instance_role_association" "hydrovis" {
   db_instance_identifier = aws_db_instance.hydrovis.id
   feature_name           = "s3Export"
-  role_arn               = var.role_hydrovis-rds-s3-export_arn
+  role_arn               = var.role_rds_s3_export_arn
 }
 
 resource "aws_route53_record" "hydrovis" {

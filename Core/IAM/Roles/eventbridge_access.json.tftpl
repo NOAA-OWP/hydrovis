@@ -2,6 +2,25 @@
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Action": [
+                "events:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:events:*:*:*"
+        },
+        {
+            "Action": [
+                "iam:PassRole"
+            ],
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": "events.amazonaws.com"
+                }
+            }
+        },
+        {
             "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [

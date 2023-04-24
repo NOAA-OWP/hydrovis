@@ -77,7 +77,7 @@ module "kms" {
     ]
     "rds-ingest" = [
       module.iam-roles.role_autoscaling.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn
+      module.iam-roles.role_data_ingest.arn
     ]
     "rds-viz" = [
       module.iam-roles.role_autoscaling.arn,
@@ -123,34 +123,32 @@ module "s3" {
     "deployment" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
-      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_hydrovis-rnr-role.arn,
+      module.iam-roles.role_viz_pipeline.arn,
+      module.iam-roles.role_data_ingest.arn,
+      module.iam-roles.role_rnr.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_hydrovis-ecs-resource-access.arn,
-      module.iam-roles.role_hydrovis-ecs-task-execution.arn,
-      module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
+      module.iam-roles.role_sync_wrds_location_db.arn
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
-      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
-      module.iam-roles.role_hydrovis-rds-s3-export.arn,
+      module.iam-roles.role_viz_pipeline.arn,
+      module.iam-roles.role_rds_s3_export.arn,
       module.iam-users.user_FIMServiceAccount.arn
     ]
     "hml-backup" = [
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn
+      module.iam-roles.role_data_ingest.arn
     ]
     "rnr" = [
-      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
-      module.iam-roles.role_hydrovis-rnr-role.arn
+      module.iam-roles.role_viz_pipeline.arn,
+      module.iam-roles.role_rnr.arn
     ]
     "session-manager-logs" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
-      module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn,
-      module.iam-roles.role_hydrovis-hml-ingest-role.arn,
-      module.iam-roles.role_hydrovis-rnr-role.arn
+      module.iam-roles.role_viz_pipeline.arn,
+      module.iam-roles.role_data_ingest.arn,
+      module.iam-roles.role_rnr.arn
     ]
     "ised" = [
       module.iam-users.user_ISEDServiceAccount.arn
@@ -174,17 +172,17 @@ module "egis" {
 module "s3-replication" {
   source = "./S3Replication"
 
-  environment                                = local.env.environment
-  account_id                                 = local.env.account_id
-  prod_account_id                            = local.env.prod_account_id
-  uat_account_id                             = local.env.uat_account_id
-  ti_account_id                              = local.env.ti_account_id
-  region                                     = local.env.region
-  admin_team_arns                            = local.env.admin_team_arns
-  user_S3ReplicationDataServiceAccount_arn   = module.iam-users.user_S3ReplicationDataServiceAccount.arn
-  user_data-ingest-service-user_arn          = module.iam-roles.role_hydrovis-hml-ingest-role.arn
-  role_hydrovis-viz-proc-pipeline-lambda_arn = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
-  role_hydrovis-rnr-role_arn                 = module.iam-roles.role_hydrovis-rnr-role.arn
+  environment                              = local.env.environment
+  account_id                               = local.env.account_id
+  prod_account_id                          = local.env.prod_account_id
+  uat_account_id                           = local.env.uat_account_id
+  ti_account_id                            = local.env.ti_account_id
+  region                                   = local.env.region
+  admin_team_arns                          = local.env.admin_team_arns
+  user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
+  user_data-ingest-service-user_arn        = module.iam-roles.role_data_ingest.arn
+  role_viz_pipeline_arn                    = module.iam-roles.role_viz_pipeline.arn
+  role_rnr_arn                             = module.iam-roles.role_rnr.arn
 }
 
 # ###################### STAGE 2 ######################
@@ -193,14 +191,12 @@ module "s3-replication" {
 module "vpc" {
   source = "./VPC"
 
-  environment                        = local.env.environment
-  account_id                         = local.env.account_id
-  region                             = local.env.region
-  vpc_ip_block                       = local.env.vpc_ip_block
-  nwave_ip_block                     = local.env.nwave_ip_block
-  transit_gateway_id                 = local.env.transit_gateway_id
-  public_route_peering_ip_block      = local.env.public_route_peering_ip_block
-  public_route_peering_connection_id = local.env.public_route_peering_connection_id
+  environment        = local.env.environment
+  account_id         = local.env.account_id
+  region             = local.env.region
+  vpc_ip_block       = local.env.vpc_ip_block
+  nwave_ip_block     = local.env.nwave_ip_block
+  transit_gateway_id = local.env.transit_gateway_id
 }
 
 # Route53 DNS
@@ -214,30 +210,24 @@ module "private-route53" {
 module "security-groups" {
   source = "./SecurityGroups"
 
-  environment                     = local.env.environment
-  nwave_ip_block                  = local.env.nwave_ip_block
-  vpc_ip_block                    = local.env.vpc_ip_block
-  #nwc_ip_block                   = local.env.nwc_ip_block
-  vpc_main_id                     = module.vpc.vpc_main.id
-  vpc_main_cidr_block             = module.vpc.vpc_main.cidr_block
-  subnet_a_cidr_block             = module.vpc.subnet_private_a.cidr_block
-  subnet_b_cidr_block             = module.vpc.subnet_private_b.cidr_block
-  public_route_peering_ip_block   = local.env.public_route_peering_ip_block
+  environment         = local.env.environment
+  nwave_ip_block      = local.env.nwave_ip_block
+  vpc_main_id         = module.vpc.vpc_main.id
+  vpc_main_cidr_block = module.vpc.vpc_main.cidr_block
 }
 
 # VPCe's
 module "vpces" {
   source = "./VPC/VPCe"
 
-  environment               = local.env.environment
-  region                    = local.env.region
-  vpc_main_id               = module.vpc.vpc_main.id
-  subnet_a_id               = module.vpc.subnet_private_a.id
-  subnet_b_id               = module.vpc.subnet_private_b.id
-  route_table_private_a_id  = module.vpc.route_table_private_a.id
-  route_table_private_b_id  = module.vpc.route_table_private_b.id
-  ssm-session-manager-sg_id = module.security-groups.ssm-session-manager-sg.id
-  opensearch-access_id      = module.security-groups.opensearch-access.id
+  environment              = local.env.environment
+  region                   = local.env.region
+  vpc_main_id              = module.vpc.vpc_main.id
+  subnet_a_id              = module.vpc.subnet_private_a.id
+  subnet_b_id              = module.vpc.subnet_private_b.id
+  route_table_private_a_id = module.vpc.route_table_private_a.id
+  route_table_private_b_id = module.vpc.route_table_private_b.id
+  vpc_access_sg_id         = module.security-groups.vpc_access.id
 }
 
 # Image Builder Pipelines
@@ -281,9 +271,12 @@ module "sagemaker" {
   source = "./Sagemaker"
 
   environment     = local.env.environment
-  iam_role        = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+  iam_role        = module.iam-roles.role_viz_pipeline.arn
   subnet          = module.vpc.subnet_private_a.id
-  security_groups = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
+  security_groups = [
+    module.security-groups.rds.id,
+    module.security-groups.egis_overlord.id
+  ]
   kms_key_id      = module.kms.key_arns["encrypt-ec2"]
 }
 
@@ -298,14 +291,14 @@ module "lambda-layers" {
 }
 
 # MQ
-module "mq-ingest" {
-  source = "./MQ/ingest"
+# module "mq-ingest" {
+#   source = "./MQ/ingest"
 
-  environment               = local.env.environment
-  mq_ingest_subnets         = [module.vpc.subnet_private_a.id]
-  mq_ingest_security_groups = [module.security-groups.hv-rabbitmq.id]
-  mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
-}
+#   environment               = local.env.environment
+#   mq_ingest_subnets         = [module.vpc.subnet_private_a.id]
+#   mq_ingest_security_groups = [module.security-groups.rabbitmq.id]
+#   mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
+# }
 
 # # RDS
 # module "rds-ingest" {
@@ -316,7 +309,7 @@ module "mq-ingest" {
 #   subnet-b                  = module.vpc.subnet_private_b.id
 #   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
 #   rds_kms_key               = module.kms.key_arns["rds-ingest"]
-#   db_ingest_security_groups = [module.security-groups.hydrovis-RDS.id]
+#   db_ingest_security_groups = [module.security-groups.rds.id]
 
 #   private_route_53_zone = module.private-route53.zone
 # }
@@ -329,9 +322,9 @@ module "mq-ingest" {
 #   subnet-b                          = module.vpc.subnet_private_b.id
 #   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
 #   rds_kms_key                       = module.kms.key_arns["rds-viz"]
-#   db_viz_processing_security_groups = [module.security-groups.hydrovis-RDS.id]
+#   db_viz_processing_security_groups = [module.security-groups.rds.id]
 #   viz_db_name                       = local.env.viz_db_name
-#   role_hydrovis-rds-s3-export_arn   = module.iam-roles.role_hydrovis-rds-s3-export.arn
+#   role_rds_s3_export_arn            = module.iam-roles.role_rds_s3_export.arn
 
 #   private_route_53_zone = module.private-route53.zone
 # }
@@ -361,13 +354,13 @@ module "mq-ingest" {
 #   environment                    = local.env.environment
 #   region                         = local.env.region
 #   ami_owner_account_id           = local.env.ami_owner_account_id
-#   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-hml-ingest-role.name
+#   ec2_instance_profile_name      = module.iam-roles.profile_data_ingest.name
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   ec2_instance_sgs               = [
-#     module.security-groups.hydrovis-RDS.id,
-#     module.security-groups.hv-rabbitmq.id,
-#     module.security-groups.ssm-session-manager-sg.id
+#     module.security-groups.rds.id,
+#     module.security-groups.rabbitmq.id,
+#     module.security-groups.vpc_access.id
 #   ]
 #   kms_key_arn                    = module.kms.key_arns["encrypt-ec2"]
 
@@ -412,9 +405,8 @@ module "mq-ingest" {
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   ec2_instance_sgs = [
-#     module.security-groups.hydrovis-RDS.id,
-#     module.security-groups.hydrovis-nat-sg.id,
-#     module.security-groups.ssm-session-manager-sg.id
+#     module.security-groups.rds.id,
+#     module.security-groups.vpc_access.id,
 #   ]
 #   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
 #   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
@@ -444,7 +436,7 @@ module "mq-ingest" {
 #   viz_cache_bucket              = module.s3.buckets["fim"].bucket
 #   nwm_data_bucket               = module.s3-replication.buckets["nwm"].bucket
 #   fim_version                   = local.env.fim_version
-#   lambda_role                   = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
+#   lambda_role                   = module.iam-roles.role_viz_pipeline.arn
 #   sns_topics                    = module.sns.sns_topics
 #   email_sns_topics              = module.sns.email_sns_topics
 #   es_logging_layer              = module.lambda-layers.es_logging.arn
@@ -454,8 +446,8 @@ module "mq-ingest" {
 #   psycopg2_sqlalchemy_layer     = module.lambda-layers.psycopg2_sqlalchemy.arn
 #   requests_layer                = module.lambda-layers.requests.arn
 #   viz_lambda_shared_funcs_layer = module.lambda-layers.viz_lambda_shared_funcs.arn
-#   db_lambda_security_groups     = [module.security-groups.hydrovis-RDS.id, module.security-groups.egis-overlord.id]
-#   nat_sg_group                  = module.security-groups.hydrovis-nat-sg.id
+#   db_lambda_security_groups     = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
+#   nat_sg_group                  = module.security-groups.vpc_access.id
 #   db_lambda_subnets             = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
 #   viz_db_host                   = module.rds-viz.dns_name
 #   viz_db_name                   = local.env.viz_db_name
@@ -480,7 +472,7 @@ module "mq-ingest" {
 #   environment                 = local.env.environment
 #   region                      = local.env.region
 #   deployment_bucket           = module.s3.buckets["deployment"].bucket
-#   lambda_role                 = module.iam-roles.role_hydrovis-hml-ingest-role.arn
+#   lambda_role                 = module.iam-roles.role_data_ingest.arn
 #   psycopg2_sqlalchemy_layer   = module.lambda-layers.psycopg2_sqlalchemy.arn
 #   pika_layer                  = module.lambda-layers.pika.arn
 #   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
@@ -494,7 +486,7 @@ module "mq-ingest" {
 #   backup_hml_bucket_name      = module.s3.buckets["hml-backup"].bucket
 #   backup_hml_bucket_arn       = module.s3.buckets["hml-backup"].arn
 #   lambda_subnet_ids           = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
-#   lambda_security_group_ids   = [module.security-groups.hydrovis-nat-sg.id]
+#   lambda_security_group_ids   = [module.security-groups.vpc_access.id]
 # }
 
 # # Monitoring Module
@@ -528,7 +520,7 @@ module "mq-ingest" {
 #   logstash_instance_profile_name       = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
 #   logstash_instance_security_group_ids = [
 #     module.security-groups.opensearch-access.id,
-#     module.security-groups.ssm-session-manager-sg.id
+#     module.security-groups.vpc_access.id
 #   ]
 #   deployment_bucket                    = module.s3.buckets["deployment"].bucket
 #   lambda_trigger_functions             = [
@@ -565,12 +557,12 @@ module "mq-ingest" {
 #   prc1_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   prc2_availability_zone = module.vpc.subnet_private_b.availability_zone
 #   ec2_instance_sgs = [
-#     module.security-groups.hydrovis-RDS.id,
-#     module.security-groups.hv-rabbitmq.id,
-#     module.security-groups.ssm-session-manager-sg.id
+#     module.security-groups.rds.id,
+#     module.security-groups.rabbitmq.id,
+#     module.security-groups.vpc_access.id
 #   ]
 #   ec2_kms_key               = module.kms.key_arns["encrypt-ec2"]
-#   ec2_instance_profile_name = module.iam-roles.profile_hydrovis-hml-ingest-role.name
+#   ec2_instance_profile_name = module.iam-roles.profile_data_ingest.name
 #   deployment_bucket         = module.s3.buckets["deployment"].bucket
 
 #   mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
@@ -587,11 +579,11 @@ module "mq-ingest" {
 #   ami_owner_account_id           = local.env.ami_owner_account_id
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
-#   ec2_instance_sgs               = [module.security-groups.ssm-session-manager-sg.id]
+#   ec2_instance_sgs               = [module.security-groups.vpc_access.id]
 #   output_bucket                  = module.s3.buckets["rnr"].bucket
 #   deployment_bucket              = module.s3.buckets["deployment"].bucket
 #   ec2_kms_key                    = module.kms.key_arns["encrypt-ec2"]
-#   ec2_instance_profile_name      = module.iam-roles.profile_hydrovis-rnr-role.name
+#   ec2_instance_profile_name      = module.iam-roles.profile_rnr.name
 #   dataservices_host              = module.data-services.dns_name
 #   nomads_url                     = local.env.rnr_nomads_url
 #   s3_url                         = local.env.rnr_s3_url
@@ -607,8 +599,8 @@ module "mq-ingest" {
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   ec2_instance_sgs = [
-#     module.security-groups.ssm-session-manager-sg.id,
-#     module.security-groups.egis-overlord.id
+#     module.security-groups.vpc_access.id,
+#     module.security-groups.egis_overlord.id
 #   ]
 #   ec2_instance_profile_name = module.iam-roles.profile_HydrovisESRISSMDeploy.name
 #   ec2_kms_key               = module.kms.key_arns["egis"]
@@ -625,8 +617,8 @@ module "mq-ingest" {
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   ec2_instance_sgs = [
-#     module.security-groups.ssm-session-manager-sg.id,
-#     module.security-groups.egis-overlord.id
+#     module.security-groups.vpc_access.id,
+#     module.security-groups.egis_overlord.id
 #   ]
 #   ec2_instance_profile_name = module.iam-roles.profile_HydrovisESRISSMDeploy.name
 #   ec2_kms_key               = module.kms.key_arns["egis"]
@@ -643,8 +635,8 @@ module "mq-ingest" {
 #   ec2_instance_subnet            = module.vpc.subnet_private_a.id
 #   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
 #   ec2_instance_sgs = [
-#     module.security-groups.ssm-session-manager-sg.id,
-#     module.security-groups.egis-overlord.id
+#     module.security-groups.vpc_access.id,
+#     module.security-groups.egis_overlord.id
 #   ]
 #   dataservices_host           = module.data-services.dns_name
 #   fim_data_bucket             = module.s3.buckets["deployment"].bucket
@@ -678,12 +670,12 @@ module "mq-ingest" {
 
 #   environment               = local.env.environment
 #   region                    = local.env.region
-#   iam_role_arn              = module.iam-roles.role_hydrovis-sync-wrds-location-db.arn
+#   iam_role_arn              = module.iam-roles.role_sync_wrds_location_db.arn
 #   email_sns_topics          = module.sns.email_sns_topics
 #   requests_lambda_layer     = module.lambda-layers.requests.arn
 #   rds_bastion_id            = module.rds-bastion.instance-id
 #   test_data_services_id     = module.data-services.dataservices-test-instance-id
-#   lambda_security_groups    = [module.security-groups.hydrovis-RDS.id]
+#   lambda_security_groups    = [module.security-groups.rds.id]
 #   lambda_subnets            = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
 #   db_dumps_bucket           = module.s3.buckets["deployment"].bucket
 # }

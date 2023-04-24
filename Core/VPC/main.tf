@@ -1,23 +1,3 @@
-variable "vpc_ip_block" {
-  type = string
-}
-
-variable "nwave_ip_block" {
-  type = string
-}
-
-variable "transit_gateway_id" {
-  type = string
-}
-
-variable "public_route_peering_ip_block" {
-  type = string
-}
-
-variable "public_route_peering_connection_id" {
-  type = string
-}
-
 variable "environment" {
   type = string
 }
@@ -27,6 +7,18 @@ variable "account_id" {
 }
 
 variable "region" {
+  type = string
+}
+
+variable "vpc_ip_block" {
+  type = string
+}
+
+variable "nwave_ip_block" {
+  type = string
+}
+
+variable "transit_gateway_id" {
   type = string
 }
 
