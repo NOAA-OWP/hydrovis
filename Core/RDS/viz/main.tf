@@ -39,7 +39,7 @@ variable "private_route_53_zone" {
 
 
 resource "aws_db_subnet_group" "hydrovis" {
-  name       = "rds_viz-processing_${var.environment}"
+  name       = "hv-vpp-${var.environment}-viz-processing"
   subnet_ids = [var.subnet-a, var.subnet-b]
   tags = {
     Name = "Viz Processing Subnet Group"
@@ -47,7 +47,7 @@ resource "aws_db_subnet_group" "hydrovis" {
 }
 
 resource "aws_db_parameter_group" "hydrovis" {
-  name   = "viz-processing-db-param-group"
+  name   = "hv-vpp-${var.environment}-viz-processing"
   family = "postgres12"
 
   parameter {
@@ -64,7 +64,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 }
 
 resource "aws_db_instance" "hydrovis" {
-  identifier                   = "hydrovis-${var.environment}-viz-processing"
+  identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
   instance_class               = "db.m6g.2xlarge"
   allocated_storage            = 1024

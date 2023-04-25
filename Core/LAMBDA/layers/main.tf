@@ -33,7 +33,7 @@ resource "aws_lambda_layer_version" "es_logging" {
   s3_bucket = aws_s3_object.es_logging.bucket
   s3_key = aws_s3_object.es_logging.key
 
-  layer_name = "es_logging_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-es-logging"
 
   compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
   description         = "Custom logger that formats logs for AWS elasticsearch ingest"
@@ -62,7 +62,7 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
   s3_bucket        = aws_s3_object.viz_lambda_shared_funcs_zip_upload.bucket
   s3_key           = aws_s3_object.viz_lambda_shared_funcs_zip_upload.key
 
-  layer_name = "viz_lambda_shared_funcs_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-viz-lambda-shared-funcs"
 
   compatible_runtimes = ["python3.7", "python3.8"]
   description         = "Viz classes and helper functions for general viz lambda functionality"
@@ -85,7 +85,7 @@ resource "aws_lambda_layer_version" "arcgis_python_api" {
   s3_bucket = aws_s3_object.arcgis_python_api.bucket
   s3_key = aws_s3_object.arcgis_python_api.key
 
-  layer_name = "arcgis_python_api_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-arcgis-python-api"
 
   compatible_runtimes = ["python3.9"]
   description         = "ArcGIS Python API module"
@@ -108,7 +108,7 @@ resource "aws_lambda_layer_version" "pandas" {
   s3_bucket = aws_s3_object.pandas.bucket
   s3_key = aws_s3_object.pandas.key
 
-  layer_name = "pandas_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-pandas"
 
   compatible_runtimes = ["python3.9"]
   description         = "pandas python package"
@@ -132,7 +132,7 @@ resource "aws_lambda_layer_version" "geopandas" {
   s3_bucket = aws_s3_object.geopandas.bucket
   s3_key = aws_s3_object.geopandas.key
 
-  layer_name = "geopandas_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-geopandas"
 
   compatible_runtimes = ["python3.9"]
   description         = "geopandas python package"
@@ -155,7 +155,7 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
   s3_bucket = aws_s3_object.psycopg2_sqlalchemy.bucket
   s3_key = aws_s3_object.psycopg2_sqlalchemy.key
 
-  layer_name = "psycopg2_sqlalchemy_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-psycopg2-sqlalchemy"
 
   compatible_runtimes = ["python3.9"]
   description         = "psycopg2 and sql alchemy python packages"
@@ -178,7 +178,7 @@ resource "aws_lambda_layer_version" "huc_proc_combo" {
   s3_bucket = aws_s3_object.huc_proc_combo.bucket
   s3_key = aws_s3_object.huc_proc_combo.key
 
-  layer_name = "huc_proc_combo_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-huc-proc-combo"
 
   compatible_runtimes = ["python3.9"]
   description         = "Includes pandas, pyscopg2, sqlachemy, and rasterio"
@@ -201,7 +201,7 @@ resource "aws_lambda_layer_version" "xarray" {
   s3_bucket = aws_s3_object.xarray.bucket
   s3_key = aws_s3_object.xarray.key
 
-  layer_name = "xarray_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-xarray"
 
   compatible_runtimes = ["python3.9"]
   description         = "xarray python package"
@@ -224,7 +224,7 @@ resource "aws_lambda_layer_version" "pika" {
   s3_bucket = aws_s3_object.pika.bucket
   s3_key = aws_s3_object.pika.key
 
-  layer_name = "pika_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-pika"
 
   compatible_runtimes = ["python3.6", "python3.7", "python3.8"]
   description         = "Python pika module"
@@ -247,7 +247,7 @@ resource "aws_lambda_layer_version" "requests" {
   s3_bucket = aws_s3_object.requests.bucket
   s3_key = aws_s3_object.requests.key
 
-  layer_name = "requests_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-requests"
 
   compatible_runtimes = ["python3.9"]
   description         = "Python requests module"
@@ -263,7 +263,7 @@ resource "aws_lambda_layer_version" "yaml" {
   filename         = "${path.module}/yaml.zip"
   source_code_hash = filebase64sha256("${path.module}/yaml.zip")
 
-  layer_name = "yaml_${var.environment}"
+  layer_name = "hv-vpp-${var.environment}-yaml"
 
   compatible_runtimes = ["python3.9"]
   description         = "Python yaml module"

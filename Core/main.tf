@@ -290,44 +290,44 @@ module "lambda-layers" {
   deployment_bucket  = module.s3.buckets["deployment"].bucket
 }
 
-# # MQ
-# module "mq-ingest" {
-#   source = "./MQ/ingest"
+# MQ
+module "mq-ingest" {
+  source = "./MQ/ingest"
 
-#   environment               = local.env.environment
-#   mq_ingest_subnets         = [module.vpc.subnet_private_a.id]
-#   mq_ingest_security_groups = [module.security-groups.rabbitmq.id]
-#   mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
-# }
+  environment               = local.env.environment
+  mq_ingest_subnets         = [module.vpc.subnet_private_a.id]
+  mq_ingest_security_groups = [module.security-groups.rabbitmq.id]
+  mq_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-mqsecret"]
+}
 
-# # RDS
-# module "rds-ingest" {
-#   source = "./RDS/ingest"
+# RDS
+module "rds-ingest" {
+  source = "./RDS/ingest"
 
-#   environment               = local.env.environment
-#   subnet-a                  = module.vpc.subnet_private_a.id
-#   subnet-b                  = module.vpc.subnet_private_b.id
-#   db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-#   rds_kms_key               = module.kms.key_arns["rds-ingest"]
-#   db_ingest_security_groups = [module.security-groups.rds.id]
+  environment               = local.env.environment
+  subnet-a                  = module.vpc.subnet_private_a.id
+  subnet-b                  = module.vpc.subnet_private_b.id
+  db_ingest_secret_string   = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  rds_kms_key               = module.kms.key_arns["rds-ingest"]
+  db_ingest_security_groups = [module.security-groups.rds.id]
 
-#   private_route_53_zone = module.private-route53.zone
-# }
+  private_route_53_zone = module.private-route53.zone
+}
 
-# module "rds-viz" {
-#   source = "./RDS/viz"
+module "rds-viz" {
+  source = "./RDS/viz"
 
-#   environment                       = local.env.environment
-#   subnet-a                          = module.vpc.subnet_private_a.id
-#   subnet-b                          = module.vpc.subnet_private_b.id
-#   db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-#   rds_kms_key                       = module.kms.key_arns["rds-viz"]
-#   db_viz_processing_security_groups = [module.security-groups.rds.id]
-#   viz_db_name                       = local.env.viz_db_name
-#   role_rds_s3_export_arn            = module.iam-roles.role_rds_s3_export.arn
+  environment                       = local.env.environment
+  subnet-a                          = module.vpc.subnet_private_a.id
+  subnet-b                          = module.vpc.subnet_private_b.id
+  db_viz_processing_secret_string   = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  rds_kms_key                       = module.kms.key_arns["rds-viz"]
+  db_viz_processing_security_groups = [module.security-groups.rds.id]
+  viz_db_name                       = local.env.viz_db_name
+  role_rds_s3_export_arn            = module.iam-roles.role_rds_s3_export.arn
 
-#   private_route_53_zone = module.private-route53.zone
-# }
+  private_route_53_zone = module.private-route53.zone
+}
 
 # # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 

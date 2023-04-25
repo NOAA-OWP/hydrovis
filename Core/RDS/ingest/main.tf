@@ -30,7 +30,7 @@ variable "private_route_53_zone" {
 
 
 resource "aws_db_subnet_group" "hydrovis" {
-  name       = "rds_ingest_${var.environment}"
+  name       = "hv-vpp-${var.environment}-ingest"
   subnet_ids = [var.subnet-a, var.subnet-b]
 
   tags = {
@@ -39,7 +39,7 @@ resource "aws_db_subnet_group" "hydrovis" {
 }
 
 resource "aws_db_instance" "hydrovis" {
-  identifier                   = "hydrovis-${var.environment}-ingest"
+  identifier                   = "hv-vpp-${var.environment}-ingest"
   db_name                      = "rfcfcst"
   instance_class               = "db.r6g.large"
   allocated_storage            = 500

@@ -29,7 +29,6 @@ variable "error_email_list" {
 }
 
 data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
 
 locals {
 
@@ -51,7 +50,7 @@ locals {
     nwm_channel_mrf_10day = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
     nwm_forcing_mrf       = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
     rnr_max_flows         = tomap({ "sns_type" = "s3", "bucket" = var.rnr_max_flows_data_bucket })
-    nwm_max_values         = tomap({ "sns_type" = "s3", "bucket" = var.nwm_max_values_data_bucket })
+    nwm_max_values        = tomap({ "sns_type" = "s3", "bucket" = var.nwm_max_values_data_bucket })
     viz_db_postprocess    = tomap({ "sns_type" = "lambda_trigger" })
   }
 
@@ -71,10 +70,10 @@ locals {
 
 resource "aws_sns_topic" "sns_topics" {
   for_each     = local.sns_topics
-  name         = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
-  display_name = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
+  name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+  display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   tags = {
-    Name = "${lower(var.environment)}_${lower(var.region)}_${each.key}"
+    Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   }
 }
 
@@ -248,10 +247,10 @@ data "aws_iam_policy_document" "lambda_trigger_sns_topic_policies" {
 
 resource "aws_sns_topic" "email_sns_topics" {
   for_each     = var.error_email_list
-  name         = "${lower(var.environment)}_${each.key}"
-  display_name = "${lower(var.environment)}_${each.key}"
+  name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+  display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   tags = {
-    Name = "${lower(var.environment)}_${each.key}"
+    Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   }
 }
 
