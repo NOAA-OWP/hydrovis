@@ -320,7 +320,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684874515a74624c31505559716e6a55362f6275657453776530652b58476a3069375659744e3732786877303d2a00;SERVER=hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-prd-egis-rds-pg-egdb.clya9sqnizjz.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_streamflow_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",

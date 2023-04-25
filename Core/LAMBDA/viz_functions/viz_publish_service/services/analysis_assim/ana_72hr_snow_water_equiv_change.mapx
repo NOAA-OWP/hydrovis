@@ -147,7 +147,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_24hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
@@ -444,7 +444,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_48hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
@@ -741,7 +741,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_72hr_snow_water_equiv_change.mrf",
         "datasetType" : "esriDTAny"
@@ -1078,11 +1078,11 @@
       ],
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
-        "workspaceConnectionString" : "SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;AUTHENTICATION_MODE=DBMS",
+        "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_72hr_accum_precip",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_72hr_snow_water_equiv_change",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from hydrovis.services.ana_72hr_snow_water_equiv_change",
         "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [

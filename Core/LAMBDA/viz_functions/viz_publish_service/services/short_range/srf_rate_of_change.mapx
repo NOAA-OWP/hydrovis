@@ -380,11 +380,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 3",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 3",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1298,11 +1298,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_7_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 6",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 6",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2216,11 +2216,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_8_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 9",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 9",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3134,11 +3134,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_9_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 12",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 12",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4052,11 +4052,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_10_5",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 15",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 15",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4970,11 +4970,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_11_6",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 18",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 18",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

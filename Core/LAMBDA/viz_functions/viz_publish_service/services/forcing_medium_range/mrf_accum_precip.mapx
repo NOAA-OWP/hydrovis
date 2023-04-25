@@ -156,7 +156,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-6hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -478,7 +478,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "7hour-12hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -800,7 +800,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "13hour-18hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1122,7 +1122,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "19hour-24hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1444,7 +1444,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-24hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1766,7 +1766,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "25hour-48hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2088,7 +2088,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "49hour-72hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2410,7 +2410,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "73hour-120hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2732,7 +2732,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "121hour-168hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -3054,7 +3054,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "169hour-240hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -3376,7 +3376,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\mrf_accum_precip\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-240hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -3737,7 +3737,7 @@
       "editable" : true,
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
-        "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685a464e5358504c7646454d6a6d6337425639705a666a446f76504f772f646f5251472f79763965437256553d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+        "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%mrf_accum_precip",
         "datasetType" : "esriDTTable",
