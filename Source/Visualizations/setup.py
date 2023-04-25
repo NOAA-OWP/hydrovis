@@ -27,7 +27,7 @@ setup(
         'jmespath == 0.10.0',
         's3transfer == 0.2.1',
         'filelock == 3.0.12',
-        'requests == 2.19.1',
+        'requests == 2.20.0',
         'numpy == 1.19',
         'netCDF4 == 1.4.1',
         'flake8 >= 3.7',
