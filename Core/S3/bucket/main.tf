@@ -102,7 +102,7 @@ resource "aws_kms_key" "hydrovis-s3" {
 }
 
 resource "aws_kms_alias" "hydrovis-s3" {
-  name          = "alias/hydrovis-${var.environment}-${var.name}-${var.region}-s3"
+  name          = "alias/hv-vpp-${var.environment}-${var.region}-${var.name}-s3"
   target_key_id = aws_kms_key.hydrovis-s3.key_id
 }
 

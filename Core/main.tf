@@ -96,13 +96,13 @@ module "secrets-manager" {
     "data-services-forecast-pg-rdssecret" = { "username" : "rfc_fcst_ro_user" }
     "data-services-location-pg-rdssecret" = { "username" : "location_ro_user" }
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
-    "viz_proc_admin_rw_user"              = { "username" : "viz_proc_admin_rw_user" }
-    "viz_proc_dev_rw_user"                = { "username" : "viz_proc_dev_rw_user" }
+    "viz-proc-admin-rw-user"              = { "username" : "viz_proc_admin_rw_user" }
+    "viz-proc-dev-rw-user"                = { "username" : "viz_proc_dev_rw_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
-    "rds-rfc_fcst"                        = { "username" : "rfc_fcst" }
-    "rds-rfc_fcst_user"                   = { "username" : "rfc_fcst_user" }
-    "rds-nwm_viz_ro"                      = { "username" : "nwm_viz_ro" }
+    "rds-rfc-fcst"                        = { "username" : "rfc_fcst" }
+    "rds-rfc-fcst-user"                   = { "username" : "rfc_fcst_user" }
+    "rds-nwm-viz-ro"                      = { "username" : "nwm_viz_ro" }
     "mq-aws-monitoring"                   = { "username" : "monitoring-AWS-OWNED-DO-NOT-DELETE" }
     "egis-service-account"                = { "username" : "arcgis", "password" : local.env.egis-service-account_password }
     "egis-master-pg-rds-secret"           = { "username" : "master", "password" : local.env.egis-master-pg-rds_password }
@@ -369,10 +369,10 @@ module "lambda-layers" {
 #   ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
 #   ingest_db_address              = module.rds-ingest.dns_name
 #   ingest_db_port                 = module.rds-ingest.instance.port
-#   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm_viz_ro"]
-#   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc_fcst"]
+#   nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm-viz-ro"]
+#   rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc-fcst"]
 #   rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
-#   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
+#   rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
 #   location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
 #   location_db_name               = local.env.location_db_name
 #   forecast_db_name               = local.env.forecast_db_name
@@ -380,8 +380,8 @@ module "lambda-layers" {
 #   ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
 #   ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
-#   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
-#   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz_proc_dev_rw_user"]
+#   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+#   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz-proc-dev-rw-user"]
 #   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
 #   viz_db_address                  = module.rds-viz.instance.address # TODO: Change this to DNS after EGIS team has added DB paramter group to EGIS RDS instance
 #   viz_db_port                     = module.rds-viz.instance.port
@@ -451,7 +451,7 @@ module "lambda-layers" {
 #   db_lambda_subnets             = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
 #   viz_db_host                   = module.rds-viz.dns_name
 #   viz_db_name                   = local.env.viz_db_name
-#   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+#   viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
 #   egis_db_host                  = module.rds-egis.dns_name
 #   egis_db_name                  = local.env.egis_db_name
 #   egis_db_user_secret_string    = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
@@ -475,7 +475,7 @@ module "lambda-layers" {
 #   lambda_role                 = module.iam-roles.role_data_ingest.arn
 #   psycopg2_sqlalchemy_layer   = module.lambda-layers.psycopg2_sqlalchemy.arn
 #   pika_layer                  = module.lambda-layers.pika.arn
-#   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
+#   rfc_fcst_user_secret_string = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
 #   mq_ingest_id                = module.mq-ingest.mq-ingest.id
 #   db_ingest_name              = local.env.forecast_db_name
 #   db_ingest_host              = module.rds-ingest.dns_name
@@ -566,9 +566,9 @@ module "lambda-layers" {
 #   deployment_bucket         = module.s3.buckets["deployment"].bucket
 
 #   mq_ingest_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
-#   mq_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
+#   mq_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
 #   db_host                 = module.rds-ingest.dns_name
-#   db_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc_fcst_user"]
+#   db_ingest_secret_string = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
 # }
 
 # module "rnr" {
@@ -659,7 +659,7 @@ module "lambda-layers" {
 #   github_host                 = local.env.viz_ec2_github_host
 #   viz_db_host                 = module.rds-viz.dns_name
 #   viz_db_name                 = local.env.viz_db_name
-#   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz_proc_admin_rw_user"]
+#   viz_db_user_secret_string   = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
 #   egis_db_host                = module.rds-egis.dns_name
 #   egis_db_name                = local.env.egis_db_name
 #   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
