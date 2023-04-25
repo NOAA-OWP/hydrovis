@@ -1,0 +1,98 @@
+product: mrf_coastal_inundation
+configuration: medium_range_mem1_coastal
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: mrf_3day_coastal_pacific
+    target_table: ingest.mrf_3day_coastal_pacific
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_pacific_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,73,3,%03d}}.pacific.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_coastal_pacific_mem1_3day_{{datetime:%H}}_max_elevs.nc
+  - name: mrf_5day_coastal_pacific
+    target_table: ingest.mrf_5day_coastal_pacific
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_pacific_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,121,3,%03d}}.pacific.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_coastal_pacific_mem1_5day_{{datetime:%H}}_max_elevs.nc
+  - name: mrf_10day_coastal_pacific
+    target_table: ingest.mrf_10day_coastal_pacific
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_pacific_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,241,3,%03d}}.pacific.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_coastal_pacific_mem1_10day_{{datetime:%H}}_max_elevs.nc
+  - name: mrf_3day_coastal_atlgulf
+    target_table: ingest.mrf_3day_coastal_atlgulf
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,73,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_coastal_atlgulf_mem1_3day_{{datetime:%H}}_max_elevs.nc
+  - name: mrf_5day_coastal_atlgulf
+    target_table: ingest.mrf_5day_coastal_atlgulf
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,121,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_coastal_atlgulf_mem1_5day_{{datetime:%H}}_max_elevs.nc
+  - name: mrf_10day_coastal_atlgulf
+    target_table: ingest.mrf_10day_coastal_atlgulf
+    fim_type: coastal
+    preprocess:
+        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.f{{range:3,241,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_coastal_atlgulf_mem1_10day_{{datetime:%H}}_max_elevs.nc
+      
+postprocess_sql:
+  - sql_file: mrf_3day_coastal_inundation_depth
+    target_table: publish.mrf_3day_coastal_inundation_depth
+  - sql_file: mrf_3day_coastal_inundation_extent
+    target_table: publish.mrf_3day_coastal_inundation_extent
+  - sql_file: mrf_5day_coastal_inundation_depth
+    target_table: publish.mrf_5day_coastal_inundation_depth
+  - sql_file: mrf_5day_coastal_inundation_extent
+    target_table: publish.mrf_5day_coastal_inundation_extent
+  - sql_file: mrf_10day_coastal_inundation_depth
+    target_table: publish.mrf_10day_coastal_inundation_depth
+  - sql_file: mrf_10day_coastal_inundation_extent
+    target_table: publish.mrf_10day_coastal_inundation_extent
+  
+product_summaries:
+  - sql_file:  3day_src_skill
+    target_table:
+      - publish.mrf_max_coastal_inundation_3day_src_skill
+  - sql_file:  3day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_max_coastal_inundation_3day_building_footprints
+      - publish.mrf_max_coastal_inundation_3day_counties
+      - publish.mrf_max_coastal_inundation_3day_hucs
+  - sql_file:  5day_src_skill
+    target_table:
+      - publish.mrf_max_coastal_inundation_5day_src_skill
+  - sql_file:  5day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_max_coastal_inundation_5day_building_footprints
+      - publish.mrf_max_coastal_inundation_5day_counties
+      - publish.mrf_max_coastal_inundation_5day_hucs
+  - sql_file:  10day_src_skill
+    target_table:
+      - publish.mrf_max_coastal_inundation_10day_src_skill
+  - sql_file:  10day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_max_coastal_inundation_10day_building_footprints
+      - publish.mrf_max_coastal_inundation_10day_counties
+      - publish.mrf_max_coastal_inundation_10day_hucs
+
+services:
+  - mrf_coastal_inundation_extent
+  - mrf_coastal_inundation_depth

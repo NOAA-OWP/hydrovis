@@ -54,4 +54,5 @@ psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_
             DROP SERVER IF EXISTS wrds_location CASCADE;
             CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '${location_db_host}', dbname '${location_db_name}', port '${location_db_port}');
             CREATE USER MAPPING FOR ${viz_db_username} SERVER wrds_location OPTIONS (user '${location_db_username}', password '${location_db_password}');
+            CREATE USER MAPPING FOR ${viz_proc_admin_rw_username} SERVER wrds_location OPTIONS (user '${location_db_username}', password '${location_db_password}');
             IMPORT FOREIGN SCHEMA public LIMIT TO (usgs_gage) FROM SERVER wrds_location INTO external;"

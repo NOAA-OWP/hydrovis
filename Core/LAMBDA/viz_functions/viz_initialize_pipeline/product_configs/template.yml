@@ -1,0 +1,66 @@
+product: product_name  # (REQUIRED) The name of the product that will be processed
+dependent_on: dependent_product_name  # (OPTIONAL) The name of the product that will be processed
+configuration: configuration_name  # (REQUIRED) The configuration of the product (analysis_assim, short_range, etc)
+product_type: "vector"  # (REQUIRED) Type of product being created. Values can be "fim", "vector", or "raster"
+run: true  # (REQUIRED) Determines if this product is enabled or disabled
+run_times:  # (OPTIONAL) List of reference time hours that this product will run
+  - 00:00  # (REQUIRED) reference hour:minute to run the service
+
+lambda_max_flows:  # (OPTIONAL) List of max_flows to run via a lambda function for larger file sets
+  - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.f{{range:1,19,1,%03d}}.conus.nc  # (REQUIRED) File path to data with regex type format for dynamic handling
+    file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
+    file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
+    output_file: output/path/to/date.{{datetime:%Y%m%d}}/data.nc  # (REQUIRED) File path to output data. The datetime regex will end up being the reference time of the product run
+    target_table: ingest.max_flows_table  # (REQUIRED) Name of the DB table where the fileset will be imported
+    target_keys: (feature_id, streamflow)  # (REQUIRED) Name of fields that will be used for creating indice
+
+ingest_files:  # (OPTIONAL) Dictionary dictating what filesets to ingest into the DB
+  - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.f{{range:1,19,1,%03d}}.conus.nc  # (REQUIRED) File path to data with regex type format for dynamic handling
+    file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
+    file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
+    target_table: db_table_name  # (REQUIRED) Name of the DB table where the fileset will be imported
+    target_keys: (feature_id, streamflow)  # (REQUIRED) Name of fields that will be used for creating indices
+
+db_max_flows: # (OPTIONAL) List of max_flows to run in the database directly
+  - name: x_day_max_flows
+    target_table: cache.max_flows_table # (REQUIRED) Database table that the max flows will end up in.
+    target_keys: (feature_id, streamflow)  # (REQUIRED) Name of fields that will be used for creating indices
+    method: database # (REQUIRED) Database or lambda function
+    max_flows_sql_file: max_flows_file.sql # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
+  - name: x_day_max_flows
+    target_table: cache.max_flows_table # (REQUIRED) Database table that the max flows will end up in.
+    target_keys: (feature_id, streamflow)  # (REQUIRED) Name of fields that will be used for creating indices
+    method: lambda # (REQUIRED) Database or lambda function
+    max_flows_sql_file: max_flows_file.sql # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
+
+raster_input_files:  # (OPTIONAL) List of fim configurations to run
+  product_file: raster_processing_product  # (REQUIRED) Name of the product file used for processing
+  file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.nc # (REQUIRED) File path to data with regex type format for dynamic handling
+  file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
+  file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
+
+fim_configs:  # (OPTIONAL) List of fim configurations to run
+  - name: fim_config_1 # (REQUIRED) Name of the fim configuration
+    target_table: ingest.inundation  # (REQUIRED) Name of the DB table where the fileset will be imported
+    fim_type: hand  # (REQUIRED) hand or coastal indicating the type of fim config being ran
+    preprocess:  # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
+      - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.nc # (REQUIRED) File path to data with regex type format for dynamic handling
+        file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
+        file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
+        output_file: output/path/to/date.{{datetime:%Y%m%d}}/data.nc  # (REQUIRED) File path to output data. The datetime regex will end up being the reference time of the product run
+    postprocess:  # (OPTIONAL) Dictionary dictating what files to postprocess for the fim config if needed
+      sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the fim_config postprocess sql file
+      target_table: publish.inundation  # (REQUIRED) Name of the DB table where fim_config postprocess sql be be added
+
+postprocess_sql:  # (OPTIONAL) List of postprocess sql files to run in the postprocess sql lambda function
+  - sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the ingest postprocess sql file
+    target_table: publish.product  # (REQUIRED) Name of the DB table where the fileset will be imported
+
+product_summaries:  # (OPTIONAL) List of dictionaries which provides the names of the summary sql files to run in the postprocess sql lambda function and their table output results
+  - sql_file:  product_summary_sql_file_name  # (REQUIRED) Name of the summary sql file ran in the postprocess sql lambda function
+    target_table:
+      - summary_sql_output_1  # (REQUIRED) Name of an table created from the summary file
+
+services:  # (REQUIRED) List of services that will be published after the product data is processed
+  - service_name_1  # (REQUIRED) Name of service to be published
+

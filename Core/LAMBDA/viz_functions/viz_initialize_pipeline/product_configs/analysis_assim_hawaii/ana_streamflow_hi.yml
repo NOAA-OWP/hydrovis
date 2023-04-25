@@ -1,0 +1,25 @@
+product: ana_streamflow_hi
+configuration: analysis_assim_hawaii
+product_type: "vector"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim_hawaii/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm0000.hawaii.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_ana_hi
+      target_keys: (feature_id, streamflow)
+
+db_max_flows:
+  - name: ana_max_flows_hi
+    target_table: cache.max_flows_ana_hi
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: ana_max_flows_hi
+
+postprocess_sql:
+  - sql_file: ana_streamflow_hi
+    target_table: publish.ana_streamflow_hi
+
+services:
+  - ana_streamflow_hi

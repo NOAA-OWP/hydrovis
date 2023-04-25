@@ -1,0 +1,12 @@
+service: ana_past_14day_max_high_flow_magnitude
+summary: Past 14-Day High Flow Magnitude Analysis
+description: Depicts the magnitude of the peak NWM streamflow analysis over the past 14 days where the National Water Model (NWM) signaled high water. 
+  This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. 
+  Shown are reaches with flow at or above high water thresholds. Reaches are colored by the annual exceedance probability (AEP) of their maximum flow 
+  over the past 14 days. High water thresholds (regionally varied) and AEPs were derived using the 40-year NWM v2.1 reanalysis simulation. Updated daily.
+tags: high flow, magnitude, national water model, nwm, ana, conus, 14day
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

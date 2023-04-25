@@ -125,7 +125,7 @@ $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
 $env:WRDS_HOST = $WRDS_HOST
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
-$env:NWM_MAX_FLOWS_DATA_BUCKET = $NWM_MAX_FLOWS_DATA_BUCKET
+$env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
 $env:RNR_MAX_FLOWS_DATA_BUCKET = $RNR_MAX_FLOWS_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
@@ -151,7 +151,7 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("WRDS_HOST", $env:WRDS_HOST, "2")
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
-[Environment]::SetEnvironmentVariable("NWM_MAX_FLOWS_DATA_BUCKET", $env:NWM_MAX_FLOWS_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("RNR_MAX_FLOWS_DATA_BUCKET", $env:RNR_MAX_FLOWS_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
@@ -233,7 +233,7 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
 }
 
 LogWrite "INSTALLING AWS SERVICE REPO"
-$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Core\VIZ\EC2\code"
+$AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Source\Visualizations"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
@@ -270,10 +270,6 @@ if ($EXISTING_PUBLISHED_FLAGS) {
     LogWrite "DELETING PUBLISHED FLAGS"
     aws s3 rm $FLAGS_ROOT --recursive
 }
-
-LogWrite "Kicking of viz lambdas"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\kick_off_lambdas.py"
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing

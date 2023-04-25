@@ -1,0 +1,12 @@
+service: ana_anomaly
+summary: Streamflow Anomaly
+description: Depicts seasonal streamflow anomalies derived from the analysis and 
+  assimilation configuration of the National Water Model (NWM) over the contiguous 
+  U.S. Anomalies are based on 7-day and 14-day moving average streamflow percentiles 
+  for each reach and the current calendar day. Updated daily.
+tags: streamflow, anomaly, national, water, model, nwm
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

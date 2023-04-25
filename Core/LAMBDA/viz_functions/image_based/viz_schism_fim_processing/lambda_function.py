@@ -36,9 +36,6 @@ DEM_RESOLUTION = 30
 GRID_SIZE = DEM_RESOLUTION / 111000 # calc degrees, assume 111km/degree
 INPUTS_BUCKET = os.environ['INPUTS_BUCKET']
 INPUTS_PREFIX = os.environ['INPUTS_PREFIX']
-MAX_VALS_BUCKET = os.environ['MAX_VALS_BUCKET']
-OUTPUTS_BUCKET = os.environ['OUTPUTS_BUCKET']
-OUTPUTS_PREFIX = os.environ['OUTPUTS_PREFIX']
 AWS_SESSION = AWSSession()
 S3 = boto3.client('s3')
 DOMAINS = ['atlgulf', 'pacific', 'hawaii', 'puertorico']
@@ -48,57 +45,41 @@ METERS_TO_FT = 3.281
 
 def lambda_handler(event, context):
     step = event['step']
-    args = event['args']
-    
-    if 'schism_fim_s3_uri' in args:
-        schism_fim_s3_uri = args['schism_fim_s3_uri']
-        configuration = re.search('/(\w+_\w+_coastal_\w+)/', schism_fim_s3_uri)[0][1:-1]
-        ref_date_str = re.search('[0-9]{8}/', schism_fim_s3_uri)[0][1:-1]
-    elif all(x in args for x in ['reference_time', 'configuration']):
-        configuration = args['configuration']
-        short_config = configuration.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf")  # noqa
-        max_vals_config = configuration
-        if 'medium_range' in configuration:
-            daybin = configuration.split('_')[-1]
-            if 'day' in daybin:
-                max_vals_config = '_'.join(configuration.split('_')[:-1])
-   
-        reference_time = args['reference_time']
-        ref_date_str = ''.join(reference_time.split(' ')[0].split('-'))
-        hour = reference_time.split(' ')[1].split(':')[0]
-        schism_fim_s3_uri = f's3://{MAX_VALS_BUCKET}/max_elevs/{max_vals_config}/{ref_date_str}/{short_config}_{hour}_max_elevs.nc'
-        
-    if step == 'setup':
-        temp_folder = tempfile.gettempdir()
-        local_csv_fpath = os.path.join(temp_folder, 'hucs.csv')
-        S3.download_file(INPUTS_BUCKET, f'{INPUTS_PREFIX}/hucs/hucs.csv', local_csv_fpath)
-        with open(local_csv_fpath, 'r') as f:
-            hucs = f.read().strip().split('\n')[1:]
-        engine = database(db_type="viz").engine
-        engine.execute(f'DROP TABLE IF EXISTS publish.{configuration}_inundation;')
-        engine.dispose()
-        return hucs
-    elif step == 'iteration':
-        huc = args['huc']
-        depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, configuration, ref_date_str)
-        return {
-            'output_bucket': OUTPUTS_BUCKET,
-            'output_key': depth_key
-        }
+    reference_time = event['args']['reference_time']
+    sql_rename_dict = event['args']['sql_rename_dict']
+    fim_config = event['args']['fim_config']['name']
+    product = event['args']['product']['product']
+    target_table = event['args']['fim_config']['target_table']
+    max_elevs_file_bucket = event['args']['fim_config']['max_file_bucket']
+    max_elevs_file = event['args']['fim_config']['max_file']
+    schism_fim_s3_uri = f's3://{max_elevs_file_bucket}/{max_elevs_file}'
 
-def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
+    reference_date = dt.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
+    
+    print(f"Processing the {fim_config} fim config")
+    huc = event['huc']
+    output_bucket = event['output_bucket']
+    output_prefix = event['output_prefix']
+
+    depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix)
+    return {
+        "output_raster": depth_key
+    }
+
+def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix):
     domain = [d for d in DOMAINS if d in schism_fim_s3_uri][0]
-    if '_max_elevs.nc' in schism_fim_s3_uri:
-        hour = re.search('[^\d][0-9]{2}_max_elevs.nc', schism_fim_s3_uri)[0][1:3]
-    else:
-        hour = re.search('[^\d][0-9]{2}[^\d]', schism_fim_s3_uri)[0][1:3]
-    depth_key = f'{OUTPUTS_PREFIX}/{nwm_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
+    full_ref_time = reference_date.strftime("%Y-%m-%d %H:%M:%S UTC")
+    ref_date_str = reference_date.strftime("%Y%m%D")
+    hour = reference_date.strftime("%H")
+
+    target_table_schema = target_table.split(".")[0]
+    target_table = target_table.split(".")[1]
+
+    depth_key = f'{output_prefix}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
     coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
-    masks_root = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/masks'
     temp_folder = tempfile.mkdtemp()
     bounds = None
-    full_ref_time = '{}-{}-{} {}:00:00 UTC'.format(ref_date_str[0:2], ref_date_str[2:4], ref_date_str[4:6], hour)
 
     print("Executing lambda handler...")
     print(f"Writing tempfiles to {temp_folder}")
@@ -133,10 +114,10 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
         return
 
     # apply masks
-    masked_grid = mask_fim(wse_grid, masks_root, domain, temp_folder)
+    masked_grid = mask_fim(wse_grid, domain, temp_folder)
     
-    print(f"Uploading depth grid to AWS at s3://{OUTPUTS_BUCKET}/{depth_key}")
-    S3.upload_file(masked_grid, OUTPUTS_BUCKET, depth_key)
+    print(f"Uploading depth grid to AWS at s3://{output_bucket}/{depth_key}")
+    S3.upload_file(masked_grid, output_bucket, depth_key)
 
     # translate all > 0 depth values to 1 for wet (everything else [dry] already 0)
     binary_fim = fim_to_binary(masked_grid, temp_folder)
@@ -144,13 +125,9 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
     # We shouldn't need to clip since the raster is already at the HUC level
     # clipped_result = clip_to_shape(binary_fim, bounds)
 
-    update_time = dt.datetime.now().strftime('%y-%m-%d %H:%M%S UTC')
-
     attributes = {
-        'fim_version': '4_0_13_1',
         'huc8': huc,
-        'ref_time': full_ref_time,
-        'update_time': update_time
+        'reference_time': full_ref_time
     }
 
     polygon_df = raster_to_polygon_dataframe(binary_fim, attributes)
@@ -167,7 +144,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
         polygon_df.rename_geometry('geom', inplace=True)
         for attempt in range(attempts):
             try:
-                polygon_df.to_postgis(f'{nwm_config}_inundation', con=process_db.engine, schema='publish', if_exists='append')
+                polygon_df.to_postgis(target_table, con=process_db.engine, schema=target_table_schema, if_exists='append')
                 break
             except Exception as e:
                 if attempt == attempts - 1:
@@ -179,7 +156,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, nwm_config, ref_date_str):
     print("Removing temp files...")
     rmtree(temp_folder)
 
-    print(f"Successfully processed SCHISM FIM for HUC {huc} of {nwm_config} for {ref_date_str}")
+    print(f"Successfully processed SCHISM FIM for HUC {huc} of {fim_config} for {ref_date_str}")
     return depth_key
 
 #
@@ -426,17 +403,16 @@ class Mask:
             rst, geoms, crop=self.crop, invert=self.invert, nodata=NO_DATA)
         return out_image, out_transform
 
-def mask_fim(input_fim, masks_root, domain, temp_folder):
+def mask_fim(input_fim, domain, temp_folder):
     out_meta = {}
+    masks_prefix = f'{INPUTS_PREFIX}/masks/{domain}'
+
+    result = S3.list_objects(Bucket=INPUTS_BUCKET, Prefix=masks_prefix)
+    mask_prefixes = result.get('Contents')
+    mask_uris = [f"zip+s3://{INPUTS_BUCKET}/{m['Key']}" for m in mask_prefixes]
 
     # list of mask locations and "interior" or "exterior" (see Mask Class)
-    mask_list = [
-        Mask(f'{masks_root}/mask_water_polygon_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_nwm_lakes_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_levee_protected_area_conus.zip', "interior"),
-        Mask(f'{masks_root}/mask_schism_boundary_{domain}.zip', "exterior"),
-        Mask(f'{masks_root}/mask_us_boundary.zip', "exterior")
-    ]
+    mask_list = [Mask(uri, re.search('[inex]{2}terior', uri)[0]) for uri in mask_uris]
 
     current_raster = input_fim
     for mask_number, mask in enumerate(mask_list, 1):
@@ -518,7 +494,7 @@ def raster_to_polygon_dataframe(input_raster, attributes):
     
     return gpd_polygonized_raster
 
-def mosaic_rasters(raster_s3_uris):
+def mosaic_rasters(raster_s3_uris, output_bucket):
     temp_dir = tempfile.mkdtemp()
     temp_result_fpath = os.path.join(temp_dir, 'mosaic.tif')
     if len(raster_s3_uris) == 0:
@@ -544,7 +520,7 @@ def mosaic_rasters(raster_s3_uris):
         memfile = MemoryFile()
         memfiles.append(memfile.open(**meta))
         memfiles[-1].write(data[0], 1)
-        S3.delete_object(Bucket=OUTPUTS_BUCKET, Key=uri.split(OUTPUTS_BUCKET)[1][1:])
+        S3.delete_object(Bucket=output_bucket, Key=uri.split(output_bucket)[1][1:])
     merged_ras, merged_trans = merge(memfiles, method=pre121_max)
     for m in memfiles:
         m.close()

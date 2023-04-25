@@ -1,0 +1,17 @@
+product: mrf_gfs_accum_precip_ak
+configuration: forcing_medium_range_alaska
+product_type: "raster"
+run: false
+
+raster_input_files:
+  product_file: 10day_accum_precip
+  file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/forcing_medium_range_alaska/nwm.t{{datetime:%H}}z.medium_range.forcing.f{{range:1,241,1,%03d}}.alaska.nc
+  file_step: None
+  file_window: None
+      
+postprocess_sql:
+  - sql_file: mrf_gfs_accum_precip_ak
+    target_table: publish.mrf_gfs_accum_precip_ak
+
+services:
+  - mrf_gfs_accum_precip_ak

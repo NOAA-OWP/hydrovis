@@ -1,0 +1,11 @@
+service: ana_soil_moisture_ice_content
+summary: Soil Moisture Ice Conetnt Analysis
+description: Depicts the soil moisture ice content output from the operational 
+  National Water Model (NWM) analysis and assimilation. Values represent ice 
+  content for the 0 - 2m soil layer. Updated hourly.
+tags: national, water, model, nwm, soil, moisture, ice, content, ana
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false

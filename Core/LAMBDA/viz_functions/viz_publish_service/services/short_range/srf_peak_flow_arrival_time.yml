@@ -1,0 +1,13 @@
+service: srf_peak_flow_arrival_time
+summary: Short-Range Peak Flow Arrival Time Forecast
+description: Depicts expected peak flow arrival times derived from the operational National 
+  Water Model (NWM) short-range forecast. Shown are reaches that are expected to have flow at 
+  or above the high water threshold over the next 18 hours. Reaches are colored by the time at 
+  which they are expected to be at their maximum flow within the forecast period. High water 
+  flows were derived using a 40-year retrospective analysis of the NWM (v2.1). Updated hourly.
+tags: arrival time, national water model, nwm, srf, short, range, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

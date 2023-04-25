@@ -1,0 +1,7 @@
+product: nwm_flowlines
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - nwm_flowlines

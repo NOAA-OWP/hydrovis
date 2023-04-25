@@ -40,6 +40,10 @@ terraform.rc
 # Ignore visualization repo zip files
 **/LAMBDA/**/repos
 
+# Ignore image based lambda viz_classes
+**/LAMBDA/viz_functions/image_based/*/viz_classes.py
+**/LAMBDA/viz_functions/image_based/*/viz_lambda_shared_funcs.py
+
 # Ignore elasticsearch zip files
 **/ELASTICSEARCH/lambda_code*.zip
 

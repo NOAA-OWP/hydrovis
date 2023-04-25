@@ -3,44 +3,44 @@ import os
 import rioxarray as rxr
 from rasterio.crs import CRS
 from datetime import datetime
-import requests
-from viz_classes import s3_file
+from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
 
 OUTPUT_BUCKET = os.environ['OUTPUT_BUCKET']
 OUTPUT_PREFIX = os.environ['OUTPUT_PREFIX']
 
-class MissingS3FileException(Exception):
-    """ my custom exception class """
-
 def lambda_handler(event, context):
-    service_name = event['service']['service']
-    try:
-        func = getattr(__import__(f"services.{service_name}", fromlist=["main"]), "main")
-    except AttributeError:
-        raise Exception(f'function not found {service_name}')
+    product_name = event['product']['product']
 
-    uploaded_rasters = func(event['service'], event['reference_time'])
+    file_pattern = event['product']['raster_input_files']['file_format']
+    file_step = event['product']['raster_input_files']['file_step']
+    file_window = event['product']['raster_input_files']['file_window']
+    product_file = event['product']['raster_input_files']['product_file']
+    bucket = event['product']['raster_input_files']['bucket']
+    reference_time = event['reference_time']
+    reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
 
-    event['output_rasters'] = uploaded_rasters
-    event['output_bucket'] = OUTPUT_BUCKET
+    file_step = None if file_step == "None" else file_step
+    file_window = None if file_window == "None" else file_window
     
-    del event['service']['input_files']
-    del event['service']['bucket']
+    input_files = generate_file_list(file_pattern, file_step, file_window, reference_date)
+
+    try:
+        func = getattr(__import__(f"products.{product_file}", fromlist=["main"]), "main")
+    except AttributeError:
+        raise Exception(f'product_file not found for {product_file}')
+
+    uploaded_rasters = func(product_name, bucket, input_files, reference_time)
         
-    return event
+    return {
+        "output_rasters": uploaded_rasters,
+        "output_bucket": OUTPUT_BUCKET
+    }
 
 def open_raster(bucket, file, variable):
-    print(f"Opening {variable} in raster for {file}")
-    s3 = boto3.client('s3')
-
-    file = check_if_file_exists(bucket, file)
-    download_path = f'/tmp/{os.path.basename(file)}'
-    print(f"--> Downloading {file} to {download_path}")
-    if 'https://storage.googleapis.com/national-water-model' in file:
-        open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
-    else:
-        s3.download_file(bucket, file, download_path)
+    download_path = check_if_file_exists(bucket, file, download=True)
+    print(f"--> Downloaded {file} to {download_path}")
     
+    print(f"Opening {variable} in raster for {file}")
     ds = rxr.open_rasterio(download_path, variable=variable)
     
     # for some files like NBM alaska, the line above opens the attribute itself
@@ -82,12 +82,12 @@ def create_raster(data, crs):
     
     return local_raster
 
-def upload_raster(reference_time, local_raster, service_name, raster_name):
+def upload_raster(reference_time, local_raster, product_name, raster_name):
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
     
-    s3_raster_key = f"{OUTPUT_PREFIX}/{service_name}/{date}/{hour}/workspace/tif/{raster_name}.tif"
+    s3_raster_key = f"{OUTPUT_PREFIX}/{product_name}/{date}/{hour}/workspace/tif/{raster_name}.tif"
     
     print(f"--> Uploading raster to s3://{OUTPUT_BUCKET}/{s3_raster_key}")
     s3 = boto3.client('s3')
@@ -120,51 +120,3 @@ def sum_rasters(bucket, input_files, variable):
             data_sum += data.sel(time=data.time[time_index])
     print("Done adding rasters!")
     return data_sum, crs
-
-def check_if_file_exists(bucket, file):
-    if "https" in file:
-        if requests.head(file).status_code == 200:
-            print(f"{file} exists.")
-            return file
-        else:
-            raise Exception(f"https file doesn't seem to exist: {file}")
-        
-    else:
-        if s3_file(bucket, file).check_existence():
-            print("File exists on S3.")
-            return file
-        else:
-            if "/prod" in file:
-                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-                if requests.head(google_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-                    return google_file
-            elif "/para" in file:
-                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
-                if requests.head(para_nomads_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
-                    
-                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
-                    
-                    
-                    tries = 0
-                    while tries < 3:
-                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
-                        
-                        try:
-                            xr.open_dataset(download_path)
-                            tries = 3
-                        except:
-                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
-                            os.remove(download_path)
-                            tries +=1
-                    
-                    print(f"Saving {file} to {bucket} for archiving")
-                    s3.upload_file(download_path, bucket, file)
-                    os.remove(download_path)
-                    return file
-            else:
-                raise Exception("Code could not handle request for file")
-
-
-        raise MissingS3FileException(f"{file} does not exist on S3.")

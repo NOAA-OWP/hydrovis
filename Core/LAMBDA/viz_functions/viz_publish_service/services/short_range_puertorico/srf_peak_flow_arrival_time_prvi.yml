@@ -1,0 +1,14 @@
+service: srf_peak_flow_arrival_time_prvi
+summary: Short-Range Peak Flow Arrival Time Forecast for Puerto Rico and Virgin Islands
+description: Depicts expected peak flow arrival times derived from the operational National Water Model 
+  (NWM) short-range forecast for Puerto Rico and the U.S. Virgin Islands. Shown are reaches that are 
+  expected to have flow at or above high water threshold flow over the next 48 hours. Reaches are colored 
+  by the time at which they are expected to be at their maximum flow within the forecast period. High 
+  water threshold flows and annual exceedance probabilities were derived from USGS regression equations 
+  found at https://pubs.usgs.gov/wri/wri994142/pdf/wri99-4142.pdf. Updated every 12 hours.
+tags: arrival time, national water model, nwm, srf, short, range, puertorico, prvi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

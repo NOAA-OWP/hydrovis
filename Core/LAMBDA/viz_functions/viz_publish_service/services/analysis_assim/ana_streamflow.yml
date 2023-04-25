@@ -1,0 +1,10 @@
+service: ana_streamflow
+summary: Streamflow Analysis
+description: Depicts the streamflow output from the operational National Water Model (NWM) 
+  analysis and assimilation for the continental United States. Updated hourly.
+tags: streamflow, national water model, nwm, ana, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

@@ -1,0 +1,342 @@
+{
+  "type" : "CIMMapDocument",
+  "version" : "2.7.0",
+  "build" : 26828,
+  "mapDefinition" : {
+    "type" : "CIMMap",
+    "name" : "ana soil moisture ice content",
+    "uRI" : "CIMPATH=map/map.xml",
+    "sourceModifiedTime" : {
+      "type" : "TimeInstant",
+      "start" : 978307200000
+    },
+    "metadataURI" : "CIMPATH=Metadata/68f9b58d256def91d8dacb929e30aba2.xml",
+    "useSourceMetadata" : true,
+    "illumination" : {
+      "type" : "CIMIlluminationProperties",
+      "ambientLight" : 75,
+      "sunPositionX" : -0.61237243569579003,
+      "sunPositionY" : 0.61237243569579003,
+      "sunPositionZ" : 0.5,
+      "illuminationSource" : "AbsoluteSunPosition",
+      "sunAzimuth" : 315,
+      "sunAltitude" : 30,
+      "showStars" : true,
+      "enableAmbientOcclusion" : true,
+      "enableEyeDomeLighting" : true
+    },
+    "layers" : [
+      "CIMPATH=map/ana_soil_moisture_ice_content_tif.xml"
+    ],
+    "defaultViewingMode" : "Map",
+    "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=ana_soil_moisture_ice_content/vizprocessing_publish_ana_soil_moisture_ice_content.xml"
+    ],
+    "defaultExtent" : {
+      "xmin" : -15805536.7518568709,
+      "ymin" : 1424411.76479305,
+      "xmax" : -5318951.79251101334,
+      "ymax" : 8356930.84876251966,
+      "spatialReference" : {
+        "wkid" : 102100,
+        "latestWkid" : 3857
+      }
+    },
+    "elevationSurfaces" : [
+      {
+        "type" : "CIMMapElevationSurface",
+        "elevationMode" : "BaseGlobeSurface",
+        "name" : "Ground",
+        "verticalExaggeration" : 1,
+        "mapElevationID" : "{B979D701-04E0-4E89-8C73-BD70CE375B04}",
+        "color" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            100
+          ]
+        },
+        "surfaceTINShadingMode" : "Smooth",
+        "visibility" : true,
+        "expanded" : true
+      }
+    ],
+    "generalPlacementProperties" : {
+      "type" : "CIMMaplexGeneralPlacementProperties",
+      "invertedLabelTolerance" : 2,
+      "unplacedLabelColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          0,
+          0,
+          100
+        ]
+      },
+      "keyNumberGroups" : [
+        {
+          "type" : "CIMMaplexKeyNumberGroup",
+          "delimiterCharacter" : ".",
+          "horizontalAlignment" : "Left",
+          "maximumNumberOfLines" : 20,
+          "minimumNumberOfLines" : 2,
+          "name" : "Default",
+          "numberResetType" : "None",
+          "keyNumberMethod" : "PreventUnplacedLabels"
+        }
+      ],
+      "placementQuality" : "High"
+    },
+    "snappingProperties" : {
+      "type" : "CIMSnappingProperties",
+      "xYTolerance" : 10,
+      "xYToleranceUnit" : "SnapXYToleranceUnitPixel",
+      "snapToSketchEnabled" : true,
+      "snapRequestType" : "SnapRequestType_GeometricAndVisualSnapping",
+      "isZSnappingEnabled" : true
+    },
+    "spatialReference" : {
+      "wkid" : 102100,
+      "latestWkid" : 3857
+    },
+    "timeDisplay" : {
+      "type" : "CIMMapTimeDisplay",
+      "defaultTimeIntervalUnits" : "esriTimeUnitsUnknown",
+      "timeValue" : {
+        "type" : "TimeExtent",
+        "start" : null,
+        "end" : null,
+        "empty" : false
+      },
+      "timeRelation" : "esriTimeRelationOverlaps"
+    },
+    "colorModel" : "RGB",
+    "scaleDisplayFormat" : "Value",
+    "clippingMode" : "None",
+    "nearPlaneClipDistanceMode" : "Automatic",
+    "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+  },
+  "layerDefinitions" : [
+    {
+      "type" : "CIMRasterLayer",
+      "name" : "Soil Moisture Ice Content",
+      "uRI" : "CIMPATH=map/ana_soil_moisture_ice_content_tif.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant",
+        "start" : 978307200000
+      },
+      "metadataURI" : "CIMPATH=Metadata/9f59e6e445ab86e98c2449168b6e373a.xml",
+      "useSourceMetadata" : true,
+      "description" : "ana_soil_moisture_ice_content.tif",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{B979D701-04E0-4E89-8C73-BD70CE375B04}"
+      },
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "dataConnection" : {
+        "type" : "CIMStandardDataConnection",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_soil_moisture_ice_content\\published",
+        "workspaceFactory" : "Raster",
+        "dataset" : "ana_soil_moisture_ice_content.mrf",
+        "datasetType" : "esriDTAny"
+      },
+      "colorizer" : {
+        "type" : "CIMRasterClassifyColorizer",
+        "resamplingType" : "NearestNeighbor",
+        "noDataColor" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            0
+          ]
+        },
+        "normalizationType" : "Nothing",
+        "classBreaks" : [
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.20000000000000001,
+            "label" : "< 20 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                0,
+                227,
+                224,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.40000000000000002,
+            "label" : "20 - 40 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                0,
+                129,
+                215,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.59999999999999998,
+            "label" : "40 - 60 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                0,
+                27,
+                166,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.80000000000000004,
+            "label" : "60 - 80 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                169,
+                0,
+                230,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 1,
+            "label" : "80 - 100 %",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                220,
+                0,
+                219,
+                100
+              ]
+            }
+          }
+        ],
+        "classificationMethod" : "Manual",
+        "colorRamp" : {
+          "type" : "CIMLinearContinuousColorRamp",
+          "colorSpace" : {
+            "type" : "CIMICCColorSpace",
+            "url" : "Default RGB"
+          },
+          "fromColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              60,
+              100,
+              96,
+              100
+            ]
+          },
+          "toColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              0,
+              100,
+              96,
+              100
+            ]
+          }
+        },
+        "field" : "Value",
+        "hillshadeZFactor" : 1,
+        "minimumBreak" : 0.01,
+        "showInAscendingOrder" : true,
+        "numberFormat" : {
+          "type" : "CIMNumericFormat",
+          "alignmentOption" : "esriAlignLeft",
+          "alignmentWidth" : 12,
+          "roundingOption" : "esriRoundNumberOfDecimals",
+          "roundingValue" : 6,
+          "useSeparator" : true
+        }
+      },
+      "autoComputeStatsHistogram" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/68f9b58d256def91d8dacb929e30aba2.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230315</CreaDate><CreaTime>16123500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCADIASwDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDxdpJr\r\nLVrv7abi1uAGDqgIYP1CsGIJGQAcknvz3QHd+DvEks2pajqomsLSXaVSOcu53zL5ZdB2OQCSo6nH\r\nAPEtCOz8S3DXGqv9rewkktZI/wB8gkjkVZFA3HAbdyfkbouWyAVFTF2EjhrqxmVbOGaCW1S5Xy2S\r\nclFVlfy2ILMSWD5J4ACkZODmrTuUTWWiebbI0zKsbylWkkBDxlOmRgnHzdhzjHbFUA7xh4dsJNOi\r\nMEtsL0RDiFw0cjAEn5843cdMnk9s8gHGXFzY3ujW1i1lImtQv5SPDEirKnACvjGW684J6ZJ7K2oj\r\nKuFihhjh8mWO7jdxP5gxjoAuPbByePvYxxksZZuEXUtd+zxCOATTrENzJtQk4JygChckn5RigDov\r\n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</Data></Thumbnail></Binary></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/9f59e6e445ab86e98c2449168b6e373a.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230315</CreaDate><CreaTime>16552500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    }
+  ],
+  "tableDefinitions" : [
+    {
+      "type" : "CIMStandaloneTable",
+      "name" : "Service Metadata",
+      "uRI" : "CIMPATH=ana_soil_moisture_ice_content/vizprocessing_publish_ana_soil_moisture_ice_content.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "displayField" : "reference_time",
+      "editable" : true,
+      "dataConnection" : {
+        "type" : "CIMSqlQueryDataConnection",
+        "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68396e38764e42464b6630642b714a497477752b4132786a394673507231616358624b68512f55464b574d77663665704c344e3663366b667378744550393842592a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+        "workspaceFactory" : "SDE",
+        "dataset" : "vizprocessing.publish.%ana_soil_moisture_ice_content",
+        "datasetType" : "esriDTTable",
+        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_soil_moisture_ice_content",
+        "oIDFields" : "reference_time",
+        "geometryType" : "esriGeometryNull",
+        "queryFields" : [
+          {
+            "name" : "reference_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "reference_time",
+            "length" : 60000
+          },
+          {
+            "name" : "valid_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "valid_time",
+            "length" : 60000
+          },
+          {
+            "name" : "update_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "update_time",
+            "length" : 60000
+          }
+        ]
+      },
+      "autoGenerateRowTemplates" : true,
+      "serviceTableID" : -1,
+      "showPopups" : true
+    }
+  ]
+}

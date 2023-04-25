@@ -1,0 +1,100 @@
+{
+  "Comment": "Processes the outputs for all SCHISM FIM services.",
+  "StartAt": "Iterate over HUC8s",
+  "States": {
+    "Iterate over HUC8s": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Process FIM By HUC8",
+        "States": {
+          "Process FIM By HUC8": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${schism_fim_processing_arn}",
+              "Payload.$": "$"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 2,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice",
+            "ResultPath": "$.result",
+            "ResultSelector": {
+              "output_raster.$": "$.Payload.output_raster"
+            }
+          },
+          "Choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Not": {
+                  "Variable": "$.result.output_raster",
+                  "IsNull": true
+                },
+                "Next": "Cloud Optimize Raster"
+              }
+            ],
+            "Default": "Pass"
+          },
+          "Cloud Optimize Raster": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${optimize_rasters_arn}",
+              "Payload": {
+                "output_raster.$": "$.result.output_raster",
+                "output_bucket.$": "$.output_bucket"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Pass",
+            "ResultPath": null
+          },
+          "Pass": {
+            "Type": "Pass",
+            "End": true,
+            "InputPath": "$.result.output_raster"
+          }
+        }
+      },
+      "ItemsPath": "$.hucs_to_process",
+      "ItemSelector": {
+        "step": "iteration",
+        "huc.$": "$$.Map.Item.Value",
+        "output_bucket.$": "$.data_bucket",
+        "output_prefix.$": "$.data_prefix",
+        "args": {
+          "job_type.$": "$.job_type",
+          "reference_time.$": "$.reference_time",
+          "product.$": "$.product",
+          "fim_config.$": "$.fim_config",
+          "sql_rename_dict.$": "$.sql_rename_dict"
+        }
+      },
+      "ResultPath": "$.hucs_to_process",
+      "End": true
+    }
+  }
+}

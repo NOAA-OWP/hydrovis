@@ -1,0 +1,89 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "FIM Data Prep - Get HUC Branch Processes",
+  "States": {
+    "FIM Data Prep - Get HUC Branch Processes": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${fim_data_prep_arn}",
+        "Payload": {
+          "args.$": "$",
+          "step": "get_branch_iteration"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "HUC 8 Map",
+      "ResultPath": "$.huc_branch_data",
+      "ResultSelector": {
+        "huc_branches_to_process.$": "$.Payload.huc_branches_to_process"
+      }
+    },
+    "HUC 8 Map": {
+      "Type": "Map",
+      "End": true,
+      "Iterator": {
+        "StartAt": "HUC Processing",
+        "States": {
+          "HUC Processing": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${hand_fim_processing_arn}"
+            },
+            "End": true,
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 3,
+                "Comment": "Handle insufficient capacity"
+              },
+              {
+                "ErrorEquals": [
+                  "HANDDatasetReadError"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 2,
+                "Comment": "Issue Reading HAND Datasets"
+              }
+            ]
+          }
+        }
+      },
+      "MaxConcurrency": 40,
+      "ItemsPath": "$.huc_branch_data.huc_branches_to_process",
+      "Parameters": {
+        "huc.$": "$$.Map.Item.Value.huc",
+        "huc8_branch.$": "$$.Map.Item.Value.huc8_branch",
+        "data_prefix.$": "$.data_prefix",
+        "data_bucket.$": "$.data_bucket",
+        "fim_config.$": "$.fim_config",
+        "product.$": "$.product",
+        "reference_time.$": "$.reference_time",
+        "db_fim_table.$": "$.db_fim_table"
+      }
+    }
+  }
+}

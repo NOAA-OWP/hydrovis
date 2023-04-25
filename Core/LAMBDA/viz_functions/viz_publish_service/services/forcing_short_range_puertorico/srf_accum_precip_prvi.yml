@@ -1,0 +1,11 @@
+service: srf_accum_precip_prvi
+summary: NAM-NEST NWP Short-Range Accumulated Precipitationn for Puerto Rico and Virgin Islands
+description: 'Depicts expected accumulated precipitation totals over the next 48 hours derived from the NAM-Nest with 
+  HIRESW WRF-ARW forcing for the operational National Water Model (NWM) short-range forecast for Puerto Rico and the 
+  U.S. Virgin Islands. Updated every 12 hours.'
+tags: nam-nest, nwp, accumulated, precipitation, national, water, model, nwm, puertorico, prvi, precip
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false

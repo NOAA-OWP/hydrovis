@@ -3,21 +3,24 @@ import os
 import time
 from arcgis.gis import GIS
 from viz_classes import s3_file
+import yaml
 
 def lambda_handler(event, context):
     
     s3 = boto3.client('s3')
-    service_data = event['args']['service']
-    service_name = service_data['service']
+    folder = event['folder']
+    service_name = event['args']['service']
+    service_metadata = get_service_metadata(folder, service_name)
+    
     service_tag = os.getenv('SERVICE_TAG')
     service_name_publish = service_name + service_tag
-    folder = service_data['egis_folder']
-    summary = service_data['summary']
-    description = service_data['description']
-    tags = service_data['tags']
-    credits = service_data['credits']
-    server = service_data['egis_server']
-    public_service = True if service_tag == "_alpha" else service_data['public_service']
+    folder = service_metadata['egis_folder']
+    summary = service_metadata['summary']
+    description = service_metadata['description']
+    tags = service_metadata['tags']
+    credits = service_metadata['credits']
+    server = service_metadata['egis_server']
+    public_service = True if service_tag == "_alpha" else service_metadata['public_service']
     publish_flag_bucket = os.getenv('PUBLISH_FLAG_BUCKET')
     publish_flag_key = f"published_flags/{server}/{folder}/{service_name}/{service_name}"
 
@@ -150,3 +153,11 @@ def lambda_handler(event, context):
             
             
     return True
+    
+def get_service_metadata(folder, service_name):
+    yml_path = os.path.join("services", folder, f"{service_name}.yml")
+
+    service_stream = open(yml_path, 'r')
+    service_metadata = yaml.safe_load(service_stream)
+    
+    return service_metadata

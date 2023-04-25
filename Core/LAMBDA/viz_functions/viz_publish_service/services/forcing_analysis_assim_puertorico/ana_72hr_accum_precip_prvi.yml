@@ -1,0 +1,11 @@
+service: ana_72hr_accum_precip_prvi
+summary: NAM-NEST NWP Past 72-Hour Accumulated Precipitationn for Puerto Rico and Virgin Islands
+description: 'Depicts accumulated precipitation totals over the past 72 hours derived from the NAM-NEST and HIRES WRF-ARW NWP 
+  forcing for the operational National Water Model (NWM) analysis and assimilation for Puerto Rico and the U.S. Virgin Islands. 
+  Updated hourly.'
+tags: nam-nest, nwp, accumulated, precipitation, national, water, model, nwm, puertorico, prvi, precip
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false

@@ -1,0 +1,21 @@
+service: srf_max_inundation_hi
+summary: Short-Range Inundation Forecast for Hawaii
+description: 'Depicts the inundation extent of the peak National Water Model (NWM) 
+  streamflow forecast over the next 48 hours where the NWM is signaling high water. 
+  This service is derived from the short-range configuration of the NWM over Hawaii. 
+  Shown are reaches with peak flow at or above high water thresholds. High water 
+  thresholds and AEPs were derived from USGS regression equations found at 
+  https://pubs.usgs.gov/sir/2010/5035/sir2010-5035_text.pdf. Updated every 12 hours.
+
+  Estimated Impacted Buildings: Depicts building footprints that intersect inundation 
+  extents. The source of the building data is the FEMA USA Structures dataset: 
+  https://gis-fema.hub.arcgis.com/pages/usa-structures (as of August, 2022). Occupancy 
+  type data is only available for AL, CA, FL, GA, LA, MS, NC, SC, TX, and VA at this 
+  time. Also shown are a relative density heatmap of potentially impacted buildings 
+  (based on extent), and county level summary layers.'
+tags: national water model, nwm, srf, short, range, hawaii, hi, fim, inundation, extent
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

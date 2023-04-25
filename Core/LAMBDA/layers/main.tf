@@ -255,6 +255,20 @@ resource "aws_lambda_layer_version" "requests" {
   source_code_hash = filebase64sha256("${path.module}/requests.zip")
 }
 
+################
+## yaml Layer ##
+################
+
+resource "aws_lambda_layer_version" "yaml" {
+  filename         = "${path.module}/yaml.zip"
+  source_code_hash = filebase64sha256("${path.module}/yaml.zip")
+
+  layer_name = "yaml_${var.environment}"
+
+  compatible_runtimes = ["python3.9"]
+  description         = "Python yaml module"
+}
+
 #############
 ## Outputs ##
 #############
@@ -297,4 +311,8 @@ output "pika" {
 
 output "requests" {
   value = resource.aws_lambda_layer_version.requests
+}
+
+output "yaml" {
+  value = resource.aws_lambda_layer_version.yaml
 }

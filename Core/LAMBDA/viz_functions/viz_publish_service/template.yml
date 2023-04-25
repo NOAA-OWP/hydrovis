@@ -1,0 +1,9 @@
+service: service_name  # (REQUIRED) Name of the service to be published
+summary: Write summary here  # (REQUIRED) Short summary of the service
+description: Write description here. Can be multiline  # (REQUIRED) Long summary of the service
+tags: Add, comma, delimited, tags  # (REQUIRED) Tags associated with the service
+credits: Add, comma, delimited, credits  # (REQUIRED) Credits for the service
+egis_server: server_name  # (REQUIRED) The server where the service will be published
+egis_folder: folder_name  # (REQUIRED) The folder where the service will reside
+feature_service: false  # (REQUIRED) Boolean indicating whether the service will be a feature service
+public_service: false  # (REQUIRED) Boolean indicating if the service will be public or internal

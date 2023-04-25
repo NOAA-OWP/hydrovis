@@ -1,0 +1,27 @@
+product: nwm_aep_fim
+configuration: reference
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: rf_2_inundation
+    target_table: aep_fim.rf_2_inundation
+    fim_type: hand
+  - name: rf_5_inundation
+    target_table: aep_fim.rf_5_inundation
+    fim_type: hand
+  - name: rf_10_inundation
+    target_table: aep_fim.rf_10_inundation
+    fim_type: hand
+  - name: rf_25_inundation
+    target_table: aep_fim.rf_25_inundation
+    fim_type: hand
+  - name: rf_50_inundation
+    target_table: aep_fim.rf_50_inundation
+    fim_type: hand
+  - name: rf_high_water_inundation
+    target_table: aep_fim.rf_high_water_inundation
+    fim_type: hand
+
+services:
+  - nwm_aep_fim
