@@ -14,6 +14,7 @@ variable "region" {
   type = string
 }
 
+
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
@@ -23,6 +24,7 @@ resource "aws_iam_service_linked_role" "autoscaling" {
     ignore_changes = [custom_suffix]
   }
 }
+
 
 # EC2ImageBuilderDistributionCrossAccountRole Role
 resource "aws_iam_role" "EC2ImageBuilderDistributionCrossAccountRole" {
@@ -93,38 +95,8 @@ resource "aws_iam_role_policy" "HydrovisESRISSMDeploy" {
   })
 }
 
-
-# HydrovisSSMInstanceProfileRole Role
-resource "aws_iam_role" "HydrovisSSMInstanceProfileRole" {
-  name = "HydrovisSSMInstanceProfileRole_${var.region}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_instance_profile" "HydrovisSSMInstanceProfileRole" {
-  name = "HydrovisSSMInstanceProfileRole_${var.region}"
-  role = aws_iam_role.HydrovisSSMInstanceProfileRole.name
-}
-
-resource "aws_iam_role_policy_attachment" "HydrovisSSMInstanceProfileRole-ssm" {
-  role       = aws_iam_role.HydrovisSSMInstanceProfileRole.name
-  policy_arn = aws_iam_policy.ssm.arn
-}
-
-resource "aws_iam_role_policy_attachment" "HydrovisSSMInstanceProfileRole-cloudwatch" {
-  role       = aws_iam_role.HydrovisSSMInstanceProfileRole.name
+resource "aws_iam_role_policy_attachment" "HydrovisESRISSMDeploy_cloudwatch" {
+  role       = aws_iam_role.HydrovisESRISSMDeploy.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
@@ -209,7 +181,42 @@ resource "aws_iam_role_policy" "rds_s3_export" {
 }
 
 
-# hydrovis-hml-ingest-role Role
+# data-services Role
+resource "aws_iam_role" "data_services" {
+  name = "hv-vpp-${var.environment}-${var.region}-data-services"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "data_services" {
+  name = "hv-vpp-${var.environment}-${var.region}-data-services"
+  role = aws_iam_role.data_services.name
+}
+
+resource "aws_iam_role_policy_attachment" "data_services_ssm" {
+  role       = aws_iam_role.data_services.name
+  policy_arn = aws_iam_policy.ssm.arn
+}
+
+resource "aws_iam_role_policy_attachment" "data_services_cloudwatch" {
+  role       = aws_iam_role.data_services.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+
+# data-ingest Role
 resource "aws_iam_role" "data_ingest" {
   name = "hv-vpp-${var.environment}-${var.region}-data-ingest"
 
@@ -253,6 +260,11 @@ resource "aws_iam_role_policy_attachment" "data_ingest_lambda" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "data_ingest_cloudwatch" {
+  role       = aws_iam_role.data_ingest.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 
 # rnr Role
 resource "aws_iam_role" "rnr" {
@@ -281,6 +293,11 @@ resource "aws_iam_instance_profile" "rnr" {
 resource "aws_iam_role_policy_attachment" "rnr_ssm" {
   role       = aws_iam_role.rnr.name
   policy_arn = aws_iam_policy.ssm.arn
+}
+
+resource "aws_iam_role_policy_attachment" "rnr_cloudwatch" {
+  role       = aws_iam_role.rnr.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
 
@@ -367,12 +384,8 @@ output "profile_HydrovisESRISSMDeploy" {
   value = aws_iam_instance_profile.HydrovisESRISSMDeploy
 }
 
-output "role_HydrovisSSMInstanceProfileRole" {
-  value = aws_iam_role.HydrovisSSMInstanceProfileRole
-}
-
-output "profile_HydrovisSSMInstanceProfileRole" {
-  value = aws_iam_instance_profile.HydrovisSSMInstanceProfileRole
+output "role_data_services" {
+  value = aws_iam_role.data_services
 }
 
 output "role_viz_pipeline" {
@@ -381,6 +394,10 @@ output "role_viz_pipeline" {
 
 output "role_rds_s3_export" {
   value = aws_iam_role.rds_s3_export
+}
+
+output "profile_data_services" {
+  value = aws_iam_instance_profile.data_services
 }
 
 output "role_data_ingest" {

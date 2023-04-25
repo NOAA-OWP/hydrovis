@@ -122,7 +122,7 @@ module "s3" {
   buckets_and_bucket_users = {
     "deployment" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
-      module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
+      module.iam-roles.role_data_services.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_data_ingest.arn,
       module.iam-roles.role_rnr.arn,
@@ -145,7 +145,7 @@ module "s3" {
     ]
     "session-manager-logs" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
-      module.iam-roles.role_HydrovisSSMInstanceProfileRole.arn,
+      module.iam-roles.role_data_services.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_data_ingest.arn,
       module.iam-roles.role_rnr.arn
@@ -408,7 +408,7 @@ module "lambda-layers" {
 #     module.security-groups.rds.id,
 #     module.security-groups.vpc_access.id,
 #   ]
-#   ec2_instance_profile_name          = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
+#   ec2_instance_profile_name          = module.iam-roles.profile_data_services.name
 #   kms_key_arn                        = module.kms.key_arns["encrypt-ec2"]
 #   rds_host                           = module.rds-ingest.dns_name
 #   location_db_name                   = local.env.location_db_name
@@ -517,7 +517,7 @@ module "lambda-layers" {
 #   ami_owner_account_id                 = local.env.ami_owner_account_id
 #   logstash_instance_subnet_id          = module.vpc.subnet_private_a.id
 #   logstash_instance_availability_zone  = module.vpc.subnet_private_a.availability_zone
-#   logstash_instance_profile_name       = module.iam-roles.profile_HydrovisSSMInstanceProfileRole.name
+#   logstash_instance_profile_name       = module.iam-roles.profile_data_services.name
 #   logstash_instance_security_group_ids = [
 #     module.security-groups.opensearch-access.id,
 #     module.security-groups.vpc_access.id
