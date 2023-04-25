@@ -73,15 +73,13 @@ reg import $UD_LICENSE
 reg unload "HKU\$PIPELINE_USER"
 
 New-Item -ItemType Directory -Force -Path $HV_SSH_DIR | Out-Null
-CreateUTF8File $VLAB_SSH_KEY_CONTENT $HV_SSH_DIR id_rsa
 CreateUTF8File $GITHUB_SSH_KEY_CONTENT $HV_SSH_DIR id_ed25519
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
+"call ssh-keyscan -t rsa $GITHUB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 
 New-Item -ItemType Directory -Force -Path $UD_SSH_DIR | Out-Null
-CreateUTF8File $VLAB_SSH_KEY_CONTENT $UD_SSH_DIR id_rsa
 CreateUTF8File $GITHUB_SSH_KEY_CONTENT $UD_SSH_DIR id_ed25519
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> $HOME\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
+"call ssh-keyscan -t rsa $GITHUB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 
 LogWrite "Setting up file structure of static and dynamic data"
@@ -118,11 +116,9 @@ $env:CACHE_DAYS = "14"
 $env:EGIS_HOST = $EGIS_HOST
 $env:EGIS_USERNAME = $HYDROVIS_EGIS_USER
 $env:EGIS_PASSWORD = $HYDROVIS_EGIS_PASS
-$env:FIM_VERSION = $FIM_VERSION
 $env:IMAGE_SERVER = "image"
 $env:PRIMARY_SERVER = "server"
 $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
-$env:WRDS_HOST = $WRDS_HOST
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
 $env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
@@ -144,11 +140,9 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("EGIS_HOST", $env:EGIS_HOST, "2")
 [Environment]::SetEnvironmentVariable("EGIS_USERNAME", $env:EGIS_USERNAME, "2")
 [Environment]::SetEnvironmentVariable("EGIS_PASSWORD", $env:EGIS_PASSWORD, "2")
-[Environment]::SetEnvironmentVariable("FIM_VERSION", $env:FIM_VERSION, "2")
 [Environment]::SetEnvironmentVariable("IMAGE_SERVER", $env:IMAGE_SERVER, "2")
 [Environment]::SetEnvironmentVariable("PRIMARY_SERVER", $env:PRIMARY_SERVER, "2")
 [Environment]::SetEnvironmentVariable("VIZ_ENVIRONMENT", $env:VIZ_ENVIRONMENT, "2")
-[Environment]::SetEnvironmentVariable("WRDS_HOST", $env:WRDS_HOST, "2")
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")

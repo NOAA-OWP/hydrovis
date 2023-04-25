@@ -27,10 +27,6 @@ variable "ec2_instance_subnet" {
   type = string
 }
 
-variable "dataservices_host" {
-  type = string
-}
-
 variable "license_server_host" {
   type = string
 }
@@ -75,11 +71,6 @@ variable "ec2_instance_profile_name" {
   type        = string
 }
 
-variable "fim_version" {
-  description = "FIM version to run"
-  type        = string
-}
-
 variable "windows_service_status" {
   description = "Argument for if windows services for pipelines should stop or start on machine spinup"
   type        = string
@@ -105,14 +96,6 @@ variable "pipeline_user_secret_string" {
 }
 
 variable "hydrovis_egis_pass" {
-  type = string
-}
-
-variable "vlab_repo_prefix" {
-  type = string
-}
-
-variable "vlab_host" {
   type = string
 }
 
@@ -146,6 +129,13 @@ variable "egis_db_name" {
 
 variable "egis_db_secret_string" {
   type = string
+}
+
+variable "private_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
 }
 
 data "aws_caller_identity" "current" {}
@@ -196,18 +186,15 @@ data "cloudinit_config" "pipeline_setup" {
     filename     = "prc_setup.ps1"
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
       VIZ_DATA_HASH                  = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
-      Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
+      Fileshare_IP                   = "\\\\${aws_route53_record.viz_fileshare.name}"
       EGIS_HOST                      = local.egis_host
       VIZ_ENVIRONMENT                = var.environment
-      FIM_VERSION                    = var.fim_version
-      VLAB_SSH_KEY_CONTENT           = file("${path.root}/sensitive/viz/vlab")
       GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
       LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
         LICENSE_SERVER = var.license_server_host
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
       FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
-      WRDS_HOST                      = var.dataservices_host
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
       FIM_OUTPUT_BUCKET              = var.fim_output_bucket
@@ -220,8 +207,6 @@ data "cloudinit_config" "pipeline_setup" {
       PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
       PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
       HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
-      VLAB_REPO_PREFIX               = var.vlab_repo_prefix
-      VLAB_HOST                      = var.vlab_host
       GITHUB_REPO_PREFIX             = var.github_repo_prefix
       GITHUB_HOST                    = var.github_host
       VIZ_DB_HOST                    = var.viz_db_host
@@ -340,4 +325,12 @@ resource "aws_instance" "viz_fileshare" {
   }
 
   user_data = data.cloudinit_config.fileshare_setup.rendered
+}
+
+resource "aws_route53_record" "viz_fileshare" {
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "viz-fileshare.${var.private_route_53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.viz_fileshare[0].private_ip]
 }

@@ -660,7 +660,6 @@ module "rds-viz" {
 #     module.security-groups.vpc_access.id,
 #     module.security-groups.egis_overlord.id
 #   ]
-#   dataservices_host           = module.data-services.dns_name
 #   fim_data_bucket             = module.s3.buckets["deployment"].bucket
 #   fim_output_bucket           = module.s3.buckets["fim"].bucket
 #   nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
@@ -669,14 +668,11 @@ module "rds-viz" {
 #   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
 #   kms_key_arn                 = module.kms.key_arns["egis"]
 #   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name
-#   fim_version                 = local.env.fim_version
 #   windows_service_status      = local.env.viz_ec2_windows_service_status
 #   windows_service_startup     = local.env.viz_ec2_windows_service_startup
 #   license_server_host         = module.egis-license-manager.dns_name
 #   pipeline_user_secret_string = module.secrets-manager.secret_strings["egis-service-account"]
 #   hydrovis_egis_pass          = local.env.viz_ec2_hydrovis_egis_pass
-#   vlab_repo_prefix            = local.env.viz_ec2_vlab_repo_prefix
-#   vlab_host                   = local.env.viz_ec2_vlab_host
 #   github_repo_prefix          = local.env.viz_ec2_github_repo_prefix
 #   github_host                 = local.env.viz_ec2_github_host
 #   viz_db_host                 = module.rds-viz.dns_name
@@ -685,6 +681,7 @@ module "rds-viz" {
 #   egis_db_host                = module.rds-egis.dns_name
 #   egis_db_name                = local.env.egis_db_name
 #   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+#   private_route_53_zone       = module.private-route53.zone
 # }
 
 # module "sync_wrds_location_db" {
