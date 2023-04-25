@@ -1,0 +1,23 @@
+product: rfc_max_stage
+configuration: rfc
+product_type: "vector"
+run: true
+
+ingest_files:
+    - file_format: max_stage/ahps/{{datetime:%Y%m%d}}/{{datetime:%H_%M}}_ahps_forecasts.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.ahps_forecasts
+      target_keys: (nws_lid)
+    - file_format: max_stage/ahps/{{datetime:%Y%m%d}}/{{datetime:%H_%M}}_ahps_metadata.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.ahps_metadata
+      target_keys: (nws_lid)
+
+postprocess_sql:
+  - sql_file: rfc_max_stage
+    target_table: publish.rfc_max_stage
+
+services:
+  - rfc_max_stage

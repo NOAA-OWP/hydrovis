@@ -1,0 +1,9 @@
+service: possible_coastal_omission
+summary: Coastal Regions where coastal flooding processes are not being considered in the visualization FIM output
+description: Depicts areas along the coast where coastal flooding processes are not being considered in the visualization FIM output.
+tags: national water model, nws, fim, reference, omission
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: false

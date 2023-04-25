@@ -50,7 +50,7 @@ variable "fim_output_bucket" {
   type        = string
 }
 
-variable "nwm_max_flows_data_bucket" {
+variable "nwm_max_values_data_bucket" {
   description = "S3 bucket for NWM max flows data"
   type        = string
 }
@@ -196,6 +196,7 @@ data "cloudinit_config" "pipeline_setup" {
     content_type = "text/x-shellscript"
     filename     = "prc_setup.ps1"
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
+      VIZ_DATA_HASH                  = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
       Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
       EGIS_HOST                      = local.egis_host
       VIZ_ENVIRONMENT                = var.environment
@@ -211,7 +212,7 @@ data "cloudinit_config" "pipeline_setup" {
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
       FIM_OUTPUT_BUCKET              = var.fim_output_bucket
-      NWM_MAX_FLOWS_DATA_BUCKET      = var.nwm_max_flows_data_bucket
+      NWM_MAX_VALUES_DATA_BUCKET      = var.nwm_max_values_data_bucket
       RNR_MAX_FLOWS_DATA_BUCKET      = var.rnr_max_flows_data_bucket
       DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
       DEPLOYMENT_DATA_OBJECT         = aws_s3_object.setup_upload.key
@@ -241,6 +242,14 @@ data "cloudinit_config" "pipeline_setup" {
 ##################
 ## VIZ PIPELINE ##
 ##################
+
+data "archive_file" "viz_pipeline_zip" {
+  type = "zip"
+
+  source_dir = "${path.module}/../../../Source/Visualizations"
+
+  output_path = "${path.module}/viz_pipeline_${var.environment}.zip"
+}
 
 resource "aws_instance" "viz_pipeline" {
   ami                    = data.aws_ami.windows.id

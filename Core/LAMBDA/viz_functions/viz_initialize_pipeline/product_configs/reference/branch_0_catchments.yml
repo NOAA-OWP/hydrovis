@@ -1,0 +1,12 @@
+product: branch_0_catchments
+configuration: reference
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: branch_0_catchments
+    target_table: fim_catchments.branch_0_catchments
+    fim_type: hand
+
+services:
+  - branch_0_catchments

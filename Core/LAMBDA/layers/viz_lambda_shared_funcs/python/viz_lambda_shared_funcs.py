@@ -8,6 +8,8 @@ import urllib.parse
 from datetime import datetime, timedelta
 from botocore.exceptions import ClientError
 
+class MissingS3FileException(Exception):
+    """ my custom exception class """
 
 def get_secret_password(secret_name, region_name, key):
     """
@@ -537,3 +539,195 @@ def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=
         print(f"Renaming {dest_table} to {dest_final_table}")
         dest_engine.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
         dest_engine.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
+
+def check_if_file_exists(bucket, file, download=False):
+    import requests
+    from viz_classes import s3_file
+    import xarray as xr
+    import tempfile
+    
+    s3 = boto3.client('s3')
+    file_exists = False
+
+    tempdir = tempfile.mkdtemp()
+    download_path = os.path.join(tempdir, os.path.basename(file))
+    https_file = None
+
+    if "https" in file:
+        https_file = file
+        if requests.head(file).status_code == 200:
+            file_exists = True
+            print(f"{file} exists.")
+        else:
+            raise Exception(f"https file doesn't seem to exist: {file}")   
+    else:
+        if s3_file(bucket, file).check_existence():
+            file_exists = True
+            print(f"{file} exists in {bucket}")
+        else:
+            if "/prod" in file:
+                https_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+                if requests.head(https_file).status_code == 200:
+                    file_exists = True
+                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+            elif "/para" in file:
+                https_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
+                if requests.head(https_file).status_code == 200:
+                    file_exists = True
+                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
+            else:
+                raise Exception("Code could not handle request for file")
+
+        if not file_exists:
+            raise MissingS3FileException(f"{file} does not exist on S3.")
+
+    
+    if download:
+        if https_file:
+            print(f"Downloading {https_file}")
+            tries = 0
+            while tries < 3:
+                open(download_path, 'wb').write(requests.get(https_file, allow_redirects=True).content)
+                
+                try:
+                    xr.open_dataset(download_path)
+                    tries = 3
+                except:
+                    print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
+                    tries +=1
+
+            if "para" in file:
+                print(f"Uploading {file} to {bucket}")
+                s3.upload_file(download_path, bucket, file)
+        else:
+            print(f"Downloading {file} from s3")
+            s3.download_file(bucket, file, download_path)
+        
+        return download_path
+    
+    return file
+    
+def parse_range_token_value(reference_date_file, range_token):
+    range_min = 0
+    range_step = 1
+    number_format = '%01d'
+
+    parts = range_token.split(',')
+    num_parts = len(parts)
+
+    if num_parts == 1:
+        range_max = parts[0]
+    elif num_parts == 2:
+        range_min, range_max = parts
+    elif num_parts == 3:
+        range_min, range_max, range_step = parts
+    elif num_parts == 4:
+        range_min, range_max, range_step, number_format = parts
+    else:
+        raise ValueError("Invalid Token Used")
+
+    try:
+        range_min = int(range_min)
+        range_max = int(range_max)
+        range_step = int(range_step)
+    except ValueError:
+        raise ValueError("Ranges must be integers")
+
+    new_input_files = []
+    for i in range(range_min, range_max, range_step):
+        range_value = number_format % i
+        new_input_file = reference_date_file.replace(f"{{{{range:{range_token}}}}}", range_value)
+        new_input_files.append(new_input_file)
+
+    return new_input_files
+
+
+def get_file_tokens(file_pattern):
+    token_dict = {}
+    tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
+    token_dict = {'datetime': [], 'range': []}
+    for token in tokens:
+        token_key = token.split(":")[0][2:]
+        token_value = token.split(":")[1][:-2]
+
+        token_dict[token_key].append(token_value)
+        
+    return token_dict
+
+def parse_datetime_token_value(input_file, reference_date, datetime_token):
+    og_datetime_token = datetime_token
+    if "reftime" in datetime_token:
+        reftime = datetime_token.split(",")[0].replace("reftime", "")
+        datetime_token = datetime_token.split(",")[-1].replace(" ","")
+        arithmetic = reftime[0]
+        date_delta_value = int(reftime[1:][:-1])
+        date_delta = reftime[1:][-1]
+
+        if date_delta.upper() == "M":
+            date_delta = datetime.timedelta(minutes=date_delta_value)
+        elif date_delta.upper() == "H":
+            date_delta = datetime.timedelta(hours=date_delta_value)
+        elif date_delta.upper() == "D":
+            date_delta = datetime.timedelta(days=date_delta_value)
+        else:
+            raise Exception("timedelta is only configured for minutes, hours, and days")
+
+        if arithmetic == "+":
+            reference_date = reference_date + date_delta
+        else:
+            reference_date = reference_date - date_delta
+
+    datetime_value = reference_date.strftime(datetime_token)
+    new_input_file = input_file.replace(f"{{{{datetime:{og_datetime_token}}}}}", datetime_value)
+
+    return new_input_file
+
+def get_formatted_files(file_pattern, token_dict, reference_date):
+    reference_date_file = file_pattern
+    reference_date_files = []
+    for datetime_token in token_dict['datetime']:
+        reference_date_file = parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
+
+    if token_dict['range']:
+        for range_token in token_dict['range']:
+            reference_date_files = parse_range_token_value(reference_date_file, range_token)
+    else:
+        reference_date_files = [reference_date_file]
+        
+    return reference_date_files
+
+def generate_file_list(file_pattern, file_step, file_window, reference_time):
+    import pandas as pd
+    import isodate
+    
+    file_list = [] 
+    if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.today() - timedelta(29)) > reference_time:
+        file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+
+    if file_window:
+        if not file_step:
+            file_step = None
+        reference_dates = pd.date_range(reference_time-isodate.parse_duration(file_window), reference_time, freq=file_step)
+    else:
+        reference_dates = [reference_time]
+
+    token_dict = get_file_tokens(file_pattern)
+
+    for reference_date in reference_dates:
+        reference_date_files = get_formatted_files(file_pattern, token_dict, reference_date)
+        file_list.extend(reference_date_files)
+        
+    return file_list
+
+def gen_dict_extract(key, var):
+    if hasattr(var,'items'):
+        for k, v in var.items():
+            if k == key:
+                yield v
+            if isinstance(v, dict):
+                for result in gen_dict_extract(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in gen_dict_extract(key, d):
+                        yield result

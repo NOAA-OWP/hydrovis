@@ -1,0 +1,7 @@
+product: src_skill
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - src_skill

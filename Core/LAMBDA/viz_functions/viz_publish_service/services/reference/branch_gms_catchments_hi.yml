@@ -1,0 +1,9 @@
+service: branch_gms_catchments_hi
+summary: Hawaii FIM catchment boundaries for gms branches
+description: Depicts the catchment boundaries for FIM HAND gms branch datasets for Hawaii
+tags: fim, inundation, national water model, nwm, reference, hawaii, hi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: fim_libs
+feature_service: false
+public_service: false

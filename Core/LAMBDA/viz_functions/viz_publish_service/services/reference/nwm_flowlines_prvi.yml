@@ -1,0 +1,9 @@
+service: nwm_flowlines_prvi
+summary: NWM Flowlines for Puerto Rico and Virgin Islands
+description: Depicts the NWM flowlines within Puerto Rico and Virgin Islands
+tags: national water model, nwm, reference, flowlines, puertorico, prvi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: true

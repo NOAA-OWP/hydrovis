@@ -1,0 +1,14 @@
+service: srf_rate_of_change
+summary: Short-Range Rate of Change Forecast
+description: Depicts expected change in discharge derived from the operational National Water 
+  Model (NWM) short-range forecast. Change is computed between the current streamflow and that 
+  expected over the next 18 hours at 3-hour intervals, and is only displayed for reaches that 
+  are expected to have flow at or above their high water threshold. High water thresholds 
+  (regionally varied) and AEPs were derived using the 40-year NWM v2.1 reanalysis simulation. 
+  Updated hourly.
+tags: rate of change, national water model, nwm, srf, short, range, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

@@ -14,14 +14,14 @@ Returns:
 """
 ################################################################################
 import os
-import requests
 import boto3
 import json
 import numpy as np
 import xarray as xr
 import pandas as pd
 from io import StringIO
-from viz_classes import database, s3_file
+from viz_classes import database
+from viz_lambda_shared_funcs import check_if_file_exists
 
 s3 = boto3.client('s3')
 s3_resource = boto3.resource('s3')
@@ -38,7 +38,7 @@ def lambda_handler(event, context):
     keep_flows_at_or_above = event['keep_flows_at_or_above']
     
     print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
-    file = check_if_file_exists(bucket, file)
+    download_path = check_if_file_exists(bucket, file, download=True)
     
     if not target_table:
         dump_dict = {
@@ -53,18 +53,13 @@ def lambda_handler(event, context):
     with viz_db.get_db_connection() as connection:
         cursor = connection.cursor()
         try:
-            download_path = f'/tmp/{os.path.basename(file)}'
-            print(f"--> Downloading {file} to {download_path}")
-            if 'https' in file:
-                open(download_path, 'wb').write(requests.get(file, allow_redirects=True).content)
-            else:
-                s3.download_file(bucket, file, download_path)
-    
             nwm_version = 0
             if file[-12:] == 'max_flows.nc':
                 # Load the NetCDF file into a dataframe
                 ds = xr.open_dataset(download_path)
                 df = ds.to_dataframe().reset_index()
+                df['nwm_vers'] = df['NWM_version_number'].str.replace("v","").astype("float")
+                df = df.drop(columns=['NWM_version_number'])
                 ds.close()
                 df_toLoad = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
     
@@ -117,51 +112,3 @@ def lambda_handler(event, context):
                         "nwm_version": nwm_version
                     }
     return json.dumps(dump_dict)    # Return some info on the import
-
-def check_if_file_exists(bucket, file):
-    if "https" in file:
-        if requests.head(file).status_code == 200:
-            print(f"{file} exists.")
-            return file
-        else:
-            raise Exception(f"https file doesn't seem to exist: {file}")
-        
-    else:
-        if s3_file(bucket, file).check_existence():
-            print("File exists on S3.")
-            return file
-        else:
-            if "/prod" in file:
-                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-                if requests.head(google_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
-                    return google_file
-            elif "/para" in file:
-                para_nomads_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
-                if requests.head(para_nomads_file).status_code == 200:
-                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
-                    
-                    download_path = f'/tmp/{os.path.basename(para_nomads_file)}'
-                    
-                    
-                    tries = 0
-                    while tries < 3:
-                        open(download_path, 'wb').write(requests.get(para_nomads_file, allow_redirects=True).content)
-                        
-                        try:
-                            xr.open_dataset(download_path)
-                            tries = 3
-                        except:
-                            print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
-                            os.remove(download_path)
-                            tries +=1
-                    
-                    print(f"Saving {file} to {bucket} for archiving")
-                    s3.upload_file(download_path, bucket, file)
-                    os.remove(download_path)
-                    return file
-            else:
-                raise Exception("Code could not handle request for file")
-
-
-        raise MissingS3FileException(f"{file} does not exist on S3.")

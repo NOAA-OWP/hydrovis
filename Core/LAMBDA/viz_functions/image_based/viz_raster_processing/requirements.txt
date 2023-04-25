@@ -4,3 +4,4 @@ ecmwflibs
 eccodes==1.2.0
 cfgrib
 requests
+isodate

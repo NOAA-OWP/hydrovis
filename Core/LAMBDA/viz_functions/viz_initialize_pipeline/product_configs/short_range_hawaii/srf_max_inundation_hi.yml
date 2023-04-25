@@ -1,0 +1,35 @@
+product: srf_max_inundation_hi
+configuration: short_range_hawaii
+product_type: "fim"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/short_range_hawaii/nwm.t{{datetime:%H}}z.short_range.channel_rt.f{{range:100,4900,100,%05d}}.hawaii.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_srf_hi
+      target_keys: (feature_id, streamflow)
+
+db_max_flows:
+  - name: srf_max_flows_hi
+    target_table: cache.max_flows_srf_hi
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: srf_max_flows_hi
+
+fim_configs:
+  - name: srf_max_inundation_hi
+    target_table: ingest.srf_max_inundation_hi
+    fim_type: hand
+    postprocess:
+      sql_file: srf_max_inundation_hi
+      target_table: publish.srf_max_inundation_hi
+  
+product_summaries:
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.srf_max_inundation_building_footprints_hi
+      - publish.srf_max_inundation_counties_hi
+
+services:
+  - srf_max_inundation_hi

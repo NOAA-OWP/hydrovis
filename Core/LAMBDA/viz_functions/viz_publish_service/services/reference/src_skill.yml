@@ -1,0 +1,11 @@
+service: src_skill
+summary: Depicts a statistical analysis of water surface elevation (ft) between the synthetic and USGS rating curves
+description: 'Depicts the mean difference in water surface elevation (ft) of the synthetic and USGS 
+  rating curves. The service also includes the following additional statistical attributes: "Mean 
+  Absolute Difference in Water Surface Elevation (ft)", "NMRSE" and "Bias (%)".'
+tags: nws, flood, categorical, hand, fim, rating, curve
+credits: National Water Model, NOAA/NWS National Water Center, Advanced Hydrologic Prediction Service
+egis_server: server
+egis_folder: fim_libs
+feature_service: false
+public_service: false

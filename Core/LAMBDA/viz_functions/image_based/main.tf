@@ -26,11 +26,11 @@ variable "lambda_role" {
   type = string
 }
 
-variable "huc_processing_sgs" {
+variable "hand_fim_processing_sgs" {
   type = list(string)
 }
 
-variable "huc_processing_subnets" {
+variable "hand_fim_processing_subnets" {
   type = list(string)
 }
 
@@ -42,7 +42,7 @@ variable "fim_version" {
   type = string
 }
 
-variable "max_flows_bucket" {
+variable "max_values_bucket" {
   type = string
 }
 
@@ -76,7 +76,7 @@ variable "egis_db_user_secret_string" {
 
 locals {
   viz_optimize_rasters_lambda_name = "viz_optimize_rasters_${var.environment}"
-  viz_huc_processing_lambda_name = "viz_fim_huc_processing_${var.environment}"
+  viz_hand_fim_processing_lambda_name = "viz_hand_fim_processing_${var.environment}"
   viz_schism_fim_processing_lambda_name = "viz_schism_fim_processing_${var.environment}"
   viz_raster_processing_lambda_name = "viz_raster_processing_${var.environment}"
 }
@@ -85,12 +85,27 @@ locals {
 ## RASTER PROCESSING LAMBDA ##
 ##############################
 
+resource "local_file" "viz_classes_rp" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_raster_processing/viz_classes.py"
+}
+
+resource "local_file" "viz_lambda_shared_funcs_rp" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_lambda_shared_funcs.py")
+  filename       = "${path.module}/viz_raster_processing/viz_lambda_shared_funcs.py"
+}
+
 data "archive_file" "raster_processing_zip" {
   type = "zip"
 
   source_dir = "${path.module}/viz_raster_processing"
 
   output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
+
+  depends_on = [
+    local_file.viz_classes_rp,
+    local_file.viz_lambda_shared_funcs_rp
+  ]
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
@@ -189,6 +204,14 @@ resource "null_resource" "viz_raster_processing_cluster" {
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name} --profile ${var.environment}"
   }
+}
+
+data "aws_lambda_function" "viz_raster_processing" {
+  function_name = local.viz_raster_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_raster_processing_cluster
+  ]
 }
 
 ##############################
@@ -291,27 +314,40 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   }
 }
 
+data "aws_lambda_function" "viz_optimize_rasters" {
+  function_name = local.viz_optimize_rasters_lambda_name
+
+  depends_on = [
+    null_resource.viz_optimize_rasters_cluster
+  ]
+}
+
 ################################
 ## HAND HUC PROCESSING LAMBDA ##
 ################################
 
-data "archive_file" "huc_processing_zip" {
+resource "local_file" "viz_classes_hf" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_hand_fim_processing/viz_classes.py"
+}
+
+data "archive_file" "hand_fim_processing_zip" {
   type = "zip"
 
-  source_dir = "${path.module}/viz_fim_huc_processing"
+  source_dir = "${path.module}/viz_hand_fim_processing"
 
-  output_path = "${path.module}/viz_fim_huc_processing_${var.environment}.zip"
+  output_path = "${path.module}/viz_hand_fim_processing_${var.environment}.zip"
 }
 
-resource "aws_s3_object" "huc_processing_zip_upload" {
+resource "aws_s3_object" "hand_fim_processing_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_fim_huc_processing.zip"
-  source      = data.archive_file.huc_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.huc_processing_zip.output_path)
+  key         = "viz/viz_hand_fim_processing.zip"
+  source      = data.archive_file.hand_fim_processing_zip.output_path
+  source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
 }
 
-resource "aws_ecr_repository" "viz_fim_huc_processing_image" {
-  name                 = "fim_huc_processing"
+resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
+  name                 = "hand_fim_processing"
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -321,8 +357,8 @@ resource "aws_ecr_repository" "viz_fim_huc_processing_image" {
   }
 }
 
-resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
-  name          = "viz-${var.environment}-huc-processing"
+resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
+  name          = "viz-${var.environment}-hand-fim-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -350,7 +386,7 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
     
     environment_variable {
       name  = "IMAGE_REPO_NAME"
-      value = aws_ecr_repository.viz_fim_huc_processing_image.name
+      value = aws_ecr_repository.viz_hand_fim_processing_image.name
     }
     
     environment_variable {
@@ -360,7 +396,7 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
 
     environment_variable {
       name  = "LAMBDA_NAME"
-      value = local.viz_huc_processing_lambda_name
+      value = local.viz_hand_fim_processing_lambda_name
     }
     
     environment_variable {
@@ -425,40 +461,58 @@ resource "aws_codebuild_project" "viz_fim_huc_processing_lambda" {
 
     environment_variable {
       name  = "SECURITY_GROUP_1"
-      value = var.huc_processing_sgs[0]
+      value = var.hand_fim_processing_sgs[0]
     }
 
     environment_variable {
       name  = "SUBNET_1"
-      value = var.huc_processing_subnets[0]
+      value = var.hand_fim_processing_subnets[0]
     }
 
     environment_variable {
       name  = "SUBNET_2"
-      value = var.huc_processing_subnets[1]
+      value = var.hand_fim_processing_subnets[1]
     }
   }
 
   source {
     type            = "S3"
-    location        = "${aws_s3_object.huc_processing_zip_upload.bucket}/${aws_s3_object.huc_processing_zip_upload.key}"
+    location        = "${aws_s3_object.hand_fim_processing_zip_upload.bucket}/${aws_s3_object.hand_fim_processing_zip_upload.key}"
   }
+
+  depends_on = [
+    local_file.viz_classes_hf
+  ]
 }
 
-resource "null_resource" "viz_fim_huc_processing_cluster" {
+resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.huc_processing_zip.output_path)
+    source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_fim_huc_processing_lambda.name} --profile ${var.environment}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_hand_fim_processing_lambda.name} --profile ${var.environment}"
   }
 }
 
-################################
+data "aws_lambda_function" "viz_hand_fim_processing" {
+  function_name = local.viz_hand_fim_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_hand_fim_processing_cluster
+  ]
+}
+
+
+##################################
 ## SCHISM HUC PROCESSING LAMBDA ##
-################################
+##################################
+
+resource "local_file" "viz_classes_sf" {
+  content_base64 = filebase64("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
+  filename       = "${path.module}/viz_schism_fim_processing/viz_classes.py"
+}
 
 data "archive_file" "schism_processing_zip" {
   type = "zip"
@@ -545,7 +599,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 
     environment_variable {
       name  = "MAX_VALS_BUCKET"
-      value = var.max_flows_bucket
+      value = var.max_values_bucket
     }
 
     environment_variable {
@@ -580,17 +634,17 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 
     environment_variable {
       name  = "SECURITY_GROUP_1"
-      value = var.huc_processing_sgs[0]
+      value = var.hand_fim_processing_sgs[0]
     }
 
     environment_variable {
       name  = "SUBNET_1"
-      value = var.huc_processing_subnets[0]
+      value = var.hand_fim_processing_subnets[0]
     }
 
     environment_variable {
       name  = "SUBNET_2"
-      value = var.huc_processing_subnets[1]
+      value = var.hand_fim_processing_subnets[1]
     }
   }
 
@@ -598,6 +652,10 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
     type            = "S3"
     location        = "${aws_s3_object.schism_zip_upload.bucket}/${aws_s3_object.schism_zip_upload.key}"
   }
+
+  depends_on = [
+    local_file.viz_classes_sf
+  ]
 }
 
 resource "null_resource" "viz_schism_fim_processing_cluster" {
@@ -611,18 +669,27 @@ resource "null_resource" "viz_schism_fim_processing_cluster" {
   }
 }
 
-output "fim_huc_processing" {
-  value = local.viz_huc_processing_lambda_name
+data "aws_lambda_function" "viz_schism_fim_processing" {
+  function_name = local.viz_schism_fim_processing_lambda_name
+
+  depends_on = [
+    null_resource.viz_schism_fim_processing_cluster
+  ]
+}
+
+
+output "hand_fim_processing" {
+  value = data.aws_lambda_function.viz_hand_fim_processing
 }
 
 output "schism_fim_processing" {
-  value = local.viz_schism_fim_processing_lambda_name
+  value = data.aws_lambda_function.viz_schism_fim_processing
 }
 
 output "optimize_rasters" {
-  value = local.viz_optimize_rasters_lambda_name
+  value = data.aws_lambda_function.viz_optimize_rasters
 }
 
 output "raster_processing" {
-  value = local.viz_raster_processing_lambda_name
+  value = data.aws_lambda_function.viz_raster_processing
 }

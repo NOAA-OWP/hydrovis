@@ -2,9 +2,10 @@ FROM public.ecr.aws/lambda/python:3.9
 
 # Copy function code
 COPY lambda_function.py ${LAMBDA_TASK_ROOT}
-ADD services "${LAMBDA_TASK_ROOT}/services"
+ADD products "${LAMBDA_TASK_ROOT}/products"
 COPY serverless.yml ${LAMBDA_TASK_ROOT}
 COPY viz_classes.py ${LAMBDA_TASK_ROOT}
+COPY viz_lambda_shared_funcs.py ${LAMBDA_TASK_ROOT}
 
 # Install the function's dependencies using file requirements.txt
 # from your project folder.

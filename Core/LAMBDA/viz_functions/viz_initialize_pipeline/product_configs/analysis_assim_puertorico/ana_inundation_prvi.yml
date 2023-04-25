@@ -1,0 +1,35 @@
+product: ana_inundation_prvi
+configuration: analysis_assim_puertorico
+product_type: "fim"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim_puertorico/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.puertorico.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_ana_prvi
+      target_keys: (feature_id, streamflow)
+
+db_max_flows:
+  - name: ana_max_flows_prvi
+    target_table: cache.max_flows_ana_prvi
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: ana_max_flows_prvi
+
+fim_configs:
+  - name: ana_inundation_prvi
+    target_table: ingest.ana_inundation_prvi
+    fim_type: hand
+    postprocess:
+      sql_file: ana_inundation_prvi
+      target_table: publish.ana_inundation_prvi
+  
+product_summaries:
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.ana_inundation_building_footprints_prvi
+      - publish.ana_inundation_counties_prvi
+
+services:
+  - ana_inundation_prvi

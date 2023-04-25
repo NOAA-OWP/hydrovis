@@ -1,0 +1,10 @@
+service: mrf_accum_precip
+summary: GFS Medium-Range Accumulated Precipitation Forecast
+description: 'Depicts expected accumulated precipitation totals over the next 10 days derived from the GFS forcing for the 
+  operational National Water Model (NWM) medium-range forecast. Updated every 6 hours.'
+tags: mrms, accumulated, precipitation, national, water, model, nwm, conus, precip
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false
