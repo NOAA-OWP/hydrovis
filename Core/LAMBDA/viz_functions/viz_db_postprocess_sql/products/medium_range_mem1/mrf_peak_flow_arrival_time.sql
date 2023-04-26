@@ -33,4 +33,4 @@ JOIN derived.recurrence_flows_conus AS rf ON forecasts.feature_id = rf.feature_i
 JOIN publish.mrf_high_water_arrival_time AS arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, max_flows.maxflow_10day_cfs, arrival_time.t_normal, channels.geom;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, max_flows.maxflow_10day_cfs, arrival_time.t_normal, channels.geom;
