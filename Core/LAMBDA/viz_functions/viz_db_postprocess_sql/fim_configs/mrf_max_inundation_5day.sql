@@ -17,6 +17,7 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
+	derived.channels_conus.state,
     'mrf_5day' AS config
 INTO publish.mrf_max_inundation_5day
 FROM ingest.mrf_max_inundation_5day as inun 

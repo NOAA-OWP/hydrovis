@@ -17,11 +17,12 @@ SELECT
 	inun.geom,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_hi.strm_order, 
-    derived.channels_hi.name
+    derived.channels_hi.name,
+	'HI' as state
 INTO publish.ana_inundation_hi
 FROM ingest.ana_inundation_hi as inun 
 left join derived.channels_hi ON derived.channels_hi.feature_id = inun.feature_id_str
 --Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features.
 UNION SELECT -9999, '-9999', 'NA', -9999, '-9999', -9999, -9999, -9999, -9999, 'NA', to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), 
 to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), '-9999', NULL,
-to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, -9999, NULL;
+to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, -9999, NULL, 'HI';

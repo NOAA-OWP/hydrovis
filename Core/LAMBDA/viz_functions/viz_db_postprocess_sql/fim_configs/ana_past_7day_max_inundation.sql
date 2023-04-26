@@ -18,6 +18,7 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
+	derived.channels_conus.state,
 	'ana_past_7day' AS config
 INTO publish.ana_past_7day_max_inundation
 FROM ingest.ana_past_7day_max_inundation as inun 

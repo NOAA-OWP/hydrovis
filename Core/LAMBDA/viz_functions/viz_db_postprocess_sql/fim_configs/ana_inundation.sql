@@ -17,7 +17,8 @@ SELECT
 	inun.geom,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
-    derived.channels_conus.name
+    derived.channels_conus.name,
+	derived.channels_conus.state
 INTO publish.ana_inundation
 FROM ingest.ana_inundation as inun 
 left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;

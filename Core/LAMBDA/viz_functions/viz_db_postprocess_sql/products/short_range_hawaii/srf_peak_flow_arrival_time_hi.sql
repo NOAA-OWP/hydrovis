@@ -6,6 +6,7 @@ SELECT
     channels.name,
     (channels.strm_order)::integer,
     channels.huc6,
+    'HI' AS state,
     forecasts.nwm_vers,
     forecasts.reference_time,
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,

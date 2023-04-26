@@ -7,6 +7,7 @@ SELECT
     (channels.strm_order)::integer,
     min(forecasts.forecast_hour) AS peak_flow_arrival_hour,
     channels.huc6,
+    channels.state,
     forecasts.nwm_vers,
     forecasts.reference_time,
     max_flows.maxflow_10day_cfs AS max_flow_cfs,

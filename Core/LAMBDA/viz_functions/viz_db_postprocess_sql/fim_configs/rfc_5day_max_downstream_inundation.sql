@@ -25,6 +25,7 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
+	derived.channels_conus.state,
     agg_status.inherited_rfc_forecasts,
     agg_status.max_status
 INTO publish.rfc_5day_max_downstream_inundation
