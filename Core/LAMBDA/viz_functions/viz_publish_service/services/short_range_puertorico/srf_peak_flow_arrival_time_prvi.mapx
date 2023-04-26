@@ -286,6 +286,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -383,7 +390,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from vizprocessing.dev.srf_peak_flow_arrival_time_prvi",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from vizprocessing.dev.srf_peak_flow_arrival_time_prvi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -418,6 +425,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {

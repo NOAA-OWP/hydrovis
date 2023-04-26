@@ -252,6 +252,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -418,7 +425,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Annual Exceedance Probability_1_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, maxflow_3day_cfs, recur_cat_3day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_3day is not null",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, state, nwm_vers, reference_time, maxflow_3day_cfs, recur_cat_3day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_3day is not null",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -448,6 +455,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {
@@ -1221,6 +1234,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -1387,7 +1407,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Annual Exceedance Probability_1_1_1_2_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, maxflow_5day_cfs, recur_cat_5day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_5day is not null",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, state, nwm_vers, reference_time, maxflow_5day_cfs, recur_cat_5day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_5day is not null",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1417,6 +1437,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {
@@ -2191,6 +2217,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -2357,7 +2390,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Annual Exceedance Probability_1_1_1_2_3_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, maxflow_10day_cfs, recur_cat_10day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_10day is not null",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, state, nwm_vers, reference_time, maxflow_10day_cfs, recur_cat_10day, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.mrf_max_high_flow_magnitude where recur_cat_10day is not null",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2387,6 +2420,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {

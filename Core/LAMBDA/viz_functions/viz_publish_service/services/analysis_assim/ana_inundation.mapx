@@ -5929,10 +5929,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -6060,7 +6067,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,oid  from hydrovis.services.ana_inundation",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.ana_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6171,6 +6178,12 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {

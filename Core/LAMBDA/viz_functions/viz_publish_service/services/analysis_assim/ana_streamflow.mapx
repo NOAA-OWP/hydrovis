@@ -293,6 +293,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -354,7 +361,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_streamflow_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,valid_time,streamflow,update_time,geom from hydrovis.services.ana_streamflow",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,valid_time,streamflow,update_time,geom from hydrovis.services.ana_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -399,6 +406,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {

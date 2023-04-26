@@ -932,6 +932,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -1016,7 +1023,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_5day_max_downstream_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, state, update_time, geom,oid from hydrovis.services.rfc_5day_max_downstream_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1081,6 +1088,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {
@@ -1740,10 +1753,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },

@@ -309,6 +309,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -453,7 +460,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.mrf_rapid_onset_flooding ",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,state,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.mrf_rapid_onset_flooding ",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -483,6 +490,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {
@@ -9890,6 +9903,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -10034,7 +10054,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order, name, huc6, reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.mrf_rapid_onset_flooding",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order, name, huc6, state, reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.mrf_rapid_onset_flooding",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10064,6 +10084,12 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
               "length" : 60000
             },
             {
