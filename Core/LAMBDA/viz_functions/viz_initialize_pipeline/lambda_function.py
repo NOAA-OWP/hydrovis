@@ -434,9 +434,6 @@ class configuration:
                 if pipeline_run_time not in all_run_times:
                     continue
             
-            if not product_metadata.get("dependent_on"):
-                product_metadata['dependent_on'] = ""
-            
             if product_metadata.get("raster_input_files"):
                 product_metadata['raster_input_files']['bucket'] = self.input_bucket
             

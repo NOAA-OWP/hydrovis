@@ -1,5 +1,4 @@
 product: product_name  # (REQUIRED) The name of the product that will be processed
-dependent_on: dependent_product_name  # (OPTIONAL) The name of the product that will be processed
 configuration: configuration_name  # (REQUIRED) The configuration of the product (analysis_assim, short_range, etc)
 product_type: "vector"  # (REQUIRED) Type of product being created. Values can be "fim", "vector", or "raster"
 run: true  # (REQUIRED) Determines if this product is enabled or disabled
@@ -55,6 +54,7 @@ fim_configs:  # (OPTIONAL) List of fim configurations to run
 postprocess_sql:  # (OPTIONAL) List of postprocess sql files to run in the postprocess sql lambda function
   - sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the ingest postprocess sql file
     target_table: publish.product  # (REQUIRED) Name of the DB table where the fileset will be imported
+    dependent_on_table: publish.dependent_on_db_tables # (OPTIONAL) A list of other product database table(s) - i.e. publish schema tables - that the current product postprocessing is dependent on (will wait until this table has the current reference time).
 
 product_summaries:  # (OPTIONAL) List of dictionaries which provides the names of the summary sql files to run in the postprocess sql lambda function and their table output results
   - sql_file:  product_summary_sql_file_name  # (REQUIRED) Name of the summary sql file ran in the postprocess sql lambda function
