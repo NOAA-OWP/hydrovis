@@ -267,15 +267,6 @@
                 "MaxAttempts": 6,
                 "BackoffRate": 2,
                 "Comment": "Lambda Service Errors"
-              },
-              {
-                "ErrorEquals": [
-                  "MissingS3FileException"
-                ],
-                "BackoffRate": 1,
-                "IntervalSeconds": 120,
-                "MaxAttempts": 35,
-                "Comment": "Missing S3 File"
               }
             ],
             "Next": "Map",
@@ -343,6 +334,15 @@
                     }
                   },
                   "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required Table Not Ran Yet (postprocess_sql.dependent_on_db_tables)"
+                    },
                     {
                       "ErrorEquals": [
                         "Lambda.ServiceException",
