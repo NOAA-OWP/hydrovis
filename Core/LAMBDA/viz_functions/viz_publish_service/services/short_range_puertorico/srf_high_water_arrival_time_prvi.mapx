@@ -420,13 +420,13 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "strm_order",
@@ -437,13 +437,13 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 2
             },
             {
               "name" : "nwm_vers",
@@ -454,7 +454,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "t_high_water_threshold",
@@ -465,13 +465,13 @@
               "name" : "t_normal",
               "type" : "esriFieldTypeString",
               "alias" : "t_normal",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "duration",
               "type" : "esriFieldTypeString",
               "alias" : "duration",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "high_water_threshold",
@@ -487,7 +487,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",
@@ -1320,13 +1320,13 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "strm_order",
@@ -1337,13 +1337,13 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 2
             },
             {
               "name" : "nwm_vers",
@@ -1354,7 +1354,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "t_high_water_threshold",
@@ -1365,13 +1365,13 @@
               "name" : "t_normal",
               "type" : "esriFieldTypeString",
               "alias" : "t_normal",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "duration",
               "type" : "esriFieldTypeString",
               "alias" : "duration",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "high_water_threshold",
@@ -1387,7 +1387,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",
