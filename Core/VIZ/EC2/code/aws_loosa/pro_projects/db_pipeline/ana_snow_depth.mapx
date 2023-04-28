@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "ana snow depth",
+    "name" : "Snow Depth Analysis",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant"
@@ -316,7 +316,7 @@
           {
             "type" : "CIMRasterClassBreak",
             "upperBound" : 999999,
-            "label" : "> 400 inches",
+            "label" : "> 400\"",
             "color" : {
               "type" : "CIMRGBColor",
               "values" : [
