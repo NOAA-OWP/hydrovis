@@ -1,4 +1,4 @@
-service: ana_snow_depth
+service: ana_snow_depth_noaa
 summary: Snow Depth Analysis
 description: Depicts the snow depth output from the operational National Water Model 
   analysis and assimilation. Updated hourly.
