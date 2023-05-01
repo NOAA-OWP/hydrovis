@@ -1,4 +1,4 @@
-service: ana_snow_water_equiv
+service: ana_snow_water_equivalent_noaa
 summary: Snow Water Equivalent Analysis
 description: Depicts the snow water equivalent output from the operational National Water Model 
   analysis and assimilation. Updated hourly.

@@ -127,7 +127,7 @@
         "type" : "TimeInstant"
       },
       "useSourceMetadata" : true,
-      "description" : "ana_snow_water_equiv.mrf",
+      "description" : "ana_snow_water_equivalent.mrf",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{517BE08B-79DE-4E79-AEBB-C481AE488E6B}"
@@ -145,9 +145,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_snow_water_equiv\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_snow_water_equivalent\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_snow_water_equiv.mrf",
+        "dataset" : "ana_snow_water_equivalent.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -445,7 +445,7 @@
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_72hr_accum_precip",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_water_equiv",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_water_equivalent",
         "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [
