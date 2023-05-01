@@ -1,4 +1,4 @@
-product: ana_72hr_accum_precip_prvi
+product: ana_past_72hr_accum_precip_prvi
 configuration: forcing_analysis_assim_puertorico
 product_type: "raster"
 run: true
@@ -10,8 +10,8 @@ raster_input_files:
   file_window: P3D
       
 postprocess_sql:
-  - sql_file: ana_72hr_accum_precip_prvi
-    target_table: publish.ana_72hr_accum_precip_prvi
+  - sql_file: ana_past_72hr_accum_precip_prvi
+    target_table: publish.ana_past_72hr_accum_precip_prvi
 
 services:
-  - ana_72hr_accum_precip_prvi
+  - ana_past_72hr_accum_precip_prvi_noaa

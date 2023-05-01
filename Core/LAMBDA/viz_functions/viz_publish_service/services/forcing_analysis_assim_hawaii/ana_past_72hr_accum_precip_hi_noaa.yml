@@ -1,4 +1,4 @@
-service: ana_past_72hr_accum_precip_hi
+service: ana_past_72hr_accum_precip_hi_noaa
 summary: NAM-NEST NWP Past 72-Hour Accumulated Precipitation for Hawaii
 description: 'Depicts accumulated precipitation totals over the past 72 hours derived from the NAM-NEST NWP forcing for 
   the operational National Water Model (NWM) analysis and assimilation for the state of Hawaii. Updated hourly.'
