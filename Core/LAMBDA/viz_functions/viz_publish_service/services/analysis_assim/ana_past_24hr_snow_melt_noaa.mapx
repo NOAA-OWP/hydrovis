@@ -30,7 +30,7 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "standaloneTables" : [
-      "CIMPATH=past_24_hour_snow_melt/vizprocessing_publish_ana_24hr_snow_melt.xml"
+      "CIMPATH=past_24_hour_snow_melt/vizprocessing_publish_ana_past_24hr_snow_melt.xml"
     ],
     "datumTransforms" : [
       {
@@ -178,9 +178,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_24hr_snow_melt\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_past_24hr_snow_melt\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_24hr_snow_melt.mrf",
+        "dataset" : "ana_past_24hr_snow_melt.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -489,7 +489,7 @@
     {
       "type" : "CIMStandaloneTable",
       "name" : "Service Metadata",
-      "uRI" : "CIMPATH=past_24_hour_snow_melt/vizprocessing_publish_ana_24hr_snow_melt.xml",
+      "uRI" : "CIMPATH=past_24_hour_snow_melt/vizprocessing_publish_ana_past_24hr_snow_melt.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -500,9 +500,9 @@
         "type" : "CIMSqlQueryDataConnection",
         "workspaceConnectionString" : "SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
-        "dataset" : "vizprocessing.publish.%ana_24hr_snow_melt",
+        "dataset" : "vizprocessing.publish.%ana_past_24hr_snow_melt",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_24hr_snow_melt",
+        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_past_24hr_snow_melt",
         "oIDFields" : "reference_time",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [
