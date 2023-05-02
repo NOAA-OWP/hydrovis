@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_peak_flow_arrival_time;
+DROP TABLE IF EXISTS publish.mrf_gfs_10day_peak_flow_arrival_time;
 
 WITH arrival_time AS(
     SELECT 
@@ -25,7 +25,7 @@ SELECT
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
    
-INTO publish.mrf_peak_flow_arrival_time
+INTO publish.mrf_gfs_10day_peak_flow_arrival_time
 FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
 
 -- Join in max flows on max streamflow to only get peak flows

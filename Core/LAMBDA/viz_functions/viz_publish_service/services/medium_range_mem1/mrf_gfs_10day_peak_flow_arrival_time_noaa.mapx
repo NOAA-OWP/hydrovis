@@ -384,7 +384,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_gfs_10day_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1253,7 +1253,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_gfs_10day_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
