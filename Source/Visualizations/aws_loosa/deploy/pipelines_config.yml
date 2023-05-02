@@ -3,4 +3,4 @@ ADDED:
   - srf_high_water_probability
   - mrf_gfs_5day_high_water_probability
   - mrf_gfs_5day_rapid_onset_flooding_probability
-  - srf_rapid_onset_flooding_probability
+  - srf_12hr_rapid_onset_flooding_probability

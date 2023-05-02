@@ -26,9 +26,9 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability3.xml",
-      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability2.xml",
-      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability.xml",
+      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability3.xml",
+      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability2.xml",
+      "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability.xml",
       "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_hydrovis_hucs.xml"
     ],
     "defaultViewingMode" : "Map",
@@ -244,14 +244,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Hours 1-6 - Rapid Onset Flooding Probability",
-      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability3.xml",
+      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability3.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "metadataURI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -428,9 +428,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683179553663302f33394b442f68657042713562646156386d4f62656145783150656a5972484f6171384c413d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_probability",
+          "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1049,14 +1049,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Hours 7-12 - Rapid Onset Flooding Probability",
-      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability2.xml",
+      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "metadataURI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -1233,9 +1233,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683179553663302f33394b442f68657042713562646156386d4f62656145783150656a5972484f6171384c413d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_probability",
+          "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1854,13 +1854,13 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Hours 1-12 - Rapid Onset Flooding Probability",
-      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_rapid_onset_flooding_probability.xml",
+      "uRI" : "CIMPATH=nwm_12_hour_rapid_onset_flooding_probability_forecast/hydrovis_services_srf_12hr_rapid_onset_flooding_probability.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -2028,9 +2028,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683179553663302f33394b442f68657042713562646156386d4f62656145783150656a5972484f6171384c413d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_probability",
+          "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2842,7 +2842,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%hucs",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.srf_rapid_onset_flooding_probability_hucs",
+          "sqlQuery" : "select huc10_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.srf_12hr_rapid_onset_flooding_probability_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3478,7 +3478,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220314</CreaDate><CreaTime>05060400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>hydrovis.services.srf_rapid_onset_flooding_probability</resTitle></idCitation><idAbs>hydrovis.services.srf_rapid_onset_flooding_probability</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220314</CreaDate><CreaTime>05060400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>hydrovis.services.srf_12hr_rapid_onset_flooding_probability</resTitle></idCitation><idAbs>hydrovis.services.srf_12hr_rapid_onset_flooding_probability</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
