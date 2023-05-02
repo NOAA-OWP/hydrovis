@@ -1,4 +1,4 @@
-product: srf_high_water_arrival_time
+product: srf_18hr_high_water_arrival_time
 configuration: short_range
 product_type: "vector"
 run: true
@@ -11,8 +11,8 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 postprocess_sql:
-  - sql_file: srf_high_water_arrival_time
-    target_table: publish.srf_high_water_arrival_time
+  - sql_file: srf_18hr_high_water_arrival_time
+    target_table: publish.srf_18hr_high_water_arrival_time
 
 services:
-  - srf_high_water_arrival_time
+  - srf_18hr_high_water_arrival_time

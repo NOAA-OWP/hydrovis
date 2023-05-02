@@ -1,4 +1,4 @@
-service: srf_high_water_arrival_time
+service: srf_18hr_high_water_arrival_time
 summary: Short-Range High Water Arrival Time Forecast
 description: Depicts the forecast arrival time of high water over the next 18 hours. This service is 
   derived from the short-range configuration of the National Water Model (NWM) over the contiguous U.S. 
