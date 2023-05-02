@@ -1,4 +1,4 @@
-service: src_skill
+service: static_hand_rating_curve_performance_metrics_noaa
 summary: Depicts a statistical analysis of water surface elevation (ft) between the synthetic and USGS rating curves
 description: 'Depicts the mean difference in water surface elevation (ft) of the synthetic and USGS 
   rating curves. The service also includes the following additional statistical attributes: "Mean 

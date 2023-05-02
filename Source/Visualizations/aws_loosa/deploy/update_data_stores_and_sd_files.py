@@ -31,7 +31,7 @@ service_dict = {
     "flow_based_catfim": "reference",
     "stage_based_catfim": "reference",
     "nwm_aep_fim": "aep_fim",
-    "src_skill": "reference"
+    "static_hand_rating_curve_performance_metrics_noaa": "reference"
 }
 
 

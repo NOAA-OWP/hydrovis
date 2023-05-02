@@ -1,0 +1,7 @@
+product: static_hand_rating_curve_performance_metrics
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - static_hand_rating_curve_performance_metrics_noaa
