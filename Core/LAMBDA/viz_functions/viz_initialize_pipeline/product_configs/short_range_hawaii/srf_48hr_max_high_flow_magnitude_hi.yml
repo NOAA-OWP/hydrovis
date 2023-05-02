@@ -1,4 +1,4 @@
-product: srf_max_high_flow_magnitude_hi
+product: srf_48hr_max_high_flow_magnitude_hi
 configuration: short_range_hawaii
 product_type: "vector"
 run: true
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows_hi
 
 postprocess_sql:
-  - sql_file: srf_max_high_flow_magnitude_hi
-    target_table: publish.srf_max_high_flow_magnitude_hi
+  - sql_file: srf_48hr_max_high_flow_magnitude_hi
+    target_table: publish.srf_48hr_max_high_flow_magnitude_hi
 
 services:
-  - srf_max_high_flow_magnitude_hi
+  - srf_48hr_max_high_flow_magnitude_hi

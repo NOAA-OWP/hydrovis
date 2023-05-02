@@ -490,7 +490,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%srf_hi_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, flow_100yr, update_time, geom, oid from hydrovis.services.srf_max_high_flow_magnitude_hi",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, flow_100yr, update_time, geom, oid from hydrovis.services.srf_48hr_max_high_flow_magnitude_hi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
