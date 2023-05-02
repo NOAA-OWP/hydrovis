@@ -1,4 +1,4 @@
-service: nwm_flowlines
+service: static_nwm_flowlines
 summary: NWM Flowlines for CONUS
 description: Depicts the NWM flowlines within the contiguous U.S.
 tags: national water model, nwm, reference, flowlines, conus
