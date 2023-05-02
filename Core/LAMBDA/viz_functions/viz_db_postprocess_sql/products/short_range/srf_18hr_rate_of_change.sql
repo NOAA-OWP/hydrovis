@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_rate_of_change;
+DROP TABLE IF EXISTS publish.srf_18hr_rate_of_change;
 
 WITH roi AS (
     SELECT max_srf.feature_id, thresholds.high_water_threshold
@@ -22,7 +22,7 @@ SELECT
     round(((srf.streamflow * 35.315) - ana.maxflow_1hour_cfs)::numeric, 2) as change_cfs,
     round((((srf.streamflow * 35.315) - ana.maxflow_1hour_cfs)*100/ana.maxflow_1hour_cfs)::numeric, 2) as change_perc,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time
-INTO publish.srf_rate_of_change
+INTO publish.srf_18hr_rate_of_change
 FROM ingest.nwm_channel_rt_srf as srf
 JOIN roi ON roi.feature_id = srf.feature_id
 JOIN cache.max_flows_ana_past_hour AS ana ON ana.feature_id = srf.feature_id

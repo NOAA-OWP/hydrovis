@@ -200,7 +200,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -382,9 +382,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_1",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 3",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 3",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1118,7 +1118,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -1300,9 +1300,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_7_2",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_7_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 6",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 6",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2036,7 +2036,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -2218,9 +2218,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_8_3",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_8_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 9",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 9",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2954,7 +2954,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -3136,9 +3136,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_9_4",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_9_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 12",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 12",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3872,7 +3872,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -4054,9 +4054,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_10_5",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_10_5",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 15",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 15",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4790,7 +4790,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_rate_of_change",
+      "description" : "vizprocessing.publish.srf_18hr_rate_of_change",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{ED015DF1-830B-402A-9B4A-D04AC66F0CB4}"
@@ -4972,9 +4972,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686266655a426d4576516a69366559536e76306366625672476d756258626f5a7a436c75346e4b3531503741463135694f4c71384d7a7372576e6651446a6e50392a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_11_6",
+          "dataset" : "vizprocessing.publish.%srf_18hr_rate_of_change_2_11_6",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 18",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_18hr_rate_of_change WHERE forecast_hour = 18",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5703,7 +5703,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/9a2979194f308cd9dd3efacf5edd69d7.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220823</CreaDate><CreaTime>19323500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>3-Hour Percent Change in Discharge (%)</resTitle></idCitation><idAbs>vizprocessing.publish.srf_rate_of_change</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220823</CreaDate><CreaTime>19323500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>3-Hour Percent Change in Discharge (%)</resTitle></idCitation><idAbs>vizprocessing.publish.srf_18hr_rate_of_change</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
