@@ -10,7 +10,7 @@ from aws_loosa.utils.shared_funcs import get_db_values, create_service_db_tables
 
 
 class SrfHighWaterProbabilityForecast(AWSEgisPublishingProcess):
-    service_name = 'srf_high_water_probability'
+    service_name = 'srf_12hr_max_high_water_probability'
 
     def _process(self, a_event_time, a_input_files, a_output_location, *args, **kwargs):
         """
@@ -47,11 +47,11 @@ class SrfHighWaterProbabilityForecast(AWSEgisPublishingProcess):
         df_probabilities = df_probabilities.reset_index()
 
         sql_files = [
-            os.path.join(os.path.dirname(__file__), "srf_high_water_probability.sql"),
-            os.path.join(os.path.dirname(__file__), "srf_high_water_probability_hucs.sql")
+            os.path.join(os.path.dirname(__file__), "srf_12hr_max_high_water_probability.sql"),
+            os.path.join(os.path.dirname(__file__), "srf_12hr_max_high_water_probability_hucs.sql")
         ]
 
-        service_table_names = ["srf_high_water_probability", "srf_high_water_probability_hucs"]
+        service_table_names = ["srf_12hr_max_high_water_probability", "srf_12hr_max_high_water_probability_hucs"]
 
         create_service_db_tables(df_probabilities, self.service_name, sql_files, service_table_names, self.process_event_time, past_run=self.one_off)
 

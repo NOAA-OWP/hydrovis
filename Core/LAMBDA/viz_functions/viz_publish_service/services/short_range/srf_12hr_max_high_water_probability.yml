@@ -1,4 +1,4 @@
-service: srf_high_water_probability
+service: srf_12hr_max_high_water_probability
 summary: Short-Range High Water Probability Forecast
 description: Depicts the probability of forecast high water over the next 12 hours 
   using a time-lagged ensemble from the short-range forecast of the National Water 

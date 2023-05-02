@@ -419,7 +419,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Bankfull Probability (%)_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, srf_prob, high_water_threshold, reference_time, update_time, oid from hydrovis.services.srf_high_water_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, srf_prob, high_water_threshold, reference_time, update_time, oid from hydrovis.services.srf_12hr_max_high_water_probability",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1150,7 +1150,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%hucs",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str, total_nwm_features, nwm_features_flooded_percent, avg_prob, reference_time, update_time, geom, oid from hydrovis.services.srf_high_water_probability_hucs",
+          "sqlQuery" : "select huc10_str, total_nwm_features, nwm_features_flooded_percent, avg_prob, reference_time, update_time, geom, oid from hydrovis.services.srf_12hr_max_high_water_probability_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
