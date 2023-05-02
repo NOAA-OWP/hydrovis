@@ -1,4 +1,4 @@
-service: ana_streamflow_hi
+service: ana_streamflow_hi_noaa
 summary: Streamflow Analysis for Hawaii
 description: Depicts the streamflow output from the operational National Water Model (NWM) analysis and assimilation for the state of Hawaii. Updated hourly.
 tags: streamflow, national water model, nwm, ana, hawaii, hi
