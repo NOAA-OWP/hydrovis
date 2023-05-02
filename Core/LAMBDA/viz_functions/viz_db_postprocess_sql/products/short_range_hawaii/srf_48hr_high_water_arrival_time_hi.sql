@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_high_water_arrival_time_hi;
+DROP TABLE IF EXISTS publish.srf_48hr_high_water_arrival_time_hi;
 
 WITH arrival_time AS
 	(SELECT forecasts.feature_id,
@@ -41,6 +41,6 @@ SELECT channels.feature_id,
 	arrival_time.max_flow,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UtC') AS update_time,
 	channels.geom
-INTO publish.srf_high_water_arrival_time_hi
+INTO publish.srf_48hr_high_water_arrival_time_hi
 FROM derived.channels_hi channels
 JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;

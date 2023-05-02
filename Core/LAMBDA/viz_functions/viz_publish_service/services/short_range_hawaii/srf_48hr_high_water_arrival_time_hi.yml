@@ -1,4 +1,4 @@
-service: srf_high_water_arrival_time_hi
+service: srf_48hr_high_water_arrival_time_hi
 summary: Short-Range High Water Arrival Time Forecast for Hawaii
 description: Depicts the forecast arrival time of high water over the next 48 hours. 
   This service is derived from the short-range configuration of the National Water Model 
