@@ -1,4 +1,4 @@
-product: srf_accum_precip_hi
+product: srf_48hr_accum_precip_hi
 configuration: forcing_short_range_hawaii
 product_type: "raster"
 run: true
@@ -10,8 +10,8 @@ raster_input_files:
   file_window: None
       
 postprocess_sql:
-  - sql_file: srf_accum_precip_hi
-    target_table: publish.srf_accum_precip_hi
+  - sql_file: srf_48hr_accum_precip_hi
+    target_table: publish.srf_48hr_accum_precip_hi
 
 services:
-  - srf_accum_precip_hi
+  - srf_48hr_accum_precip_hi_noaa

@@ -26,21 +26,21 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=srf_accum_precip_hi/1hour-3hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/4hour-6hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/7hour-9hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/10hour-12hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/13hour-24hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/1hour-24hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/25hour-36hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/37hour-48hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/24hour-48hour_accum_precipitation_mrf.xml",
-      "CIMPATH=srf_accum_precip_hi/1hour-48hour_accum_precipitation_mrf.xml"
+      "CIMPATH=srf_48hr_accum_precip_hi/1hour-3hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/4hour-6hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/7hour-9hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/10hour-12hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/13hour-24hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/1hour-24hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/25hour-36hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/37hour-48hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/24hour-48hour_accum_precipitation_mrf.xml",
+      "CIMPATH=srf_48hr_accum_precip_hi/1hour-48hour_accum_precipitation_mrf.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "standaloneTables" : [
-      "CIMPATH=srf_accum_precip_hi/srf_accum_precip.xml"
+      "CIMPATH=srf_48hr_accum_precip_hi/srf_accum_precip.xml"
     ],
     "defaultExtent" : {
       "xmin" : -353427.987938845763,
@@ -131,7 +131,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 1-3 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/1hour-3hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/1hour-3hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -155,7 +155,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-3hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -453,7 +453,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 4-6 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/4hour-6hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/4hour-6hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -477,7 +477,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "4hour-6hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -775,7 +775,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 7-9 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/7hour-9hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/7hour-9hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -799,7 +799,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "7hour-9hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1097,7 +1097,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 10-12 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/10hour-12hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/10hour-12hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -1121,7 +1121,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "10hour-12hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1419,7 +1419,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 13-24 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/13hour-24hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/13hour-24hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -1443,7 +1443,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "13hour-24hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -1741,7 +1741,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Day 1 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/1hour-24hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/1hour-24hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -1765,7 +1765,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-24hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2063,7 +2063,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 25-36 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/25hour-36hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/25hour-36hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -2087,7 +2087,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "25hour-36hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2385,7 +2385,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Hours 37-48 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/37hour-48hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/37hour-48hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -2409,7 +2409,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "37hour-48hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -2707,7 +2707,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "Day 2 - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/24hour-48hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/24hour-48hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -2731,7 +2731,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "24hour-48hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -3029,7 +3029,7 @@
     {
       "type" : "CIMRasterLayer",
       "name" : "2 Days - Accumulated Precipitation",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/1hour-48hour_accum_precipitation_mrf.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/1hour-48hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -3053,7 +3053,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_accum_precip_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_48hr_accum_precip_hi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "1hour-48hour_accum_precipitation.mrf",
         "datasetType" : "esriDTAny"
@@ -3365,7 +3365,7 @@
     {
       "type" : "CIMStandaloneTable",
       "name" : "Service Metadata",
-      "uRI" : "CIMPATH=srf_accum_precip_hi/srf_accum_precip.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_hi/srf_accum_precip.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
