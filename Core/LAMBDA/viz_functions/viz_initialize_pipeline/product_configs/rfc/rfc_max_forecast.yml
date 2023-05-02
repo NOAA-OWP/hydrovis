@@ -1,4 +1,4 @@
-product: rfc_max_stage
+product: rfc_max_forecast
 configuration: rfc
 product_type: "vector"
 run: true
@@ -16,8 +16,8 @@ ingest_files:
       target_keys: (nws_lid)
 
 postprocess_sql:
-  - sql_file: rfc_max_stage
-    target_table: publish.rfc_max_stage
+  - sql_file: rfc_max_forecast
+    target_table: publish.rfc_max_forecast
 
 services:
-  - rfc_max_stage
+  - rfc_max_forecast

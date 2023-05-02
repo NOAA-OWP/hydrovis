@@ -467,7 +467,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_stage",
+          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

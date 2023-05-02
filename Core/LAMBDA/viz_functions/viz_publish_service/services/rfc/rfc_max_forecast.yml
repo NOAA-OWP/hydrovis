@@ -1,4 +1,4 @@
-service: rfc_max_stage
+service: rfc_max_forecast
 summary: RFC Maximum Stage Forecast
 description: Depicts Advanced Hydrologic Prediction Service (AHPS) River Forecast Center (RFC) 
   forecast points with forecasts at or above action stage. Circles represent forecast points 

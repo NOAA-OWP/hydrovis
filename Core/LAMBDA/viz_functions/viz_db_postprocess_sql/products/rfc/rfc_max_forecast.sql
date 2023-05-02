@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.rfc_max_stage;
+DROP TABLE IF EXISTS publish.rfc_max_forecast;
 
 WITH
 	-------- Max Stage Sub Query -------
@@ -114,7 +114,7 @@ SELECT
 	CONCAT('https://water.weather.gov/resources/hydrographs/', LOWER(metadata.nws_lid), '_hg.png') AS hydrograph_link,
 	CONCAT('https://water.weather.gov/ahps2/rfc/', metadata.nws_lid, '.shortrange.hefs.png') AS hefs_link,
 	to_char(NOW()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS UPDATE_TIME
-INTO publish.rfc_max_stage
+INTO publish.rfc_max_forecast
 FROM ingest.ahps_metadata as metadata
 JOIN max_stage ON max_stage.nws_lid = metadata.nws_lid
 JOIN min_stage ON min_stage.nws_lid = metadata.nws_lid
