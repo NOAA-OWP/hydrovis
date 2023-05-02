@@ -337,9 +337,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68514a7759455344593849736d643670416947387468654d646b494f6e59514c554a4d2f334b587a50524e673d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%rfc_5day_max_downstream_streamflow_rfc_points",
+          "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow_rfc_points",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,usgs_sitecode,nws_name,geom,oid from hydrovis.services.rfc_5day_max_downstream_streamflow_rfc_points",
+          "sqlQuery" : "select nws_lid,usgs_sitecode,nws_name,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow_rfc_points",
           "srid" : "4326",
           "spatialReference" : {
             "wkid" : 4326,
@@ -1016,7 +1016,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_5day_max_downstream_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1833,7 +1833,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,waterbody_status,viz_status_lid, strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_5day_max_downstream_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,waterbody_status,viz_status_lid, strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

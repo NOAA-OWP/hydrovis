@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.rfc_5day_max_downstream_streamflow;
+DROP TABLE IF EXISTS publish.rfc_based_5day_max_streamflow;
 	
 SELECT ingest.rnr_max_flows.feature_id, 
 	ingest.rnr_max_flows.feature_id::TEXT AS feature_id_str,
@@ -13,7 +13,7 @@ SELECT ingest.rnr_max_flows.feature_id,
 	huc6,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	geom
-INTO publish.rfc_5day_max_downstream_streamflow
+INTO publish.rfc_based_5day_max_streamflow
 FROM ingest.rnr_max_flows
 left join derived.channels_conus ON ingest.rnr_max_flows.feature_id = derived.channels_conus.feature_id
 GROUP BY ingest.rnr_max_flows.feature_id, feature_id_str, Name, reference_time, strm_order, huc6, geom;

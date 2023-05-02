@@ -1,4 +1,4 @@
-product: rfc_5day_max_downstream_streamflow
+product: rfc_based_5day_max_streamflow
 configuration: replace_route
 product_type: "vector"
 run: true
@@ -11,13 +11,13 @@ ingest_files:
       target_keys: (feature_id)
 
 postprocess_sql:
-  - sql_file: rfc_5day_max_downstream_streamflow
-    target_table: publish.rfc_5day_max_downstream_streamflow
+  - sql_file: rfc_based_5day_max_streamflow
+    target_table: publish.rfc_based_5day_max_streamflow
   
 product_summaries:
   - sql_file:  rfc_points
     target_table:
-      - publish.rfc_5day_max_downstream_streamflow_rfc_points
+      - publish.rfc_based_5day_max_streamflow_rfc_points
 
 services:
-  - rfc_5day_max_downstream_inundation
+  - rfc_based_5day_max_streamflow
