@@ -383,7 +383,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_18hr_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
