@@ -1,4 +1,4 @@
-service: ana_streamflow_prvi
+service: ana_streamflow_prvi_noaa
 summary: Streamflow Analysis for Puerto Rico and Virgin Islands
 description: Depicts the streamflow output from the operational National Water Model (NWM) analysis and assimilation for Puerto Rico and the U.S. Virgin Islands. Updated hourly.
 tags: streamflow, national water model, nwm, ana, puertorico, prvi
