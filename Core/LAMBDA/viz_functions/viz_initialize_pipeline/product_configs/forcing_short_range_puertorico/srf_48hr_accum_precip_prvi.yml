@@ -1,4 +1,4 @@
-product: srf_accum_precip_prvi
+product: srf_48hr_accum_precip_prvi
 configuration: forcing_short_range_puertorico
 product_type: "raster"
 run: true
@@ -10,8 +10,8 @@ raster_input_files:
   file_window: None
       
 postprocess_sql:
-  - sql_file: srf_accum_precip_prvi
-    target_table: publish.srf_accum_precip_prvi
+  - sql_file: srf_48hr_accum_precip_prvi
+    target_table: publish.srf_48hr_accum_precip_prvi
 
 services:
-  - srf_accum_precip_prvi
+  - srf_48hr_accum_precip_prvi_noaa
