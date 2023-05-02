@@ -1,4 +1,4 @@
-service: nwm_waterbodies
+service: static_nwm_waterbodies
 summary: NWM Waterbodies
 description: Depicts the waterbodies for the National Water Model
 tags: national water model, nws, fim, reference, waterbodies

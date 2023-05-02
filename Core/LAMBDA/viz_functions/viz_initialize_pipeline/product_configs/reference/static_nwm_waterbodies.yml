@@ -1,7 +1,7 @@
-product: nwm_waterbodies
+product: static_nwm_waterbodies
 configuration: reference
 product_type: "vector"
 run: true
 
 services:
-  - nwm_waterbodies
+  - static_nwm_waterbodies
