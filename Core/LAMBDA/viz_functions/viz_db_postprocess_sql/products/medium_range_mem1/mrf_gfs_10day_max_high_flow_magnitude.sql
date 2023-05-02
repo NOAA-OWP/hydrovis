@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_max_high_flow_magnitude;
+DROP TABLE IF EXISTS publish.mrf_gfs_10day_max_high_flow_magnitude;
 WITH high_flow_mag AS (
      SELECT maxflows.feature_id,
         maxflows.maxflow_3day_cfs,
@@ -65,6 +65,6 @@ SELECT channels.feature_id,
     high_flow_mag.flow_50yr,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
-INTO publish.mrf_max_high_flow_magnitude
+INTO publish.mrf_gfs_10day_max_high_flow_magnitude
 FROM derived.channels_conus channels
  JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;

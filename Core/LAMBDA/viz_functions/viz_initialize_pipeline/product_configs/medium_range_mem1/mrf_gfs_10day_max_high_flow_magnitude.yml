@@ -1,4 +1,4 @@
-product: mrf_max_high_flow_magnitude
+product: mrf_gfs_10day_max_high_flow_magnitude
 configuration: medium_range_mem1
 product_type: "vector"
 run: true
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: mrf_gfs_max_flows
 
 postprocess_sql:
-  - sql_file: mrf_max_high_flow_magnitude
-    target_table: publish.mrf_max_high_flow_magnitude
+  - sql_file: mrf_gfs_10day_max_high_flow_magnitude
+    target_table: publish.mrf_gfs_10day_max_high_flow_magnitude
 
 services:
-  - mrf_max_high_flow_magnitude
+  - mrf_gfs_10day_max_high_flow_magnitude
