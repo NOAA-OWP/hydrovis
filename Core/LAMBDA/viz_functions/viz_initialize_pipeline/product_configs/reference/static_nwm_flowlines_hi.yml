@@ -1,7 +1,7 @@
-product: nwm_flowlines_hi
+product: static_nwm_flowlines_hi
 configuration: reference
 product_type: "vector"
 run: true
 
 services:
-  - nwm_flowlines_hi
+  - static_nwm_flowlines_hi

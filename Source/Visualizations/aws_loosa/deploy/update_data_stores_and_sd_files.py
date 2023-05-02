@@ -22,7 +22,7 @@ service_dict = {
     "branch_gms_catchments_hi": "fim_catchments",
     "branch_gms_catchments_prvi": "fim_catchments",
     "nwm_flowlines": "reference",
-    "nwm_flowlines_hi": "reference",
+    "static_nwm_flowlines_hi": "reference",
     "nwm_flowlines_prvi": "reference",
     "possible_coastal_omission": "reference",
     "nwm_waterbodies": "reference",
