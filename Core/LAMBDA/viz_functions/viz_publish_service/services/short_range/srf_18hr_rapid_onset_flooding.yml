@@ -1,4 +1,4 @@
-service: srf_rapid_onset_flooding
+service: srf_18hr_rapid_onset_flooding
 summary: Short-Range Rapid Onset Flooding Forecast
 description: Depicts forecast rapid onset flooding using the short-range configuration 
   of the National Water Model (NWM) over the contiguous U.S. Shown are reaches 

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_rapid_onset_flooding;
+DROP TABLE IF EXISTS publish.srf_18hr_rapid_onset_flooding;
 -- Calculate rapid onset reaches
 WITH rapid_onset AS (
 	-- Calculate the info for the start of a rapid flood event - >=100% flow in one hour.
@@ -65,7 +65,7 @@ SELECT channels.feature_id,
 	high_water_threshold,
 	ST_LENGTH(channels.geom)*0.000621371 AS reach_Length_miles, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	geom
-INTO publish.srf_rapid_onset_flooding
+INTO publish.srf_18hr_rapid_onset_flooding
 FROM derived.channels_conus channels
 JOIN rapid_onset ON channels.feature_id = rapid_onset.feature_id
 where channels.strm_order <= 4;

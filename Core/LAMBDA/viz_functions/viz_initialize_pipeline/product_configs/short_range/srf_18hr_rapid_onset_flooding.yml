@@ -1,4 +1,4 @@
-product: srf_rapid_onset_flooding
+product: srf_18hr_rapid_onset_flooding
 configuration: short_range
 product_type: "vector"
 run: true
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows
 
 postprocess_sql:
-  - sql_file: srf_rapid_onset_flooding
-    target_table: publish.srf_rapid_onset_flooding
+  - sql_file: srf_18hr_rapid_onset_flooding
+    target_table: publish.srf_18hr_rapid_onset_flooding
 
 services:
-  - srf_rapid_onset_flooding
+  - srf_18hr_rapid_onset_flooding

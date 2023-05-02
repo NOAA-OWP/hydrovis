@@ -28,7 +28,7 @@
     "layers" : [
       "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/rapid_onset_flood_arrival_time.xml",
       "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/rapid_onset_flood_duration.xml",
-      "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/egdb_hydrovis_srf_rapid_onset_flooding_hucs.xml"
+      "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/egdb_hydrovis_srf_18hr_rapid_onset_flooding_hucs.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -466,9 +466,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e687666314b4d41584e32765742494f726b484c3973474b75416a63514675565a5970763643745138747865383d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_1_2_2_1",
+          "dataset" : "hydrovis.services.%srf_18hr_rapid_onset_flooding_1_2_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_rapid_onset_flooding",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_18hr_rapid_onset_flooding",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10067,9 +10067,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e687666314b4d41584e32765742494f726b484c3973474b75416a63514675565a5970763643745138747865383d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_1_2_2_1",
+          "dataset" : "hydrovis.services.%srf_18hr_rapid_onset_flooding_1_2_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_rapid_onset_flooding",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_18hr_rapid_onset_flooding",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10898,14 +10898,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "18 Hours - NWM Waterway Length Flooded",
-      "uRI" : "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/egdb_hydrovis_srf_rapid_onset_flooding_hucs.xml",
+      "uRI" : "CIMPATH=nwm_18_hour_rapid_onset_flooding_forecast/egdb_hydrovis_srf_18hr_rapid_onset_flooding_hucs.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "metadataURI" : "CIMPATH=Metadata/c6d6467839b3f8b65f4c23eaf9d7f8de.xml",
       "useSourceMetadata" : true,
-      "description" : "egdb.hydrovis.srf_rapid_onset_flooding_hucs",
+      "description" : "egdb.hydrovis.srf_18hr_rapid_onset_flooding_hucs",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{5772F712-BC82-4B4C-A077-A4B644E970CF}"
@@ -11077,9 +11077,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e687666314b4d41584e32765742494f726b484c3973474b75416a63514675565a5970763643745138747865383d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%srf_rapid_onset_flooding_hucs_3_4_5_1_1_1",
+          "dataset" : "hydrovis.services.%srf_18hr_rapid_onset_flooding_hucs_3_4_5_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_rapid_onset_flooding_hucs",
+          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_18hr_rapid_onset_flooding_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
