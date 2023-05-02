@@ -38,7 +38,9 @@ def lambda_handler(event, context):
             if event.get('args').get('postprocess_sql').get('dependent_on_db_tables'):
                 dependent_on_tables = event['args']['postprocess_sql']['dependent_on_db_tables']
                 if len(dependent_on_tables) > 0:
+                    print("Dependent DB Table Specified - Checking if complete.")
                     if check_required_tables(dependent_on_tables, reference_time) is False:
+                        print("Reference Time not yet present in required table. Pausing and Retrying.")
                         raise RequiredTableNotUpdated
         # Summary
         elif step == 'summaries':
@@ -107,7 +109,10 @@ def max_flows_already_processed(sql_path, reference_time, sql_replace):
         sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
     schema, table = re.search('into (\w+)\.(\w+)', sql).groups()
     sql = f'SELECT reference_time FROM {schema}.{table} LIMIT 1;'
-    result = run_sql(sql)
+    try:
+        result = run_sql(sql)
+    except:
+        return False
     
     if not result:
         return False
@@ -123,7 +128,7 @@ def check_required_tables(dependent_on_tables, reference_time):
         result = run_sql(f"SELECT reference_time FROM {table} LIMIT 1")
         if not result:
             return False
-        elif result[0] == reference_time:
+        elif result[0].replace(" UTC", "") == reference_time:
             return True
         else:
             return False
