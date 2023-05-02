@@ -10,7 +10,7 @@ from aws_loosa.utils.shared_funcs import create_service_db_tables
 
 
 class MrfRapidOnsetFloodingProbability(AWSEgisPublishingProcess):
-    service_name = 'mrf_rapid_onset_flooding_probability'
+    service_name = 'mrf_gfs_5day_rapid_onset_flooding_probability'
 
     def _process(self, a_event_time, a_input_files, a_output_location, *args, **kwargs):
         """
@@ -39,11 +39,11 @@ class MrfRapidOnsetFloodingProbability(AWSEgisPublishingProcess):
         df_rofp['reference_time'] = a_event_time.strftime("%Y-%m-%d %H:%M:%S UTC")
 
         sql_files = [
-            os.path.join(os.path.dirname(__file__), "mrf_rapid_onset_flooding_probability.sql"),
-            os.path.join(os.path.dirname(__file__), "mrf_rapid_onset_flooding_probability_hucs.sql")
+            os.path.join(os.path.dirname(__file__), "mrf_gfs_5day_rapid_onset_flooding_probability.sql"),
+            os.path.join(os.path.dirname(__file__), "mrf_gfs_5day_rapid_onset_flooding_probability_hucs.sql")
         ]
 
-        service_table_names = ["mrf_rapid_onset_flooding_probability", "mrf_rapid_onset_flooding_probability_hucs"]
+        service_table_names = ["mrf_gfs_5day_rapid_onset_flooding_probability", "mrf_gfs_5day_rapid_onset_flooding_probability_hucs"]
 
         create_service_db_tables(df_rofp, self.service_name, sql_files, service_table_names, self.process_event_time, past_run=self.one_off)
 
