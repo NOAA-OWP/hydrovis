@@ -1,4 +1,4 @@
-service: fim_performance
+service: static_hand_inundation_performance_metrics_noaa
 summary: Height Above Nearest Drainage (HAND) Flood Inundation Mapping (FIM) Performance at HUC8s and AHPS locations
 description: 'Depicts the HAND FIM method skill metrics at HUC8s (polygons) and AHPS locations (points). 
   Metrics are computed through static comparison of benchmark maps to HAND maps at specific flow magnitudes 

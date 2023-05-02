@@ -27,7 +27,7 @@ service_dict = {
     "possible_coastal_omission": "reference",
     "static_nwm_waterbodies": "reference",
     "static_nwm_waterbodies_hi": "reference",
-    "fim_performance": "reference",
+    "static_hand_inundation_performance_metrics_noaa": "reference",
     "flow_based_catfim": "reference",
     "stage_based_catfim": "reference",
     "nwm_aep_fim": "aep_fim",
