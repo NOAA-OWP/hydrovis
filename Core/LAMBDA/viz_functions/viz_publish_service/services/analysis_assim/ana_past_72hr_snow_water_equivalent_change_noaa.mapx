@@ -147,9 +147,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_past_72hr_snow_water_equivalent_change\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_24hr_snow_water_equiv_change.mrf",
+        "dataset" : "ana_past_24hr_snow_water_equivalent_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -444,9 +444,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_past_72hr_snow_water_equivalent_change\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_48hr_snow_water_equiv_change.mrf",
+        "dataset" : "ana_past_48hr_snow_water_equivalent_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -741,9 +741,9 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_72hr_snow_water_equiv_change\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_past_72hr_snow_water_equivalent_change\\published",
         "workspaceFactory" : "Raster",
-        "dataset" : "ana_72hr_snow_water_equiv_change.mrf",
+        "dataset" : "ana_past_72hr_snow_water_equivalent_change.mrf",
         "datasetType" : "esriDTAny"
       },
       "colorizer" : {
@@ -1082,7 +1082,7 @@
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_72hr_accum_precip",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_72hr_snow_water_equiv_change",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_past_72hr_snow_water_equivalent_change",
         "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [

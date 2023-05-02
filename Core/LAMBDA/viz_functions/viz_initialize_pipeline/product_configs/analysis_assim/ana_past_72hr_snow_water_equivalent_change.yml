@@ -1,17 +1,17 @@
-product: ana_72hr_snow_water_equiv_change
+product: ana_past_72hr_snow_water_equivalent_change
 configuration: analysis_assim
 product_type: "raster"
 run: true
 
 raster_input_files:
-  product_file: ana_72hr_snow_water_equiv_change
+  product_file: ana_past_72hr_snow_water_equivalent_change
   file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.land.tm00.conus.nc
   file_step: 1D
   file_window: P3D
       
 postprocess_sql:
-  - sql_file: ana_72hr_snow_water_equiv_change
-    target_table: publish.ana_72hr_snow_water_equiv_change
+  - sql_file: ana_past_72hr_snow_water_equivalent_change
+    target_table: publish.ana_past_72hr_snow_water_equivalent_change
 
 services:
-  - ana_72hr_snow_water_equiv_change
+  - ana_past_72hr_snow_water_equivalent_change_noaa

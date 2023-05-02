@@ -29,7 +29,7 @@ def main(product_name, data_bucket, input_files, reference_time):
         data = swe_difference.round(2)
 
         local_raster = create_raster(data, crs)
-        raster_name = f"ana_{change[hour]}hr_snow_water_equiv_change" 
+        raster_name = f"ana_past_{change[hour]}hr_snow_water_equivalent_change"
         uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
         all_uploaded_rasters.append(uploaded_raster)
 
