@@ -1,4 +1,4 @@
-product: mrf_high_water_arrival_time
+product: mrf_gfs_10day_high_water_arrival_time
 configuration: medium_range_mem1
 product_type: "vector"
 run: true
@@ -11,8 +11,8 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 postprocess_sql:
-  - sql_file: mrf_high_water_arrival_time
-    target_table: publish.mrf_high_water_arrival_time
+  - sql_file: mrf_gfs_10day_high_water_arrival_time
+    target_table: publish.mrf_gfs_10day_high_water_arrival_time
 
 services:
-  - mrf_high_water_arrival_time
+  - mrf_gfs_10day_high_water_arrival_time

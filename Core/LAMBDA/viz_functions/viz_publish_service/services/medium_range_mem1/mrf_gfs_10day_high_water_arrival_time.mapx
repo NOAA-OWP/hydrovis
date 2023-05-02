@@ -410,7 +410,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_gfs_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -9978,7 +9978,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_gfs_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -19526,7 +19526,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_gfs_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

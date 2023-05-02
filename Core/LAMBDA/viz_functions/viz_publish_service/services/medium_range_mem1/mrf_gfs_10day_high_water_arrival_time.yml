@@ -1,7 +1,7 @@
-service: mrf_high_water_arrival_time
-summary: Medium-Range High Water Arrival Time Forecast
+service: mrf_gfs_10day_high_water_arrival_time
+summary: Medium-Range GFS High Water Arrival Time Forecast
 description: Depicts the forecast arrival time of high water over the next 10 days. This service is derived from the 
-  medium-range configuration of the National Water Model (NWM) over the contiguous U.S. Shown are reaches that are 
+  medium-range GFS configuration of the National Water Model (NWM) over the contiguous U.S. Shown are reaches that are 
   expected to have flow at or above the high water threshold over the next 10 days. Reaches are colored by the time 
   at which they are forecast to reach high water (calculated in 3 hour increments). High water thresholds 
   (regionally varied) were derived using the 40-year NWM v2.1 reanalysis simulation. Updated every 6 hours.
