@@ -1,4 +1,4 @@
-service: srf_accum_precip
+service: srf_18hr_accum_precip_noaa
 summary: HRRR Short-Range Accumulated Precipitation Forecast
 description: 'Depicts expected accumulated precipitation totals over the next 18 hours derived from the HRRR 
   forcing for the operational National Water Model (NWM) short-range forecast. Updated hourly.'

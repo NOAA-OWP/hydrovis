@@ -40,7 +40,7 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "standaloneTables" : [
-      "CIMPATH=srf_48hr_accum_precip_prvi/srf_accum_precip.xml"
+      "CIMPATH=srf_48hr_accum_precip_prvi/srf_48hr_accum_precip_prvi.xml"
     ],
     "defaultExtent" : {
       "xmin" : -353427.987938845763,
@@ -3365,7 +3365,7 @@
     {
       "type" : "CIMStandaloneTable",
       "name" : "Service Metadata",
-      "uRI" : "CIMPATH=srf_48hr_accum_precip_prvi/srf_accum_precip.xml",
+      "uRI" : "CIMPATH=srf_48hr_accum_precip_prvi/srf_48hr_accum_precip_prvi.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -3376,9 +3376,9 @@
         "type" : "CIMSqlQueryDataConnection",
         "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685a464e5358504c7646454d6a6d6337425639705a666a446f76504f772f646f5251472f79763965437256553d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
-        "dataset" : "vizprocessing.publish.%srf_accum_precip",
+        "dataset" : "vizprocessing.publish.%srf_48hr_accum_precip_prvi",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select oid,reference_time,update_time from hydrovis.services.srf_accum_precip",
+        "sqlQuery" : "select oid,reference_time,update_time from hydrovis.services.srf_48hr_accum_precip_prvi",
         "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [

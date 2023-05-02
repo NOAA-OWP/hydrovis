@@ -1,4 +1,4 @@
-product: srf_accum_precip
+product: srf_18hr_accum_precip
 configuration: forcing_short_range
 product_type: "raster"
 run: true
@@ -10,8 +10,8 @@ raster_input_files:
   file_window: None
       
 postprocess_sql:
-  - sql_file: srf_accum_precip
-    target_table: publish.srf_accum_precip
+  - sql_file: srf_18hr_accum_precip
+    target_table: publish.srf_18hr_accum_precip
 
 services:
-  - srf_accum_precip
+  - srf_18hr_accum_precip_noaa
