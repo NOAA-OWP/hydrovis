@@ -1,4 +1,4 @@
-product: srf_max_high_flow_magnitude
+product: srf_18hr_max_high_flow_magnitude
 configuration: short_range
 product_type: "vector"
 run: true
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows
 
 postprocess_sql:
-  - sql_file: srf_max_high_flow_magnitude
-    target_table: publish.srf_max_high_flow_magnitude
+  - sql_file: srf_18hr_max_high_flow_magnitude
+    target_table: publish.srf_18hr_max_high_flow_magnitude
 
 services:
-  - srf_max_high_flow_magnitude
+  - srf_18hr_max_high_flow_magnitude
