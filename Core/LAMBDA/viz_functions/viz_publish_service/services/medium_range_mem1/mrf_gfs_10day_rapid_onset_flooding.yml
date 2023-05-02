@@ -1,6 +1,6 @@
-service: mrf_rapid_onset_flooding
-summary: Medium-Range Rapid Onset Flooding Forecast
-description: Depicts forecast rapid onset flooding using the medium-range configuration of the 
+service: mrf_gfs_10day_rapid_onset_flooding
+summary: Medium-Range GFS Rapid Onset Flooding Forecast
+description: Depicts forecast rapid onset flooding using the medium-range GFS configuration of the 
   National Water Model (NWM) over the contiguous U.S. Shown are reaches (stream order 4 and below) 
   with a forecast flow increase of 100% or greater within 3 hours, and which are expected to be 
   at or above the high water threshold within 6 hours of that increase (all calculated in 3 hour 

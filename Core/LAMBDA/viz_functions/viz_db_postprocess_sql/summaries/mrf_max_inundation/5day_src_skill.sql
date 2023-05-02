@@ -15,7 +15,7 @@ SELECT
     MIN(stage) as usgs_stage,
     ST_TRANSFORM(MIN(gage.geo_point), 3857) as geom
 INTO publish.mrf_max_inundation_5day_src_skill
-FROM cache.max_flows_mrf AS mrf
+FROM cache.max_flows_mrf_gfs AS mrf
 JOIN derived.recurrence_flows_conus thresholds ON mrf.feature_id = thresholds.feature_id AND mrf.maxflow_5day_cfs >= thresholds.high_water_threshold
 JOIN derived.hydrotable_staggered AS ht ON ht.feature_id = mrf.feature_id AND mrf.maxflow_5day_cfs >= ht.discharge_cfs AND mrf.maxflow_5day_cfs <= ht.next_discharge_cfs
 JOIN derived.usgs_rating_curves_staggered AS urc ON urc.location_id::text = ht.location_id AND mrf.maxflow_5day_cfs >= urc.discharge_cfs AND mrf.maxflow_5day_cfs <= urc.next_discharge_cfs

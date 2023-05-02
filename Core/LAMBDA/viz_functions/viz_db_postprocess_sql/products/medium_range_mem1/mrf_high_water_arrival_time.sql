@@ -14,7 +14,7 @@ WITH arrival_time AS (
         thresholds.high_water_threshold AS high_water_threshold,
         round((max(forecasts.streamflow) * 35.315::double precision)::numeric, 2) AS max_flow,
         to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time
-      FROM ingest.nwm_channel_rt_mrf_mem1 AS forecasts
+      FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
       JOIN derived.recurrence_flows_conus thresholds ON forecasts.feature_id = thresholds.feature_id
       WHERE thresholds.high_water_threshold > 0::double precision AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
       GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, thresholds.high_water_threshold

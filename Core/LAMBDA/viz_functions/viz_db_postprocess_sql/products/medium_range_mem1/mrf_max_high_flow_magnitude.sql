@@ -39,7 +39,7 @@ WITH high_flow_mag AS (
         thresholds.rf_10_0_17c AS flow_10yr,
 		thresholds.rf_25_0_17c AS flow_25yr,
 		thresholds.rf_50_0_17c AS flow_50yr
-       FROM cache.max_flows_mrf maxflows
+       FROM cache.max_flows_mrf_gfs maxflows
          JOIN derived.recurrence_flows_conus thresholds ON maxflows.feature_id = thresholds.feature_id
       WHERE (thresholds.high_water_threshold > 0::double precision) AND maxflows.maxflow_10day_cfs >= thresholds.high_water_threshold
     )

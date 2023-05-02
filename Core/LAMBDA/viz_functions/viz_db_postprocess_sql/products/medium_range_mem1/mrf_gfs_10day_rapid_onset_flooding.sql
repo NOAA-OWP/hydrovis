@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_rapid_onset_flooding;
+DROP TABLE IF EXISTS publish.mrf_gfs_10day_rapid_onset_flooding;
 -- Calculate rapid onset reaches
 WITH rapid_onset AS (
 	-- Calculate the info for the start of a rapid flood event - >=100% flow in one hour.
@@ -10,12 +10,12 @@ WITH rapid_onset AS (
 				(
 				WITH series AS -- Calculate a full 240 hour series for every feature_id, so that unadjacent hours aren't compared
 					(SELECT channels.feature_id, generate_series(3,240,3) AS forecast_hour
-					 FROM derived.channels_conus channels JOIN cache.max_flows_mrf as mf on channels.feature_id = mf.feature_id
+					 FROM derived.channels_conus channels JOIN cache.max_flows_mrf_gfs as mf on channels.feature_id = mf.feature_id
 					 WHERE channels.strm_order <= 4
 					)
 				SELECT series.feature_id, series.forecast_hour, CASE WHEN streamflow is NOT NULL THEN (streamflow * 35.315) ELSE 0.001 END AS streamflow -- Set streamflow to 0.01 in cases where it is missing, so we don't get a divide by zero error
 				FROM series
-				LEFT OUTER JOIN ingest.nwm_channel_rt_mrf_mem1 AS forecasts ON series.feature_id = forecasts.feature_id AND series.forecast_hour = forecasts.forecast_hour -- Left outer join to the forecasts table (so that all hours are always present)
+				LEFT OUTER JOIN ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts ON series.feature_id = forecasts.feature_id AND series.forecast_hour = forecasts.forecast_hour -- Left outer join to the forecasts table (so that all hours are always present)
 				ORDER BY forecasts.feature_id, series.forecast_hour
 				)	
 			SELECT feature_id, forecast_hour, streamflow AS flow,
@@ -39,7 +39,7 @@ WITH rapid_onset AS (
 		min(floodstart.flow) AS flood_flow,
 		min(floodstart.pct_chg) AS flood_percent_increase,
 		max(high_water_threshold) AS high_water_threshold
-	FROM ingest.nwm_channel_rt_mrf_mem1 AS forecasts
+	FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
 	JOIN floodstart ON forecasts.feature_id = floodstart.feature_id
 	JOIN derived.recurrence_flows_conus AS thresholds ON forecasts.feature_id = thresholds.feature_id
 	WHERE -- This is where the main forecast filter conditions go
@@ -65,7 +65,7 @@ SELECT channels.feature_id,
 	high_water_threshold,
 	ST_LENGTH(channels.geom)*0.000621371 AS reach_Length_miles, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	geom
-INTO publish.mrf_rapid_onset_flooding
+INTO publish.mrf_gfs_10day_rapid_onset_flooding
 FROM derived.channels_conus channels
 JOIN rapid_onset ON channels.feature_id = rapid_onset.feature_id
 where channels.strm_order <= 4;
