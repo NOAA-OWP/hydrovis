@@ -26,6 +26,7 @@ service_dict = {
     "static_nwm_flowlines_prvi": "reference",
     "possible_coastal_omission": "reference",
     "static_nwm_waterbodies": "reference",
+    "static_nwm_waterbodies_hi": "reference",
     "fim_performance": "reference",
     "flow_based_catfim": "reference",
     "stage_based_catfim": "reference",
