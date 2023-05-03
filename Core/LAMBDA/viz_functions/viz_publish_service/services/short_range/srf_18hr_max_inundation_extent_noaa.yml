@@ -1,4 +1,4 @@
-service: srf_max_inundation
+service: srf_18hr_max_inundation_extent_noaa
 summary: Short-Range Inundation Forecast
 description: 'Depicts the inundation extent of the peak National Water Model (NWM) streamflow 
   forecast over the next 18 hours where the NWM is signaling high water. This service is derived 

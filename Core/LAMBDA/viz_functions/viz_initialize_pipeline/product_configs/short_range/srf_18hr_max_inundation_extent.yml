@@ -1,4 +1,4 @@
-product: srf_max_inundation
+product: srf_18hr_max_inundation_extent
 configuration: short_range
 product_type: "fim"
 run: true
@@ -18,22 +18,22 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows
 
 fim_configs:
-  - name: srf_max_inundation
-    target_table: ingest.srf_max_inundation
+  - name: srf_18hr_max_inundation_extent
+    target_table: ingest.srf_18hr_max_inundation_extent
     fim_type: hand
     postprocess:
-      sql_file: srf_max_inundation
-      target_table: publish.srf_max_inundation
+      sql_file: srf_18hr_max_inundation_extent
+      target_table: publish.srf_18hr_max_inundation_extent
   
 product_summaries:
   - sql_file:  src_skill
     target_table:
-      - publish.srf_max_inundation_src_skill
+      - publish.srf_18hr_max_inundation_extent_src_skill
   - sql_file:  building_footprints_fimpact
     target_table:
-      - publish.srf_max_inundation_building_footprints
-      - publish.srf_max_inundation_counties
-      - publish.srf_max_inundation_hucs
+      - publish.srf_18hr_max_inundation_extent_building_footprints
+      - publish.srf_18hr_max_inundation_extent_counties
+      - publish.srf_18hr_max_inundation_extent_hucs
 
 services:
-  - srf_max_inundation
+  - srf_18hr_max_inundation_extent_noaa
