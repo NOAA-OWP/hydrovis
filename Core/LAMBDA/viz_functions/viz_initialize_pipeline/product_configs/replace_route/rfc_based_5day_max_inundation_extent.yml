@@ -1,0 +1,32 @@
+product: rfc_based_5day_max_inundation_extent
+configuration: replace_route
+product_type: "fim"
+run: true
+
+ingest_files:
+    - file_format: max_flows/replace_route/{{datetime:%Y%m%d}}/rnr_{{datetime:%H}}_max_flows.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.rnr_max_flows
+      target_keys: (feature_id)
+
+fim_configs:
+  - name: rfc_based_5day_max_inundation_extent
+    target_table: ingest.rfc_based_5day_max_inundation_extent
+    fim_type: hand
+    postprocess:
+      sql_file: rfc_based_5day_max_inundation_extent
+      target_table: publish.rfc_based_5day_max_inundation_extent
+  
+product_summaries:
+  - sql_file:  src_skill
+    target_table:
+      - publish.rfc_based_5day_max_inundation_extent_src_skill
+  - sql_file:  building_footprints_fimpact
+    target_table:
+      - publish.rfc_based_5day_max_inundation_extent_building_footprints
+      - publish.rfc_based_5day_max_inundation_extent_counties
+      - publish.rfc_based_5day_max_inundation_extent_hucs
+
+services:
+  - rfc_based_5day_max_inundation_extent_noaa
