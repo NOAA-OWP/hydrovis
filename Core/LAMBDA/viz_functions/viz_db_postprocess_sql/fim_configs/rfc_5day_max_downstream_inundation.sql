@@ -23,12 +23,12 @@ SELECT
 	inun.huc8,
 	inun.geom,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
-	derived.channels_conus.strm_order, 
-    derived.channels_conus.name,
-	derived.channels_conus.state,
+	channels.strm_order, 
+    channels.name,
+	channels.state,
     agg_status.inherited_rfc_forecasts,
     agg_status.max_status
 INTO publish.rfc_5day_max_downstream_inundation
 FROM ingest.rfc_5day_max_downstream_inundation as inun 
 JOIN agg_status ON inun.feature_id = agg_status.feature_id
-left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;
+left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;
