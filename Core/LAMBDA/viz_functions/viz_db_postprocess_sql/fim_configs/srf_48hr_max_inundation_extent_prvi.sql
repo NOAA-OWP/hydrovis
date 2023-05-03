@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_max_inundation_prvi;
+DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_extent_prvi;
 
 SELECT  
 	inun.hydro_id,
@@ -17,8 +17,8 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_prvi.strm_order, 
     derived.channels_prvi.name
-INTO publish.srf_max_inundation_prvi
-FROM ingest.srf_max_inundation_prvi as inun 
+INTO publish.srf_48hr_max_inundation_extent_prvi
+FROM ingest.srf_48hr_max_inundation_extent_prvi as inun 
 left join derived.channels_prvi ON derived.channels_prvi.feature_id = inun.feature_id
 --Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features.
 UNION SELECT -9999, '-9999', 'NA', -9999, '-9999', -9999, -9999, -9999, -9999, 'NA', to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'),

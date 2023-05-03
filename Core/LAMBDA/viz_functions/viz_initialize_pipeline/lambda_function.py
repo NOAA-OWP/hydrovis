@@ -256,7 +256,7 @@ class viz_lambda_pipeline:
 # A configuration defines the data sources that a set of services require to run, and is primarily used to define the ingest files that must be
 # compiled before various service data can be generated. A particular reference_time is always associted with a configuration.
 # Example Configurations:
-#   - short_range - A NWM short_range forecast... used for services like srf_18hr_max_high_flow_magnitude, srf_18hr_high_water_arrival_time, srf_max_inundation, etc.
+#   - short_range - A NWM short_range forecast... used for services like srf_18hr_max_high_flow_magnitude, srf_18hr_high_water_arrival_time, srf_48hr_max_inundation_extent, etc.
 #   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_gfs_10day_max_high_flow_magnitude, mrf_gfs_10day_high_water_arrival_time, mrf_gfs_max_inundation_extent, etc.
 #   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_forecast service data.
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
