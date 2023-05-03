@@ -431,8 +431,8 @@
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
-            }
+              "length" : 2
+            },
             {
               "name" : "nwm_vers",
               "type" : "esriFieldTypeDouble",
