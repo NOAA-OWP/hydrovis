@@ -1,4 +1,4 @@
-service: branch_0_catchments_prvi
+service: static_hand_catchments_0_branches_prvi_noaa
 summary: Puerto Rico and Virgin Islands FIM catchment boundaries for branch 0
 description: Depicts the catchment boundaries for FIM HAND branch 0 datasets for Puerto Rico and Virgin Islands
 tags: fim, inundation, national water model, nwm, reference, puertorico, prvi
