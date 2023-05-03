@@ -1,4 +1,4 @@
-service: ana_inundation
+service: ana_inundation_extent_noaa
 summary: Inundation Extent Analysis
 description: 'Depicts the inundation extent of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. 
   This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. Shown are reaches with flow 
