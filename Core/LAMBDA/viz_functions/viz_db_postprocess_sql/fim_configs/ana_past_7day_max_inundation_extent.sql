@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation;
+DROP TABLE IF EXISTS publish.ana_past_7day_max_inundation_extent;
 
 SELECT  
 	inun.hydro_id,
@@ -18,7 +18,7 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
-	'ana_past_14day' AS config
-INTO publish.ana_past_14day_max_inundation
-FROM ingest.ana_past_14day_max_inundation as inun 
+	'ana_past_7day' AS config
+INTO publish.ana_past_7day_max_inundation_extent
+FROM ingest.ana_past_7day_max_inundation_extent as inun 
 left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;

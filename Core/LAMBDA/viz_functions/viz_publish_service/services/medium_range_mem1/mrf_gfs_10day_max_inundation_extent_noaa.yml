@@ -1,5 +1,5 @@
 service: mrf_gfs_10day_max_inundation_extent_noaa
-summary: Medium-Range GFS Inundation Forecast
+summary: Medium-Range GFS Inundation Extent Forecast
 description: 'Depicts the inundation extent of the peak National Water Model (NWM) streamflow forecast 
   over the next 3, 5, and 10 days where the NWM is signaling high water. This service is derived from 
   the medium-range GFS configuration of the NWM over the contiguous U.S. Shown are reaches with peak flow 

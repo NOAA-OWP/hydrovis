@@ -1,5 +1,5 @@
 service: srf_48hr_max_inundation_extent_prvi_noaa
-summary: Short-Range Inundation Forecast for Puerto Rico and Virgin Islands
+summary: Short-Range Inundation Extent Forecast for Puerto Rico and Virgin Islands
 description: 'Depicts the inundation extent of the peak National Water Model (NWM) 
   streamflow forecast over the next 48 hours where the NWM is signaling high water. 
   This service is derived from the short-range configuration of the NWM over Puerto 
