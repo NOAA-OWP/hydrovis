@@ -1,4 +1,4 @@
-service: stage_based_catfim
+service: static_rfc_stage_based_hand_inundation_extent_library_noaa
 summary: Depicts flood inundation extents derived from official NWS category thresholds and the Height 
   Above Nearest Drainage (HAND) technique. Official stage thresholds are used.
 description: 'Depicts flood inundation extents derived from official NWS category thresholds and the 

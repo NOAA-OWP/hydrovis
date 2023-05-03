@@ -1,0 +1,7 @@
+product: static_rfc_stage_based_hand_inundation_extent_library
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - static_rfc_stage_based_hand_inundation_extent_library_noaa
