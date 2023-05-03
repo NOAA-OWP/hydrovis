@@ -15,7 +15,7 @@ WITH rapid_onset AS (
 					)
 				SELECT series.feature_id, series.forecast_hour, CASE WHEN streamflow is NOT NULL THEN (streamflow * 35.315) ELSE 0.001 END AS streamflow -- Set streamflow to 0.01 in cases where it is missing, so we don't get a divide by zero error
 				FROM series
-				LEFT OUTER JOIN ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts ON series.feature_id = forecasts.feature_id AND series.forecast_hour = forecasts.forecast_hour -- Left outer join to the forecasts table (so that all hours are always present)
+				LEFT OUTER JOIN ingest.nwm_channel_rt_mrf_gfs_mem1 AS forecasts ON series.feature_id = forecasts.feature_id AND series.forecast_hour = forecasts.forecast_hour -- Left outer join to the forecasts table (so that all hours are always present)
 				ORDER BY forecasts.feature_id, series.forecast_hour
 				)	
 			SELECT feature_id, forecast_hour, streamflow AS flow,
@@ -39,7 +39,7 @@ WITH rapid_onset AS (
 		min(floodstart.flow) AS flood_flow,
 		min(floodstart.pct_chg) AS flood_percent_increase,
 		max(high_water_threshold) AS high_water_threshold
-	FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
+	FROM ingest.nwm_channel_rt_mrf_gfs_mem1 AS forecasts
 	JOIN floodstart ON forecasts.feature_id = floodstart.feature_id
 	JOIN derived.recurrence_flows_conus AS thresholds ON forecasts.feature_id = thresholds.feature_id
 	WHERE -- This is where the main forecast filter conditions go

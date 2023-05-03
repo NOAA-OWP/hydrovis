@@ -4,7 +4,7 @@ WITH arrival_time AS(
     SELECT 
            forecasts.feature_id, 
            max(forecasts.forecast_hour)+1 AS t_normal
-    FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
+    FROM ingest.nwm_channel_rt_mrf_gfs_mem1 AS forecasts
     JOIN derived.recurrence_flows_conus thresholds ON forecasts.feature_id = thresholds.feature_id
     WHERE (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
     GROUP BY forecasts.feature_id
@@ -26,7 +26,7 @@ SELECT
     channels.geom
    
 INTO publish.mrf_gfs_10day_peak_flow_arrival_time
-FROM ingest.nwm_channel_rt_mrf_mem1_gfs AS forecasts
+FROM ingest.nwm_channel_rt_mrf_gfs_mem1 AS forecasts
 
 -- Join in max flows on max streamflow to only get peak flows
 JOIN cache.max_flows_mrf_gfs AS max_flows
