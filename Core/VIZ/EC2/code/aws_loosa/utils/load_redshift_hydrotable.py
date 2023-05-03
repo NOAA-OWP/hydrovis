@@ -189,7 +189,7 @@ def get_db_connection(db_type, asynchronous=False):
         import psycopg2
         db_host, db_name, db_user, db_password = get_db_credentials(db_type)
         connection = psycopg2.connect(f"host={db_host} dbname={db_name} user={db_user} password={db_password}", port=5439,async_=asynchronous)
-        return connectio
+        return connection
 
 def create_inundation_output(huc8, branch, stage_lookup, hand_path, catchment_path):
     """
@@ -361,16 +361,10 @@ def create_inundation_output(huc8, branch, stage_lookup, hand_path, catchment_pa
                 
     return df_final
 
-def s3_hydrotables_to_db(db_type, schema, table):
+def s3_hydrotables_to_geom_csvs():
     # Create a folder for the local tif outputs
     if not os.path.exists('/tmp/raw_rasters/'):
         os.mkdir('/tmp/raw_rasters/')
-    
-    # db_engine = get_db_engine("viz")
-    # conn = get_db_connection("viz")
-    # cur = conn.cursor()
-    # cur.execute(f'TRUNCATE TABLE {schema}.{table};')
-    # conn.commit()
 
     col_names = ['HydroID', 'feature_id', 'NextDownID', 'order_', 'Number of Cells',
         'SurfaceArea (m2)', 'BedArea (m2)', 'TopWidth (m)', 'LENGTHKM',
@@ -395,6 +389,7 @@ def s3_hydrotables_to_db(db_type, schema, table):
         page_count += 1
         prefix_objects = page['CommonPrefixes']
         for i, prefix_obj in enumerate(prefix_objects):
+            huc_start = time.time()
             print(f"Processing {i+1} of {len(prefix_objects)} on page {page_count}")
             branch_prefix = f'{prefix_obj.get("Prefix")}branches/0/'
             ## UNCOMMENT FOR ALL BRANCHES - NOT JUST 0
@@ -437,7 +432,7 @@ def s3_hydrotables_to_db(db_type, schema, table):
                         s3.download_file(BUCKET, hand_key, hand_path)
                         
                         # join metadata to get path to FIM datasets
-                        with ThreadPoolExecutor(max_workers=5) as executor:
+                        with ThreadPoolExecutor(max_workers=8) as executor:
                             futures = []
                             for stage in stages:
                                 ht_df_filtered = ht_df[ht_df['stage']==stage]
@@ -450,22 +445,59 @@ def s3_hydrotables_to_db(db_type, schema, table):
                         df_branch.to_csv(local_csv, index=False)
                         S3_Path = f'{FIM_PREFIX}_geom/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
                         s3.upload_file(local_csv, BUCKET, S3_Path)
-                        # os.remove(local_csv)
-                        # sql="""
-                        # COPY vizrs.derived.fim_hydrotable (hydro_id,geom,feature_id,fim_version,huc8,branch,hand_stage_ft,streamflow_cfs)
-                        # FROM 's3://hydrovis-dev-fim-us-east-1/viz_data/db_pipeline_temp/temp/temp_file.csv'
-                        # IAM_ROLE 'arn:aws:iam::526904826677:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift'
-                        # FORMAT AS CSV DELIMITER ',' IGNOREHEADER 1 QUOTE '"' REGION AS 'us-east-1'
-                        # """
-                        # cur.execute(sql)
-                        # conn.commit()
-                        print(f"Import took {round(time.time()-start,2)} seconds")
+                        print(f"Branch Time: {round(time.time()-start,0)} seconds")
+            print(f"Total HUC Time: {round(time.time()-huc_start,0)/60} minutes")
+
+def s3_geom_hydrotables_to_db(db_type, schema, table):
+    
+    # db_engine = get_db_engine("viz")
+    conn = get_db_connection(db_type)
+    cur = conn.cursor()
+    cur.execute(f'TRUNCATE TABLE {schema}.{table};')
+    conn.commit()
+    start = time.time()
+    paginator = s3.get_paginator('list_objects')
+    operation_parameters = {'Bucket': BUCKET,
+                            'Prefix': FIM_PREFIX+'_geom/',
+                            'Delimiter': '/'}
+    page_iterator = paginator.paginate(**operation_parameters)
+    page_count = 0
+    for page in page_iterator:
+        page_count += 1
+        prefix_objects = page['CommonPrefixes']
+        for i, prefix_obj in enumerate(prefix_objects):
+            huc_start = time.time()
+            print(f"Processing {i+1} of {len(prefix_objects)} on page {page_count}")
+            branch_prefix = f'{prefix_obj.get("Prefix")}branches/0/'
+            ## UNCOMMENT FOR ALL BRANCHES - NOT JUST 0
+            huc_branches_prefix = f'{prefix_obj.get("Prefix")}branches/'
+            branches_result = s3.list_objects(Bucket=BUCKET, Prefix=huc_branches_prefix, Delimiter='/')
+            branch_prefix_objects = branches_result.get('CommonPrefixes')
+            for i, branch_prefix_obj in enumerate(branch_prefix_objects):
+                branch_prefix = branch_prefix_obj['Prefix']
+            ## END UNCOMMENT
+            # [UN]INDENT FROM HERE TO THE END IF [COMMENTED]UNCOMMENTED
+                branch_files_result = s3.list_objects(Bucket=BUCKET, Prefix=branch_prefix, Delimiter='/')
+                hydro_table_key = None
+                for content_obj in branch_files_result.get('Contents'):
+                    branch_file_prefix = content_obj['Key']
+                    if 'hydroTable' in branch_file_prefix:
+                        sql=f"""
+                        COPY vizrs.derived.fim_hydrotable (hydro_id,geom,feature_id,fim_version,huc8,branch,hand_stage_ft,streamflow_cfs)
+                        FROM 's3://{BUCKET}/{branch_file_prefix}'
+                        IAM_ROLE 'arn:aws:iam::526904826677:role/aws-service-role/redshift.amazonaws.com/AWSServiceRoleForRedshift'
+                        FORMAT AS CSV DELIMITER ',' IGNOREHEADER 1 QUOTE '"' REGION AS 'us-east-1'
+                        """
+                        cur.execute(sql)
+                        conn.commit()
+            print(f"Total HUC Import Time: {round(time.time()-huc_start,0)/60} minutes")
+    print(f"Imported {page_count} HUCS in {round(time.time()-start,0)/60} minutes")
 
 ########################################################################################################################################
 if __name__ == '__main__':
     os.environ['VIZ_DB_HOST'] = "viz-rs-dev.cunnjxnkwkwe.us-east-1.redshift.amazonaws.com"
     os.environ['VIZ_DB_DATABASE'] = "vizrs"
-    os.environ['VIZ_DB_USERNAME'] = "rs_admin"
+    os.environ['VIZ_DB_USERNAME'] = ""
     os.environ['VIZ_DB_PASSWORD'] = ""
 
     BUCKET = 'hydrovis-ti-deployment-us-east-1'
@@ -481,4 +513,8 @@ if __name__ == '__main__':
             17.3736, 17.6784, 17.9832, 18.288, 18.5928, 18.8976, 19.2024, 19.5072, 19.812, 20.1168, 20.4216, 20.7264, 21.0312, 21.336, 21.6408, 21.9456, 22.2504,
             22.5552, 22.86, 23.1648, 23.4696, 23.7744, 24.0792, 24.384, 24.6888, 24.9936, 25.2984]
 
-    s3_hydrotables_to_db("viz", schema, table)
+    # s3_hydrotables_to_geom_csvs()
+    s3_geom_hydrotables_to_db("viz", schema, table)
+
+    ## Needed to add redshift role access to deployment s3 bucket and kms key
+    # Started import at 12:30pm
