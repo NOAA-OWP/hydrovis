@@ -1,7 +1,7 @@
-product: possible_coastal_omission
+product: static_nwm_coastal_domain
 configuration: reference
 product_type: "vector"
 run: true
 
 services:
-  - possible_coastal_omission
+  - static_nwm_coastal_domain_noaa

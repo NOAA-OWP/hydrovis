@@ -24,7 +24,7 @@ service_dict = {
     "static_nwm_flowlines": "reference",
     "static_nwm_flowlines_hi": "reference",
     "static_nwm_flowlines_prvi": "reference",
-    "possible_coastal_omission": "reference",
+    "static_nwm_coastal_domain_noaa": "reference",
     "static_nwm_waterbodies": "reference",
     "static_nwm_waterbodies_hi": "reference",
     "static_hand_inundation_performance_metrics_noaa": "reference",
