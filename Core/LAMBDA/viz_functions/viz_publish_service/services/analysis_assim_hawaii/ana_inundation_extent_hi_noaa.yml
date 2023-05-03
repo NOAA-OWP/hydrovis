@@ -1,5 +1,5 @@
-service: ana_inundation_hi
-summary: Inundation Analysis for Hawaii
+service: ana_inundation_extent_hi_noaa
+summary: Inundation Extent Analysis for Hawaii
 description: 'Depicts the inundation extent of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water.
   This service is derived from the analysis and assimilation configuration of the NWM over Hawaii. Shown are reaches with flow at or above 
   high water thresholds. High water thresholds and AEPs were derived from USGS regression equations found at 
