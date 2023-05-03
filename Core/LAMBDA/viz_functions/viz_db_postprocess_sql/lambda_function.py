@@ -24,8 +24,6 @@ def lambda_handler(event, context):
         # Max Flow
         if step == "max_flows":
             sql_file = event['args']['db_max_flow']['max_flows_sql_file']
-            if max_flows_already_processed(f"{folder}/{sql_file}.sql", reference_time, sql_replace):
-                return True
         # FIM Config
         elif step == 'fim_config':
             if not event['args']['fim_config'].get('postprocess'):
@@ -39,7 +37,7 @@ def lambda_handler(event, context):
                 dependent_on_tables = event['args']['postprocess_sql']['dependent_on_db_tables']
                 if len(dependent_on_tables) > 0:
                     print("Dependent DB Table Specified - Checking if complete.")
-                    if check_required_tables(dependent_on_tables, reference_time) is False:
+                    if check_required_tables(dependent_on_tables, reference_time, sql_replace) is False:
                         print("Reference Time not yet present in required table. Pausing and Retrying.")
                         raise RequiredTableNotUpdated
         # Summary
@@ -103,32 +101,19 @@ def run_sql(sql_path_or_str, sql_replace=None):
     print(f"Finished executing the SQL statement above.")
     return result
 
-def max_flows_already_processed(sql_path, reference_time, sql_replace):
-    sql = open(sql_path, 'r').read().lower()
-    for word, replacement in sql_replace.items():
-        sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
-    schema, table = re.search('into (\w+)\.(\w+)', sql).groups()
-    sql = f'SELECT reference_time FROM {schema}.{table} LIMIT 1;'
-    try:
-        result = run_sql(sql)
-    except:
-        return False
-    
-    if not result:
-        return False
-        
-    if result[0] == reference_time:
-        print(f"NOTE: {sql_path} was already executed for reference time {reference_time}")
-        return True
-    else:
-        return False
-    
-def check_required_tables(dependent_on_tables, reference_time):
+# Check if a specified reference time is present in a database table
+def check_required_tables(dependent_on_tables, reference_time, sql_replace):
     for table in dependent_on_tables:
-        result = run_sql(f"SELECT reference_time FROM {table} LIMIT 1")
-        if not result:
+        sql = f"SELECT reference_time FROM {table} LIMIT 1"
+        for word, replacement in sql_replace.items():
+            sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        try:
+            result = run_sql(sql)
+        except: # table doesn't exist
             return False
-        elif result[0].replace(" UTC", "") == reference_time:
+        if not result: # table is empty
+            return False
+        elif result[0].replace(" UTC", "") == reference_time: # table reference time matches current reference time
             return True
-        else:
+        else: # table reference time doesn't match current reference time
             return False
