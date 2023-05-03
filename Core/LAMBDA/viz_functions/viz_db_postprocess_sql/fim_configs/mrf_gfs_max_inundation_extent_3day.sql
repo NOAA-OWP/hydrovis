@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_max_inundation_10day;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_3day;
 
 SELECT  
 	inun.hydro_id,
@@ -17,7 +17,7 @@ SELECT
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
 	derived.channels_conus.strm_order, 
     derived.channels_conus.name,
-    'mrf_10day' AS config
-INTO publish.mrf_max_inundation_10day
-FROM ingest.mrf_max_inundation_10day as inun 
+    'mrf_3day' AS config
+INTO publish.mrf_gfs_max_inundation_extent_3day
+FROM ingest.mrf_gfs_max_inundation_extent_3day as inun 
 left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;

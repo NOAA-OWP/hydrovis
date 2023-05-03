@@ -1,5 +1,5 @@
 -- Synthetic Rating Curve Skill layers
-DROP TABLE IF EXISTS publish.mrf_max_inundation_10day_src_skill;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_10day_src_skill;
 
 SELECT
     LPAD(urc.location_id::text, 8, '0') as usgs_site_code, 
@@ -14,7 +14,7 @@ SELECT
     MIN(navd88_datum) as navd88_datum,
     MIN(stage) as usgs_stage,
     ST_TRANSFORM(MIN(gage.geo_point), 3857) as geom
-INTO publish.mrf_max_inundation_10day_src_skill
+INTO publish.mrf_gfs_max_inundation_extent_10day_src_skill
 FROM cache.max_flows_mrf_gfs AS mrf
 JOIN derived.recurrence_flows_conus thresholds ON mrf.feature_id = thresholds.feature_id AND mrf.maxflow_10day_cfs >= thresholds.high_water_threshold
 JOIN derived.hydrotable_staggered AS ht ON ht.feature_id = mrf.feature_id AND mrf.maxflow_10day_cfs >= ht.discharge_cfs AND mrf.maxflow_10day_cfs <= ht.next_discharge_cfs
