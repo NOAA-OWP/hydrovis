@@ -1,0 +1,12 @@
+product: static_hand_catchments_gms_branches
+configuration: reference
+product_type: "fim"
+run: true
+
+fim_configs:
+  - name: static_hand_catchments_gms_branches
+    target_table: fim_catchments.static_hand_catchments_gms_branches
+    fim_type: hand
+
+services:
+  - static_hand_catchments_gms_branches_noaa
