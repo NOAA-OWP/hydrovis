@@ -16,7 +16,7 @@ s3_client = boto3.client('s3')
 
 service_dict = {
     "branch_0_catchments": "fim_catchments",
-    "branch_0_catchments_hi": "fim_catchments",
+    "static_hand_catchments_0_branches_hi_noaa": "fim_catchments",
     "branch_0_catchments_prvi": "fim_catchments",
     "static_hand_catchments_gms_branches_noaa": "fim_catchments",
     "static_hand_catchments_gms_branches_hi_noaa": "fim_catchments",
