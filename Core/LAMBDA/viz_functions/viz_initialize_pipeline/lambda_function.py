@@ -36,8 +36,7 @@ def lambda_handler(event, context):
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:
-        custom_dataflow_query=" AND NOT (step = 'max_flows' AND file_format IS NOT NULL)"
-        pipeline = viz_lambda_pipeline(event, custom_dataflow_query=custom_dataflow_query) # This does a ton of stuff - see the viz_pipeline class below for details.
+        pipeline = viz_lambda_pipeline(event) # This does a ton of stuff - see the viz_pipeline class below for details.
         invoke_step_function = pipeline.start_event.get('invoke_step_function') if 'invoke_step_function' in pipeline.start_event else True
     except Exception as e:
         print("Error: Pipeline failed to initialize.")
