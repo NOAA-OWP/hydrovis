@@ -2,6 +2,10 @@ variable "environment" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
+
 variable "vpc_main_id" {
   type = string
 }
@@ -12,6 +16,17 @@ locals {
     ti = "maps-testing.water.noaa.gov"
     uat = "maps-staging.water.noaa.gov"
     prod = "maps.water.noaa.gov"
+  }
+
+  wacky_egis_alb_names = {
+    us-east-1 = {
+      uat = "hv-uat-pub-lb-pub-age-alb"
+      prod = "hv-prod-pub-lb-alb-pub-age-alb"
+    }
+    us-east-2 = {
+      uat = "hv-uat-egis-pub-lb-pub-age-alb"
+      prod = "hv-prod-pub-lb-alb-pub-age-alb"
+    }
   }
 }
 
@@ -24,7 +39,7 @@ resource "aws_route53_zone" "private" {
 }
 
 data "aws_lb" "public" {
-  name = "hv-${var.environment}-egis-pub-lb-pub-age-alb"
+  name = local.wacky_egis_alb_names[var.region][var.environment]
 }
 
 resource "aws_route53_record" "egis_alb" {

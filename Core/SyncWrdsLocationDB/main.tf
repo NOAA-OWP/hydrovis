@@ -56,7 +56,7 @@ data "aws_caller_identity" "current" {}
 ########################################################################################################################################
 
 resource "aws_cloudwatch_event_rule" "detect_location_db_dump" {
-  name                = "detect_wrds_location_db_dump"
+  name                = "hv-vpp-${var.environment}-detect-wrds-location-db-dump"
   description         = "Detects when a new WRDS location db dump file has been created and triggers the sync_wrds_location_db step function"
   event_pattern       = <<EOF
   {
@@ -86,7 +86,7 @@ resource "aws_cloudwatch_event_target" "trigger_sync_location_db_step_function" 
 ## WRDS API Handler Function ##
 ###############################
 resource "aws_lambda_function" "wrds_location_api_tests" {
-  function_name = "wrds_location_api_tests_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-wrds-location-api-tests"
   description   = "Lambda function to run tests against the WRDS location API deployed at the provided hostname."
   memory_size   = 512
   timeout       = 900
@@ -103,7 +103,7 @@ resource "aws_lambda_function" "wrds_location_api_tests" {
     var.requests_lambda_layer
   ]
   tags = {
-    "Name" = "wrds_location_api_tests_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-wrds-location-api-tests"
   }
 }
 
@@ -112,7 +112,7 @@ resource "aws_lambda_function" "wrds_location_api_tests" {
 ####################################################
 
 resource "aws_sfn_state_machine" "ensure_ec2_ready_for_use_step_function" {
-  name     = "ensure_ec2_ready_for_use_${var.environment}"
+  name     = "hv-vpp-${var.environment}-ensure-ec2-ready-for-use"
   role_arn = var.iam_role_arn
 
   definition = <<EOF
@@ -230,7 +230,7 @@ resource "aws_sfn_state_machine" "ensure_ec2_ready_for_use_step_function" {
 ###################################################
 
 resource "aws_sfn_state_machine" "restore_db_from_s3_step_function" {
-  name     = "restore_db_from_s3_${var.environment}"
+  name     = "hv-vpp-${var.environment}-restore-db-from-s3"
   role_arn = var.iam_role_arn
 
   definition = <<EOF
@@ -278,7 +278,7 @@ resource "aws_sfn_state_machine" "restore_db_from_s3_step_function" {
 #################################################
 
 resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
-  name     = "sync_wrds_location_db_${var.environment}"
+  name     = "hv-vpp-${var.environment}-sync-wrds-location-db"
   role_arn = var.iam_role_arn
 
   definition = <<EOF
@@ -415,7 +415,7 @@ resource "aws_sfn_state_machine" "sync_wrds_location_db_step_function" {
 
 ####### Step Function Failure / Time Out SNS #######
 resource "aws_cloudwatch_event_rule" "sync_wrds_location_db_step_function_failure" {
-  name        = "sync_wrds_location_db_step_function_failure_${var.environment}"
+  name        = "hv-vpp-${var.environment}-sync-wrds-location-db-step-function-failure"
   description = "Alert when the sync wrds location db step function times out or fails."
 
   event_pattern = <<EOF

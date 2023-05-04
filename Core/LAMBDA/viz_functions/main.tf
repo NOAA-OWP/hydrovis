@@ -212,7 +212,7 @@ resource "aws_s3_object" "wrds_api_handler_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_wrds_api_handler" {
-  function_name = "viz_wrds_api_handler_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-wrds-api-handler"
   description   = "Lambda function to ping WRDS API and format outputs for processing."
   memory_size   = 512
   timeout       = 900
@@ -240,7 +240,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_wrds_api_handler_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-wrds-api-handler"
   }
 }
 
@@ -293,7 +293,7 @@ resource "aws_s3_object" "egis_health_checker_zip_upload" {
 }
 
 resource "aws_lambda_function" "egis_health_checker" {
-  function_name = "egis_health_checker_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-egis-health-checker"
   description   = "Lambda function to ping WRDS API and format outputs for processing."
   memory_size   = 512
   timeout       = 300
@@ -318,7 +318,7 @@ resource "aws_lambda_function" "egis_health_checker" {
     var.requests_layer
   ]
   tags = {
-    "Name" = "egis_health_checker_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-egis-health-checker"
   }
 }
 
@@ -383,7 +383,7 @@ resource "aws_s3_object" "max_values_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_max_values" {
-  function_name = "viz_max_values_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-max-values"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
@@ -419,7 +419,7 @@ resource "aws_lambda_function" "viz_max_values" {
   ]
 
   tags = {
-    "Name" = "viz_max_values_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-max-values"
   }
 }
 
@@ -442,7 +442,7 @@ resource "aws_s3_object" "initialize_pipeline_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_initialize_pipeline" {
-  function_name = "viz_initialize_pipeline_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-initialize-pipeline"
   description   = "Lambda function to receive automatic input from sns or lambda invocation, parse the event, construct a pipeline dictionary, and invoke the viz pipeline state machine with it."
   memory_size   = 128
   timeout       = 300
@@ -475,7 +475,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
     var.pandas_layer
   ]
   tags = {
-    "Name" = "viz_initialize_pipeline_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-initialize-pipeline"
   }
 }
 
@@ -523,7 +523,7 @@ resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_db_postprocess_sql" {
-  function_name = "viz_db_postprocess_sql_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-db-postprocess-sql"
   description   = "Lambda function to run arg-driven sql code against the viz database."
   memory_size   = 128
   timeout       = 900
@@ -550,7 +550,7 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_db_postprocess_sql_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-db-postprocess-sql"
   }
 }
 
@@ -583,7 +583,7 @@ resource "aws_s3_object" "db_ingest_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_db_ingest" {
-  function_name = "viz_db_ingest_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-db-ingest"
   description   = "Lambda function to ingest individual files into the viz processing postgresql database."
   memory_size   = 1280
   timeout       = 900
@@ -612,7 +612,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_db_ingest_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-db-ingest"
   }
 }
 
@@ -645,7 +645,7 @@ resource "aws_s3_object" "fim_data_prep_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_fim_data_prep" {
-  function_name = "viz_fim_data_prep_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-fim-data-prep"
   description   = "Lambda function to setup a fim run by retriving max flows from the database, prepare an ingest database table, and creating a dictionary for huc-based worker lambdas to use."
   memory_size   = 2048
   timeout       = 900
@@ -680,7 +680,7 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_fim_data_prep_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-fim-data-prep"
   }
 }
 
@@ -713,7 +713,7 @@ resource "aws_s3_object" "update_egis_data_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_update_egis_data" {
-  function_name = "viz_update_egis_data_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-update-egis-data"
   description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
   memory_size   = 128
   timeout       = 900
@@ -746,7 +746,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_update_egis_data_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-update-egis-data"
   }
 }
 
@@ -779,7 +779,7 @@ resource "aws_s3_object" "publish_service_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_publish_service" {
-  function_name = "viz_publish_service_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-publish-service"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
   memory_size   = 1024
   timeout       = 600
@@ -810,7 +810,7 @@ resource "aws_lambda_function" "viz_publish_service" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_publish_service_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-publish-service"
   }
 }
 
@@ -828,7 +828,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
 ## Image Based Lambdas ##
 #########################
 
-module "image_based_lambdas" {
+module "image-based-lambdas" {
   source = "./image_based"
 
   environment = var.environment
@@ -892,19 +892,19 @@ output "egis_health_checker" {
 }
 
 output "hand_fim_processing" {
-  value = module.image_based_lambdas.hand_fim_processing
+  value = module.image-based-lambdas.hand_fim_processing
 }
 
 output "schism_fim_processing" {
-  value = module.image_based_lambdas.schism_fim_processing
+  value = module.image-based-lambdas.schism_fim_processing
 }
 
 output "optimize_rasters" {
-  value = module.image_based_lambdas.optimize_rasters
+  value = module.image-based-lambdas.optimize_rasters
 }
 
 output "raster_processing" {
-  value = module.image_based_lambdas.raster_processing
+  value = module.image-based-lambdas.raster_processing
 }
 
 output "egis_healthcheck_alarm" {

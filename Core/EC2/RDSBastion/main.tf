@@ -2,7 +2,7 @@
 ## VARIABLES ##
 ###############
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type = string
 }
 
@@ -265,7 +265,7 @@ data "aws_ami" "linux" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 data "aws_s3_objects" "viz_db_dumps" {

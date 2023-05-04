@@ -6,7 +6,7 @@ variable "region" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -120,6 +120,12 @@ locals {
         content     = file("${path.module}/data/requirements/requirements-location.txt")
       },
       {
+        path        = "/wrds/Dockerfile.location"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = file("${path.module}/data/Dockerfile/Dockerfile.location")
+      },
+      {
         path        = "/wrds/forecast.env"
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
@@ -144,6 +150,12 @@ locals {
         permissions = "0777"
         owner       = "ec2-user:ec2-user"
         content     = file("${path.module}/data/requirements/requirements-forecast.txt")
+      },
+      {
+        path        = "/wrds/Dockerfile.forecast"
+        permissions = "0777"
+        owner       = "ec2-user:ec2-user"
+        content     = file("${path.module}/data/Dockerfile/Dockerfile.forecast")
       },
     ]
   }
@@ -227,7 +239,7 @@ data "aws_ami" "linux" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 output "dns_name" {

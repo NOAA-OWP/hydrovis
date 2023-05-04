@@ -23,7 +23,7 @@ variable "region" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -166,7 +166,7 @@ data "aws_ami" "linux" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 data "cloudinit_config" "startup" {

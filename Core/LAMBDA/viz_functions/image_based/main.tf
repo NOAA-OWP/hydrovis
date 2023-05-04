@@ -75,10 +75,10 @@ variable "egis_db_user_secret_string" {
 }
 
 locals {
-  viz_optimize_rasters_lambda_name = "viz_optimize_rasters_${var.environment}"
-  viz_hand_fim_processing_lambda_name = "viz_hand_fim_processing_${var.environment}"
-  viz_schism_fim_processing_lambda_name = "viz_schism_fim_processing_${var.environment}"
-  viz_raster_processing_lambda_name = "viz_raster_processing_${var.environment}"
+  viz_optimize_rasters_lambda_name = "hv-vpp-${var.environment}-viz-optimize-rasters"
+  viz_hand_fim_processing_lambda_name = "hv-vpp-${var.environment}-viz-hand-fim-processing"
+  viz_schism_fim_processing_lambda_name = "hv-vpp-${var.environment}-viz-schism-fim-processing"
+  viz_raster_processing_lambda_name = "hv-vpp-${var.environment}-viz-raster-processing"
 }
 
 ##############################
@@ -90,7 +90,7 @@ data "archive_file" "raster_processing_zip" {
   output_path = "${path.module}/temp/viz_raster_processing_${var.environment}_${var.region}.zip"
 
   dynamic "source" {
-    for_each = fileset("${path.module}/viz_raster_processing", "*")
+    for_each = fileset("${path.module}/viz_raster_processing", "**")
     content {
       content  = file("${path.module}/viz_raster_processing/${source.key}")
       filename = source.key
@@ -114,7 +114,7 @@ resource "aws_s3_object" "raster_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_raster_processing_image" {
-  name                 = "viz_raster_processing"
+  name                 = "hv-vpp-${var.environment}-viz-raster-processing"
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -125,7 +125,7 @@ resource "aws_ecr_repository" "viz_raster_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_raster_processing_lambda" {
-  name          = "viz-${var.environment}-raster-processing"
+  name          = "hv-vpp-${var.environment}-viz-raster-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -200,15 +200,24 @@ resource "null_resource" "viz_raster_processing_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name} --profile ${var.environment}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
 }
 
+resource "time_sleep" "wait_for_viz_raster_processing_cluster" {
+  triggers = {
+    function_update = null_resource.viz_raster_processing_cluster.triggers.source_hash
+  }
+  depends_on = [null_resource.viz_raster_processing_cluster]
+
+  create_duration = "120s"
+}
+
 data "aws_lambda_function" "viz_raster_processing" {
-  function_name = local.viz_raster_processing_lambda_name
+  function_name = aws_codebuild_project.viz_raster_processing_lambda.name
 
   depends_on = [
-    null_resource.viz_raster_processing_cluster
+    time_sleep.wait_for_viz_raster_processing_cluster
   ]
 }
 
@@ -221,7 +230,7 @@ data "archive_file" "optimize_rasters_zip" {
   output_path = "${path.module}/temp/viz_optimize_rasters_${var.environment}_${var.region}.zip"
 
   dynamic "source" {
-    for_each = fileset("${path.module}/viz_optimize_rasters", "*")
+    for_each = fileset("${path.module}/viz_optimize_rasters", "**")
     content {
       content  = file("${path.module}/viz_optimize_rasters/${source.key}")
       filename = source.key
@@ -237,7 +246,7 @@ resource "aws_s3_object" "optimize_rasters_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_optimize_rasters_image" {
-  name                 = "viz_optimize_rasters"
+  name                 = "hv-vpp-${var.environment}-viz-optimize-rasters"
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -248,7 +257,7 @@ resource "aws_ecr_repository" "viz_optimize_rasters_image" {
 }
 
 resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
-  name          = "viz-${var.environment}-optimize-rasters"
+  name          = "hv-vpp-${var.environment}-viz-optimize-rasters"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -313,15 +322,24 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name} --profile ${var.environment}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
+}
+
+resource "time_sleep" "wait_for_viz_optimize_rasters_cluster" {
+  triggers = {
+    function_update = null_resource.viz_optimize_rasters_cluster.triggers.source_hash
+  }
+  depends_on = [null_resource.viz_optimize_rasters_cluster]
+
+  create_duration = "120s"
 }
 
 data "aws_lambda_function" "viz_optimize_rasters" {
   function_name = local.viz_optimize_rasters_lambda_name
 
   depends_on = [
-    null_resource.viz_optimize_rasters_cluster
+    time_sleep.wait_for_viz_optimize_rasters_cluster
   ]
 }
 
@@ -334,7 +352,7 @@ data "archive_file" "hand_fim_processing_zip" {
   output_path = "${path.module}/temp/viz_hand_fim_processing_${var.environment}_${var.region}.zip"
 
   dynamic "source" {
-    for_each = fileset("${path.module}/viz_hand_fim_processing", "*")
+    for_each = fileset("${path.module}/viz_hand_fim_processing", "**")
     content {
       content  = file("${path.module}/viz_hand_fim_processing/${source.key}")
       filename = source.key
@@ -354,7 +372,7 @@ resource "aws_s3_object" "hand_fim_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
-  name                 = "hand_fim_processing"
+  name                 = "hv-vpp-${var.environment}-hand-fim-processing"
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -365,7 +383,7 @@ resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
-  name          = "viz-${var.environment}-hand-fim-processing"
+  name          = "hv-vpp-${var.environment}-viz-hand-fim-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -492,18 +510,28 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+    fim_version = var.fim_version
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_hand_fim_processing_lambda.name} --profile ${var.environment}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_hand_fim_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
+}
+
+resource "time_sleep" "wait_for_viz_hand_fim_processing_cluster" {
+  triggers = {
+    function_update = null_resource.viz_hand_fim_processing_cluster.triggers.source_hash
+  }
+  depends_on = [null_resource.viz_hand_fim_processing_cluster]
+
+  create_duration = "120s"
 }
 
 data "aws_lambda_function" "viz_hand_fim_processing" {
   function_name = local.viz_hand_fim_processing_lambda_name
 
   depends_on = [
-    null_resource.viz_hand_fim_processing_cluster
+    time_sleep.wait_for_viz_hand_fim_processing_cluster
   ]
 }
 
@@ -517,7 +545,7 @@ data "archive_file" "schism_processing_zip" {
   output_path = "${path.module}/temp/viz_schism_fim_processing__${var.environment}_${var.region}.zip"
 
   dynamic "source" {
-    for_each = fileset("${path.module}/viz_schism_fim_processing", "*")
+    for_each = fileset("${path.module}/viz_schism_fim_processing", "**")
     content {
       content  = file("${path.module}/viz_schism_fim_processing/${source.key}")
       filename = source.key
@@ -537,7 +565,7 @@ resource "aws_s3_object" "schism_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
-  name                 = "schism_fim_processing"
+  name                 = "hv-vpp-${var.environment}-schism-fim-processing"
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -548,7 +576,7 @@ resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
-  name          = "viz-${var.environment}-schism-fim-processing"
+  name          = "hv-vpp-${var.environment}-viz-schism-fim-processing"
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -668,15 +696,24 @@ resource "null_resource" "viz_schism_fim_processing_cluster" {
   }
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.environment}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
+}
+
+resource "time_sleep" "wait_for_viz_schism_fim_processing_cluster" {
+  triggers = {
+    function_update = null_resource.viz_schism_fim_processing_cluster.triggers.source_hash
+  }
+  depends_on = [null_resource.viz_schism_fim_processing_cluster]
+
+  create_duration = "120s"
 }
 
 data "aws_lambda_function" "viz_schism_fim_processing" {
   function_name = local.viz_schism_fim_processing_lambda_name
 
   depends_on = [
-    null_resource.viz_schism_fim_processing_cluster
+    time_sleep.wait_for_viz_schism_fim_processing_cluster
   ]
 }
 

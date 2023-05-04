@@ -6,7 +6,7 @@ variable "environment" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -159,7 +159,7 @@ data "aws_ami" "windows" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 ################
@@ -332,5 +332,5 @@ resource "aws_route53_record" "viz_fileshare" {
   name    = "viz-fileshare.${var.private_route_53_zone.name}"
   type    = "A"
   ttl     = 300
-  records = [aws_instance.viz_fileshare[0].private_ip]
+  records = [aws_instance.viz_fileshare.private_ip]
 }
