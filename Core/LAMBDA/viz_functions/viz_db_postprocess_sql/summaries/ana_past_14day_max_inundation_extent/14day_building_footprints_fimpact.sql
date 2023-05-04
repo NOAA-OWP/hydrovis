@@ -21,7 +21,7 @@ SELECT
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.ana_past_14day_max_inundation_extent_building_footprints
 FROM external.building_footprints_fema as buildings
-JOIN publish.ana_past_14day_max_inundation_extent_extent fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN publish.ana_past_14day_max_inundation_extent fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
 DROP TABLE IF EXISTS publish.ana_past_14day_max_inundation_extent_counties;
