@@ -71,6 +71,7 @@ resource "aws_db_instance" "viz-processing" {
   auto_minor_version_upgrade   = false
   tags = {
     "hydrovis-${var.environment}-viz-processing-rdsdbtag" : "hydrovis-${var.environment}-viz-processing-rdsdbtag"
+    "noaa:monitoring"                                     : "true"
   }
 }
 

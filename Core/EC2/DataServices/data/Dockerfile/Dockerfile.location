@@ -1,0 +1,14 @@
+FROM python:3.6-slim-buster
+ENV PYTHONUNBUFFERED 1
+RUN mkdir -p /opt/wrds_location_api
+WORKDIR /opt/wrds_location_api
+RUN apt-get update && apt-get -y install gdal-bin curl \
+  && apt-get clean all && rm -rf /var/apt/lists/* && rm -rf /var/cache/apt/*
+COPY requirements.txt .
+RUN pip install -r requirements.txt --no-cache-dir
+COPY . /opt/wrds_location_api
+EXPOSE 4000
+RUN mv /opt/wrds_location_api/entrypoint.sh /opt/wrds_location_api/location_api \
+  && chmod +x /opt/wrds_location_api/location_api/entrypoint.sh
+ARG API_HOST
+ENTRYPOINT ["/opt/wrds_location_api/location_api/entrypoint.sh"]
