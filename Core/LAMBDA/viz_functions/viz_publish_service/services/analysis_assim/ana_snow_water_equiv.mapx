@@ -121,7 +121,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMRasterLayer",
-      "name" : "NWM Snow Water Equivalent Analysis",
+      "name" : "Snow Water Equivalent",
       "uRI" : "CIMPATH=nwm_snow_water_equivalent_analysis/ana_snow_water_equiv_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
