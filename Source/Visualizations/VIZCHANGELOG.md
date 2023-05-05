@@ -3,7 +3,7 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 <br/><br/>
 
-## v3.3.0 - 2023-5-4 - [PR #423](https://github.com/NOAA-OWP/hydrovis/pull/423)
+## v3.4.0 - 2023-5-4 - [PR #423](https://github.com/NOAA-OWP/hydrovis/pull/423)
 
 This merge updates the rfc_max_stage service. Records forecasts are tracked and shown in a separate layer npw so that actual max statuses are not being overwritten by a record status
 
