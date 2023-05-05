@@ -141,7 +141,11 @@ class viz_lambda_pipeline:
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         if self.job_type == "past_event":
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
-        
+            for word, replacement in self.sql_rename_dict.items():
+                self.configuration.configuration_data_flow = json.loads(json.dumps(self.configuration.configuration_data_flow).replace(word, replacement))
+                self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
+            self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time}) #Add a reference time for placeholders in sql files
+
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
             self.__print__() 
@@ -231,9 +235,12 @@ class viz_lambda_pipeline:
         
         for product in self.pipeline_products:
             for target_table in list(gen_dict_extract("target_table", product)):
-                target_table_name = target_table.split(".")[1]
-                new_table_name = f"{ref_prefix}{target_table_name}"
-                sql_rename_dict[target_table] = f"archive.{new_table_name}"
+                if type(target_table) != list:
+                    target_table = [target_table]
+                for table in target_table:
+                    target_table_name = table.split(".")[1]
+                    new_table_name = f"{ref_prefix}{target_table_name}"
+                    sql_rename_dict[table] = f"archive.{new_table_name}"
             
         self.sql_rename_dict = sql_rename_dict
     
@@ -256,9 +263,9 @@ class viz_lambda_pipeline:
 # A configuration defines the data sources that a set of services require to run, and is primarily used to define the ingest files that must be
 # compiled before various service data can be generated. A particular reference_time is always associted with a configuration.
 # Example Configurations:
-#   - short_range - A NWM short_range forecast... used for services like srf_max_high_flow_magnitude, srf_high_water_arrival_time, srf_max_inundation, etc.
-#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_max_high_flow_magnitude, mrf_high_water_arrival_time, mrf_max_inundation, etc.
-#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_stage service data.
+#   - short_range - A NWM short_range forecast... used for services like srf_18hr_max_high_flow_magnitude, srf_18hr_high_water_arrival_time, srf_48hr_max_inundation_extent, etc.
+#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_gfs_10day_max_high_flow_magnitude, mrf_gfs_10day_high_water_arrival_time, mrf_gfs_max_inundation_extent, etc.
+#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_forecast service data.
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:

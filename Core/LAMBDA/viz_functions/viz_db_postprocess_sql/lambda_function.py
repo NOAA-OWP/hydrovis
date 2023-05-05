@@ -7,7 +7,6 @@ def lambda_handler(event, context):
     folder = event['folder']
     reference_time = event['args']['reference_time']
     sql_replace = event['args']['sql_rename_dict']
-    sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     
     if step in ["products", "fim_config"]:
         if event['args']['product']['configuration'] == "reference":
@@ -46,6 +45,7 @@ def lambda_handler(event, context):
 
 # Special function to handle admin-only sql tasks
 def run_admin_tasks(event, folder, step, sql_replace):
+    past_event = True if len(sql_replace) > 1 else False
     target_table = event['args']['db_ingest_group']['target_table']
     index_columns = event['args']['db_ingest_group']['index_columns']
     index_name = event['args']['db_ingest_group']['index_name']
@@ -57,8 +57,14 @@ def run_admin_tasks(event, folder, step, sql_replace):
     sql_replace.update({"{target_schema}": target_schema})
     sql_replace.update({"{index_name}": index_name})
     sql_replace.update({"{index_columns}": index_columns})
-    
+
+    print(sql_replace)
     if step == 'ingest_prep':
+        # if target table is not the original table, run the create command to create the table
+        if past_event is True:
+            original_table = [k for k, v in sql_replace.items() if v == target_table and k != '']
+            sql_replace.update({"{original_table}": original_table})
+            run_sql('admin/create_table_from_original.sql', sql_replace)
         run_sql('admin/ingest_prep.sql', sql_replace)
 
     if step == 'ingest_finish':
