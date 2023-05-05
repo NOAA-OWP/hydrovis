@@ -10,6 +10,7 @@ SELECT
     channels.strm_order::integer,
     channels.name,
     channels.huc6,
+    channels.state,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
 INTO publish.ana_streamflow

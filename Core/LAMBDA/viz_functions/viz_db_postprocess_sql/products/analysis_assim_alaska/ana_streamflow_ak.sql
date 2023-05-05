@@ -12,6 +12,7 @@ SELECT
     channels.strm_order::integer,
     channels.name,
     channels.huc6,
+    'AK' AS state,
     channels.geom
 INTO publish.ana_streamflow_ak
 FROM cache.max_flows_ana_ak as ana

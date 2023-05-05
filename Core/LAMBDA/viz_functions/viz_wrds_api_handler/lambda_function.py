@@ -128,7 +128,7 @@ def get_location_metadata(nws_lid_list):
 
     drop_columns = [
         'usgs_data', 'nwm_feature_data', 'env_can_gage_data', 'nws_preferred', 'usgs_preferred', 'goes_id', 'env_can_gage_id',
-        'geo_rfc', 'map_link', 'horizontal_datum_name', 'state', 'county', 'county_code', 'huc', 'hsa',
+        'geo_rfc', 'map_link', 'horizontal_datum_name', 'county', 'county_code', 'huc', 'hsa',
         'zero_datum', 'vertical_datum_name', 'rfc_forecast_point', 'rfc_defined_fcst_point', 'riverpoint'
     ]
     rename_columns = {

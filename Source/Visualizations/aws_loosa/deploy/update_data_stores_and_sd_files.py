@@ -158,7 +158,11 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
 
     print('Updating the connectionProperties of each layer...')
     for layer in m.listLayers():
-        if not layer.connectionProperties:
+        try:
+            if not layer.connectionProperties:
+                continue
+        except:
+            print(f"Skipping layer: {layer} - does not support connectionProperties")
             continue
 
         layerCIM = layer.getDefinition('V2')
