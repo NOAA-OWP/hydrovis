@@ -20,7 +20,8 @@ db_max_flows:
 postprocess_sql:
   - sql_file: srf_peak_flow_arrival_time_hi
     target_table: publish.srf_peak_flow_arrival_time_hi
-    dependent_on_table: publish.srf_high_water_arrival_time_hi
+    dependent_on_table: 
+        - publish.srf_high_water_arrival_time_hi
 
 services:
   - srf_peak_flow_arrival_time_hi
