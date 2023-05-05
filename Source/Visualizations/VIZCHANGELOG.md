@@ -3,6 +3,17 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 <br/><br/>
 
+
+## v3.3.0 - 2023-5-5 - [PR #426](https://github.com/NOAA-OWP/hydrovis/pull/426)
+
+This merge adds the Jupyter notebook used when new FIM versions are available.
+
+## Additions
+
+- `Source/Visualizations/aws_loosa/utils/10. FIM Version Update.ipynb`
+
+<br/><br/>
+
 ## v3.2.0 - 2023-4-5 - [PR #403](https://github.com/NOAA-OWP/hydrovis/pull/403)
 
 This merge activates the 1ft intervals for Stage-Based CatFIM. Intervals begin at Action stage and increment by 1 ft until the Major stage + 5ft is reached. Sublayers are created for each category. Each category has an intervals layer and the threshold layer.
