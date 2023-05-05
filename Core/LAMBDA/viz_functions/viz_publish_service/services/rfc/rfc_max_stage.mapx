@@ -506,7 +506,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_stage",
+          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,state,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_stage",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -519,7 +519,7 @@
               "name" : "nws_lid",
               "type" : "esriFieldTypeString",
               "alias" : "nws_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "initial_stage",
@@ -530,13 +530,13 @@
               "name" : "initial_status",
               "type" : "esriFieldTypeString",
               "alias" : "initial_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "initial_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "initial_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "min_stage",
@@ -547,13 +547,13 @@
               "name" : "min_status",
               "type" : "esriFieldTypeString",
               "alias" : "min_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "min_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "min_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "max_stage",
@@ -564,67 +564,67 @@
               "name" : "max_status",
               "type" : "esriFieldTypeString",
               "alias" : "max_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "max_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "max_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "forecast_trend",
               "type" : "esriFieldTypeString",
               "alias" : "forecast_trend",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "producer",
               "type" : "esriFieldTypeString",
               "alias" : "producer",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "issuer",
               "type" : "esriFieldTypeString",
               "alias" : "issuer",
-              "length" : 60000
+              "length" : 3
             },
             {
               "name" : "issued_time",
               "type" : "esriFieldTypeString",
               "alias" : "issued_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "generation_time",
               "type" : "esriFieldTypeString",
               "alias" : "generation_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "usgs_sitecode",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_sitecode",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "nwm_feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "nwm_feature_id",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "nws_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "usgs_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "geom",
@@ -676,25 +676,25 @@
               "name" : "unit",
               "type" : "esriFieldTypeString",
               "alias" : "unit",
-              "length" : 60000
+              "length" : 2
             },
             {
               "name" : "hydrograph_link",
               "type" : "esriFieldTypeString",
               "alias" : "hydrograph_link",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "hefs_link",
               "type" : "esriFieldTypeString",
               "alias" : "hefs_link",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "oid",
@@ -2665,7 +2665,7 @@
               "name" : "nws_lid",
               "type" : "esriFieldTypeString",
               "alias" : "nws_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "initial_stage",
@@ -2676,13 +2676,13 @@
               "name" : "initial_status",
               "type" : "esriFieldTypeString",
               "alias" : "initial_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "initial_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "initial_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "min_stage",
@@ -2693,13 +2693,13 @@
               "name" : "min_status",
               "type" : "esriFieldTypeString",
               "alias" : "min_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "min_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "min_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "max_stage",
@@ -2710,67 +2710,67 @@
               "name" : "max_status",
               "type" : "esriFieldTypeString",
               "alias" : "max_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "max_stage_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "max_stage_timestep",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "forecast_trend",
               "type" : "esriFieldTypeString",
               "alias" : "forecast_trend",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "producer",
               "type" : "esriFieldTypeString",
               "alias" : "producer",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "issuer",
               "type" : "esriFieldTypeString",
               "alias" : "issuer",
-              "length" : 60000
+              "length" : 3
             },
             {
               "name" : "issued_time",
               "type" : "esriFieldTypeString",
               "alias" : "issued_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "generation_time",
               "type" : "esriFieldTypeString",
               "alias" : "generation_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "usgs_sitecode",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_sitecode",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "nwm_feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "nwm_feature_id",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "nws_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "usgs_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "geom",
@@ -2811,7 +2811,7 @@
               "name" : "record_forecast",
               "type" : "esriFieldTypeString",
               "alias" : "record_forecast",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "record_threshold",
@@ -2822,25 +2822,25 @@
               "name" : "unit",
               "type" : "esriFieldTypeString",
               "alias" : "unit",
-              "length" : 60000
+              "length" : 2
             },
             {
               "name" : "hydrograph_link",
               "type" : "esriFieldTypeString",
               "alias" : "hydrograph_link",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "hefs_link",
               "type" : "esriFieldTypeString",
               "alias" : "hefs_link",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "oid",
