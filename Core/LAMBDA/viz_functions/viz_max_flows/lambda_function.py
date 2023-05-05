@@ -23,13 +23,18 @@ MAX_PROPS = {
         'max_variable': 'streamflow',
         'common_var': 'flow',
         'id': 'feature_id',
-        'extras': []
+        'extras': [
+            {"varname": "NWM_version_number", "aggname": "nwm_vers"}
+        ]
     },
     'total_water': {
         'max_variable': 'elevation',
         'common_var': 'elev',
         'id': 'nSCHISM_hgrid_node',
-        'extras': ['SCHISM_hgrid_node_x', 'SCHISM_hgrid_node_y']
+        'extras': [
+            {"varname": "SCHISM_hgrid_node_x", "aggname": "SCHISM_hgrid_node_x"},
+            {"varname": "SCHISM_hgrid_node_y", "aggname": "SCHISM_hgrid_node_y"}
+        ]
     }
 }
 
@@ -240,10 +245,24 @@ def aggregate_max(s3_files, max_props):
             if extras is None and max_props['extras']:
                 extras = []
                 for extra in max_props['extras']:
-                    extras.append({
-                        'varname': extra,
-                        'array': ds[extra].values
-                    })
+                    varname = extra['varname']
+                    aggname = extra['aggname']
+                    try:
+                        extras.append({
+                            'varname': aggname,
+                            'array': ds[varname].values
+                        })
+                    except:
+                        if varname == "NWM_version_number":
+                            extras.append({
+                                'varname': aggname,
+                                'array': float(ds.attrs[varname].replace("v",""))
+                            })
+                        else:
+                            extras.append({
+                                'varname': aggname,
+                                'array': ds.attrs[varname]
+                            })
         os.remove(download_path)
 
         # compares the values in each file with those stored in the max_vals array, and keeps the
