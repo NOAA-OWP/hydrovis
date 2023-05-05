@@ -2451,19 +2451,19 @@
             "name" : "reference_time",
             "type" : "esriFieldTypeString",
             "alias" : "reference_time",
-            "length" : 60000
+            "length" : 25
           },
           {
             "name" : "valid_time",
             "type" : "esriFieldTypeString",
             "alias" : "valid_time",
-            "length" : 60000
+            "length" : 25
           },
           {
             "name" : "update_time",
             "type" : "esriFieldTypeString",
             "alias" : "update_time",
-            "length" : 60000
+            "length" : 25
           }
         ]
       },

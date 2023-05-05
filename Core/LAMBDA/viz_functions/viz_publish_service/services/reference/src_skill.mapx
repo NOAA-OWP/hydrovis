@@ -276,13 +276,13 @@
               "name" : "location_id",
               "type" : "esriFieldTypeString",
               "alias" : "location_id",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "nrmse",

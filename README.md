@@ -19,7 +19,7 @@ In order to use this repository, you need to do the following:
 
 The workflow for developing new features in HydroVIS is as follows:
 
- - Create a new feature branch from the existing `uat` branch.
+ - Create a new feature branch from the existing `ti` branch.
  - Copy relevant resources from the `Core` folder into the `Dev` folder and/or use the existing `Dev/main.tf` as a template for a new feature module.
  - Fill out the `Dev/sensitive/envs/env.dev.yaml` with the relevant information.
  - Deploy and test your new features.
