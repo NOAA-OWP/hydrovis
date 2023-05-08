@@ -71,7 +71,8 @@ def lambda_handler(event, context):
                     name = pipeline_name,
                     input= json.dumps(pipeline_run)
                 )
-            print(f"Invoked: {step_function_arn}")
+            reference_time = pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S")
+            print(f"Invoked the viz pipeline for configuration {pipeline.configuration.name} and reference time {reference_time}")
         except Exception as e:
             print(f"Couldn't invoke - update later. ({e})")
             
