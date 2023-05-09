@@ -7,68 +7,68 @@ echo "---- SETTING UP RABBITMQ ----"
 RHOST=$(echo ${mq_ingest_endpoint} | cut -d : -f 2 | tr -d "/")
 
 echo "Adding ${mq_vhost} vhost to $${RHOST}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      "https://$${RHOST}/api/vhosts/${mq_vhost}"
 
 echo "Removing default vhost to $${RHOST}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X DELETE "https://$${RHOST}/api/vhosts/%2f"
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X DELETE "https://$${RHOST}/api/vhosts/%2f"
 
 echo "Adding ${rfcfcst_username} to $${RHOST}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"password":"'"${rfcfcst_password}"'","tags":"none"}' \
      "https://$${RHOST}/api/users/${rfcfcst_username}"
 
 echo "Adding hml_event_queue queues for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"arguments":{"x-dead-letter-exchange":"dl.hml","x-dead-letter-routing-key":"dl_hml_event_queue"}}' \
      "https://$${RHOST}/api/queues/${mq_vhost}/hml_event_queue"
 
 echo "Adding xml_queue queues for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"arguments":{"x-dead-letter-exchange":"dl.hml","x-dead-letter-routing-key":"dl_xml_queue"}}' \
      "https://$${RHOST}/api/queues/${mq_vhost}/xml_queue"
 
 echo "Adding dl_xml_queue queues for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"arguments":{"x-dead-letter-exchange":"hml","x-dead-letter-routing-key":"xml_queue","x-message-ttl":60000}}' \
      "https://$${RHOST}/api/queues/${mq_vhost}/dl_xml_queue"
 
 echo "Adding dl_hml_event_queue queues for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"arguments":{"x-dead-letter-exchange":"hml","x-dead-letter-routing-key":"hml_event_queue","x-message-ttl":900000}}' \
      "https://$${RHOST}/api/queues/${mq_vhost}/dl_hml_event_queue"
 
 echo "Adding dl.hml exchange for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"internal": false,"arguments":{}}' \
      "https://$${RHOST}/api/exchanges/${mq_vhost}/dl.hml"
 
 echo "Adding hml exchange for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"auto_delete":false,"durable":true,"internal": false,"arguments":{}}' \
      "https://$${RHOST}/api/exchanges/${mq_vhost}/hml"
 
 echo "Binding dl.hml exchange to dl_hml_event_queue queue for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X POST \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X POST \
      -d '{"routing_key":"dl_hml_event_queue", "arguments":{}}' \
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/dl.hml/q/dl_hml_event_queue"
 
 echo "Binding dl.hml exchange to dl_xml_queue queue for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X POST \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X POST \
      -d '{"routing_key":"dl_xml_queue", "arguments":{}}' \
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/dl.hml/q/dl_xml_queue"
 
 echo "Binding hml exchange to hml_event_queue queue for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X POST \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X POST \
      -d '{"routing_key":"hml_event_queue", "arguments":{}}' \
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/hml/q/hml_event_queue"
 
 echo "Binding hml exchange to xml_queue queue for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X POST \
+curl -u ${mq_username}:${mq_password} --fail--silent --show-error -H "content-type:application/json" -X POST \
      -d '{"routing_key":"xml_queue", "arguments":{}}' \
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/hml/q/xml_queue"
 
 echo "Updating permissions for ${rfcfcst_username}"
-curl -u ${mq_username}:${mq_password} -H "content-type:application/json" -X PUT \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X PUT \
      -d '{"configure":".*","write":".*","read":".*"}' \
      "https://$${RHOST}/api/permissions/${mq_vhost}/${rfcfcst_username}"

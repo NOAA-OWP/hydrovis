@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PGOPTIONS='-c client_min_messages=warning'
+
 postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
@@ -18,14 +20,14 @@ RE='^(.+)\/(([a-z].+)DB_(.+)_[0-9]{4}_[0-9]{4}\.dump)$'
 
 # Drop old schema and restore from S3 object
 echo "Setting up $${BASH_REMATCH[4]} schema in the $${BASH_REMATCH[3]} DB..."
-psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" -c "DROP SCHEMA IF EXISTS $${BASH_REMATCH[4]} CASCADE;"
-aws s3 cp "s3://${s3_bucket}/${s3_key}" "$${postgres_data_folder}/db.dump"
-pg_restore -h "${db_host}" -p ${db_port} -d "${db_name}" -U ${db_username} -j 4 -v "$${postgres_data_folder}/db.dump"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" -qtAc "DROP SCHEMA IF EXISTS $${BASH_REMATCH[4]} CASCADE;"
+aws s3 cp "s3://${s3_bucket}/${s3_key}" "$${postgres_data_folder}/db.dump" --only-show-errors
+pg_restore -h "${db_host}" -p ${db_port} -d "${db_name}" -U ${db_username} -j 4 "$${postgres_data_folder}/db.dump"
 
 # Remove temp file
 rm "$${postgres_data_folder}/db.dump"
 
 # Moved S3 Object to "deployed" folder
-aws s3 mv "s3://${s3_bucket}/${s3_key}" "s3://${s3_bucket}/$${BASH_REMATCH[1]}/deployed/$${BASH_REMATCH[2]}"
+aws s3 mv "s3://${s3_bucket}/${s3_key}" "s3://${s3_bucket}/$${BASH_REMATCH[1]}/deployed/$${BASH_REMATCH[2]}" --only-show-errors
 
 %{ endfor ~}

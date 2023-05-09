@@ -1,6 +1,7 @@
 -- Step 1: Connect to the DB instance using the master user name used to create the DB instance
 
 SELECT CURRENT_USER;
+SET client_min_messages='warning';
 
 -- Step 2: Load the PostGIS extensions
 

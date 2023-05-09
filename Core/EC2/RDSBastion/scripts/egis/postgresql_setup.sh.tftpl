@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PGOPTIONS='-c client_min_messages=warning'
+
 postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
@@ -9,27 +11,27 @@ echo "---- SETTING UP EGIS DB ----"
 export PGPASSWORD=${egis_db_master_password}
 # Create EGIS DB and hydrovis role
 echo "Creating EGIS DB..."
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "postgres" -c "CREATE DATABASE ${egis_db_name}"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "postgres" -qtAc "CREATE DATABASE ${egis_db_name}"
 echo "Creating ${egis_db_username} Role..."
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "CREATE ROLE ${egis_db_username};"
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "ALTER ROLE ${egis_db_username} WITH INHERIT LOGIN ENCRYPTED PASSWORD '${egis_db_password}';"
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "GRANT rds_superuser TO ${egis_db_username};"
-psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -c "GRANT ALL ON DATABASE ${egis_db_name} TO ${egis_db_username};"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -qtAc "CREATE ROLE ${egis_db_username};"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -qtAc "ALTER ROLE ${egis_db_username} WITH INHERIT LOGIN ENCRYPTED PASSWORD '${egis_db_password}';"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -qtAc "GRANT rds_superuser TO ${egis_db_username};"
+psql -h "${egis_db_host}" -U "${egis_db_master_username}" -p ${egis_db_port} -d "${egis_db_name}" -qtAc "GRANT ALL ON DATABASE ${egis_db_name} TO ${egis_db_username};"
 
 
 # Setting up EGIS DB
 export PGPASSWORD=${egis_db_password}
 
 echo "Setting up postgis..."
-aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql"
-psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -f "$${postgres_data_folder}/postgis_setup.sql"
+aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql" --only-show-errors
+psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" -qtAf "$${postgres_data_folder}/postgis_setup.sql"
 rm "$${postgres_data_folder}/postgis_setup.sql"
 
 
 # Adding foreign data wrapper-linked schema to the viz processing publish, for the transfer of published data.
 echo "Setting up vizprc_publish schema in the EGIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
 psql -h "${egis_db_host}" -U "${egis_db_username}" -p ${egis_db_port} -d "${egis_db_name}" \
-    -tAc "DROP SCHEMA IF EXISTS vizprc_publish;
+    -qtAc "DROP SCHEMA IF EXISTS vizprc_publish CASCADE;
             CREATE SCHEMA IF NOT EXISTS vizprc_publish;
             GRANT ALL ON SCHEMA vizprc_publish TO ${egis_db_username};
             GRANT ALL ON ALL TABLES IN SCHEMA vizprc_publish TO ${egis_db_username};

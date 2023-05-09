@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PGOPTIONS='-c client_min_messages=warning'
+
 postgres_data_folder="/home/ec2-user/postgres_data"
 
 echo ""
@@ -11,28 +13,28 @@ export PGPASSWORD=${viz_db_password}
 
 # Adding postgis extension and aws export extentions to Viz DB
 echo "Setting up postgis..."
-aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql"
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -f "$${postgres_data_folder}/postgis_setup.sql"
+aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql" --only-show-errors
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAf "$${postgres_data_folder}/postgis_setup.sql"
 rm "$${postgres_data_folder}/postgis_setup.sql"
 
 
 echo "Setting up aws_s3..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
 
 
 # Adding users to Viz DB
 echo "Adding viz proc user..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "CREATE ROLE ${viz_proc_admin_rw_username};"
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "ALTER ROLE ${viz_proc_admin_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '${viz_proc_admin_rw_password}';"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_admin_rw_username};"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "ALTER ROLE ${viz_proc_admin_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '${viz_proc_admin_rw_password}';"
 
 echo "Adding viz dev user..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "CREATE ROLE ${viz_proc_dev_rw_username};"
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "ALTER ROLE ${viz_proc_dev_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '${viz_proc_dev_rw_password}';"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_dev_rw_username};"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "ALTER ROLE ${viz_proc_dev_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '${viz_proc_dev_rw_password}';"
 
 
 # Add permissions for aws_s3 extension to viz user.
 echo "Adding permissions to aws_s3 extension for viz user..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -c "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
 
 
 # Adding Dev Schema to Viz DB #ToDo: Only do this in Dev / TI environments.
@@ -50,7 +52,7 @@ psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_
 
 echo "Setting up external.usgs_gage table in the EVIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" \
-    -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+    -qtAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
             DROP SERVER IF EXISTS wrds_location CASCADE;
             CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '${location_db_host}', dbname '${location_db_name}', port '${location_db_port}');
             CREATE USER MAPPING FOR ${viz_db_username} SERVER wrds_location OPTIONS (user '${location_db_username}', password '${location_db_password}');

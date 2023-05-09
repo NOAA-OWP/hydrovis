@@ -231,7 +231,7 @@ data "archive_file" "viz_pipeline_zip" {
 
   source_dir = "${path.module}/../../../Source/Visualizations"
 
-  output_path = "${path.module}/viz_pipeline_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_pipeline_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_instance" "viz_pipeline" {
@@ -264,7 +264,7 @@ resource "aws_instance" "viz_pipeline" {
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     tags = {
-      "Name" = "hv-${var.environment}-viz-prc-drive"
+      "Name" = "hv-vpp-${var.environment}-viz-prc-drive"
     }
   }
 
@@ -320,7 +320,7 @@ resource "aws_instance" "viz_fileshare" {
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     tags = {
-      "Name" = "hv-${var.environment}-viz-fs-drive"
+      "Name" = "hv-vpp-${var.environment}-viz-fs-drive"
     }
   }
 
