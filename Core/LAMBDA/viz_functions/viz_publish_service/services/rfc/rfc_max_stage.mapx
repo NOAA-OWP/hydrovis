@@ -3201,7 +3201,7 @@
                         "enable" : true,
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
-                        "size" : 11,
+                        "size" : 13,
                         "billboardMode3D" : "FaceNearPlane",
                         "frame" : {
                           "xmin" : -5.77367205542725159,
@@ -3304,7 +3304,7 @@
                         "enable" : true,
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
-                        "size" : 11,
+                        "size" : 13,
                         "billboardMode3D" : "FaceNearPlane",
                         "frame" : {
                           "xmin" : -2,
@@ -3411,7 +3411,7 @@
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "rotation" : 180,
-                        "size" : 11,
+                        "size" : 13,
                         "billboardMode3D" : "FaceNearPlane",
                         "frame" : {
                           "xmin" : -5.77367205542725159,
