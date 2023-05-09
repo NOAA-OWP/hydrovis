@@ -82,7 +82,6 @@ def lambda_handler(event, context):
         
     tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
     
-    product_type = event['args']['product']['product_type']
     ## For Staging and Caching - Loop through all the tables relevant to the current step
     for table in tables:
         staged_table = f"{table}_stage"
@@ -106,7 +105,6 @@ def lambda_handler(event, context):
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
 
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
-            cleanup_cache(cache_bucket, table, reference_time)
 
         elif job_type == 'past_event':
             viz_schema = 'archive'
@@ -172,26 +170,3 @@ def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
         """
         cur.execute(sql)
     print(f"---> Refreshed {local_schema} foreign schema.")
-
-###################################
-# This function clears out old cache files outside of the buffer window
-def cleanup_cache(bucket, table, reference_time, retention_days=30, buffer_days=3):
-    s3_resource = boto3.resource('s3')
-
-    # Determine the date threshold for keeping max flows files
-    cuttoff_date = reference_time - timedelta(days=int(retention_days))
-    buffer_hours = int(buffer_days*24)
-    
-    print(f"Clearing all cached versions of {table} older than {cuttoff_date}.")
-    # Loop through a few days worth of buffer hours after the winodw to try to delete old files
-    for hour in range(1, buffer_hours+1):
-        buffer_datetime = cuttoff_date - timedelta(hours=hour)
-        buffer_date = buffer_datetime.strftime("%Y%m%d")
-        buffer_hour = buffer_datetime.strftime("%H%M")
-
-        s3_key = f"viz_cache/{buffer_date}/{buffer_hour}/{table}.csv"
-
-        old_file = s3_file(bucket, s3_key)
-        if old_file.check_existence():
-            s3_resource.Object(bucket, s3_key).delete()
-            print(f"---> Deleted {s3_key} from {bucket}")
