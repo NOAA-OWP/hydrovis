@@ -1,5 +1,5 @@
 --------------- Building Footprints ---------------
-DROP TABLE IF EXISTS publish.ana_inundation_extent_building_footprints_prvi;
+DROP TABLE IF EXISTS publish.ana_inundation_building_footprints_prvi;
 SELECT
 	buildings.build_id,
     buildings.occ_cls,
@@ -19,12 +19,12 @@ SELECT
 	fim.hand_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
-INTO publish.ana_inundation_extent_building_footprints_prvi
+INTO publish.ana_inundation_building_footprints_prvi
 FROM external.building_footprints_fema as buildings
-JOIN publish.ana_inundation_extent_prvi fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN publish.ana_inundation_prvi fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
-DROP TABLE IF EXISTS publish.ana_inundation_extent_counties_prvi;
+DROP TABLE IF EXISTS publish.ana_inundation_counties_prvi;
 SELECT
 	counties.geoid,
 	counties.name as county,
@@ -47,9 +47,9 @@ SELECT
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	counties.geom
-INTO publish.ana_inundation_extent_counties_prvi
+INTO publish.ana_inundation_counties_prvi
 FROM derived.counties AS counties
 JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswalk.geoid
-JOIN publish.ana_inundation_extent_prvi AS fim on crosswalk.feature_id = fim.feature_id
-JOIN publish.ana_inundation_extent_building_footprints_prvi AS buildings ON crosswalk.feature_id = buildings.feature_id
+JOIN publish.ana_inundation_prvi AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.ana_inundation_building_footprints_prvi AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;

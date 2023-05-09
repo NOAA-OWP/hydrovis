@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_inundation_extent_prvi;
+DROP TABLE IF EXISTS publish.ana_inundation_prvi;
 
 SELECT  
 	inun.hydro_id,
@@ -19,8 +19,8 @@ SELECT
 	channels.strm_order, 
     channels.name,
 	'PRVI' AS state
-INTO publish.ana_inundation_extent_prvi
-FROM ingest.ana_inundation_extent_prvi as inun 
+INTO publish.ana_inundation_prvi
+FROM ingest.ana_inundation_prvi as inun 
 left join derived.channels_prvi as channels ON channels.feature_id = inun.feature_id
 --Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features.
 UNION SELECT -9999, '-9999', 'NA', -9999, '-9999', -9999, -9999, -9999, -9999, 'NA', to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), 
