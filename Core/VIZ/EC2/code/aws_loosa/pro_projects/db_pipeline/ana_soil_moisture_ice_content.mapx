@@ -304,16 +304,59 @@
       "useSourceMetadata" : true,
       "displayField" : "reference_time",
       "editable" : true,
+      "fieldDescriptions" : [
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "oid",
+          "fieldName" : "oid",
+          "numberFormat" : {
+            "type" : "CIMNumericFormat",
+            "alignmentOption" : "esriAlignRight",
+            "alignmentWidth" : 0,
+            "roundingOption" : "esriRoundNumberOfDecimals",
+            "roundingValue" : 0
+          },
+          "readOnly" : true,
+          "visible" : false,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Reference Time",
+          "fieldName" : "reference_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Valid Time",
+          "fieldName" : "valid_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Update Time",
+          "fieldName" : "update_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        }
+      ],
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
         "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68396e38764e42464b6630642b714a497477752b4132786a394673507231616358624b68512f55464b574d77663665704c344e3663366b667378744550393842592a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_soil_moisture_ice_content",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_soil_moisture_ice_content",
-        "oIDFields" : "reference_time",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_soil_moisture_ice_content",
+        "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [
+          {
+            "name" : "oid",
+            "type" : "esriFieldTypeInteger",
+            "alias" : "oid"
+          },
           {
             "name" : "reference_time",
             "type" : "esriFieldTypeString",
