@@ -1,0 +1,14 @@
+FROM python:3.6-slim-buster
+ENV PYTHONUNBUFFERED 1
+RUN mkdir -p /opt/rfc_forecast_api
+WORKDIR /opt/rfc_forecast_api
+RUN apt-get update && apt-get -y install gdal-bin curl \
+  && apt-get clean all && rm -rf /var/apt/lists/* && rm -rf /var/cache/apt/*
+COPY requirements.txt .
+RUN pip install -r requirements.txt --no-cache-dir
+COPY . /opt/wrds_rfc_forecast_api
+EXPOSE 6000
+RUN mv /opt/wrds_rfc_forecast_api/entrypoint.sh /opt/wrds_rfc_forecast_api/rfc_forecast_api \
+  && chmod +x /opt/wrds_rfc_forecast_api/rfc_forecast_api/entrypoint.sh
+ARG API_HOST
+ENTRYPOINT ["/opt/wrds_rfc_forecast_api/rfc_forecast_api/entrypoint.sh"]
