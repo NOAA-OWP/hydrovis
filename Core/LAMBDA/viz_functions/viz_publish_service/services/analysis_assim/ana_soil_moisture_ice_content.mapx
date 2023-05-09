@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "ana soil moisture ice content",
+    "name" : "Soil Moisture Ice Content Analysis",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant",
