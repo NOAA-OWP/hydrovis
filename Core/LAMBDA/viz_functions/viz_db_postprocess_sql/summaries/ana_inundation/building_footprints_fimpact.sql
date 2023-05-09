@@ -21,7 +21,7 @@ SELECT
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.ana_inundation_building_footprints
 FROM external.building_footprints_fema as buildings
-JOIN publish.ana_inundation_extent fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN publish.ana_inundation fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
 DROP TABLE IF EXISTS publish.ana_inundation_counties;
@@ -50,7 +50,7 @@ SELECT
 INTO publish.ana_inundation_counties
 FROM derived.counties AS counties
 JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswalk.geoid
-JOIN publish.ana_inundation_extent AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.ana_inundation AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_inundation_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
 
@@ -80,6 +80,6 @@ SELECT
 INTO publish.ana_inundation_hucs
 FROM derived.huc10s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc10 = crosswalk.huc10
-JOIN publish.ana_inundation_extent AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.ana_inundation AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_inundation_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY hucs.huc10, hucs.geom;

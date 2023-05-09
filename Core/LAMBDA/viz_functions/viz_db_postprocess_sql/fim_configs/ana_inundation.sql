@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_inundation_extent;
+DROP TABLE IF EXISTS publish.ana_inundation;
 
 SELECT  
 	inun.hydro_id,
@@ -19,6 +19,6 @@ SELECT
 	channels.strm_order, 
     channels.name,
 	channels.state
-INTO publish.ana_inundation_extent
-FROM ingest.ana_inundation_extent as inun 
+INTO publish.ana_inundation
+FROM ingest.ana_inundation as inun 
 left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;
