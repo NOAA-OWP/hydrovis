@@ -352,19 +352,19 @@
               "name" : "nws_lid",
               "type" : "esriFieldTypeString",
               "alias" : "nws_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "usgs_sitecode",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_sitecode",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "nws_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "geom",
@@ -932,6 +932,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -1016,7 +1023,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, state, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1029,25 +1036,25 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "inherited_rfc_forecasts",
               "type" : "esriFieldTypeString",
               "alias" : "inherited_rfc_forecasts",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "max_flow",
@@ -1058,19 +1065,19 @@
               "name" : "max_status",
               "type" : "esriFieldTypeString",
               "alias" : "max_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "viz_status_lid",
               "type" : "esriFieldTypeString",
               "alias" : "viz_status_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "waterbody_status",
               "type" : "esriFieldTypeString",
               "alias" : "waterbody_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "strm_order",
@@ -1081,13 +1088,19 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",
@@ -1740,10 +1753,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1846,25 +1866,25 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "inherited_rfc_forecasts",
               "type" : "esriFieldTypeString",
               "alias" : "inherited_rfc_forecasts",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "max_flow",
@@ -1875,19 +1895,19 @@
               "name" : "max_status",
               "type" : "esriFieldTypeString",
               "alias" : "max_status",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "waterbody_status",
               "type" : "esriFieldTypeString",
               "alias" : "waterbody_status",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "viz_status_lid",
               "type" : "esriFieldTypeString",
               "alias" : "viz_status_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "strm_order",
@@ -1898,13 +1918,13 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",

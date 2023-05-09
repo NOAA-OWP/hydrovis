@@ -286,6 +286,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -453,7 +460,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Annual Exceedance Probability_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.srf_18hr_max_high_flow_magnitude",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, state, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.srf_18hr_max_high_flow_magnitude",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -466,7 +473,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -477,13 +484,19 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
             },
             {
               "name" : "nwm_vers",
@@ -494,7 +507,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "max_flow",
@@ -505,7 +518,7 @@
               "name" : "recur_cat",
               "type" : "esriFieldTypeString",
               "alias" : "recur_cat",
-              "length" : 60000
+              "length" : 3
             },
             {
               "name" : "high_water_threshold",
@@ -541,7 +554,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",

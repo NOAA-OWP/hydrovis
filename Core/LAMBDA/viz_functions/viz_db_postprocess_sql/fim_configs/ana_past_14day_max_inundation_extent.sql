@@ -16,9 +16,10 @@ SELECT
 	inun.huc8,
 	inun.geom,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
-	derived.channels_conus.strm_order, 
-    derived.channels_conus.name,
+	channels.strm_order, 
+    channels.name,
+	channels.state,
 	'ana_past_14day' AS config
 INTO publish.ana_past_14day_max_inundation_extent
-FROM ingest.ana_past_14day_max_inundation_extent as inun 
-left join derived.channels_conus ON derived.channels_conus.feature_id = inun.feature_id;
+FROM ingest.ana_past_14day_max_inundation_extent as inun  
+left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;

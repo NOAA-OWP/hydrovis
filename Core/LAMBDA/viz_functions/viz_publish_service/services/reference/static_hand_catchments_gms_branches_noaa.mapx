@@ -273,19 +273,19 @@
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "branch",
               "type" : "esriFieldTypeString",
               "alias" : "branch",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "oid",
