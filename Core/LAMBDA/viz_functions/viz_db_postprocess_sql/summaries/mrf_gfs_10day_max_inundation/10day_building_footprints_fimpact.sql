@@ -1,5 +1,5 @@
 --------------- Building Footprints ---------------
-DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_10day_building_footprints;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_10day_building_footprints;
 SELECT
 	buildings.build_id,
     buildings.occ_cls,
@@ -19,12 +19,12 @@ SELECT
 	fim.hand_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
-INTO publish.mrf_gfs_max_inundation_extent_10day_building_footprints
+INTO publish.mrf_gfs_max_inundation_10day_building_footprints
 FROM external.building_footprints_fema as buildings
-JOIN publish.mrf_gfs_max_inundation_extent_10day fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN publish.mrf_gfs_max_inundation_10day fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
-DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_10day_counties;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_10day_counties;
 SELECT
 	counties.geoid,
 	counties.name as county,
@@ -47,15 +47,15 @@ SELECT
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	counties.geom
-INTO publish.mrf_gfs_max_inundation_extent_10day_counties
+INTO publish.mrf_gfs_max_inundation_10day_counties
 FROM derived.counties AS counties
 JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswalk.geoid
-JOIN publish.mrf_gfs_max_inundation_extent_10day AS fim on crosswalk.feature_id = fim.feature_id
-JOIN publish.mrf_gfs_max_inundation_extent_10day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
+JOIN publish.mrf_gfs_max_inundation_10day AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.mrf_gfs_max_inundation_10day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
 
 -------------- HUCS Summary ---------------
-DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_10day_hucs;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_10day_hucs;
 SELECT
 	hucs.huc8,
 	TO_CHAR(hucs.huc8, 'fm0000000000') AS huc8_str,
@@ -77,9 +77,9 @@ SELECT
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	hucs.geom
-INTO publish.mrf_gfs_max_inundation_extent_10day_hucs
+INTO publish.mrf_gfs_max_inundation_10day_hucs
 FROM derived.huc8s_conus AS hucs
 JOIN derived.featureid_huc_crosswalk AS crosswalk ON hucs.huc8 = crosswalk.huc8
-JOIN publish.mrf_gfs_max_inundation_extent_10day AS fim on crosswalk.feature_id = fim.feature_id
-JOIN publish.mrf_gfs_max_inundation_extent_10day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
+JOIN publish.mrf_gfs_max_inundation_10day AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.mrf_gfs_max_inundation_10day_building_footprints AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY hucs.huc8, hucs.geom;

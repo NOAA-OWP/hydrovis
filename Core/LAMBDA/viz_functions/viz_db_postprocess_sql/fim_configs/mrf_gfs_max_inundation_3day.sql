@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_extent_5day;
+DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_3day;
 
 SELECT  
 	inun.hydro_id,
@@ -18,7 +18,7 @@ SELECT
 	channels.strm_order, 
     channels.name,
 	channels.state,
-    'mrf_5day' AS config
-INTO publish.mrf_gfs_max_inundation_extent_5day
-FROM ingest.mrf_gfs_max_inundation_extent_5day as inun 
+    'mrf_3day' AS config
+INTO publish.mrf_gfs_max_inundation_3day
+FROM ingest.mrf_gfs_max_inundation_3day as inun 
 left join derived.channels_conus as channels ON inun.feature_id = channels.feature_id;
