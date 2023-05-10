@@ -14,8 +14,8 @@ variable "nwm_max_values_data_bucket" {
 }
 
 
-variable "rnr_max_flows_data_bucket" {
-  description = "S3 bucket for rnr max flows data"
+variable "rnr_data_bucket" {
+  description = "S3 bucket for rnr output data"
   type        = string
 }
 
@@ -45,8 +45,8 @@ locals {
     nwm_channel_mrf_5day  = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
     nwm_channel_mrf_10day = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
     nwm_forcing_mrf       = tomap({ "sns_type" = "s3", "bucket" = var.nwm_data_bucket })
-    rnr_max_flows         = tomap({ "sns_type" = "s3", "bucket" = var.rnr_max_flows_data_bucket })
-    nwm_max_values         = tomap({ "sns_type" = "s3", "bucket" = var.nwm_max_values_data_bucket })
+    rnr_wrf_hydro_output  = tomap({ "sns_type" = "s3", "bucket" = var.rnr_data_bucket })
+    nwm_max_values        = tomap({ "sns_type" = "s3", "bucket" = var.nwm_max_values_data_bucket })
     viz_db_postprocess    = tomap({ "sns_type" = "lambda_trigger" })
   }
 
@@ -438,14 +438,14 @@ resource "aws_s3_bucket_notification" "nwm_max_values_bucket_notification" {
   }
 }
 
-resource "aws_s3_bucket_notification" "rnr_max_flows_bucket_notification" {
-  bucket = var.rnr_max_flows_data_bucket
+resource "aws_s3_bucket_notification" "rnr_bucket_notification" {
+  bucket = var.rnr_data_bucket
 
   topic {
-    topic_arn     = resource.aws_sns_topic.sns_topics["rnr_max_flows"].arn
+    topic_arn     = resource.aws_sns_topic.sns_topics["rnr_wrf_hydro_output"].arn
     events        = ["s3:ObjectCreated:*"]
-    filter_prefix = "max_flows/"
-    filter_suffix = "max_flows.csv"
+    filter_prefix = "replace_route/"
+    filter_suffix = ".medium_range.channel_rt.f119.conus.nc"
   }
 }
 

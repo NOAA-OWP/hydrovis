@@ -67,18 +67,26 @@ def lambda_handler(event, context):
                 # Load the NetCDF file into a dataframe
                 drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
                 ds = xr.open_dataset(download_path, drop_variables=drop_vars)
-                ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
-                df = ds.to_dataframe().reset_index()
-                ds.close()
-    
-                # Only include reference time in the insert if specified
-                df_toLoad = df[['feature_id', 'time_step', 'streamflow', 'nwm_vers']]
-                cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (feature_id integer, forecast_hour integer, "
-                                "streamflow double precision, nwm_vers double precision)")
-    
-                # Filter out any streamflow data below the specificed threshold
-                df_toLoad = df_toLoad.loc[df_toLoad['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
+                
+                if 'wrf_hydro' in file:
+                    df = ds.to_dataframe().reset_index()
+                    ds.close()
+                    df_toLoad = df[['station_id', 'time', 'streamflow']]
+                    cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (station_id integer, time timestamp without time zone, "
+                                    "streamflow double precision)")
+                else:
+                    ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
+                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    df = ds.to_dataframe().reset_index()
+                    ds.close()
+        
+                    # Only include reference time in the insert if specified
+                    df_toLoad = df[['feature_id', 'time_step', 'streamflow', 'nwm_vers']]
+                    cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (feature_id integer, forecast_hour integer, "
+                                    "streamflow double precision, nwm_vers double precision)")
+        
+                    # Filter out any streamflow data below the specificed threshold
+                    df_toLoad = df_toLoad.loc[df_toLoad['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
     
             elif file[-4:] == '.csv':
                 df = pd.read_csv(download_path)
