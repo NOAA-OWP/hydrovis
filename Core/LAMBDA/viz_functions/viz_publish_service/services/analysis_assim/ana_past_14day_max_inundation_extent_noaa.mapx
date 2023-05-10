@@ -26,8 +26,8 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/new_group_layer.xml",
-      "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/new_group_layer2.xml"
+      "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/new_group_layer.xml",
+      "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/new_group_layer2.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -414,7 +414,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_2_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,max_flow_7day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.ana_past_14day_max_inundation_extent_7day_src_skill",
+          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,max_flow_7day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.ana_past_14day_max_inundation_7day_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1807,7 +1807,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.ana_past_14day_max_inundation_extent_7day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.ana_past_14day_max_inundation_7day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2920,7 +2920,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_7day_hucs",
+          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_7day_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3995,7 +3995,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_7day_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_7day_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4962,7 +4962,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_7day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.ana_past_14day_max_inundation_7day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5869,7 +5869,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Past 7 Days - Inundation Extent",
-      "uRI" : "CIMPATH=nwm_medium_range_max_fim_extent/3_day_inundation_extent2.xml",
+      "uRI" : "CIMPATH=nwm_medium_range_max_fim/3_day_inundation2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -6080,7 +6080,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.ana_past_14day_max_inundation_extent_7d",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.ana_past_14day_max_inundation_7d",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6511,7 +6511,7 @@
     {
       "type" : "CIMGroupLayer",
       "name" : "Past 7 Days - Max Analysis and Assimilation",
-      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/new_group_layer.xml",
+      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/new_group_layer.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -6535,13 +6535,13 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=nwm_short_range_max_fim_analysis/qc_fim.xml",
-        "CIMPATH=nwm_medium_range_max_fim_extent/3_day_inundation_extent2.xml"
+        "CIMPATH=nwm_medium_range_max_fim/3_day_inundation2.xml"
       ]
     },
     {
       "type" : "CIMFeatureLayer",
       "name" : "Past 14 Days - Max Rating Curve Comparison (Synthetic vs. USGS): Difference in Water Surface Elevation (ft)",
-      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/ic_vs__usgs___difference_in_water_surface_elevation__ft_.xml",
+      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/ic_vs__usgs___difference_in_water_surface_elevation__ft_.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -6705,7 +6705,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,max_flow_14day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.ana_past_14day_max_inundation_extent_14day_src_skill",
+          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,max_flow_14day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.ana_past_14day_max_inundation_14day_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -8105,7 +8105,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.ana_past_14day_max_inundation_extent_14day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.ana_past_14day_max_inundation_14day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -9218,7 +9218,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_7_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_14day_hucs",
+          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_14day_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10293,7 +10293,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3_6",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_14day_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.ana_past_14day_max_inundation_14day_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -11253,7 +11253,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4_5",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.ana_past_14day_max_inundation_extent_14day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.ana_past_14day_max_inundation_14day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -12153,14 +12153,14 @@
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
       "layers" : [
-        "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/ic_vs__usgs___difference_in_water_surface_elevation__ft_.xml",
+        "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/ic_vs__usgs___difference_in_water_surface_elevation__ft_.xml",
         "CIMPATH=m_past_14_day_max_analysis_and_assimilation_fim_analysis/past_7_day_max_impacted_buildings__estimated_.xml"
       ]
     },
     {
       "type" : "CIMFeatureLayer",
       "name" : "Past 14 Days - Inundation Extent",
-      "uRI" : "CIMPATH=nwm_medium_range_max_fim_extent/3_day_inundation_extent.xml",
+      "uRI" : "CIMPATH=nwm_medium_range_max_fim/3_day_inundation.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -12371,7 +12371,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_8_2_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.ana_past_14day_max_inundation_extent_14d",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.ana_past_14day_max_inundation_14d",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -12802,7 +12802,7 @@
     {
       "type" : "CIMGroupLayer",
       "name" : "Past 14 Days - Max Analysis and Assimilation",
-      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim_extent/new_group_layer2.xml",
+      "uRI" : "CIMPATH=nwm_past_14_day_max_analysis_and_assimilation_fim/new_group_layer2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -12826,7 +12826,7 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=m_past_14_day_max_analysis_and_assimilation_fim_analysis/qc_fim.xml",
-        "CIMPATH=nwm_medium_range_max_fim_extent/3_day_inundation_extent.xml"
+        "CIMPATH=nwm_medium_range_max_fim/3_day_inundation.xml"
       ]
     }
   ],

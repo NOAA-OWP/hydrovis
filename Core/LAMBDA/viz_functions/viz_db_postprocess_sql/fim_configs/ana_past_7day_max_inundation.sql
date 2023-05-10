@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.ana_past_7day_max_inundation_extent;
+DROP TABLE IF EXISTS publish.ana_past_7day_max_inundation;
 
 SELECT  
 	inun.hydro_id,
@@ -20,6 +20,6 @@ SELECT
     channels.name,
 	channels.state,
 	'ana_past_7day' AS config
-INTO publish.ana_past_7day_max_inundation_extent
-FROM ingest.ana_past_7day_max_inundation_extent as inun 
+INTO publish.ana_past_7day_max_inundation
+FROM ingest.ana_past_7day_max_inundation as inun 
 left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;
