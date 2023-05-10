@@ -1,5 +1,5 @@
 -- Synthetic Rating Curve Skill layer
-DROP TABLE IF EXISTS publish.rfc_based_5day_max_inundation_extent_src_skill;
+DROP TABLE IF EXISTS publish.rfc_based_5day_max_inundation_src_skill;
 
 WITH rnr_max_flows AS (
     WITH waterbody_reaches AS (SELECT feature_id
@@ -26,7 +26,7 @@ SELECT
     MIN(navd88_datum) as navd88_datum,
     MIN(stage) as usgs_stage,
     ST_TRANSFORM(MIN(gage.geo_point), 3857) as geom
-INTO publish.rfc_based_5day_max_inundation_extent_src_skill
+INTO publish.rfc_based_5day_max_inundation_src_skill
 FROM rnr_max_flows AS rnr
 JOIN derived.hydrotable_staggered AS ht ON ht.feature_id = rnr.feature_id AND rnr.maxflow_5day_cfs >= ht.discharge_cfs AND rnr.maxflow_5day_cfs <= ht.next_discharge_cfs
 JOIN derived.usgs_rating_curves_staggered AS urc ON urc.location_id::text = ht.location_id AND rnr.maxflow_5day_cfs >= urc.discharge_cfs AND rnr.maxflow_5day_cfs <= urc.next_discharge_cfs

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.rfc_based_5day_max_inundation_extent;
+DROP TABLE IF EXISTS publish.rfc_based_5day_max_inundation;
 
 WITH agg_status AS (
     SELECT 
@@ -28,7 +28,7 @@ SELECT
 	channels.state,
     agg_status.inherited_rfc_forecasts,
     agg_status.max_status
-INTO publish.rfc_based_5day_max_inundation_extent
-FROM ingest.rfc_based_5day_max_inundation_extent as inun 
+INTO publish.rfc_based_5day_max_inundation
+FROM ingest.rfc_based_5day_max_inundation as inun 
 JOIN agg_status ON inun.feature_id = agg_status.feature_id
 left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;
