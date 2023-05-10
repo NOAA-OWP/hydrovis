@@ -27,7 +27,7 @@
     },
     "layers" : [
       "CIMPATH=nwm_short_range_max_fim_analysis/qc_fim.xml",
-      "CIMPATH=nwm_analysis_and_assimilation_fim_extent/hydrovis_services_ana_inundation.xml"
+      "CIMPATH=nwm_analysis_and_assimilation_fim/hydrovis_services_ana_inundation.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -421,7 +421,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%ana_src_skill_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_18hour_cfs,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,navd88_datum,usgs_stage,geom from vizprocessing.dev.srf_18hr_max_inundation_extent_src_skill",
+          "sqlQuery" : "select usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_18hour_cfs,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,navd88_datum,usgs_stage,geom from vizprocessing.dev.srf_18hr_max_inundation_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1809,7 +1809,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.srf_18hr_max_inundation_extent_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,geom_xy from vizprocessing.publish.srf_18hr_max_inundation_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2618,7 +2618,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/e568d03a5c87608c77eb5a6a017a8692.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.dev.srf_18hr_max_inundation_extent_hucs",
+      "description" : "vizprocessing.dev.srf_18hr_max_inundation_hucs",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
@@ -2920,9 +2920,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6831752b615050695574434f386c5a42356459526f574c69486f525a6a2f6d52684f2f633342385a2b6d7943777259685567777743665a766368626e4c736d36632a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_extent_hucs_1_1_1_4",
+          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_hucs_1_1_1_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc10,huc10_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.srf_18hr_max_inundation_extent_hucs",
+          "sqlQuery" : "select oid,huc10,huc10_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.srf_18hr_max_inundation_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3685,14 +3685,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "18 Hours - Estimated Impacted Buildings - County Hotspots",
-      "uRI" : "CIMPATH=nwm_short_range_max_fim_analysis/vizprocessing_dev_srf_18hr_max_inundation_extent_counties.xml",
+      "uRI" : "CIMPATH=nwm_short_range_max_fim_analysis/vizprocessing_dev_srf_18hr_max_inundation_counties.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
       "metadataURI" : "CIMPATH=Metadata/665aec1a0ec457eb33cb24c21ca116eb.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.dev.srf_18hr_max_inundation_extent_counties",
+      "description" : "vizprocessing.dev.srf_18hr_max_inundation_counties",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
@@ -3995,9 +3995,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6831752b615050695574434f386c5a42356459526f574c69486f525a6a2f6d52684f2f633342385a2b6d7943777259685567777743665a766368626e4c736d36632a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_extent_counties_2_2_2",
+          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_counties_2_2_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.srf_18hr_max_inundation_extent_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.srf_18hr_max_inundation_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4774,7 +4774,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/14c3b2188dff36dfaa5e73f05e9a7b00.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.srf_18hr_max_inundation_extent_building_footprints",
+      "description" : "vizprocessing.publish.srf_18hr_max_inundation_building_footprints",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
@@ -4955,9 +4955,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6831752b615050695574434f386c5a42356459526f574c69486f525a6a2f6d52684f2f633342385a2b6d7943777259685567777743665a766368626e4c736d36632a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_extent_counties_1_1",
+          "dataset" : "vizprocessing.dev.%srf_18hr_max_inundation_counties_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.srf_18hr_max_inundation_extent_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.srf_18hr_max_inundation_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5828,7 +5828,7 @@
       "layers" : [
         "CIMPATH=nwm_short_range_max_fim_analysis/18_hour_max_estimated_impacted_buildings___heatmap.xml",
         "CIMPATH=nwm_short_range_max_fim_analysis/8_hour_max_estimated_impacted_buildings___huc10_hotspots2.xml",
-        "CIMPATH=nwm_short_range_max_fim_analysis/vizprocessing_dev_srf_18hr_max_inundation_extent_counties.xml",
+        "CIMPATH=nwm_short_range_max_fim_analysis/vizprocessing_dev_srf_18hr_max_inundation_counties.xml",
         "CIMPATH=nwm_short_range_max_fim_analysis/r_max_estimated_impacted_buildings__fema_usa_structures_.xml"
       ]
     },
@@ -5865,7 +5865,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "18 Hours - Inundation Extent",
-      "uRI" : "CIMPATH=nwm_analysis_and_assimilation_fim_extent/hydrovis_services_ana_inundation.xml",
+      "uRI" : "CIMPATH=nwm_analysis_and_assimilation_fim/hydrovis_services_ana_inundation.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -6062,7 +6062,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.srf_18hr_max_inundation_extent",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.srf_18hr_max_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6493,7 +6493,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/14c3b2188dff36dfaa5e73f05e9a7b00.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings (FEMA USA Structures)</resTitle></idCitation><idAbs>vizprocessing.publish.srf_18hr_max_inundation_extent_building_footprints</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings (FEMA USA Structures)</resTitle></idCitation><idAbs>vizprocessing.publish.srf_18hr_max_inundation_building_footprints</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
@@ -6503,7 +6503,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/665aec1a0ec457eb33cb24c21ca116eb.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings - County Hotspots</resTitle></idCitation><idAbs>vizprocessing.dev.srf_18hr_max_inundation_extent_counties</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings - County Hotspots</resTitle></idCitation><idAbs>vizprocessing.dev.srf_18hr_max_inundation_counties</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
@@ -6523,7 +6523,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/e568d03a5c87608c77eb5a6a017a8692.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings - HUC10 Hotspots</resTitle></idCitation><idAbs>vizprocessing.dev.srf_18hr_max_inundation_extent_hucs</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230106</CreaDate><CreaTime>16411800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>18 Hours - Estimated Impacted Buildings - HUC10 Hotspots</resTitle></idCitation><idAbs>vizprocessing.dev.srf_18hr_max_inundation_hucs</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ]
 }
