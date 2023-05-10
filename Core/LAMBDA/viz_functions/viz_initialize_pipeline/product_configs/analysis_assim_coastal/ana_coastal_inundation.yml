@@ -22,11 +22,8 @@ fim_configs:
         output_file: max_elevs/analysis_assim_coastal_atlgulf/{{datetime:%Y%m%d}}/ana_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
       
 postprocess_sql:
-  - sql_file: ana_coastal_inundation_depth
-    target_table: publish.ana_coastal_inundation_depth
-  - sql_file: ana_coastal_inundation_extent
-    target_table: publish.ana_coastal_inundation_extent
+  - sql_file: ana_coastal_inundation
+    target_table: publish.ana_coastal_inundation
 
 services:
-  - ana_coastal_inundation_extent
-  - ana_coastal_inundation_depth
+  - ana_coastal_inundation_extent_noaa

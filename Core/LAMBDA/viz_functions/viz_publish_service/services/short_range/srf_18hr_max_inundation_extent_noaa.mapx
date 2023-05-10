@@ -304,7 +304,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
-            "fieldName" : "ref_time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -421,7 +421,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%ana_src_skill_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_18hour_cfs,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,navd88_datum,usgs_stage,geom from vizprocessing.dev.srf_18hr_max_inundation_src_skill",
+          "sqlQuery" : "select usgs_site_code,feature_id_str AS feature_id,reference_time,maxflow_18hour_cfs,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,navd88_datum,usgs_stage,geom from vizprocessing.dev.srf_18hr_max_inundation_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -453,9 +453,9 @@
               "length" : 12
             },
             {
-              "name" : "ref_time",
+              "name" : "reference_time",
               "type" : "esriFieldTypeString",
-              "alias" : "ref_time",
+              "alias" : "reference_time",
               "length" : 25
             },
             {

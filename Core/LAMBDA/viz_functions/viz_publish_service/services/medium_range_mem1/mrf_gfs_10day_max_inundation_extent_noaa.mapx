@@ -313,7 +313,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
-            "fieldName" : "ref_time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -415,7 +415,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_3day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_3day_src_skill",
+          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,reference_time,maxflow_3day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_3day_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -452,9 +452,9 @@
               "length" : 12
             },
             {
-              "name" : "ref_time",
+              "name" : "reference_time",
               "type" : "esriFieldTypeString",
-              "alias" : "ref_time",
+              "alias" : "reference_time",
               "length" : 25
             },
             {
@@ -6583,7 +6583,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
-            "fieldName" : "ref_time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -6685,7 +6685,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_5day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_5day_src_skill",
+          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,reference_time,maxflow_5day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_5day_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6722,9 +6722,9 @@
               "length" : 12
             },
             {
-              "name" : "ref_time",
+              "name" : "reference_time",
               "type" : "esriFieldTypeString",
-              "alias" : "ref_time",
+              "alias" : "reference_time",
               "length" : 25
             },
             {
@@ -12853,7 +12853,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
-            "fieldName" : "ref_time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -12955,7 +12955,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,ref_time,maxflow_10day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_10day_src_skill",
+          "sqlQuery" : "select oid,usgs_site_code,feature_id_str AS feature_id,reference_time,maxflow_10day_cfs,navd88_datum,usgs_stage,synth_interp_elevation_ft,usgs_interp_elevation_ft,diff_ft,geom from hydrovis.services.mrf_gfs_max_inundation_10day_src_skill",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -12992,9 +12992,9 @@
               "length" : 12
             },
             {
-              "name" : "ref_time",
+              "name" : "reference_time",
               "type" : "esriFieldTypeString",
-              "alias" : "ref_time",
+              "alias" : "reference_time",
               "length" : 25
             },
             {

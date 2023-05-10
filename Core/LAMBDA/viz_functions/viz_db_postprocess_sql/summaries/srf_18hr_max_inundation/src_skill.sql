@@ -5,7 +5,7 @@ SELECT
     LPAD(urc.location_id::text, 8, '0') as usgs_site_code, 
     ht.feature_id,
     ht.feature_id::text as feature_id_str,
-    to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS ref_time,
+    to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     maxflow_18hour_cfs,
     MIN(ht.elevation_ft) + ((maxflow_18hour_cfs - MIN(ht.discharge_cfs)) * ((MAX(ht.next_elevation_ft) - MIN(ht.elevation_ft)) / (MAX(ht.next_discharge_cfs) - MIN(ht.discharge_cfs)))) as synth_interp_elevation_ft,
     MIN(urc.elevation_ft) + ((maxflow_18hour_cfs - MIN(urc.discharge_cfs)) * ((MAX(urc.next_elevation_ft) - MIN(urc.elevation_ft)) / (MAX(urc.next_discharge_cfs) - MIN(urc.discharge_cfs)))) as usgs_interp_elevation_ft,
