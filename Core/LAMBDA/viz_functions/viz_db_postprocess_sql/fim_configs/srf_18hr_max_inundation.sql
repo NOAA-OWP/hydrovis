@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_18hr_max_inundation_extent;
+DROP TABLE IF EXISTS publish.srf_18hr_max_inundation;
 
 SELECT  
 	inun.hydro_id,
@@ -18,6 +18,6 @@ SELECT
 	channels.strm_order, 
     channels.name,
 	channels.state
-INTO publish.srf_18hr_max_inundation_extent
-FROM ingest.srf_18hr_max_inundation_extent as inun 
+INTO publish.srf_18hr_max_inundation
+FROM ingest.srf_18hr_max_inundation as inun 
 left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;

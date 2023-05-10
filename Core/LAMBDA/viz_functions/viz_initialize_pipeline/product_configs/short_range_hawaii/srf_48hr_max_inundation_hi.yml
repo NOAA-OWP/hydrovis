@@ -1,4 +1,4 @@
-product: srf_48hr_max_inundation_extent_hi
+product: srf_48hr_max_inundation_hi
 configuration: short_range_hawaii
 product_type: "fim"
 run: true
@@ -18,18 +18,18 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows_hi
 
 fim_configs:
-  - name: srf_48hr_max_inundation_extent_hi
-    target_table: ingest.srf_48hr_max_inundation_extent_hi
+  - name: srf_48hr_max_inundation_hi
+    target_table: ingest.srf_48hr_max_inundation_hi
     fim_type: hand
     postprocess:
-      sql_file: srf_48hr_max_inundation_extent_hi
-      target_table: publish.srf_48hr_max_inundation_extent_hi
+      sql_file: srf_48hr_max_inundation_hi
+      target_table: publish.srf_48hr_max_inundation_hi
   
 product_summaries:
   - sql_file:  building_footprints_fimpact
     target_table:
-      - publish.srf_48hr_max_inundation_extent_building_footprints_hi
-      - publish.srf_48hr_max_inundation_extent_counties_hi
+      - publish.srf_48hr_max_inundation_building_footprints_hi
+      - publish.srf_48hr_max_inundation_counties_hi
 
 services:
-  - srf_48hr_max_inundation_extent_hi_noaa_hi
+  - srf_48hr_max_inundation_extent_hi_noaa

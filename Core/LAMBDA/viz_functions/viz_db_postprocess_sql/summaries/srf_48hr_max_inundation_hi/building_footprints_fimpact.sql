@@ -1,5 +1,5 @@
 --------------- Building Footprints ---------------
-DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_extent_building_footprints_hi;
+DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_building_footprints_hi;
 SELECT
 	buildings.build_id,
     buildings.occ_cls,
@@ -19,12 +19,12 @@ SELECT
 	fim.hand_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
-INTO publish.srf_48hr_max_inundation_extent_building_footprints_hi
+INTO publish.srf_48hr_max_inundation_building_footprints_hi
 FROM external.building_footprints_fema as buildings
-JOIN publish.srf_48hr_max_inundation_extent_hi fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN publish.srf_48hr_max_inundation_hi fim ON ST_INTERSECTS(fim.geom, buildings.geom);
 
 --------------- County Summary ---------------
-DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_extent_counties_hi;
+DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_counties_hi;
 SELECT
 	counties.geoid,
 	counties.name as county,
@@ -47,9 +47,9 @@ SELECT
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	counties.geom
-INTO publish.srf_48hr_max_inundation_extent_counties_hi
+INTO publish.srf_48hr_max_inundation_counties_hi
 FROM derived.counties AS counties
 JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswalk.geoid
-JOIN publish.srf_48hr_max_inundation_extent_hi AS fim on crosswalk.feature_id = fim.feature_id
-JOIN publish.srf_48hr_max_inundation_extent_building_footprints_hi AS buildings ON crosswalk.feature_id = buildings.feature_id
+JOIN publish.srf_48hr_max_inundation_hi AS fim on crosswalk.feature_id = fim.feature_id
+JOIN publish.srf_48hr_max_inundation_building_footprints_hi AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
