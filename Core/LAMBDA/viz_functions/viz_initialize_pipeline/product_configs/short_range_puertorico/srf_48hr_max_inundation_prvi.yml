@@ -1,4 +1,4 @@
-product: srf_48hr_max_inundation_extent_prvi
+product: srf_48hr_max_inundation_prvi
 configuration: short_range_puertorico
 product_type: "fim"
 run: true
@@ -18,18 +18,18 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows_prvi
 
 fim_configs:
-  - name: srf_48hr_max_inundation_extent_prvi
-    target_table: ingest.srf_48hr_max_inundation_extent_prvi
+  - name: srf_48hr_max_inundation_prvi
+    target_table: ingest.srf_48hr_max_inundation_prvi
     fim_type: hand
     postprocess:
-      sql_file: srf_48hr_max_inundation_extent_prvi
-      target_table: publish.srf_48hr_max_inundation_extent_prvi
+      sql_file: srf_48hr_max_inundation_prvi
+      target_table: publish.srf_48hr_max_inundation_prvi
   
 product_summaries:
   - sql_file:  building_footprints_fimpact
     target_table:
-      - publish.srf_48hr_max_inundation_extent_building_footprints_prvi
-      - publish.srf_48hr_max_inundation_extent_counties_prvi
+      - publish.srf_48hr_max_inundation_building_footprints_prvi
+      - publish.srf_48hr_max_inundation_counties_prvi
 
 services:
   - srf_48hr_max_inundation_extent_prvi_noaa
