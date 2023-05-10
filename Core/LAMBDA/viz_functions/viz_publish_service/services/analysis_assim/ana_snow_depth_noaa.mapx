@@ -392,16 +392,59 @@
       "useSourceMetadata" : true,
       "displayField" : "reference_time",
       "editable" : true,
+      "fieldDescriptions" : [
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "oid",
+          "fieldName" : "oid",
+          "numberFormat" : {
+            "type" : "CIMNumericFormat",
+            "alignmentOption" : "esriAlignRight",
+            "alignmentWidth" : 0,
+            "roundingOption" : "esriRoundNumberOfDecimals",
+            "roundingValue" : 0
+          },
+          "readOnly" : true,
+          "visible" : false,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Reference Time",
+          "fieldName" : "reference_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Valid Time",
+          "fieldName" : "valid_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Update Time",
+          "fieldName" : "update_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        }
+      ],
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
         "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6857366675744b576f6b392b6c2f4b4b4966783458536335384e724f65436a59717333384b3131303435576b4c526b332f74426379696f637277393159722f48302a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_snow_depth",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_depth",
-        "oIDFields" : "reference_time",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_depth",
+        "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [
+          {
+            "name" : "oid",
+            "type" : "esriFieldTypeInteger",
+            "alias" : "oid"
+          },
           {
             "name" : "reference_time",
             "type" : "esriFieldTypeString",
