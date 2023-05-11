@@ -9,5 +9,6 @@ JOIN derived.fim4_featureid_crosswalk xwalk
 	ON xwalk.feature_id = rnr.feature_id
 WHERE is_waterbody = 'no'
 	AND is_downstream_of_waterbody = 'no'
+	AND viz_status IN ('Action', 'Minor', 'Moderate', 'Major')
 	AND xwalk.huc8 IS NOT NULL
 	AND xwalk.lake_id = -999;

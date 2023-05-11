@@ -281,7 +281,7 @@ class s3_file:
         # Set the S3 prefix based on the confiuration
         def get_s3_prefix(configuration_name, date):
             if configuration_name == 'replace_route':
-                prefix = f"max_flows/replace_route/{date}/"
+                prefix = f"replace_route/{date}/wrf_hydro/"
             elif configuration_name == 'ahps':
                 prefix = f"max_stage/ahps/{date}/"
             else:

@@ -187,7 +187,7 @@ locals {
     "nwm_forcing_srf_prvi",
     "nwm_channel_mrf_10day",
     "nwm_forcing_mrf",
-    "rnr_max_flows"
+    "rnr_wrf_hydro_output"
   ])
 }
 
