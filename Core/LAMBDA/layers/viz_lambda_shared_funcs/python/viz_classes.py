@@ -223,6 +223,15 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         required_tables = set(re.findall('(?<=FROM |JOIN )\w+\.\w+', sql, flags=re.IGNORECASE))
         if not required_tables:
             return True
+        
+        # This next 3 lines were added specifically to abort checking cache.max_flows_ana when creating 
+        # cache.max_flows_ana_past_hour since cache.max_flow_ana will always be an hour behind at the 
+        # time of creating the past_hour table. Rather than hard-code it, I've left it more generalized 
+        # in case other similar cases come up. But this could ideally be removed once We figure out a 
+        # new method for storing the past hour of max_flows_ana.
+        tables_that_invalidate_check = set(re.findall('(?<=INTO )\w+\.\w*past\w*', sql, flags=re.IGNORECASE))
+        if tables_that_invalidate_check:
+            return True
 
         # Required tables exist and should be checked
         with self.connection as connection:
@@ -267,16 +276,16 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
 
                 # Column 'reference_time' exists
                 # Check if it matches
-                sql = f"SELECT reference_time FROM {schemaname}.{tablename} LIMIT 1"
+                sql = f"SELECT reference_time FROM {table} LIMIT 1"
                 cur.execute(sql)
                 reftime_result = cur.fetchone()
                 if not reftime_result: # table is empty
-                    issues_encountered.append(f'Table {schemaname}.{tablename} is empty.')
+                    issues_encountered.append(f'Table {table} is empty.')
                     continue
             
                 data_reftime = reftime_result[0].replace(" UTC", "")
                 if data_reftime != reference_time: # table reference time matches current reference time
-                    issues_encountered.append(f'Table {schemaname}.{tablename} has unexpected reftime. Expected {reference_time} but found {data_reftime}.')
+                    issues_encountered.append(f'Table {table} has unexpected reftime. Expected {reference_time} but found {data_reftime}.')
                     continue
         
         if issues_encountered:
