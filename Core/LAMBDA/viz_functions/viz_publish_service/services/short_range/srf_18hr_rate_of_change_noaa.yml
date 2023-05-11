@@ -1,5 +1,5 @@
 service: srf_18hr_rate_of_change_noaa
-summary: Short-Range Rate of Change Forecast
+summary: Short-Range 18 Hour Rate of Change Forecast
 description: Depicts expected change in discharge derived from the operational National Water 
   Model (NWM) short-range forecast. Change is computed between the current streamflow and that 
   expected over the next 18 hours at 3-hour intervals, and is only displayed for reaches that 

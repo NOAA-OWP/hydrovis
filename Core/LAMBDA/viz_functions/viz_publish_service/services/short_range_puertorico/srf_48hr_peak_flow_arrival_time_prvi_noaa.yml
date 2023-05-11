@@ -1,5 +1,5 @@
 service: srf_48hr_peak_flow_arrival_time_prvi_noaa
-summary: Short-Range Peak Flow Arrival Time Forecast for Puerto Rico and Virgin Islands
+summary: Short-Range 48 Hour Peak Flow Arrival Time Forecast for Puerto Rico and Virgin Islands
 description: Depicts expected peak flow arrival times derived from the operational National Water Model 
   (NWM) short-range forecast for Puerto Rico and the U.S. Virgin Islands. Shown are reaches that are 
   expected to have flow at or above high water threshold flow over the next 48 hours. Reaches are colored 

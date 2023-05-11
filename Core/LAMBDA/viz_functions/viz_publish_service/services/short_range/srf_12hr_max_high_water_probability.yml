@@ -1,5 +1,5 @@
 service: srf_12hr_max_high_water_probability
-summary: Short-Range High Water Probability Forecast
+summary: Short-Range 12 Hour Maximum High Water Probability Forecast
 description: Depicts the probability of forecast high water over the next 12 hours 
   using a time-lagged ensemble from the short-range forecast of the National Water 
   Model (NWM) over the contiguous U.S. Shown are reaches that are forecast to have 

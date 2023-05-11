@@ -1,5 +1,5 @@
 service: mrf_gfs_5day_rapid_onset_flooding_probability
-summary: Medium-Range GFS Rapid Onset Flooding Probability Forecast
+summary: Medium-Range GFS 5 Day Rapid Onset Flooding Probability Forecast
 description: Depicts the probability of forecast rapid onset flooding over the next 
   10 days using ensembles from the medium-range GFS configuration of the National Water 
   Model (NWM) over the contiguous U.S. Shown are reaches that are expected to have 

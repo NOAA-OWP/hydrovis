@@ -1,5 +1,5 @@
 service: srf_18hr_peak_flow_arrival_time_noaa
-summary: Short-Range Peak Flow Arrival Time Forecast
+summary: Short-Range 18 Hour Peak Flow Arrival Time Forecast
 description: Depicts expected peak flow arrival times derived from the operational National 
   Water Model (NWM) short-range forecast. Shown are reaches that are expected to have flow at 
   or above the high water threshold over the next 18 hours. Reaches are colored by the time at 

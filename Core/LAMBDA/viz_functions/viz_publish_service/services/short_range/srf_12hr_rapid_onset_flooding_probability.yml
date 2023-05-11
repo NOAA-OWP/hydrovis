@@ -1,5 +1,5 @@
 service: srf_12hr_rapid_onset_flooding_probability
-summary: Short-Range Rapid Onset Flooding Probability Forecast
+summary: Short-Range 12 Hour Rapid Onset Flooding Probability Forecast
 description: Depicts the probability of forecast rapid onset flooding over the next 18 
   hours using a time-lagged ensemble from the short-range configuration of the National 
   Water Model (NWM) over the contiguous U.S. Shown are reaches (stream order 4 and below) 

@@ -1,5 +1,5 @@
 service: mrf_gfs_10day_max_high_flow_magnitude
-summary: Medium-Range GFS Maximum High Flow Magnitude Forecast
+summary: Medium-Range GFS 10 Day Maximum High Flow Magnitude Forecast
 description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast over the next 
   3, 5 and 10 days where the NWM is signaling high water. This service is derived from the medium-range GFS 
   configuration of the NWM over the contiguous U.S. Shown are reaches with peak flow at or above high water 

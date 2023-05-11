@@ -1,5 +1,5 @@
 service: mrf_gfs_5day_max_inundation_extent
-summary: Medium-Range GFS Inundation Extent Forecast
+summary: Medium-Range GFS 5 Day Max Inundation Extent Forecast
 description: 'Depicts the inundation extent of the peak National Water Model (NWM) streamflow forecast 
   over the next 5 days where the NWM is signaling high water. This service is derived from 
   the medium-range GFS configuration of the NWM over the contiguous U.S. Shown are reaches with peak flow 

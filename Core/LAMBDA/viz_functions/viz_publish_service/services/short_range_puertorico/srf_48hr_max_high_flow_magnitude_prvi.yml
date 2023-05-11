@@ -1,5 +1,5 @@
 service: srf_48hr_max_high_flow_magnitude_prvi
-summary: Short-Range Maximum High Flow Magnitude Forecast for Puerto Rico and Virgin Islands
+summary: Short-Range 48 Hour Maximum High Flow Magnitude Forecast for Puerto Rico and Virgin Islands
 description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast  
   over the next 48 hours where the NWM is signaling high water. This service is derived from 
   the short-range configuration of the NWM over Puerto Rico and the U.S. Virgin Islands. 

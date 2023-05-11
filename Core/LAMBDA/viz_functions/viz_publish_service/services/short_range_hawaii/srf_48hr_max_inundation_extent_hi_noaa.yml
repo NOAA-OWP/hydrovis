@@ -1,5 +1,5 @@
 service: srf_48hr_max_inundation_extent_hi_noaa
-summary: Short-Range Inundation Extent Forecast for Hawaii
+summary: Short-Range 48 Hour Maximum Inundation Extent Forecast for Hawaii
 description: 'Depicts the inundation extent of the peak National Water Model (NWM) 
   streamflow forecast over the next 48 hours where the NWM is signaling high water. 
   This service is derived from the short-range configuration of the NWM over Hawaii. 

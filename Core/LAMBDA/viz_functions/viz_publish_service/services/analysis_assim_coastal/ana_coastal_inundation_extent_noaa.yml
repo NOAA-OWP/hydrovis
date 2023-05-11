@@ -1,5 +1,5 @@
 service: ana_coastal_inundation_extent
-summary: Coastal Inundation Analysis Extent
+summary: Coastal Inundation Extent Analysis
 description: Depicts the inundation extent of the National Water Model (NWM) total water level forecast.
   This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. 
   Updated hourly.

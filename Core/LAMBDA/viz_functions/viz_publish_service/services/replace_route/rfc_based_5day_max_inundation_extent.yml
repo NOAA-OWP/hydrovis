@@ -1,5 +1,5 @@
 service: rfc_based_5day_max_inundation_extent
-summary: RFC 5-Day Maximum Inundation Forecast
+summary: RFC Based 5-Day Maximum Inundation Forecast
 description: 'Depicts maximum inundation extent over the next 5 days derived from the official River Forecast Center 
   (RFC) forecast routed downstream through the National Water Model (NWM) stream network. Maximum streamflows are 
   available downstream of RFC forecast points whose forecast reaches action status or greater. Updated hourly.'
