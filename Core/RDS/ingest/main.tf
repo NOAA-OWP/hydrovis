@@ -51,6 +51,7 @@ resource "aws_db_instance" "ingest" {
   auto_minor_version_upgrade   = false
   tags = {
     "hydrovis-${var.environment}-data-ingest-rdsdbtag" : "hydrovis-${var.environment}-data-ingest-rdsdbtag"
+    "noaa:monitoring"                                  : "true"
   }
 }
 
