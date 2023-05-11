@@ -52,6 +52,12 @@ def setup_huc_inundation(event):
 
     # Find the sql file, and replace any items in the dictionary
     sql_path = f'data_sql/{fim_config_name}.sql'
+
+    # Checks if all tables references in sql file exist and are updated (if applicable)
+    # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
+    # and invoke a retry
+    process_db.required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+
     sql = open(sql_path, 'r').read().lower()
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)

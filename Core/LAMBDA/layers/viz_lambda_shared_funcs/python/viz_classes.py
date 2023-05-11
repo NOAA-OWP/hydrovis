@@ -2,9 +2,14 @@ import datetime
 import boto3
 import os
 import json
+import re
 import urllib.parse
 import inspect
 from botocore.exceptions import ClientError
+
+
+class RequiredTableNotUpdated(Exception):
+    """ This is a custom exception to report back to the AWS Step Function that a required table does not exist or has not yet been updated with the current reference time. """
 
 ###################################################################################################################################################
 ###################################################################################################################################################
@@ -178,6 +183,107 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         db_engine.execute(f'SELECT * INTO {new_archive_table} FROM publish.{table};')
         db_engine.dispose()
         print(f"---> Wrote cache data into {new_archive_table} and dropped corresponding table from {retention_days} days ago, if it existed.")
+    
+    ###########################################
+    def required_tables_updated(self, sql_path_or_str, sql_replace={}, reference_time=None, stop_on_first_issue=True, raise_if_false=False):
+        """ Determines if tables required by provided SQL path or string are updated as expected
+
+        Args:
+            sql_path_or_str (str): Path to SQL file or raw SQL string
+            sql_replace (dict): Dictionary containing find/replace values for SQL, if applicable
+            reference_time (str): The reference_time that should be compared against for tables that contain a
+                reference_time column. If the table does not contain that column, it is
+                considered to be up to date
+            stop_on_first_issue (bool): If True, the first issue encountered will cause the script to terminate
+                either returning false or raising an exception if raise_if_false is also True. If False, every
+                error will be explored before returning (only useful if raise_if_false is True since the error
+                message will thus contain all relevant failures, rather than just the first.)
+            raise_if_false (bool): If True, a custom RequiredTableNotUpdated exception will be raised
+                if either a table does not exist, or if the reference_time column
+                exists its current value does not match the provided reference_time. The specific
+                details of the failure will be included in the exception message, which will only
+                be the first failure encountered unless stop_on_first_issue is False.
+        
+        Raises:
+            RequiredTableNotUpdated if raise_if_false is True
+        
+        Returns:
+            Bool. True if no issues encountered, False otherwise.
+        """
+        issues_encountered = []
+        # Determine if arg is file or raw SQL string
+        if os.path.exists(sql_path_or_str):
+            sql = open(sql_path_or_str, 'r').read()
+        else:
+            sql = sql_path_or_str
+        
+        for word, replacement in sql_replace.items():
+            sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        
+        required_tables = set(re.findall('(?<=FROM |JOIN )\w+\.\w+', sql, flags=re.IGNORECASE))
+        if not required_tables:
+            return True
+
+        # Required tables exist and should be checked
+        with self.connection as connection:
+            cur = connection.cursor()
+            for table in required_tables:
+                if issues_encountered and stop_on_first_issue:
+                    break
+                schemaname, tablename = table.lower().split('.')
+                sql = f'''
+                    SELECT EXISTS (
+                        SELECT FROM 
+                            pg_tables
+                        WHERE 
+                            schemaname = '{schemaname}' AND 
+                            tablename  = '{tablename}'
+                    );
+                '''
+                cur.execute(sql)
+                table_exists = cur.fetchone()[0]
+
+                if not table_exists:
+                    issues_encountered.append(f'Table {table} does not exist.')
+                    continue
+                
+                # Table exists.
+                if not reference_time:
+                    continue
+                
+                # Reference time provided.
+                # Check if reference_time column exists and if its entry matches
+                sql = f'''
+                    SELECT EXISTS (
+                        SELECT 1 
+                        FROM information_schema.columns 
+                        WHERE table_schema='{schemaname}' AND table_name='{tablename}' AND column_name='reference_time'
+                    );
+                '''
+                cur.execute(sql)
+                reftime_col_exists = cur.fetchone()[0]
+                if not reftime_col_exists:
+                    continue
+
+                # Column 'reference_time' exists
+                # Check if it matches
+                sql = f"SELECT reference_time FROM {schemaname}.{tablename} LIMIT 1"
+                cur.execute(sql)
+                reftime_result = cur.fetchone()
+                if not reftime_result: # table is empty
+                    issues_encountered.append(f'Table {schemaname}.{tablename} is empty.')
+                    continue
+            
+                data_reftime = reftime_result[0].replace(" UTC", "")
+                if data_reftime != reference_time: # table reference time matches current reference time
+                    issues_encountered.append(f'Table {schemaname}.{tablename} has unexpected reftime. Expected {reference_time} but found {data_reftime}.')
+                    continue
+        
+        if issues_encountered:
+            if raise_if_false:
+                raise RequiredTableNotUpdated(' '.join(issues_encountered))
+            return False
+        return True
 
 ###################################################################################################################################################
 ###################################################################################################################################################
