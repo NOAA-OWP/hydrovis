@@ -6,6 +6,10 @@ variable "nwave_ip_block" {
   type = string
 }
 
+variable "transit_gateway_id" {
+  type = string
+}
+
 variable "public_route_peering_ip_block" {
   type = string
 }
@@ -35,14 +39,14 @@ locals {
   }
   public_route_default = {
     cidr_block                = "0.0.0.0/0"
-    gateway_id                = data.aws_vpn_gateway.main.id
+    transit_gateway_id        = var.transit_gateway_id
     vpc_peering_connection_id = ""
   }
   public_routes = var.public_route_peering_ip_block != "" ? [
     local.public_route_default,
     {
       cidr_block                = var.public_route_peering_ip_block
-      gateway_id                = ""
+      transit_gateway_id        = ""
       vpc_peering_connection_id = var.public_route_peering_connection_id
     }
   ] : [local.public_route_default]
@@ -66,17 +70,6 @@ resource "aws_vpc_ipv4_cidr_block_association" "public_cidr" {
   count      = var.environment != "prod" ? 1 : 0
   vpc_id     = aws_vpc.main.id
   cidr_block = var.nwave_ip_block
-}
-
-data "aws_vpn_gateway" "main" {
-  tags = {
-    Name = "hydrovis-${var.environment}-vgw"
-  }
-}
-
-resource "aws_vpn_gateway_attachment" "main" {
-  vpc_id         = aws_vpc.main.id
-  vpn_gateway_id = data.aws_vpn_gateway.main.id
 }
 
 resource "aws_nat_gateway" "hv-pub-nat-gw-a" {
@@ -189,7 +182,7 @@ resource "aws_route_table" "public" {
     for_each = local.public_routes
     content {
       cidr_block                = route.value["cidr_block"]
-      gateway_id                = route.value["gateway_id"]
+      transit_gateway_id        = route.value["transit_gateway_id"]
       vpc_peering_connection_id = route.value["vpc_peering_connection_id"]
     }
   }
