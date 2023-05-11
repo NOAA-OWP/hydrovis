@@ -492,6 +492,7 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+    fim_version = var.fim_version
   }
 
   provisioner "local-exec" {
