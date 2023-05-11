@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS publish.ana_coastal_inundation;
 
 WITH coastal_inundation AS (
-    SELECT * FROM ingest.ana_coastal_pacific
+    SELECT * FROM ingest.ana_coastal_inundation_pacific
     UNION
-    SELECT * FROM ingest.ana_coastal_atlgulf
+    SELECT * FROM ingest.ana_coastal_inundation_atlgulf
 )
 SELECT
     coastal_inundation.*,

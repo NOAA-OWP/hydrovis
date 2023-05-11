@@ -32,6 +32,7 @@ def lambda_handler(event, context):
 def setup_huc_inundation(event):
     fim_config = event['args']['fim_config']
     fim_config_name = fim_config['name']
+    fim_config_sql = fim_config['sql_file']
     target_table = fim_config['target_table']
     product = event['args']['product']['product']
     configuration = event['args']['product']['configuration']
@@ -51,7 +52,7 @@ def setup_huc_inundation(event):
         process_db = viz_db
 
     # Find the sql file, and replace any items in the dictionary
-    sql_path = f'data_sql/{fim_config_name}.sql'
+    sql_path = f'data_sql/{fim_config_sql}.sql'
     sql = open(sql_path, 'r').read().lower()
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)

@@ -441,6 +441,9 @@ class configuration:
                 product_metadata['fim_configs'] = []
             else:
                 for fim_config in product_metadata['fim_configs']:
+                    if not fim_config.get('sql_file'):
+                        fim_config['sql_file'] = fim_config['name']
+
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
