@@ -244,7 +244,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Coastal Inundation Extent",
+      "name" : "18 Hours - Coastal Inundation Extent",
       "uRI" : "CIMPATH=nwm_fim_extent_analysis/schism__coastal_only_.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
@@ -331,7 +331,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select geom,fim_version,huc8,reference_time,update_time,valid_time,oid from hydrovis.services.ana_coastal_inundation",
+          "sqlQuery" : "select geom,fim_version,huc8,reference_time,update_time,valid_time,oid from hydrovis.services.srf_18hr_max_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
