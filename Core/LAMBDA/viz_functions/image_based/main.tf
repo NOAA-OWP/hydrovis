@@ -128,7 +128,7 @@ data "archive_file" "raster_processing_zip" {
       LAMBDA_NAME        = local.viz_raster_processing_lambda_name
       AWS_ACCOUNT_ID     = var.account_id
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_raster_processing_image.name
-      IMAGE_TAG          = "latest"
+      IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
       OUTPUT_BUCKET      = var.raster_output_bucket
       OUTPUT_PREFIX      = var.raster_output_prefix
@@ -243,7 +243,7 @@ data "archive_file" "optimize_rasters_zip" {
       LAMBDA_NAME        = local.viz_optimize_rasters_lambda_name
       AWS_ACCOUNT_ID     = var.account_id
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_optimize_rasters_image.name
-      IMAGE_TAG          = "latest"
+      IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
     })
     filename = "serverless.yml"
@@ -361,7 +361,7 @@ data "archive_file" "hand_fim_processing_zip" {
       LAMBDA_NAME        = local.viz_hand_fim_processing_lambda_name
       AWS_ACCOUNT_ID     = var.account_id
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_hand_fim_processing_image.name
-      IMAGE_TAG          = "latest"
+      IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
       FIM_BUCKET         = var.fim_data_bucket
       FIM_PREFIX         = "fim_${replace(var.fim_version, ".", "_")}"
@@ -494,7 +494,7 @@ data "archive_file" "schism_processing_zip" {
       LAMBDA_NAME        = local.viz_schism_fim_processing_lambda_name
       AWS_ACCOUNT_ID     = var.account_id
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_schism_fim_processing_image.name
-      IMAGE_TAG          = "latest"
+      IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
       MAX_VALS_BUCKET    = var.max_values_bucket
       INPUTS_BUCKET      = var.deployment_bucket
