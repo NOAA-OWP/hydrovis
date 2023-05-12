@@ -1,0 +1,1217 @@
+{
+  "type" : "CIMMapDocument",
+  "version" : "2.7.0",
+  "build" : 26828,
+  "mapDefinition" : {
+    "type" : "CIMMap",
+    "name" : "NWM Short-Range Max High Flow Magnitude Forecast",
+    "uRI" : "CIMPATH=map/map.xml",
+    "sourceModifiedTime" : {
+      "type" : "TimeInstant",
+      "start" : 978307200000
+    },
+    "metadataURI" : "CIMPATH=Metadata/7ba4bd30be7a13d31d7129121cc9508c.xml",
+    "useSourceMetadata" : true,
+    "illumination" : {
+      "type" : "CIMIlluminationProperties",
+      "ambientLight" : 75,
+      "sunPositionX" : -0.61237243569579003,
+      "sunPositionY" : 0.61237243569579003,
+      "sunPositionZ" : 0.5,
+      "illuminationSource" : "AbsoluteSunPosition",
+      "sunAzimuth" : 315,
+      "sunAltitude" : 30,
+      "showStars" : true,
+      "enableAmbientOcclusion" : true,
+      "enableEyeDomeLighting" : true
+    },
+    "layers" : [
+      "CIMPATH=high_flow_magnitude/annual_exceedance_probability.xml"
+    ],
+    "defaultViewingMode" : "Map",
+    "mapType" : "Map",
+    "customFullExtent" : {
+      "rings" : [
+        [
+          [
+            -15224159.214216806,
+            2159597.88073609583
+          ],
+          [
+            -15224159.214216806,
+            7211496.010788572
+          ],
+          [
+            -6228307.88800826389,
+            7211496.010788572
+          ],
+          [
+            -6228307.88800826389,
+            2159597.88073609583
+          ],
+          [
+            -15224159.214216806,
+            2159597.88073609583
+          ]
+        ]
+      ],
+      "spatialReference" : {
+        "wkid" : 102100,
+        "latestWkid" : 3857
+      }
+    },
+    "defaultExtent" : {
+      "xmin" : -14083726.4180133082,
+      "ymin" : 2928713.27846343536,
+      "xmax" : -7101947.50088668987,
+      "ymax" : 6849546.843136563,
+      "spatialReference" : {
+        "wkid" : 102100,
+        "latestWkid" : 3857
+      }
+    },
+    "elevationSurfaces" : [
+      {
+        "type" : "CIMMapElevationSurface",
+        "elevationMode" : "BaseGlobeSurface",
+        "name" : "Ground",
+        "verticalExaggeration" : 1,
+        "mapElevationID" : "{252FDDD5-FFE1-4445-B6DE-42B26FEDFF6E}",
+        "color" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            100
+          ]
+        },
+        "surfaceTINShadingMode" : "Smooth",
+        "visibility" : true,
+        "expanded" : false
+      }
+    ],
+    "generalPlacementProperties" : {
+      "type" : "CIMMaplexGeneralPlacementProperties",
+      "invertedLabelTolerance" : 2,
+      "unplacedLabelColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          0,
+          0,
+          100
+        ]
+      },
+      "keyNumberGroups" : [
+        {
+          "type" : "CIMMaplexKeyNumberGroup",
+          "delimiterCharacter" : ".",
+          "horizontalAlignment" : "Left",
+          "maximumNumberOfLines" : 20,
+          "minimumNumberOfLines" : 2,
+          "name" : "Default",
+          "numberResetType" : "None",
+          "keyNumberMethod" : "PreventUnplacedLabels"
+        }
+      ],
+      "placementQuality" : "High"
+    },
+    "snappingProperties" : {
+      "type" : "CIMSnappingProperties",
+      "xYTolerance" : 10,
+      "xYToleranceUnit" : "SnapXYToleranceUnitPixel",
+      "snapToSketchEnabled" : true,
+      "snapRequestType" : "SnapRequestType_GeometricAndVisualSnapping",
+      "isZSnappingEnabled" : true
+    },
+    "spatialReference" : {
+      "wkid" : 102100,
+      "latestWkid" : 3857
+    },
+    "timeDisplay" : {
+      "type" : "CIMMapTimeDisplay",
+      "defaultTimeIntervalUnits" : "esriTimeUnitsUnknown",
+      "timeValue" : {
+        "type" : "TimeExtent",
+        "start" : null,
+        "end" : null,
+        "empty" : false
+      },
+      "timeRelation" : "esriTimeRelationOverlaps"
+    },
+    "colorModel" : "RGB",
+    "scales" : [
+      {
+        "type" : "CIMScale",
+        "value" : 1000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 5000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 10000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 24000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 50000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 100000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 300000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 500000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 1000000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 2500000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 3000000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 5000000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 20000000
+      },
+      {
+        "type" : "CIMScale",
+        "value" : 100000000
+      }
+    ],
+    "scaleFormat" : {
+      "type" : "CIMScaleFormat",
+      "formatType" : "Absolute",
+      "separator" : ":",
+      "decimalPlacesThreshold" : 100,
+      "decimalPlaces" : 2,
+      "showThousandSeparator" : true,
+      "pageUnitValue" : 1,
+      "equalsSign" : "="
+    },
+    "scaleDisplayFormat" : "Value",
+    "clippingMode" : "None",
+    "nearPlaneClipDistanceMode" : "Automatic",
+    "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+  },
+  "layerDefinitions" : [
+    {
+      "type" : "CIMFeatureLayer",
+      "name" : "18 Hours - Est. Annual Exceedance Probability",
+      "uRI" : "CIMPATH=high_flow_magnitude/annual_exceedance_probability.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant",
+        "start" : 978307200000
+      },
+      "metadataURI" : "CIMPATH=Metadata/8f8fa786a63295385e50df5774cc6a04.xml",
+      "useSourceMetadata" : true,
+      "description" : "hydrovis.hydrovis.Annual Exceedance Probability",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{252FDDD5-FFE1-4445-B6DE-42B26FEDFF6E}"
+      },
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "autoGenerateFeatureTemplates" : true,
+      "featureElevationExpression" : "0",
+      "featureTable" : {
+        "type" : "CIMFeatureTable",
+        "displayField" : "name",
+        "editable" : true,
+        "fieldDescriptions" : [
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWM Feature ID",
+            "fieldName" : "feature_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Name",
+            "fieldName" : "name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Stream Order",
+            "fieldName" : "strm_order",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS HUC6",
+            "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWM Version",
+            "fieldName" : "nwm_vers",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Reference Time",
+            "fieldName" : "reference_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Max Streamflow (cfs)",
+            "fieldName" : "max_flow",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Max Annual Exceed Prob (%)",
+            "fieldName" : "recur_cat",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water Threshold (cfs)",
+            "fieldName" : "high_water_threshold",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "2% Streamflow (cfs)",
+            "fieldName" : "flow_50yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "4% Streamflow (cfs)",
+            "fieldName" : "flow_25yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "10% Streamflow (cfs)",
+            "fieldName" : "flow_10yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "20% Streamflow (cfs)",
+            "fieldName" : "flow_5yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "50% Streamflow (cfs)",
+            "fieldName" : "flow_2yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 2,
+              "useSeparator" : true
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Update Time",
+            "fieldName" : "update_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "oid",
+            "fieldName" : "oid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          }
+        ],
+        "dataConnection" : {
+          "type" : "CIMSqlQueryDataConnection",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68707163494d3771314a5165392f6973324e46675679593430634a4a734f3261586b696c6d4742702b6e78733d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceFactory" : "SDE",
+          "dataset" : "hydrovis.services.%Annual Exceedance Probability_1_1_1",
+          "datasetType" : "esriDTFeatureClass",
+          "sqlQuery" : "select feature_id_str AS feature_id, strm_order, name, huc6, state, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, update_time, geom, oid from hydrovis.services.srf_18hr_max_high_flow_magnitude",
+          "srid" : "3857",
+          "spatialReference" : {
+            "wkid" : 102100,
+            "latestWkid" : 3857
+          },
+          "oIDFields" : "oid",
+          "geometryType" : "esriGeometryPolyline",
+          "queryFields" : [
+            {
+              "name" : "feature_id",
+              "type" : "esriFieldTypeString",
+              "alias" : "feature_id",
+              "length" : 12
+            },
+            {
+              "name" : "strm_order",
+              "type" : "esriFieldTypeInteger",
+              "alias" : "strm_order"
+            },
+            {
+              "name" : "name",
+              "type" : "esriFieldTypeString",
+              "alias" : "name",
+              "length" : 60
+            },
+            {
+              "name" : "huc6",
+              "type" : "esriFieldTypeString",
+              "alias" : "huc6",
+              "length" : 6
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
+            },
+            {
+              "name" : "nwm_vers",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "nwm_vers"
+            },
+            {
+              "name" : "reference_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "reference_time",
+              "length" : 25
+            },
+            {
+              "name" : "max_flow",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "max_flow"
+            },
+            {
+              "name" : "recur_cat",
+              "type" : "esriFieldTypeString",
+              "alias" : "recur_cat",
+              "length" : 3
+            },
+            {
+              "name" : "high_water_threshold",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "high_water_threshold"
+            },
+            {
+              "name" : "flow_2yr",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "flow_2yr"
+            },
+            {
+              "name" : "flow_5yr",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "flow_5yr"
+            },
+            {
+              "name" : "flow_10yr",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "flow_10yr"
+            },
+            {
+              "name" : "flow_25yr",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "flow_25yr"
+            },
+            {
+              "name" : "flow_50yr",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "flow_50yr"
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 25
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolyline",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
+            },
+            {
+              "name" : "oid",
+              "type" : "esriFieldTypeInteger",
+              "alias" : "oid"
+            }
+          ],
+          "spatialStorageType" : 8
+        },
+        "studyAreaSpatialRel" : "esriSpatialRelUndefined",
+        "searchOrder" : "esriSearchOrderSpatial"
+      },
+      "htmlPopupEnabled" : true,
+      "selectable" : true,
+      "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
+      "displayFiltersType" : "ByScale",
+      "featureBlendingMode" : "Alpha",
+      "labelClasses" : [
+        {
+          "type" : "CIMLabelClass",
+          "expression" : "$feature.Name",
+          "expressionEngine" : "Arcade",
+          "featuresToLabel" : "AllVisibleFeatures",
+          "maplexLabelPlacementProperties" : {
+            "type" : "CIMMaplexLabelPlacementProperties",
+            "featureType" : "Line",
+            "avoidPolygonHoles" : true,
+            "canOverrunFeature" : true,
+            "canPlaceLabelOutsidePolygon" : true,
+            "canRemoveOverlappingLabel" : true,
+            "canStackLabel" : true,
+            "connectionType" : "MinimizeLabels",
+            "constrainOffset" : "AboveLine",
+            "contourAlignmentType" : "Page",
+            "contourLadderType" : "Straight",
+            "contourMaximumAngle" : 90,
+            "enableConnection" : true,
+            "featureWeight" : 0,
+            "fontHeightReductionLimit" : 4,
+            "fontHeightReductionStep" : 0.5,
+            "fontWidthReductionLimit" : 90,
+            "fontWidthReductionStep" : 5,
+            "graticuleAlignmentType" : "Straight",
+            "keyNumberGroupName" : "Default",
+            "labelBuffer" : 15,
+            "labelLargestPolygon" : true,
+            "labelPriority" : -1,
+            "labelStackingProperties" : {
+              "type" : "CIMMaplexLabelStackingProperties",
+              "stackAlignment" : "ChooseBest",
+              "maximumNumberOfLines" : 3,
+              "minimumNumberOfCharsPerLine" : 3,
+              "maximumNumberOfCharsPerLine" : 24,
+              "separators" : [
+                {
+                  "type" : "CIMMaplexStackingSeparator",
+                  "separator" : " ",
+                  "splitAfter" : true
+                },
+                {
+                  "type" : "CIMMaplexStackingSeparator",
+                  "separator" : ",",
+                  "visible" : true,
+                  "splitAfter" : true
+                }
+              ]
+            },
+            "lineFeatureType" : "General",
+            "linePlacementMethod" : "OffsetStraightFromLine",
+            "maximumLabelOverrun" : 16,
+            "maximumLabelOverrunUnit" : "Point",
+            "minimumFeatureSizeUnit" : "Map",
+            "multiPartOption" : "OneLabelPerFeature",
+            "offsetAlongLineProperties" : {
+              "type" : "CIMMaplexOffsetAlongLineProperties",
+              "placementMethod" : "BestPositionAlongLine",
+              "labelAnchorPoint" : "CenterOfLabel",
+              "distanceUnit" : "Map",
+              "useLineDirection" : true
+            },
+            "pointExternalZonePriorities" : {
+              "type" : "CIMMaplexExternalZonePriorities",
+              "aboveLeft" : 4,
+              "aboveCenter" : 2,
+              "aboveRight" : 1,
+              "centerRight" : 3,
+              "belowRight" : 5,
+              "belowCenter" : 7,
+              "belowLeft" : 8,
+              "centerLeft" : 6
+            },
+            "pointPlacementMethod" : "AroundPoint",
+            "polygonAnchorPointType" : "GeometricCenter",
+            "polygonBoundaryWeight" : 0,
+            "polygonExternalZones" : {
+              "type" : "CIMMaplexExternalZonePriorities",
+              "aboveLeft" : 4,
+              "aboveCenter" : 2,
+              "aboveRight" : 1,
+              "centerRight" : 3,
+              "belowRight" : 5,
+              "belowCenter" : 7,
+              "belowLeft" : 8,
+              "centerLeft" : 6
+            },
+            "polygonFeatureType" : "General",
+            "polygonInternalZones" : {
+              "type" : "CIMMaplexInternalZonePriorities",
+              "center" : 1
+            },
+            "polygonPlacementMethod" : "CurvedInPolygon",
+            "primaryOffset" : 1,
+            "primaryOffsetUnit" : "Point",
+            "removeExtraWhiteSpace" : true,
+            "repetitionIntervalUnit" : "Map",
+            "rotationProperties" : {
+              "type" : "CIMMaplexRotationProperties",
+              "rotationType" : "Arithmetic",
+              "alignmentType" : "Straight"
+            },
+            "secondaryOffset" : 100,
+            "strategyPriorities" : {
+              "type" : "CIMMaplexStrategyPriorities",
+              "stacking" : 1,
+              "overrun" : 2,
+              "fontCompression" : 3,
+              "fontReduction" : 4,
+              "abbreviation" : 5
+            },
+            "thinningDistanceUnit" : "Point",
+            "truncationMarkerCharacter" : ".",
+            "truncationMinimumLength" : 1,
+            "truncationPreferredCharacters" : "aeiou",
+            "polygonAnchorPointPerimeterInsetUnit" : "Point"
+          },
+          "name" : "Class 1",
+          "priority" : -1,
+          "standardLabelPlacementProperties" : {
+            "type" : "CIMStandardLabelPlacementProperties",
+            "featureType" : "Line",
+            "featureWeight" : "None",
+            "labelWeight" : "High",
+            "numLabelsOption" : "OneLabelPerName",
+            "lineLabelPosition" : {
+              "type" : "CIMStandardLineLabelPosition",
+              "above" : true,
+              "inLine" : true,
+              "parallel" : true
+            },
+            "lineLabelPriorities" : {
+              "type" : "CIMStandardLineLabelPriorities",
+              "aboveStart" : 3,
+              "aboveAlong" : 3,
+              "aboveEnd" : 3,
+              "centerStart" : 3,
+              "centerAlong" : 3,
+              "centerEnd" : 3,
+              "belowStart" : 3,
+              "belowAlong" : 3,
+              "belowEnd" : 3
+            },
+            "pointPlacementMethod" : "AroundPoint",
+            "pointPlacementPriorities" : {
+              "type" : "CIMStandardPointPlacementPriorities",
+              "aboveLeft" : 2,
+              "aboveCenter" : 2,
+              "aboveRight" : 1,
+              "centerLeft" : 3,
+              "centerRight" : 2,
+              "belowLeft" : 3,
+              "belowCenter" : 3,
+              "belowRight" : 2
+            },
+            "rotationType" : "Arithmetic",
+            "polygonPlacementMethod" : "AlwaysHorizontal"
+          },
+          "textSymbol" : {
+            "type" : "CIMSymbolReference",
+            "symbol" : {
+              "type" : "CIMTextSymbol",
+              "blockProgression" : "TTB",
+              "depth3D" : 1,
+              "extrapolateBaselines" : true,
+              "fontEffects" : "Normal",
+              "fontEncoding" : "Unicode",
+              "fontFamilyName" : "Tahoma",
+              "fontStyleName" : "Regular",
+              "fontType" : "Unspecified",
+              "haloSize" : 1,
+              "height" : 10,
+              "hinting" : "Default",
+              "horizontalAlignment" : "Left",
+              "kerning" : true,
+              "letterWidth" : 100,
+              "ligatures" : true,
+              "lineGapType" : "ExtraLeading",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        0,
+                        0,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              },
+              "textCase" : "Normal",
+              "textDirection" : "LTR",
+              "verticalAlignment" : "Bottom",
+              "verticalGlyphOrientation" : "Right",
+              "wordSpacing" : 100,
+              "billboardMode3D" : "FaceNearPlane"
+            }
+          },
+          "useCodedValue" : true,
+          "visibility" : true,
+          "iD" : -1
+        }
+      ],
+      "renderer" : {
+        "type" : "CIMUniqueValueRenderer",
+        "visualVariables" : [
+          {
+            "type" : "CIMSizeVisualVariable",
+            "authoringInfo" : {
+              "type" : "CIMVisualVariableAuthoringInfo",
+              "minSliderValue" : 1,
+              "maxSliderValue" : 10,
+              "heading" : "Strm_Order"
+            },
+            "randomMax" : 1,
+            "minSize" : 0.33000000000000002,
+            "maxSize" : 2,
+            "minValue" : 1,
+            "maxValue" : 10,
+            "valueRepresentation" : "Radius",
+            "variableType" : "Graduated",
+            "valueShape" : "Unknown",
+            "axis" : "HeightAxis",
+            "normalizationType" : "Nothing",
+            "valueExpressionInfo" : {
+              "type" : "CIMExpressionInfo",
+              "title" : "Custom",
+              "expression" : "$feature.Strm_Order",
+              "returnType" : "Default"
+            }
+          }
+        ],
+        "colorRamp" : {
+          "type" : "CIMRandomHSVColorRamp",
+          "colorSpace" : {
+            "type" : "CIMICCColorSpace",
+            "url" : "Default RGB"
+          },
+          "maxH" : 360,
+          "minS" : 15,
+          "maxS" : 30,
+          "minV" : 99,
+          "maxV" : 100,
+          "minAlpha" : 100,
+          "maxAlpha" : 100
+        },
+        "defaultLabel" : "<all other values>",
+        "defaultSymbol" : {
+          "type" : "CIMSymbolReference",
+          "symbol" : {
+            "type" : "CIMLineSymbol",
+            "symbolLayers" : [
+              {
+                "type" : "CIMSolidStroke",
+                "enable" : true,
+                "capStyle" : "Round",
+                "joinStyle" : "Round",
+                "lineStyle3D" : "Strip",
+                "miterLimit" : 10,
+                "width" : 1,
+                "color" : {
+                  "type" : "CIMRGBColor",
+                  "values" : [
+                    130,
+                    130,
+                    130,
+                    100
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "defaultSymbolPatch" : "Default",
+        "fields" : [
+          "recur_cat"
+        ],
+        "groups" : [
+          {
+            "type" : "CIMUniqueValueGroup",
+            "classes" : [
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "2%   ",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMRGBColor",
+                          "values" : [
+                            204,
+                            51,
+                            255,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "2"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "4% ",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMRGBColor",
+                          "values" : [
+                            230,
+                            0,
+                            169,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "4"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "label" : "10%  ",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMHSVColor",
+                          "values" : [
+                            0,
+                            100,
+                            100,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "10"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "label" : "20%   ",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMHSVColor",
+                          "values" : [
+                            36,
+                            100,
+                            100,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "20"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "50%",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMHSVColor",
+                          "values" : [
+                            60,
+                            100,
+                            100,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "50"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "> 50% AND > High Water Threshold",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMHSVColor",
+                          "values" : [
+                            209.24000000000001,
+                            51.07,
+                            91.370000000000005,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      ">50"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "Insufficient Data",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMRGBColor",
+                          "values" : [
+                            204,
+                            204,
+                            204,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "Not Availa"
+                    ]
+                  }
+                ],
+                "visible" : true
+              }
+            ],
+            "heading" : "Annual Exceedance Probability"
+          }
+        ],
+        "polygonSymbolColorTarget" : "Fill"
+      },
+      "scaleSymbols" : true,
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing"
+      }
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/7ba4bd30be7a13d31d7129121cc9508c.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20180518</CreaDate><CreaTime>09141800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACFAMgDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\n/9k=</Data></Thumbnail></Binary></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/8f8fa786a63295385e50df5774cc6a04.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220302</CreaDate><CreaTime>21065900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    }
+  ]
+}

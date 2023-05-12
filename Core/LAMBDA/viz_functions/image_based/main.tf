@@ -90,6 +90,14 @@ data "archive_file" "raster_processing_zip" {
   output_path = "${path.module}/viz_raster_processing_${var.environment}.zip"
 
   dynamic "source" {
+    for_each = fileset("${path.module}/viz_raster_processing/products", "*")
+    content {
+      content  = file("${path.module}/viz_raster_processing/products/${source.key}")
+      filename = "products/${source.key}"
+    }
+  }
+
+  dynamic "source" {
     for_each = fileset("${path.module}/viz_raster_processing", "*")
     content {
       content  = file("${path.module}/viz_raster_processing/${source.key}")

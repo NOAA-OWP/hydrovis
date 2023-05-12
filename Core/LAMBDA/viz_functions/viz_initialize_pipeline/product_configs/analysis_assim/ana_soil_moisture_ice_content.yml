@@ -14,4 +14,4 @@ postprocess_sql:
     target_table: publish.ana_soil_moisture_ice_content
 
 services:
-  - ana_soil_moisture_ice_content
+  - ana_soil_moisture_ice_content_noaa

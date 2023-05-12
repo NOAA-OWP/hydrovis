@@ -1,0 +1,20 @@
+service: srf_12hr_max_high_water_probability
+summary: Short-Range 12 Hour Maximum High Water Probability Forecast
+description: Depicts the probability of forecast high water over the next 12 hours 
+  using a time-lagged ensemble from the short-range forecast of the National Water 
+  Model (NWM) over the contiguous U.S. Shown are reaches that are forecast to have 
+  flow at or above high water within the next 12 hours of at least one of the last 
+  7 forecasts. Reaches are colored by the probability that they will meet or exceed 
+  the high water threshold across the last 7 forecasts. Probabilities are derived 
+  by counting the number of forecasts that meet the high water condition within the 
+  next 12 hours, equally weighted. Also shown are USGS HUC10 polygons for basins 
+  with greater than 50% of NWM features with flow expected to be at or above high 
+  water over the next 12 hours, symbolized by the average probability. High water 
+  thresholds (regionally varied) were derived using the 40-year NWM v2.1 reanalysis 
+  simulation. Updated hourly.
+tags: short, range, forecast, high, water, national, water, model, nwm, probability
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

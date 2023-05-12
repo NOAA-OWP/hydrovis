@@ -1,0 +1,14 @@
+service: srf_18hr_max_high_flow_magnitude
+summary: Short-Range 18 Hour Maximum High Flow Magnitude Forecast
+description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast 
+  over the next 18 hours where the NWM is signaling high water. This service is derived from 
+  the short-range configuration of the NWM over the contiguous U.S. Shown are reaches with peak 
+  flow at or above high water thresholds. Reaches are colored by the annual exceedance probability 
+  (AEP) of their forecast peak flow. High water thresholds (regionally varied) and AEPs were 
+  derived using the 40-year NWM v2.1 reanalysis simulation. Updated hourly.
+tags: high flow, magnitude, national water model, nwm, srf, short, range, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

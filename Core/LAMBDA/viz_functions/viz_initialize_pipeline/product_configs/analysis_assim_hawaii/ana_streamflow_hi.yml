@@ -22,4 +22,4 @@ postprocess_sql:
     target_table: publish.ana_streamflow_hi
 
 services:
-  - ana_streamflow_hi
+  - ana_streamflow_hi_noaa

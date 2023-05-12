@@ -1,0 +1,11 @@
+service: srf_48hr_accum_precip_hi_noaa
+summary: NAM-NEST NWP Short-Range Accumulated Precipitation for Hawaii
+description: 'Depicts expected accumulated precipitation totals over the next 48 hours derived from the NAM-Nest with 
+  HIRESW WRF-ARW forcing for the operational National Water Model (NWM) short-range forecast for the state of Hawaii. 
+  Updated every 12 hours.'
+tags: nam-nest, nwp, accumulated, precipitation, national, water, model, nwm, hawaii, hi, precip
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false

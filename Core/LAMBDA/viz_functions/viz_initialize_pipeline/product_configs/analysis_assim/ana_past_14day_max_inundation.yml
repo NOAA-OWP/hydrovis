@@ -64,4 +64,4 @@ product_summaries:
       - publish.ana_past_14day_max_inundation_hucs
 
 services:
-  - ana_past_14day_max_inundation
+  - ana_past_14day_max_inundation_extent_noaa

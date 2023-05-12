@@ -1,0 +1,9 @@
+service: static_public_fim_domain
+summary: Domain for Public FIM
+description: Depicts the domain where the NWC FIM will be made public. Shown are the WFO domains within the public fim domain. 
+tags: national water model, nws, fim, reference, fim, inundation
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: false

@@ -256,9 +256,9 @@ class viz_lambda_pipeline:
 # A configuration defines the data sources that a set of services require to run, and is primarily used to define the ingest files that must be
 # compiled before various service data can be generated. A particular reference_time is always associted with a configuration.
 # Example Configurations:
-#   - short_range - A NWM short_range forecast... used for services like srf_max_high_flow_magnitude, srf_high_water_arrival_time, srf_max_inundation, etc.
-#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_max_high_flow_magnitude, mrf_high_water_arrival_time, mrf_max_inundation, etc.
-#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_stage service data.
+#   - short_range - A NWM short_range forecast... used for services like srf_18hr_max_high_flow_magnitude, srf_18hr_high_water_arrival_time, srf_48hr_max_inundation, etc.
+#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_gfs_10day_max_high_flow_magnitude, mrf_gfs_10day_high_water_arrival_time, mrf_gfs_max_inundation, etc.
+#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_forecast service data.
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
@@ -441,6 +441,9 @@ class configuration:
                 product_metadata['fim_configs'] = []
             else:
                 for fim_config in product_metadata['fim_configs']:
+                    if not fim_config.get('sql_file'):
+                        fim_config['sql_file'] = fim_config['name']
+
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
