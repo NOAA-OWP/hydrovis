@@ -320,6 +320,7 @@ module "viz_lambda_functions" {
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
+  default_tags                   = local.env.tags
 }
 
 # Simple Service Notifications
@@ -339,7 +340,7 @@ module "step_functions" {
   hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id] 
+  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id]
 }
 
 # Simple Service Notifications
