@@ -41,6 +41,7 @@ SELECT channels.feature_id,
     high_flow_mag.flow_10yr,
     high_flow_mag.flow_25yr,
     high_flow_mag.flow_50yr,
+    high_flow_mag.flow_100yr,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
 INTO publish.srf_48hr_max_high_flow_magnitude_prvi
