@@ -279,15 +279,11 @@
               }
             ],
             "Next": "Map",
-            "ResultPath": "$.output_rasters",
-            "ResultSelector": {
-              "output_rasters.$": "$.Payload.output_rasters",
-              "output_bucket.$": "$.Payload.output_bucket"
-            }
+            "OutputPath": "$.Payload"
           },
           "Map": {
             "Type": "Map",
-            "Next": "Product Postprocessing",
+            "Next": "Clean Up State Input",
             "Iterator": {
               "StartAt": "Optimize Rasters",
               "States": {
@@ -322,6 +318,16 @@
               "output_bucket.$": "$.output_rasters.output_bucket"
             },
             "ResultPath": null
+          },
+          "Clean Up State Input": {
+            "Type": "Pass",
+            "Next": "Product Postprocessing",
+            "Parameters": {
+              "job_type.$": "$.job_type",
+              "reference_time.$": "$.reference_time",
+              "product.$": "$.product",
+              "sql_rename_dict.$": "$.sql_rename_dict"
+            }
           },
           "Product Postprocessing": {
             "Type": "Map",

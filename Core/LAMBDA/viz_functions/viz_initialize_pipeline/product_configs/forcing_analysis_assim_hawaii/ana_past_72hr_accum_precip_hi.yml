@@ -3,7 +3,7 @@ configuration: forcing_analysis_assim_hawaii
 product_type: "raster"
 run: true
 
-raster_input_files:
+raster_files:
   product_file: past_72hr_accum_precip
   file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/forcing_analysis_assim_hawaii/nwm.t{{datetime:%H}}z.analysis_assim.forcing.tm00.hawaii.nc
   file_step: 1H

@@ -11,11 +11,11 @@ OUTPUT_PREFIX = os.environ['OUTPUT_PREFIX']
 def lambda_handler(event, context):
     product_name = event['product']['product']
 
-    file_pattern = event['product']['raster_input_files']['file_format']
-    file_step = event['product']['raster_input_files']['file_step']
-    file_window = event['product']['raster_input_files']['file_window']
-    product_file = event['product']['raster_input_files']['product_file']
-    bucket = event['product']['raster_input_files']['bucket']
+    file_pattern = event['product']['raster_files']['file_format']
+    file_step = event['product']['raster_files']['file_step']
+    file_window = event['product']['raster_files']['file_window']
+    product_file = event['product']['raster_files']['product_file']
+    bucket = event['product']['raster_files']['bucket']
     reference_time = event['reference_time']
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
 
@@ -31,10 +31,17 @@ def lambda_handler(event, context):
 
     uploaded_rasters = func(product_name, bucket, input_files, reference_time)
         
-    return {
+    event['output_rasters'] = {
         "output_rasters": uploaded_rasters,
         "output_bucket": OUTPUT_BUCKET
     }
+
+    event['product']['raster_files'] = {
+        "output_raster_workspace": os.path.dirname(uploaded_rasters[0]),
+        "output_bucket": OUTPUT_BUCKET
+    }
+
+    return event
 
 def open_raster(bucket, file, variable):
     download_path = check_if_file_exists(bucket, file, download=True)

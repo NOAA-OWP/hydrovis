@@ -434,8 +434,8 @@ class configuration:
                 if pipeline_run_time not in all_run_times:
                     continue
             
-            if product_metadata.get("raster_input_files"):
-                product_metadata['raster_input_files']['bucket'] = self.input_bucket
+            if product_metadata.get("raster_files"):
+                product_metadata['raster_files']['bucket'] = self.input_bucket
             
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
