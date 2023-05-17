@@ -1,8 +1,8 @@
 import boto3
 import os
-from viz_classes import database
+from viz_classes import database, s3_file
 from viz_lambda_shared_funcs import gen_dict_extract
-from datetime import datetime
+from datetime import datetime, timedelta
 
 ###################################
 def lambda_handler(event, context):
@@ -19,6 +19,7 @@ def lambda_handler(event, context):
     
     ################### Unstage EGIS Tables ###################
     if step == "unstage" and job_type != "past_event":
+        print(f"Unstaging tables for {event['args']['product']['product']}")
         target_tables = list(gen_dict_extract("target_table", event['args']))
         all_single_tables = [table for table in target_tables if type(table) is not list]
         all_list_tables = [table for table in target_tables if type(table) is list]
@@ -29,10 +30,11 @@ def lambda_handler(event, context):
         dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
 
         egis_db = database(db_type="egis")
-        unstage_db_tables(egis_db, dest_tables)
+        #unstage_db_tables(egis_db, dest_tables)
 
         ################### Move Rasters ###################
         if event['args']['product']['raster_outputs'].get('output_raster_workspaces'):
+            print(f"Moving and caching rasters for {event['args']['product']['product']}")
             s3 = boto3.resource('s3')
             output_raster_workspaces = [workspace for config, workspace in event['args']['product']['raster_outputs']['output_raster_workspaces'].items()]
             mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
@@ -41,6 +43,7 @@ def lambda_handler(event, context):
             s3_bucket = event['args']['product']['raster_outputs']['output_bucket']
             
             for output_raster_workspace in output_raster_workspaces:
+                print(f"Moving and caching rasters in {output_raster_workspace}")
                 output_raster_workspace = f"{output_raster_workspace}/tif"
                     
                 # Getting any sub configs such as fim_configs
@@ -190,10 +193,14 @@ def list_s3_files(bucket, prefix):
     files = []
     paginator = s3.get_paginator('list_objects_v2')
     for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
+        if not result['KeyCount']:
+            continue
+        
         for key in result['Contents']:
             # Skip folders
             if not key['Key'].endswith('/'):
                 files.append(key['Key'])
-    if len(files) == 0:
-        raise Exception("No Files Found.")
+
+    if not files:
+        print(f"No files found at {bucket}/{prefix}")
     return files
