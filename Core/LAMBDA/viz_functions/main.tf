@@ -82,6 +82,10 @@ variable "sns_topics" {
   type        = map(any)
 }
 
+variable "nws_shared_account_nwm_sns" {
+  type = string
+}
+
 variable "email_sns_topics" {
   description = "SnS topics"
   type        = map(any)
@@ -403,6 +407,19 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.sns_topics["${each.value}"].arn
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  topic_arn = var.nws_shared_account_nwm_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.nws_shared_account_nwm_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {

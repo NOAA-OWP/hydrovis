@@ -237,8 +237,6 @@ module "sns" {
   source = "./SNS"
 
   environment                = local.env.environment
-  nwm_data_bucket            = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_values_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }
@@ -300,6 +298,7 @@ module "viz_lambda_functions" {
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   sns_topics                     = module.sns.sns_topics
+  nws_shared_account_nwm_sns     = local.env.nws_shared_account_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda_layers.es_logging.arn
   xarray_layer                   = module.lambda_layers.xarray.arn
@@ -424,6 +423,7 @@ module "ingest_lambda_functions" {
   backup_hml_bucket_arn       = module.s3.buckets["hml-backup"].arn
   lambda_subnet_ids           = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
   lambda_security_group_ids   = [module.security-groups.hydrovis-nat-sg.id]
+  nws_shared_account_hml_sns  = local.env.nws_shared_account_hml_sns
 }
 
 
