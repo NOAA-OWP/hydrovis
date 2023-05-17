@@ -75,6 +75,15 @@
             "Retry": [
               {
                 "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
+              {
+                "ErrorEquals": [
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException"
@@ -152,6 +161,15 @@
             "Retry": [
               {
                 "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
+              {
+                "ErrorEquals": [
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException"
@@ -194,6 +212,15 @@
               }
             },
             "Retry": [
+              {
+                "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
               {
                 "ErrorEquals": [
                   "Lambda.ServiceException",
@@ -350,7 +377,7 @@
                       "BackoffRate": 1,
                       "IntervalSeconds": 30,
                       "MaxAttempts": 20,
-                      "Comment": "Required Table Not Ran Yet (postprocess_sql.dependent_on_db_tables)"
+                      "Comment": "Required table(s) not yet updated as expected"
                     },
                     {
                       "ErrorEquals": [
@@ -472,6 +499,15 @@
                   "Retry": [
                     {
                       "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
+                    {
+                      "ErrorEquals": [
                         "Lambda.ServiceException",
                         "Lambda.AWSLambdaException",
                         "Lambda.SdkClientException"
@@ -583,6 +619,15 @@
                   "Retry": [
                     {
                       "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
+                    {
+                      "ErrorEquals": [
                         "Lambda.ServiceException",
                         "Lambda.AWSLambdaException",
                         "Lambda.SdkClientException"
@@ -652,6 +697,15 @@
                     }
                   },
                   "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
                     {
                       "ErrorEquals": [
                         "Lambda.ServiceException",
