@@ -30,7 +30,7 @@ def lambda_handler(event, context):
         unstage_db_tables(egis_db, dest_tables)
 
         ################### Move Rasters ###################
-        if event['args']['product'].get('raster_outputs'):
+        if event['args']['product']['raster_outputs'].get('output_raster_workspaces'):
             s3 = boto3.resource('s3')
             output_raster_workspaces = [workspace for config, workspace in event['args']['product']['raster_outputs']['output_raster_workspaces'].items()]
             mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
