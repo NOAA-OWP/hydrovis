@@ -2,7 +2,7 @@ import boto3
 import os
 from viz_classes import database
 from viz_lambda_shared_funcs import gen_dict_extract
-from datetime import datetime, timedelta
+from datetime import datetime
 
 ###################################
 def lambda_handler(event, context):
@@ -10,6 +10,8 @@ def lambda_handler(event, context):
     step = event['step']
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
+    reference_date = reference_time.strftime('%Y%m%d')
+    reference_hour_min = reference_time.strftime('%H%M')
     
     # Don't want to run for reference products because they already exist in the EGIS DB
     if event['args']['product']['configuration'] == "reference":
@@ -40,13 +42,22 @@ def lambda_handler(event, context):
             
             for output_raster_workspace in output_raster_workspaces:
                 output_raster_workspace = f"{output_raster_workspace}/tif"
+                    
+                # Getting any sub configs such as fim_configs
+                product_sub_config = output_raster_workspace.split(product_name,1)[1]
+                product_sub_config = product_sub_config.split(reference_date,1)[0][1:-1]
+                processing_prefix = output_raster_workspace.split(reference_date,1)[0][:-1]
+
+                if product_sub_config:
+                    cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}/{product_sub_config}"
+                else:
+                    cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}"
+    
                 workspace_rasters = list_s3_files(s3_bucket, output_raster_workspace)
                 for s3_key in workspace_rasters:
                     s3_object = {"Bucket": s3_bucket, "Key": s3_key}
-                    
-                    processing_prefix = s3_key.split(product_name,1)[0]
-                    cache_path = s3_key.split(product_name, 1)[1].replace('/workspace/tif', '')
-                    cache_key = f"{processing_prefix}{product_name}/cache{cache_path}"
+                    s3_filename = os.path.basename(s3_key)
+                    cache_key = f"{cache_path}/{s3_filename}"
         
                     print(f"Caching {s3_key} at {cache_key}")
                     s3.meta.client.copy(s3_object, s3_bucket, cache_key)
@@ -54,9 +65,9 @@ def lambda_handler(event, context):
                     print("Deleting tif workspace raster")
                     s3.Object(s3_bucket, s3_key).delete()
         
-                    raster_name = os.path.basename(s3_key).replace(".tif", "")
+                    raster_name = s3_filename.replace(".tif", "")
                     mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
-                    published_prefix = f"{processing_prefix}{product_name}/published/{raster_name}"
+                    published_prefix = f"{processing_prefix}/published/{raster_name}"
                     
                     for extension in mrf_extensions:
                         mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
