@@ -32,6 +32,7 @@ def lambda_handler(event, context):
 def setup_huc_inundation(event):
     fim_config = event['args']['fim_config']
     fim_config_name = fim_config['name']
+    fim_config_sql = fim_config['sql_file']
     target_table = fim_config['target_table']
     product = event['args']['product']['product']
     configuration = event['args']['product']['configuration']

@@ -1,0 +1,17 @@
+product: ana_snow_water_equivalent
+configuration: analysis_assim
+product_type: "raster"
+run: true
+
+raster_input_files:
+  product_file: ana_snow_water_equivalent
+  file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.land.tm00.conus.nc
+  file_step: None
+  file_window: None
+      
+postprocess_sql:
+  - sql_file: ana_snow_water_equivalent
+    target_table: publish.ana_snow_water_equivalent
+
+services:
+  - ana_snow_water_equivalent_noaa

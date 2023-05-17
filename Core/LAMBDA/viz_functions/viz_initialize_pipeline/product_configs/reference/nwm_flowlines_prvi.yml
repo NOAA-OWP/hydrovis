@@ -1,7 +1,0 @@
-product: nwm_flowlines_prvi
-configuration: reference
-product_type: "vector"
-run: true
-
-services:
-  - nwm_flowlines_prvi

@@ -15,22 +15,23 @@ s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')
 
 service_dict = {
-    "branch_0_catchments": "fim_catchments",
-    "branch_0_catchments_hi": "fim_catchments",
-    "branch_0_catchments_prvi": "fim_catchments",
-    "branch_gms_catchments": "fim_catchments",
-    "branch_gms_catchments_hi": "fim_catchments",
-    "branch_gms_catchments_prvi": "fim_catchments",
-    "nwm_flowlines": "reference",
-    "nwm_flowlines_hi": "reference",
-    "nwm_flowlines_prvi": "reference",
-    "possible_coastal_omission": "reference",
-    "nwm_waterbodies": "reference",
-    "fim_performance": "reference",
-    "flow_based_catfim": "reference",
-    "stage_based_catfim": "reference",
-    "nwm_aep_fim": "aep_fim",
-    "src_skill": "reference"
+    "static_hand_catchments_0_branches_noaa": "fim_catchments",
+    "static_hand_catchments_0_branches_hi_noaa": "fim_catchments",
+    "static_hand_catchments_0_branches_prvi_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_hi_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_prvi_noaa": "fim_catchments",
+    "static_nwm_flowlines": "reference",
+    "static_nwm_flowlines_hi": "reference",
+    "static_nwm_flowlines_prvi": "reference",
+    "static_nwm_coastal_domain_noaa": "reference",
+    "static_nwm_waterbodies": "reference",
+    "static_nwm_waterbodies_hi": "reference",
+    "static_hand_inundation_performance_metrics_noaa": "reference",
+    "flow_based_catfim_noaa": "reference",
+    "stage_based_catfim_noaa": "reference",
+    "static_nwm_aep_inundation_extent_library_noaa": "aep_fim",
+    "static_hand_rating_curve_performance_metrics_noaa": "reference"
 }
 
 

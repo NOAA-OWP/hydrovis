@@ -1,0 +1,9 @@
+service: static_nwm_waterbodies_prvi
+summary: NWM Waterbodies for Puerto Rico and Virgin Islands
+description: Depicts the waterbodies for the National Water Model within Puerto Rico and Virgin Islands
+tags: national water model, nws, fim, reference, waterbodies, puertorico, prvi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: true

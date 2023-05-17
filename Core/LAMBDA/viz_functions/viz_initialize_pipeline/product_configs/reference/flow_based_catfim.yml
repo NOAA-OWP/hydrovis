@@ -4,4 +4,4 @@ product_type: "vector"
 run: true
 
 services:
-  - flow_based_catfim
+  - flow_based_catfim_noaa

@@ -1,0 +1,9 @@
+service: static_hand_catchments_0_branches_noaa
+summary: FIM catchment boundaries for branch 0
+description: Depicts the catchment boundaries for FIM HAND branch 0 datasets for CONUS
+tags: fim, inundation, national water model, nwm, reference, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: fim_libs
+feature_service: false
+public_service: false

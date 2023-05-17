@@ -14,4 +14,4 @@ postprocess_sql:
     target_table: publish.ana_snow_depth
 
 services:
-  - ana_snow_depth
+  - ana_snow_depth_noaa

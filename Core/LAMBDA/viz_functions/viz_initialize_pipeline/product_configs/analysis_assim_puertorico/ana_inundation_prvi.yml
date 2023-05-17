@@ -32,4 +32,4 @@ product_summaries:
       - publish.ana_inundation_counties_prvi
 
 services:
-  - ana_inundation_prvi
+  - ana_inundation_extent_prvi_noaa

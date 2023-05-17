@@ -42,6 +42,7 @@ fim_configs:  # (OPTIONAL) List of fim configurations to run
   - name: fim_config_1 # (REQUIRED) Name of the fim configuration
     target_table: ingest.inundation  # (REQUIRED) Name of the DB table where the fileset will be imported
     fim_type: hand  # (REQUIRED) hand or coastal indicating the type of fim config being ran
+    sql_file: fim_data_prep_sql_file_name  # (OPTIONAL) Name of the fim data prep sql file
     preprocess:  # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
       - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.nc # (REQUIRED) File path to data with regex type format for dynamic handling
         file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
