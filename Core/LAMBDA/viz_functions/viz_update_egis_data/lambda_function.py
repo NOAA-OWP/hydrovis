@@ -30,7 +30,7 @@ def lambda_handler(event, context):
         dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
 
         egis_db = database(db_type="egis")
-        #unstage_db_tables(egis_db, dest_tables)
+        unstage_db_tables(egis_db, dest_tables)
 
         ################### Move Rasters ###################
         if event['args']['product']['raster_outputs'].get('output_raster_workspaces'):
