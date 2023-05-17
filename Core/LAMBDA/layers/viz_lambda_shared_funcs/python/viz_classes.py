@@ -257,10 +257,12 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                     continue
                 
                 # Table exists.
-                if not reference_time:
+
+                if not reference_time or any(x in table for x in ['past', 'ahps']):
                     continue
                 
                 # Reference time provided.
+                
                 # Check if reference_time column exists and if its entry matches
                 sql = f'''
                     SELECT EXISTS (
@@ -273,8 +275,9 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 reftime_col_exists = cur.fetchone()[0]
                 if not reftime_col_exists:
                     continue
-
+                
                 # Column 'reference_time' exists
+                
                 # Check if it matches
                 sql = f"SELECT reference_time FROM {table} LIMIT 1"
                 cur.execute(sql)
