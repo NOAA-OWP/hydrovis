@@ -37,9 +37,10 @@ provider "aws" {
 module "iam-roles" {
   source = "./IAM/Roles"
 
-  environment = local.env.environment
-  account_id  = local.env.account_id
-  region      = local.env.region
+  environment                   = local.env.environment
+  account_id                    = local.env.account_id
+  region                        = local.env.region
+  nws_shared_account_s3_bucket  = local.env.nws_shared_account_s3_bucket
 }
 
 # IAM Users
