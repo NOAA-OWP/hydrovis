@@ -288,7 +288,6 @@ module "viz_lambda_functions" {
   account_id                     = local.env.account_id
   region                         = local.env.region
   viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
-  nwm_data_bucket                = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket                = module.s3.buckets["deployment"].bucket
   fim_output_bucket              = module.s3.buckets["fim"].bucket
   max_values_bucket              = module.s3.buckets["fim"].bucket
@@ -603,7 +602,7 @@ module "viz_ec2" {
   dataservices_ip             = module.data-services.dataservices-ip
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
-  nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
+  nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
   nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket

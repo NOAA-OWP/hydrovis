@@ -18,11 +18,6 @@ variable "viz_authoritative_bucket" {
   type        = string
 }
 
-variable "nwm_data_bucket" {
-  description = "S3 bucket where the NWM forecast data will live."
-  type        = string
-}
-
 variable "fim_data_bucket" {
   description = "S3 bucket where the FIM data will live."
   type        = string
