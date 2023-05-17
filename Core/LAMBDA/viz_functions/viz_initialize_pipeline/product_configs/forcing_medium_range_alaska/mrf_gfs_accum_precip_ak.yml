@@ -3,7 +3,7 @@ configuration: forcing_medium_range_alaska
 product_type: "raster"
 run: false
 
-raster_files:
+raster_input_files:
   product_file: 10day_accum_precip
   file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/forcing_medium_range_alaska/nwm.t{{datetime:%H}}z.medium_range.forcing.f{{range:1,241,1,%03d}}.alaska.nc
   file_step: None

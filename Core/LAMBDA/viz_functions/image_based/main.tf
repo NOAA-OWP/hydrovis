@@ -183,16 +183,6 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
       name  = "DEPLOYMENT_BUCKET"
       value = var.deployment_bucket
     }
-
-    environment_variable {
-      name  = "OUTPUT_BUCKET"
-      value = var.raster_output_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUT_PREFIX"
-      value = var.raster_output_prefix
-    }
   }
 
   source {

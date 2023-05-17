@@ -32,7 +32,7 @@ db_max_flows: # (OPTIONAL) List of max_flows to run in the database directly
     method: lambda # (REQUIRED) Database or lambda function
     max_flows_sql_file: max_flows_file.sql # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
 
-raster_files:  # (OPTIONAL) List of fim configurations to run
+raster_input_files:  # (OPTIONAL) List of fim configurations to run
   product_file: raster_processing_product  # (REQUIRED) Name of the product file used for processing
   file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.nc # (REQUIRED) File path to data with regex type format for dynamic handling
   file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc

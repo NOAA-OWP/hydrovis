@@ -5,17 +5,17 @@ from rasterio.crs import CRS
 from datetime import datetime
 from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
 
-OUTPUT_BUCKET = os.environ['OUTPUT_BUCKET']
-OUTPUT_PREFIX = os.environ['OUTPUT_PREFIX']
 
 def lambda_handler(event, context):
     product_name = event['product']['product']
 
-    file_pattern = event['product']['raster_files']['file_format']
-    file_step = event['product']['raster_files']['file_step']
-    file_window = event['product']['raster_files']['file_window']
-    product_file = event['product']['raster_files']['product_file']
-    bucket = event['product']['raster_files']['bucket']
+    file_pattern = event['product']['raster_input_files']['file_format']
+    file_step = event['product']['raster_input_files']['file_step']
+    file_window = event['product']['raster_input_files']['file_window']
+    product_file = event['product']['raster_input_files']['product_file']
+    input_bucket = event['product']['raster_input_files']['bucket']
+    output_bucket = event['product']['raster_outputs']['output_bucket']
+    output_workspace = event['product']['raster_outputs']['output_raster_workspaces'][product_name]
     reference_time = event['reference_time']
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
 
@@ -29,16 +29,11 @@ def lambda_handler(event, context):
     except AttributeError:
         raise Exception(f'product_file not found for {product_file}')
 
-    uploaded_rasters = func(product_name, bucket, input_files, reference_time)
+    uploaded_rasters = func(product_name, input_bucket, input_files, reference_time, output_bucket, output_workspace)
         
     event['output_rasters'] = {
         "output_rasters": uploaded_rasters,
-        "output_bucket": OUTPUT_BUCKET
-    }
-
-    event['product']['raster_files'] = {
-        "output_raster_workspace": os.path.dirname(uploaded_rasters[0]),
-        "output_bucket": OUTPUT_BUCKET
+        "output_bucket": output_bucket
     }
 
     return event
@@ -71,8 +66,8 @@ def open_raster(bucket, file, variable):
     
     return [data, crs]
 
-def create_raster(data, crs):
-    print(f"Creating raster for {data.name}")
+def create_raster(data, crs, raster_name):
+    print(f"Creating raster for {raster_name}")
     data.rio.write_crs(crs, inplace=True)
     data.rio.write_nodata(0, inplace=True)
     
@@ -82,24 +77,22 @@ def create_raster(data, crs):
     if "_FillValue" in data.attrs:
         data.attrs.pop("_FillValue")
 
-    local_raster = f'/tmp/{data.name}.tif'
+    local_raster = f'/tmp/{raster_name}.tif'
 
     print(f"Saving raster to {local_raster}")
     data.rio.to_raster(local_raster)
     
     return local_raster
 
-def upload_raster(reference_time, local_raster, product_name, raster_name):
-    reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
-    date = reference_date.strftime("%Y%m%d")
-    hour = reference_date.strftime("%H")
+def upload_raster(local_raster, output_bucket, output_workspace):
+    raster_name = os.path.basename(local_raster)
     
-    s3_raster_key = f"{OUTPUT_PREFIX}/{product_name}/{date}/{hour}/workspace/tif/{raster_name}.tif"
+    s3_raster_key = f"{output_workspace}/tif/{raster_name}"
     
-    print(f"--> Uploading raster to s3://{OUTPUT_BUCKET}/{s3_raster_key}")
+    print(f"--> Uploading raster to s3://{output_bucket}/{s3_raster_key}")
     s3 = boto3.client('s3')
     
-    s3.upload_file(local_raster, OUTPUT_BUCKET, s3_raster_key)
+    s3.upload_file(local_raster, output_bucket, s3_raster_key)
     os.remove(local_raster)
 
     return s3_raster_key

@@ -2,7 +2,7 @@ import sys
 sys.path.append("../utils")
 from lambda_function import open_raster, create_raster, upload_raster
 
-def main(product_name, data_bucket, input_files, reference_time):
+def main(product_name, data_bucket, input_files, reference_time, output_bucket, output_workspace):
     reversed_input_files = sorted(input_files, reverse=True)
 
     ### 72-HOUR SNOW WATER EQUIVALENT CHANGE
@@ -28,9 +28,9 @@ def main(product_name, data_bucket, input_files, reference_time):
         swe_difference = swe_present_nan - swe_past_nan
         data = swe_difference.round(2)
 
-        local_raster = create_raster(data, crs)
-        raster_name = f"ana_past_{change[hour]}hr_snow_water_equivalent_change"
-        uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
+        local_raster = create_raster(data, crs, f"ana_past_{change[hour]}hr_snow_water_equivalent_change")
+
+        uploaded_raster = upload_raster(local_raster, output_bucket, output_workspace)
         all_uploaded_rasters.append(uploaded_raster)
 
     return all_uploaded_rasters

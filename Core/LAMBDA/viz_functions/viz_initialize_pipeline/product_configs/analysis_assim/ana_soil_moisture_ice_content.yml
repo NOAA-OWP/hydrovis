@@ -3,7 +3,7 @@ configuration: analysis_assim
 product_type: "raster"
 run: true
 
-raster_files:
+raster_input_files:
   product_file: ana_soil_moisture_ice_content
   file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.land.tm00.conus.nc
   file_step: None

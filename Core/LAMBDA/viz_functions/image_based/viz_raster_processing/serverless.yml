@@ -13,7 +13,4 @@ functions:
     memorySize: 2560
     timeout: 900
     ephemeralStorageSize: 1024
-    environment:
-      OUTPUT_BUCKET: ${env:OUTPUT_BUCKET}
-      OUTPUT_PREFIX: ${env:OUTPUT_PREFIX}
 
