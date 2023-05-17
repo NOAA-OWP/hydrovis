@@ -14,14 +14,6 @@ variable "deployment_bucket" {
   type = string
 }
 
-variable "raster_output_bucket" {
-  type = string
-}
-
-variable "raster_output_prefix" {
-  type = string
-}
-
 variable "lambda_role" {
   type = string
 }
@@ -39,10 +31,6 @@ variable "ecr_repository_image_tag" {
 }
 
 variable "fim_version" {
-  type = string
-}
-
-variable "max_values_bucket" {
   type = string
 }
 
@@ -601,21 +589,6 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
     environment_variable {
       name  = "INPUTS_PREFIX"
       value = "schism_fim"
-    }
-
-    environment_variable {
-      name  = "MAX_VALS_BUCKET"
-      value = var.max_values_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUTS_BUCKET"
-      value = var.raster_output_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUTS_PREFIX"
-      value = "processing_outputs"
     }
 
     environment_variable {
