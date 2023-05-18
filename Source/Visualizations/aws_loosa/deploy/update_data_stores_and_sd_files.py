@@ -30,8 +30,8 @@ service_dict = {
     "static_nwm_waterbodies_prvi": "reference",
     "static_public_fim_domain": "reference",
     "static_hand_inundation_performance_metrics_noaa": "reference",
-    "flow_based_catfim_noaa": "reference",
-    "stage_based_catfim_noaa": "reference",
+    "static_flow_based_catfim_noaa": "reference",
+    "static_stage_based_catfim_noaa": "reference",
     "static_nwm_aep_inundation_extent_library_noaa": "aep_fim",
     "static_hand_rating_curve_performance_metrics_noaa": "reference"
 }
