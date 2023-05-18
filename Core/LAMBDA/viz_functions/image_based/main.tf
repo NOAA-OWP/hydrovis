@@ -118,8 +118,6 @@ data "archive_file" "raster_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_raster_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
-      OUTPUT_BUCKET      = var.raster_output_bucket
-      OUTPUT_PREFIX      = var.raster_output_prefix
     })
     filename = "serverless.yml"
   }
@@ -487,8 +485,6 @@ data "archive_file" "schism_processing_zip" {
       MAX_VALS_BUCKET    = var.max_values_bucket
       INPUTS_BUCKET      = var.deployment_bucket
       INPUTS_PREFIX      = "schism_fim"
-      OUTPUTS_BUCKET     = var.raster_output_bucket
-      OUTPUTS_PREFIX     = "processing_outputs"
       VIZ_DB_DATABASE    = var.viz_db_name
       VIZ_DB_HOST        = var.viz_db_host
       VIZ_DB_PASSWORD    = jsondecode(var.viz_db_user_secret_string)["password"]
