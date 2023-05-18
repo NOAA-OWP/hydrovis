@@ -443,6 +443,8 @@ class configuration:
     def get_product_metadata(self, specific_products=None, run_only=True):
         all_product_metadata = []
         pipeline_run_time = self.reference_time.strftime("%H:%M")
+        pipeline_run_date = self.reference_time.strftime("%Y%m%d")
+        pipeline_run_hour = self.reference_time.strftime("%H")
         
         product_configs_dir = os.path.join('product_configs', self.name)
         configuration_product_ymls = os.listdir(product_configs_dir)
@@ -451,6 +453,7 @@ class configuration:
 
             product_stream = open(yml_path, 'r')
             product_metadata = yaml.safe_load(product_stream)
+            product_name = product_metadata['product']
             
             if product_metadata.get("run_times"):
                 all_run_times = []
@@ -465,17 +468,31 @@ class configuration:
             
             if product_metadata.get("raster_input_files"):
                 product_metadata['raster_input_files']['bucket'] = self.input_bucket
+
+            raster_output_bucket = os.environ['RASTER_OUTPUT_BUCKET']
+            raster_output_prefix = os.environ['RASTER_OUTPUT_PREFIX']
+            product_metadata['raster_outputs'] = {}
+            product_metadata['raster_outputs']['output_raster_workspaces'] = {}
+            if product_metadata['product_type'] == "raster":
+                product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
+                product_metadata['raster_outputs']['output_raster_workspaces'][product_name] = f"{raster_output_prefix}/{product_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"
             
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
             else:
                 for fim_config in product_metadata['fim_configs']:
+                    fim_config_name = fim_config['name']
                     if not fim_config.get('sql_file'):
-                        fim_config['sql_file'] = fim_config['name']
+                        fim_config['sql_file'] = fim_config_name
 
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
+
+                    if fim_config['fim_type'] == "coastal":
+                        if not product_metadata['raster_outputs'].get('output_bucket'):
+                            product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
+                        product_metadata['raster_outputs']['output_raster_workspaces'][fim_config_name] = f"{raster_output_prefix}/{product_name}/{fim_config_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"
             
             if not product_metadata.get("postprocess_sql"):
                 product_metadata['postprocess_sql'] = []

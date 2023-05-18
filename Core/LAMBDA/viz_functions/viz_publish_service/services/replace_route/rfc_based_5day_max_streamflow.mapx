@@ -340,10 +340,10 @@
           "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow_rfc_points",
           "datasetType" : "esriDTFeatureClass",
           "sqlQuery" : "select nws_lid,usgs_sitecode,nws_name,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow_rfc_points",
-          "srid" : "4326",
+          "srid" : "3857",
           "spatialReference" : {
-            "wkid" : 4326,
-            "latestWkid" : 4326
+            "wkid" : 3857,
+            "latestWkid" : 3857
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPoint",
@@ -376,8 +376,8 @@
                 "hasM" : false,
                 "hasZ" : false,
                 "spatialReference" : {
-                  "wkid" : 4326,
-                  "latestWkid" : 4326
+                  "wkid" : 3857,
+                  "latestWkid" : 3857
                 }
               }
             },
@@ -932,13 +932,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "State",
-            "fieldName" : "state",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -1023,7 +1016,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, state, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1089,12 +1082,6 @@
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
               "length" : 6
-            },
-            {
-              "name" : "state",
-              "type" : "esriFieldTypeString",
-              "alias" : "state",
-              "length" : 2
             },
             {
               "name" : "update_time",
@@ -1757,13 +1744,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "State",
-            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },

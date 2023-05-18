@@ -2,7 +2,7 @@ import sys
 sys.path.append("../utils")
 from lambda_function import open_raster, create_raster, upload_raster
 
-def main(product_name, data_bucket, input_files, reference_time):
+def main(product_name, data_bucket, input_files, reference_time, output_bucket, output_workspace):
     # assign variables
     reversed_input_files = sorted(input_files, reverse=True)
     variable = "SNEQV"
@@ -27,8 +27,8 @@ def main(product_name, data_bucket, input_files, reference_time):
     make_snow_difference = snow_difference.where(snow_difference > 0, snow_difference, 0)
 
     # finalize raster
-    local_raster = create_raster(make_snow_difference, crs)
-    raster_name = product_name
-    uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
+    local_raster = create_raster(make_snow_difference, crs, product_name)
+
+    uploaded_raster = upload_raster(local_raster, output_bucket, output_workspace)
 
     return [uploaded_raster]

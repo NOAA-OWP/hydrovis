@@ -27,9 +27,11 @@ service_dict = {
     "static_nwm_coastal_domain_noaa": "reference",
     "static_nwm_waterbodies": "reference",
     "static_nwm_waterbodies_hi": "reference",
+    "static_nwm_waterbodies_prvi": "reference",
+    "static_public_fim_domain": "reference",
     "static_hand_inundation_performance_metrics_noaa": "reference",
-    "flow_based_catfim_noaa": "reference",
-    "stage_based_catfim_noaa": "reference",
+    "static_flow_based_catfim_noaa": "reference",
+    "static_stage_based_catfim_noaa": "reference",
     "static_nwm_aep_inundation_extent_library_noaa": "aep_fim",
     "static_hand_rating_curve_performance_metrics_noaa": "reference"
 }
@@ -169,7 +171,8 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
         layerCIM = layer.getDefinition('V2')
 
         if layer.isRasterLayer:
-            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}\\{service_name}\\published"
+            current_s3_workspace = layerCIM.dataConnection.workspaceConnectionString
+            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}{current_s3_workspace.split('acs')[1]}"
             layerCIM.dataConnection.workspaceConnectionString = new_s3_workspace
         else:
             new_query = f"select * from hydrovis.{schema}.{service_name}"

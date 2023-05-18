@@ -271,7 +271,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "fim_version",
+        "displayField" : "huc8",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -285,13 +285,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Valid Time",
-            "fieldName" : "valid_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -331,7 +324,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select geom,fim_version,huc8,reference_time,update_time,valid_time,oid from hydrovis.services.srf_18hr_max_coastal_inundation",
+          "sqlQuery" : "select geom,huc8,reference_time,update_time,oid from hydrovis.services.srf_18hr_max_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -366,12 +359,6 @@
               }
             },
             {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 10
-            },
-            {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
@@ -387,12 +374,6 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 25
-            },
-            {
-              "name" : "valid_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "valid_time",
               "length" : 25
             },
             {
@@ -415,7 +396,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.fim_version",
+          "expression" : "$feature.huc8",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {

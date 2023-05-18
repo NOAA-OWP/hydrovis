@@ -185,7 +185,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         print(f"---> Wrote cache data into {new_archive_table} and dropped corresponding table from {retention_days} days ago, if it existed.")
     
     ###########################################
-    def required_tables_updated(self, sql_path_or_str, sql_replace={}, reference_time=None, stop_on_first_issue=True, raise_if_false=False):
+    def check_required_tables_updated(self, sql_path_or_str, sql_replace={}, reference_time=None, stop_on_first_issue=True, raise_if_false=False):
         """ Determines if tables required by provided SQL path or string are updated as expected
 
         Args:

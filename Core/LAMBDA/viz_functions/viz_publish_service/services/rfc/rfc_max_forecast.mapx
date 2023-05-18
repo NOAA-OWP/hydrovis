@@ -26,7 +26,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=rfc_max_stage_forecast/max_status___forecast_trend.xml",
+      "CIMPATH=rfc_max_forecast_forecast/max_status___forecast_trend.xml",
       "CIMPATH=ahps_max_stage_forecast/maximum_status___forecast_trend.xml"
     ],
     "defaultViewingMode" : "Map",
@@ -182,7 +182,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Max Status - Forecast Trend",
-      "uRI" : "CIMPATH=rfc_max_stage_forecast/max_status___forecast_trend.xml",
+      "uRI" : "CIMPATH=rfc_max_forecast_forecast/max_status___forecast_trend.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -506,7 +506,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,state,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
+          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2652,7 +2652,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_stage",
+          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,nwm_feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,unit,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

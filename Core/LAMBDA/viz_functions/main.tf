@@ -370,6 +370,8 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       DATA_BUCKET_UPLOAD    = var.fim_data_bucket
       MAX_VALS_DATA_BUCKET  = var.max_values_bucket
       RNR_DATA_BUCKET       = var.rnr_data_bucket
+      RASTER_OUTPUT_BUCKET  = var.fim_output_bucket
+      RASTER_OUTPUT_PREFIX  = local.raster_output_prefix
       INGEST_FLOW_THRESHOLD = local.ingest_flow_threshold
       VIZ_DB_DATABASE       = var.viz_db_name
       VIZ_DB_HOST           = var.viz_db_host
@@ -760,15 +762,13 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
 module "image_based_lambdas" {
   source = "./image_based"
 
-  environment                 = var.environment
-  account_id                  = var.account_id
-  region                      = var.region
-  deployment_bucket           = var.deployment_bucket
-  max_values_bucket           = var.max_values_bucket
-  raster_output_bucket        = var.fim_output_bucket
-  raster_output_prefix        = local.raster_output_prefix
-  lambda_role                 = var.lambda_role
-  hand_fim_processing_sgs     = var.db_lambda_security_groups
+  environment = var.environment
+  account_id  = var.account_id
+  region      = var.region
+  deployment_bucket = var.deployment_bucket
+  max_values_bucket = var.max_values_bucket
+  lambda_role = var.lambda_role
+  hand_fim_processing_sgs = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets
   ecr_repository_image_tag    = local.ecr_repository_image_tag
   fim_version                 = var.fim_version

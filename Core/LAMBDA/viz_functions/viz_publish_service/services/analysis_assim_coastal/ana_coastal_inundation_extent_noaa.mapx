@@ -271,7 +271,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "fim_version",
+        "displayField" : "huc8",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -331,7 +331,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select geom,fim_version,huc8,reference_time,update_time,valid_time,oid from hydrovis.services.ana_coastal_inundation",
+          "sqlQuery" : "select geom,huc8,reference_time,update_time,valid_time,oid from hydrovis.services.ana_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -364,12 +364,6 @@
                   "latestWkid" : 3857
                 }
               }
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 10
             },
             {
               "name" : "huc8",
@@ -415,7 +409,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.fim_version",
+          "expression" : "$feature.huc8",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
