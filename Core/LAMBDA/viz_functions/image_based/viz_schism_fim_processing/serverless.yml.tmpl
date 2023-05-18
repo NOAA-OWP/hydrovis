@@ -1,0 +1,32 @@
+service: ${SERVICE_NAME}
+provider:
+  stackTags: ${LAMBDA_TAGS}
+  name: aws
+  deploymentBucket: 
+    name: ${DEPLOYMENT_BUCKET}
+    serverSideEncryption: AES256
+  region: ${AWS_DEFAULT_REGION}
+functions:
+  lambda: 
+    name: ${LAMBDA_NAME}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}
+    role: ${LAMBDA_ROLE_ARN}
+    memorySize: 5000
+    timeout: 900
+    ephemeralStorageSize: 2048
+    environment:
+      MAX_VALS_BUCKET: ${MAX_VALS_BUCKET}
+      INPUTS_BUCKET: ${INPUTS_BUCKET}
+      INPUTS_PREFIX: ${INPUTS_PREFIX}
+      OUTPUTS_BUCKET: ${OUTPUTS_BUCKET}
+      OUTPUTS_PREFIX: ${OUTPUTS_PREFIX}
+      VIZ_DB_DATABASE: ${VIZ_DB_DATABASE}
+      VIZ_DB_HOST: ${VIZ_DB_HOST}
+      VIZ_DB_PASSWORD: ${VIZ_DB_PASSWORD}
+      VIZ_DB_USERNAME: ${VIZ_DB_USERNAME}
+    vpc:
+      securityGroupIds:
+        - ${SECURITY_GROUP_1}
+      subnetIds:
+        - ${SUBNET_1}
+        - ${SUBNET_2}
