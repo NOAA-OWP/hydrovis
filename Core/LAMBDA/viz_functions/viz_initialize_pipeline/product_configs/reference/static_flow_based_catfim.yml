@@ -1,7 +1,7 @@
-product: flow_based_catfim
+product: static_flow_based_catfim
 configuration: reference
 product_type: "vector"
 run: true
 
 services:
-  - flow_based_catfim_noaa
+  - static_flow_based_catfim_noaa
