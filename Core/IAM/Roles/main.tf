@@ -10,6 +10,10 @@ variable "region" {
   type = string
 }
 
+variable "nws_shared_account_s3_bucket" {
+  type = string
+}
+
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
@@ -114,9 +118,10 @@ resource "aws_iam_role_policy" "hydrovis-viz-proc-pipeline-lambda" {
   name   = "hydrovis-viz-proc-pipeline-lambda"
   role   = aws_iam_role.hydrovis-viz-proc-pipeline-lambda.id
   policy = templatefile("${path.module}/hydrovis-viz-proc-pipeline-lambda.json.tftpl", {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
+    environment                   = var.environment
+    account_id                    = var.account_id
+    region                        = var.region
+    nws_shared_account_s3_bucket  = var.nws_shared_account_s3_bucket
   })
 }
 
@@ -198,9 +203,10 @@ resource "aws_iam_role_policy" "hydrovis-hml-ingest-role" {
   name   = "hydrovis-hml-ingest-role"
   role   = aws_iam_role.hydrovis-hml-ingest-role.id
   policy = templatefile("${path.module}/hydrovis-hml-ingest-role.json.tftpl", {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
+    environment                   = var.environment
+    account_id                    = var.account_id
+    region                        = var.region
+    nws_shared_account_s3_bucket  = var.nws_shared_account_s3_bucket
   })
 }
 
