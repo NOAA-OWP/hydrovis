@@ -282,17 +282,6 @@ resource "aws_sns_topic_subscription" "email-targets" {
 ## Event Notifications ##
 #########################
 
-resource "aws_s3_bucket_notification" "nwm_max_values_bucket_notification" {
-  bucket = var.nwm_max_values_data_bucket
-
-  topic {
-    topic_arn     = resource.aws_sns_topic.sns_topics["nwm_max_values"].arn
-    events        = ["s3:ObjectCreated:*"]
-    filter_prefix = "max_values/"
-    filter_suffix = "max_values.nc"
-  }
-}
-
 resource "aws_s3_bucket_notification" "rnr_max_flows_bucket_notification" {
   bucket = var.rnr_max_flows_data_bucket
 
