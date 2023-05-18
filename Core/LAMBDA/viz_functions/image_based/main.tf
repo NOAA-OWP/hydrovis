@@ -14,6 +14,10 @@ variable "deployment_bucket" {
   type = string
 }
 
+variable "max_values_bucket" {
+  type = string
+}
+
 variable "lambda_role" {
   type = string
 }
@@ -63,7 +67,7 @@ variable "egis_db_user_secret_string" {
 }
 
 variable "default_tags" {
-  type = string
+  type = map(string)
 }
 
 locals {
