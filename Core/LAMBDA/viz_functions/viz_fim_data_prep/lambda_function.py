@@ -52,7 +52,7 @@ def setup_huc_inundation(event):
         process_db = viz_db
 
     # Find the sql file, and replace any items in the dictionary
-    sql_path = f'data_sql/{fim_config_name}.sql'
+    sql_path = f'data_sql/{fim_config_sql}.sql'
 
     # Checks if all tables references in sql file exist and are updated (if applicable)
     # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
