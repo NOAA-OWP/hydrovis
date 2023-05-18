@@ -33,6 +33,35 @@ class DuplicatePipelineException(Exception):
     """ my custom exception class """
 
 def lambda_handler(event, context):
+    # First, for SNS triggers, check SNS message and only continue if it's a pipeline-initializing file.
+    # S3 event filtering doesn't support wildcards, so with the switch to the shared S3 bucket, we needed to add this since all files are now triggering this lambda
+    # (lots of false starts, but it only amounts to about $1 a month)
+    # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
+    if "Records" in event:
+        pipeline_iniitializing_files = ["analysis_assim.channel_rt.tm00.conus.nc",
+                                        "analysis_assim.forcing.tm00.conus.nc",
+                                        "analysis_assim.channel_rt.tm0000.hawaii.nc",
+                                        "analysis_assim.forcing.tm00.hawaii.nc",
+                                        "analysis_assim.channel_rt.tm00.puertorico.nc",
+                                        "analysis_assim.forcing.tm00.puertorico.nc",
+                                        "short_range.channel_rt.f018.conus.nc",
+                                        "short_range.forcing.f018.conus.nc",
+                                        "short_range.channel_rt.f04800.hawaii.nc",
+                                        "short_range.forcing.f048.hawaii.nc",
+                                        "short_range.channel_rt.f048.puertorico.nc",
+                                        "short_range.forcing.f048.puertorico.nc",
+                                        "medium_range.channel_rt_1.f072.conus.nc",
+                                        "medium_range.channel_rt_1.f120.conus.nc",
+                                        "medium_range.channel_rt_1.f240.conus.nc",
+                                        "medium_range.forcing.f240.conus.nc"]
+        s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
+        if s3_event.get('Records')[0].get('s3').get('object').get('key'):
+            s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
+            if any(suffix in s3_key for suffix in pipeline_iniitializing_files) == False:
+                return
+            else:
+                print(f"Continuing pipeline initialization with Shared Bucket S3 key: {s3_key}")
+    
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:

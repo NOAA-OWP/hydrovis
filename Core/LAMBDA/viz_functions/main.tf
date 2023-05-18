@@ -18,11 +18,6 @@ variable "viz_authoritative_bucket" {
   type        = string
 }
 
-variable "nwm_data_bucket" {
-  description = "S3 bucket where the NWM forecast data will live."
-  type        = string
-}
-
 variable "fim_data_bucket" {
   description = "S3 bucket where the FIM data will live."
   type        = string
@@ -75,6 +70,10 @@ variable "db_lambda_subnets" {
 variable "sns_topics" {
   description = "SnS topics"
   type        = map(any)
+}
+
+variable "nws_shared_account_nwm_sns" {
+  type = string
 }
 
 variable "email_sns_topics" {
@@ -158,25 +157,7 @@ locals {
   raster_output_prefix = "processing_outputs"
   ecr_repository_image_tag = "latest"
 
-  max_flows_subscriptions = toset([
-    "nwm_channel_ana"
-  ])
-
   initialize_pipeline_subscriptions = toset([
-    "nwm_channel_ana",
-    "nwm_forcing_ana",
-    "nwm_channel_ana_hi",
-    "nwm_forcing_ana_hi",
-    "nwm_channel_ana_prvi",
-    "nwm_forcing_ana_prvi",
-    "nwm_channel_srf",
-    "nwm_forcing_srf",
-    "nwm_channel_srf_hi",
-    "nwm_forcing_srf_hi",
-    "nwm_channel_srf_prvi",
-    "nwm_forcing_srf_prvi",
-    "nwm_channel_mrf_10day",
-    "nwm_forcing_mrf",
     "rnr_max_flows"
   ])
 }
@@ -330,31 +311,6 @@ resource "aws_lambda_function" "viz_max_flows" {
   }
 }
 
-resource "aws_sns_topic_subscription" "max_flows_subscriptions" {
-  for_each  = local.max_flows_subscriptions
-  topic_arn = var.sns_topics["${each.value}"].arn
-  protocol  = "lambda"
-  endpoint  = resource.aws_lambda_function.viz_max_flows.arn
-}
-
-resource "aws_lambda_permission" "max_flows_permissions" {
-  for_each      = local.max_flows_subscriptions
-  action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.viz_max_flows.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = var.sns_topics["${each.value}"].arn
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_max_flows" {
-  function_name          = resource.aws_lambda_function.viz_max_flows.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
-}
-
 #############################
 ##   Initialize Pipeline   ##
 #############################
@@ -421,6 +377,19 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.sns_topics["${each.value}"].arn
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  topic_arn = var.nws_shared_account_nwm_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.nws_shared_account_nwm_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {

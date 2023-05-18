@@ -75,6 +75,11 @@ variable "lambda_security_group_ids" {
   type = list(string)
 }
 
+variable "nws_shared_account_hml_sns" {
+  type = string
+}
+
+
 locals {
   mq_vhost = {
     "dev" : "development",
@@ -143,33 +148,32 @@ resource "aws_lambda_function" "hml_reciever" {
   }
 }
 
-resource "aws_lambda_permission" "primary_bucket_permissions" {
-  action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.hml_reciever.function_name
-  principal     = "s3.amazonaws.com"
-  source_arn    = var.primary_hml_bucket_arn
+################################
+## Shared Account SNS Trigger ##
+################################
+
+resource "aws_sns_topic_subscription" "shared_account_hml_sns_trigger" {
+  topic_arn = var.nws_shared_account_hml_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.hml_reciever.arn
 }
 
-resource "aws_lambda_permission" "backup_bucket_permissions" {
+resource "aws_lambda_permission" "shared_account_hml_sns_permission" {
   action        = "lambda:InvokeFunction"
   function_name = resource.aws_lambda_function.hml_reciever.function_name
-  principal     = "s3.amazonaws.com"
-  source_arn    = var.backup_hml_bucket_arn
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.nws_shared_account_hml_sns
 }
 
 ############################
 ## S3 Event Notifications ##
 ############################
 
-resource "aws_s3_bucket_notification" "primary_bucket_notification" {
-  bucket = var.primary_hml_bucket_name
-
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.hml_reciever.arn
-    events              = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [aws_lambda_permission.primary_bucket_permissions]
+resource "aws_lambda_permission" "backup_bucket_permissions" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.hml_reciever.function_name
+  principal     = "s3.amazonaws.com"
+  source_arn    = var.backup_hml_bucket_arn
 }
 
 resource "aws_s3_bucket_notification" "backup_bucket_notification" {
