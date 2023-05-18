@@ -72,7 +72,12 @@ def lambda_handler(event, context):
                     input= json.dumps(pipeline_run)
                 )
             reference_time = pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S")
-            print(f"Invoked the viz pipeline for configuration {pipeline.configuration.name} and reference time {reference_time}")
+            print(json.dumps({
+                "configuration": pipeline.configuration.name,
+                "status_code": 1,
+                "reference_time": reference_time,
+                "message": "Invoked the viz pipeline"
+            }))
         except Exception as e:
             print(f"Couldn't invoke - update later. ({e})")
             
@@ -369,6 +374,7 @@ class configuration:
                 bucket = self.input_bucket
             
             ingest_sets.append({
+                "configuration": self.name,
                 "target_table": target_table, 
                 "ingest_datasets": target_table_metadata["s3_keys"], 
                 "index_columns": target_keys,

@@ -1,5 +1,6 @@
 import re
 import os
+import json
 from viz_classes import database
 
 class RequiredTableNotUpdated(Exception):
@@ -19,7 +20,7 @@ def lambda_handler(event, context):
         
     # Admin tasks
     if folder == 'admin':
-         run_admin_tasks(event, folder, step, sql_replace)
+         run_admin_tasks(event, folder, step, sql_replace, reference_time)
     else:
         # Max Flow
         if step == "max_flows":
@@ -52,7 +53,8 @@ def lambda_handler(event, context):
     return True
 
 # Special function to handle admin-only sql tasks
-def run_admin_tasks(event, folder, step, sql_replace):
+def run_admin_tasks(event, folder, step, sql_replace, reference_time):
+    configuration = event['args']['db_ingest_group']['configuration']
     target_table = event['args']['db_ingest_group']['target_table']
     index_columns = event['args']['db_ingest_group']['index_columns']
     index_name = event['args']['db_ingest_group']['index_name']
@@ -67,11 +69,25 @@ def run_admin_tasks(event, folder, step, sql_replace):
     
     if step == 'ingest_prep':
         run_sql('admin/ingest_prep.sql', sql_replace)
+        print(json.dumps({
+            "configuration": configuration,
+            "status_code": 2,
+            "reference_time": reference_time,
+            "target_table": target_table,
+            "message": "Prepped DB ingest for table"
+        }))
 
     if step == 'ingest_finish':
         sql_replace.update({"{files_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         sql_replace.update({"{rows_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         run_sql('admin/ingest_finish.sql', sql_replace)
+        print(json.dumps({
+            "configuration": configuration,
+            "status_code": 2,
+            "reference_time": reference_time,
+            "target_table": target_table,
+            "message": "Finished DB ingest for table"
+        }))
     
 # Run sql from string or file, and replace any items basd on the sql_replace dictionary.
 def run_sql(sql_path_or_str, sql_replace=None):
