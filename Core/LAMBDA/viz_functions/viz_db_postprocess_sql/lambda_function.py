@@ -41,7 +41,7 @@ def lambda_handler(event, context):
         # Checks if all tables references in sql file exist and are updated (if applicable)
         # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
         # and invoke a retry
-        database(db_type="viz").required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+        database(db_type="viz").check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
         run_sql(sql_path, sql_replace)
    
