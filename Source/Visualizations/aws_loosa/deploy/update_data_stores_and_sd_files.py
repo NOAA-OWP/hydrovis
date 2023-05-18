@@ -171,7 +171,8 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
         layerCIM = layer.getDefinition('V2')
 
         if layer.isRasterLayer:
-            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}\\{service_name}\\published"
+            current_s3_workspace = layerCIM.dataConnection.workspaceConnectionString
+            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}{current_s3_workspace.split('acs')[1]}"
             layerCIM.dataConnection.workspaceConnectionString = new_s3_workspace
         else:
             new_query = f"select * from hydrovis.{schema}.{service_name}"
