@@ -20,8 +20,6 @@ db_max_flows:
 postprocess_sql:
   - sql_file: mrf_gfs_10day_peak_flow_arrival_time
     target_table: publish.mrf_gfs_10day_peak_flow_arrival_time
-    dependent_on_db_tables:
-      - publish.mrf_gfs_10day_high_water_arrival_time
 
 services:
   - mrf_gfs_10day_peak_flow_arrival_time_noaa
