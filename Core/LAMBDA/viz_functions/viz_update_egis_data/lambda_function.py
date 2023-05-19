@@ -18,70 +18,69 @@ def lambda_handler(event, context):
         return
     
     ################### Unstage EGIS Tables ###################
-    if step == "unstage" and job_type != "past_event":
-        print(f"Unstaging tables for {event['args']['product']['product']}")
-        target_tables = list(gen_dict_extract("target_table", event['args']))
-        all_single_tables = [table for table in target_tables if type(table) is not list]
-        all_list_tables = [table for table in target_tables if type(table) is list]
-        all_list_tables = [table for table_list in all_list_tables for table in table_list]
-        
-        all_tables = all_single_tables + all_list_tables
-        publish_tables = [table for table in all_tables if table.startswith("publish")]
-        dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
+    if "unstage" in step and job_type != "past_event":
+        if step == "unstage_db_tables":
+            print(f"Unstaging tables for {event['args']['product']['product']}")
+            target_tables = list(gen_dict_extract("target_table", event['args']))
+            all_single_tables = [table for table in target_tables if type(table) is not list]
+            all_list_tables = [table for table in target_tables if type(table) is list]
+            all_list_tables = [table for table_list in all_list_tables for table in table_list]
+            
+            all_tables = all_single_tables + all_list_tables
+            publish_tables = [table for table in all_tables if table.startswith("publish")]
+            dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
 
-        egis_db = database(db_type="egis")
-        unstage_db_tables(egis_db, dest_tables)
-
-        ################### Move Rasters ###################
-        if event['args']['product']['raster_outputs'].get('output_raster_workspaces'):
+            egis_db = database(db_type="egis")
+            unstage_db_tables(egis_db, dest_tables)
+        elif step == "unstage_rasters":
+            ################### Move Rasters ###################
             print(f"Moving and caching rasters for {event['args']['product']['product']}")
             s3 = boto3.resource('s3')
-            output_raster_workspaces = [workspace for config, workspace in event['args']['product']['raster_outputs']['output_raster_workspaces'].items()]
+            s3_bucket = event['args']['raster_output_bucket']
+            output_raster_workspace = list(event['args']['raster_output_workspace'].values())[0]
+            
             mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
-            
             product_name = event['args']['product']['product']
-            s3_bucket = event['args']['product']['raster_outputs']['output_bucket']
             
-            for output_raster_workspace in output_raster_workspaces:
-                print(f"Moving and caching rasters in {output_raster_workspace}")
-                output_raster_workspace = f"{output_raster_workspace}/tif"
-                    
-                # Getting any sub configs such as fim_configs
-                product_sub_config = output_raster_workspace.split(product_name,1)[1]
-                product_sub_config = product_sub_config.split(reference_date,1)[0][1:-1]
-                processing_prefix = output_raster_workspace.split(reference_date,1)[0][:-1]
+            print(f"Moving and caching rasters in {output_raster_workspace}")
+            output_raster_workspace = f"{output_raster_workspace}/tif"
+                
+            # Getting any sub configs such as fim_configs
+            product_sub_config = output_raster_workspace.split(product_name,1)[1]
+            product_sub_config = product_sub_config.split(reference_date,1)[0][1:-1]
+            processing_prefix = output_raster_workspace.split(reference_date,1)[0][:-1]
 
-                if product_sub_config:
-                    cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}/{product_sub_config}"
-                else:
-                    cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}"
+            if product_sub_config:
+                cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}/{product_sub_config}"
+            else:
+                cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}"
+
+            workspace_rasters = list_s3_files(s3_bucket, output_raster_workspace)
+            for s3_key in workspace_rasters:
+                s3_object = {"Bucket": s3_bucket, "Key": s3_key}
+                s3_filename = os.path.basename(s3_key)
+                cache_key = f"{cache_path}/{s3_filename}"
     
-                workspace_rasters = list_s3_files(s3_bucket, output_raster_workspace)
-                for s3_key in workspace_rasters:
-                    s3_object = {"Bucket": s3_bucket, "Key": s3_key}
-                    s3_filename = os.path.basename(s3_key)
-                    cache_key = f"{cache_path}/{s3_filename}"
-        
-                    print(f"Caching {s3_key} at {cache_key}")
-                    s3.meta.client.copy(s3_object, s3_bucket, cache_key)
+                print(f"Caching {s3_key} at {cache_key}")
+                s3.meta.client.copy(s3_object, s3_bucket, cache_key)
+                
+                print("Deleting tif workspace raster")
+                s3.Object(s3_bucket, s3_key).delete()
+    
+                raster_name = s3_filename.replace(".tif", "")
+                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
+                published_prefix = f"{processing_prefix}/published/{raster_name}"
+                
+                for extension in mrf_extensions:
+                    mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
+                    mrf_published_raster = f"{published_prefix}.{extension}"
                     
-                    print("Deleting tif workspace raster")
-                    s3.Object(s3_bucket, s3_key).delete()
-        
-                    raster_name = s3_filename.replace(".tif", "")
-                    mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
-                    published_prefix = f"{processing_prefix}/published/{raster_name}"
-                    
-                    for extension in mrf_extensions:
-                        mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
-                        mrf_published_raster = f"{published_prefix}.{extension}"
-                        
-                        if job_type == 'auto':
-                            print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
-                            s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
-                    
-                        print("Deleting a mrf workspace raster")
-                        s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+                    if job_type == 'auto':
+                        print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
+                        s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
+                
+                    print("Deleting a mrf workspace raster")
+                    s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
         
         return True
     

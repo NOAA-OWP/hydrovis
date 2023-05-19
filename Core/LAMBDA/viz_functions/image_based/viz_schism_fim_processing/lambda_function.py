@@ -55,7 +55,8 @@ def lambda_handler(event, context):
     max_elevs_file = event['args']['fim_config']['max_file']
 
     output_bucket = event['args']['product']['raster_outputs']['output_bucket']
-    output_workspace = event['args']['product']['raster_outputs']['output_raster_workspaces'][fim_config]
+    output_workspaces = event['args']['product']['raster_outputs']['output_raster_workspaces']
+    output_workspace = next(list(workspace.values())[0] for workspace in output_workspaces if list(workspace.keys())[0] == fim_config)
 
     schism_fim_s3_uri = f's3://{max_elevs_file_bucket}/{max_elevs_file}'
 
