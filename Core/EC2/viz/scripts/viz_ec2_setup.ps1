@@ -253,9 +253,15 @@ LogWrite "-->TRANFERRING PRISTINE DATA"
 $s3_pristine = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "pristine_data/"
 aws s3 cp $s3_pristine $PRISTINE_ROOT --recursive
 
+Install-Module -Name Invoke-CommandAs -force
+$ec2host = hostname
+$strScriptUser = "$ec2host\$PIPELINE_USER"
+$PSS = ConvertTo-SecureString $PIPELINE_USER_ACCOUNT_PASSWORD -AsPlainText -Force
+$cred = new-object system.management.automation.PSCredential $strScriptUser,$PSS
+
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\create_s3_connection_files.py"
+$python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\create_s3_connection_files.py"
+Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -270,8 +276,8 @@ $ACL.SetAccessRule($AccessRule)
 $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\update_data_stores_and_sd_files.py"
+$python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
+Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
 
 LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
 $EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
