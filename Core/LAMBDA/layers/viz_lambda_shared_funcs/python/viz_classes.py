@@ -243,10 +243,10 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 sql = f'''
                     SELECT EXISTS (
                         SELECT FROM 
-                            pg_tables
+                            information_schema.tables
                         WHERE 
-                            schemaname = '{schemaname}' AND 
-                            tablename  = '{tablename}'
+                            table_schema = '{schemaname}' AND 
+                            table_name  = '{tablename}'
                     );
                 '''
                 cur.execute(sql)
