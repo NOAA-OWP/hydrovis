@@ -279,13 +279,6 @@ LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
 Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
 
-LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
-$EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
-if ($EXISTING_PUBLISHED_FLAGS) {
-    LogWrite "DELETING PUBLISHED FLAGS"
-    aws s3 rm $FLAGS_ROOT --recursive
-}
-
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
 
