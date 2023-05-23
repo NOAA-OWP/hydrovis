@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "RFC 5 Day Max Downstream Streamflow Forecast",
+    "name" : "RFC-Based 5-Day Max Streamflow Forecast",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant",
@@ -26,9 +26,9 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=map/rfc_forecast_points.xml",
-      "CIMPATH=rfc_replace___route_5_day_maximum_streamflow_forecast/maximum_5_day_flood_status___action___only.xml",
-      "CIMPATH=rfc_replace___route_5_day_maximum_streamflow_forecast/maximum_5_day_flood_status___other_routing.xml"
+      "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow_rfc_points.xml",
+      "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow.xml",
+      "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow2.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -93,10 +93,10 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -11481717.3012528811,
-      "ymin" : 3648177.66171697667,
-      "xmax" : -8933068.49604616128,
-      "ymax" : 5079450.106552735,
+      "xmin" : -13858565.3401836809,
+      "ymin" : 2809511.13783850428,
+      "xmax" : -7543694.73301631771,
+      "ymax" : 6780932.22576149274,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -258,14 +258,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "5 Days - Related RFC Forecast Points",
-      "uRI" : "CIMPATH=map/rfc_forecast_points.xml",
+      "uRI" : "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow_rfc_points.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/dc12d35a8ab81daef5f958bf1caef003.xml",
+      "metadataURI" : "CIMPATH=Metadata/66cbb0592e369606a996805952874622.xml",
       "useSourceMetadata" : true,
-      "description" : "rfc_forecast_points",
+      "description" : "hydrovis.services.rnr_rfc_points",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{46332697-36F8-476E-B3D0-D9A45B1A8C77}"
@@ -298,6 +298,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "USGS Site Code",
+            "fieldName" : "usgs_sitecode",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWS Name",
             "fieldName" : "nws_name",
             "visible" : true,
@@ -305,8 +312,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "USGS Site Code",
-            "fieldName" : "usgs_sitecode",
+            "alias" : "Reference Time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -339,7 +346,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow_rfc_points",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,usgs_sitecode,nws_name,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow_rfc_points",
+          "sqlQuery" : "select nws_lid,usgs_sitecode,nws_name,reference_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow_rfc_points",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 3857,
@@ -347,24 +354,40 @@
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPoint",
+          "extent" : {
+            "xmin" : -13499306.0280000009,
+            "ymin" : 3212636.41710000113,
+            "xmax" : -8301341.80509999953,
+            "ymax" : 6274248.68620000035,
+            "spatialReference" : {
+              "wkid" : 102100,
+              "latestWkid" : 3857
+            }
+          },
           "queryFields" : [
             {
               "name" : "nws_lid",
               "type" : "esriFieldTypeString",
-              "alias" : "nws_lid",
-              "length" : 5
+              "alias" : "NWS Station ID",
+              "length" : 60000
             },
             {
               "name" : "usgs_sitecode",
               "type" : "esriFieldTypeString",
-              "alias" : "usgs_sitecode",
-              "length" : 25
+              "alias" : "USGS Site Code",
+              "length" : 60000
             },
             {
               "name" : "nws_name",
               "type" : "esriFieldTypeString",
-              "alias" : "nws_name",
-              "length" : 100
+              "alias" : "NWS Name",
+              "length" : 60000
+            },
+            {
+              "name" : "reference_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "Reference Time",
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -376,7 +399,7 @@
                 "hasM" : false,
                 "hasZ" : false,
                 "spatialReference" : {
-                  "wkid" : 3857,
+                  "wkid" : 102100,
                   "latestWkid" : 3857
                 }
               }
@@ -392,14 +415,6 @@
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "Related RFC Forecast Points",
-          "tags" : "Point",
-          "toolProgID" : "2a8b3331-5238-4025-972e-452a69535b06"
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
@@ -409,7 +424,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.nws_lid",
+          "expression" : "$feature.nws_name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -472,9 +487,9 @@
             },
             "pointExternalZonePriorities" : {
               "type" : "CIMMaplexExternalZonePriorities",
-              "aboveLeft" : 1,
+              "aboveLeft" : 4,
               "aboveCenter" : 2,
-              "aboveRight" : 4,
+              "aboveRight" : 1,
               "centerRight" : 3,
               "belowRight" : 5,
               "belowCenter" : 7,
@@ -526,7 +541,6 @@
             "truncationExcludedCharacters" : "0123456789",
             "polygonAnchorPointPerimeterInsetUnit" : "Point"
           },
-          "minimumScale" : 500000,
           "name" : "Class 1",
           "priority" : -1,
           "standardLabelPlacementProperties" : {
@@ -580,43 +594,7 @@
               "fontFamilyName" : "Tahoma",
               "fontStyleName" : "Regular",
               "fontType" : "Unspecified",
-              "haloSize" : 1.5,
-              "haloSymbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidStroke",
-                    "enable" : true,
-                    "capStyle" : "Round",
-                    "joinStyle" : "Round",
-                    "lineStyle3D" : "Strip",
-                    "miterLimit" : 10,
-                    "width" : 0,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        100
-                      ]
-                    }
-                  },
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        255,
-                        255,
-                        255,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              },
+              "haloSize" : 1,
               "height" : 10,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
@@ -633,7 +611,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        168,
+                        0,
                         0,
                         0,
                         100
@@ -641,13 +619,6 @@
                     }
                   }
                 ]
-              },
-              "symbol3DProperties" : {
-                "type" : "CIM3DSymbolProperties",
-                "dominantSizeAxis3D" : "Z",
-                "rotationOrder3D" : "YXZ",
-                "scaleZ" : 1,
-                "scaleY" : 1
               },
               "textCase" : "Normal",
               "textDirection" : "LTR",
@@ -662,7 +633,6 @@
           "iD" : -1
         }
       ],
-      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMSimpleRenderer",
         "patch" : "Default",
@@ -685,8 +655,8 @@
                 "frame" : {
                   "xmin" : 0,
                   "ymin" : 0,
-                  "xmax" : 17,
-                  "ymax" : 17
+                  "xmax" : 21,
+                  "ymax" : 21
                 },
                 "markerGraphics" : [
                   {
@@ -695,70 +665,70 @@
                       "curveRings" : [
                         [
                           [
-                            13.9,
-                            11.6
+                            17.1700000000000017,
+                            14.33
                           ],
                           {
                             "b" : [
                               [
-                                8.5,
+                                10.5,
                                 0
                               ],
                               [
-                                13.9,
-                                8.61999999999999922
+                                17.1700000000000017,
+                                10.65
                               ],
                               [
-                                10.02,
-                                4.98000000000000043
+                                12.3800000000000008,
+                                6.15000000000000036
                               ]
                             ]
                           },
                           {
                             "b" : [
                               [
-                                3.10000000000000009,
-                                11.6
+                                3.83000000000000007,
+                                14.33
                               ],
                               [
-                                7,
-                                5
+                                8.65000000000000036,
+                                6.17999999999999972
                               ],
                               [
-                                3.10000000000000009,
-                                8.61999999999999922
+                                3.83000000000000007,
+                                10.65
                               ]
                             ]
                           },
                           {
                             "b" : [
                               [
-                                8.5,
-                                17
+                                10.5,
+                                21
                               ],
                               [
-                                3.10000000000000009,
-                                14.58
+                                3.83000000000000007,
+                                18.0100000000000016
                               ],
                               [
-                                5.51999999999999957,
-                                17
+                                6.82000000000000028,
+                                21
                               ]
                             ]
                           },
                           {
                             "b" : [
                               [
-                                13.9,
-                                11.6
+                                17.1700000000000017,
+                                14.33
                               ],
                               [
-                                11.48,
-                                17
+                                14.19,
+                                21
                               ],
                               [
-                                13.9,
-                                14.58
+                                17.1700000000000017,
+                                18.0100000000000016
                               ]
                             ]
                           }
@@ -819,14 +789,14 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "5 Days - Max Flood Status Forecast - Action + Only",
-      "uRI" : "CIMPATH=rfc_replace___route_5_day_maximum_streamflow_forecast/maximum_5_day_flood_status___action___only.xml",
+      "uRI" : "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/35b9be8184c16ffb0786d14c7beb18e8.xml",
+      "metadataURI" : "CIMPATH=Metadata/3c4d034e687aa7211cb190ea6b0868fb.xml",
       "useSourceMetadata" : true,
-      "description" : "rf_replace_route_streamflow",
+      "description" : "hydrovis.services.rfc_based_5day_max_streamflow",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{46332697-36F8-476E-B3D0-D9A45B1A8C77}"
@@ -883,16 +853,16 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "max_status <> 'No Flooding' And max_status <> 'No Forecast' And max_status <> 'None' And waterbody_status IS NULL",
-        "definitionExpressionName" : "Query 2",
+        "definitionExpression" : "(viz_status = 'Action' Or viz_status = 'Minor' Or viz_status = 'Moderate' Or viz_status = 'Major') And (is_waterbody = 'no' And is_downstream_of_waterbody = 'no')",
+        "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
-            "name" : "Query 2",
-            "definitionExpression" : "max_status <> 'No Flooding' And max_status <> 'No Forecast' And max_status <> 'None' And waterbody_status IS NULL"
+            "name" : "Query 1",
+            "definitionExpression" : "(viz_status = 'Action' Or viz_status = 'Minor' Or viz_status = 'Moderate' Or viz_status = 'Major') And (is_waterbody = 'no' And is_downstream_of_waterbody = 'no')"
           }
         ],
-        "displayField" : "inherited_rfc_forecasts",
+        "displayField" : "name",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -904,15 +874,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
+            "alias" : "Associated NWS LID",
+            "fieldName" : "nws_station_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Has Forecast Point",
+            "fieldName" : "has_forecast_point",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -920,6 +890,20 @@
             "type" : "CIMFieldDescription",
             "alias" : "Name",
             "fieldName" : "name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Stream Order",
+            "fieldName" : "stream_order",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -939,21 +923,21 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max Status",
-            "fieldName" : "max_status",
+            "alias" : "Time of Max Streamflow",
+            "fieldName" : "time_of_max",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Max Streamflow (cfs)",
-            "fieldName" : "max_flow",
+            "fieldName" : "streamflow",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
+              "roundingValue" : 0,
               "useSeparator" : true
             },
             "visible" : true,
@@ -961,30 +945,37 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Inherited RFC Forecast(s)",
-            "fieldName" : "inherited_rfc_forecasts",
+            "alias" : "Max Status",
+            "fieldName" : "viz_status",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Applied RFC Forecast",
-            "fieldName" : "viz_status_lid",
+            "alias" : "Influential Forecasts",
+            "fieldName" : "influential_forecasts",
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Waterbody Status",
-            "fieldName" : "waterbody_status",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
+		  {
             "type" : "CIMFieldDescription",
             "alias" : "Update Time",
             "fieldName" : "update_time",
             "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Is On Waterbody",
+            "fieldName" : "is_waterbody",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Is Downstream of Waterbody",
+            "fieldName" : "is_downstream_of_waterbody",
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -1010,13 +1001,14 @@
             "searchMode" : "Exact"
           }
         ],
+        "selectionSetURI" : "CIMPATH=SelectionSet/6d842f1b808300b7018a73f8c683da53.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68514a7759455344593849736d643670416947387468654d646b494f6e59514c554a4d2f334b587a50524e673d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_1",
+          "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,viz_status_lid, waterbody_status,strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1024,58 +1016,62 @@
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
+          "extent" : {
+            "xmin" : -13812739.433699999,
+            "ymin" : 2978991.37810000032,
+            "xmax" : -8301225.27309999987,
+            "ymax" : 6282717.69849999994,
+            "spatialReference" : {
+              "wkid" : 102100,
+              "latestWkid" : 3857
+            }
+          },
           "queryFields" : [
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id",
-              "length" : 12
+              "alias" : "NWM Feature ID",
+              "length" : 50
+            },
+            {
+              "name" : "nws_station_id",
+              "type" : "esriFieldTypeString",
+              "alias" : "Associated NWS LID",
+              "length" : 20
+            },
+            {
+              "name" : "has_forecast_point",
+              "type" : "esriFieldTypeString",
+              "alias" : "Has Forecast Point",
+              "length" : 3
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 60
+              "alias" : "Name",
+              "length" : 100
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 25
+              "length" : 30
             },
             {
-              "name" : "inherited_rfc_forecasts",
+              "name" : "time_of_max",
               "type" : "esriFieldTypeString",
-              "alias" : "inherited_rfc_forecasts",
-              "length" : 255
+              "alias" : "Time of Max Streamflow",
+              "length" : 30
             },
             {
-              "name" : "max_flow",
+              "name" : "streamflow",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_flow"
+              "alias" : "Max Streamflow (cfs)"
             },
             {
-              "name" : "max_status",
-              "type" : "esriFieldTypeString",
-              "alias" : "max_status",
-              "length" : 15
-            },
-            {
-              "name" : "viz_status_lid",
-              "type" : "esriFieldTypeString",
-              "alias" : "viz_status_lid",
-              "length" : 5
-            },
-            {
-              "name" : "waterbody_status",
-              "type" : "esriFieldTypeString",
-              "alias" : "waterbody_status",
-              "length" : 15
-            },
-            {
-              "name" : "strm_order",
+              "name" : "stream_order",
               "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
+              "alias" : "Stream Order"
             },
             {
               "name" : "huc6",
@@ -1084,10 +1080,34 @@
               "length" : 6
             },
             {
+              "name" : "is_waterbody",
+              "type" : "esriFieldTypeString",
+              "alias" : "Is On Waterbody",
+              "length" : 3
+            },
+            {
+              "name" : "is_downstream_of_waterbody",
+              "type" : "esriFieldTypeString",
+              "alias" : "Is Downstream of Waterbody",
+              "length" : 3
+            },
+            {
+              "name" : "influential_forecasts",
+              "type" : "esriFieldTypeString",
+              "alias" : "Influential Forecasts",
+              "length" : 5000
+            },
+			{
               "name" : "update_time",
               "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 25
+              "alias" : "Update Time",
+              "length" : 30
+            },
+            {
+              "name" : "viz_status",
+              "type" : "esriFieldTypeString",
+              "alias" : "Best Guess Max Status",
+              "length" : 30
             },
             {
               "name" : "geom",
@@ -1118,41 +1138,12 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
-      "enableDisplayFilters" : true,
-      "displayFilters" : [
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Large Streams",
-          "whereClause" : "strm_order >= 4",
-          "maxScale" : 5000000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Medium Streams",
-          "whereClause" : "strm_order >= 3",
-          "minScale" : 5000000,
-          "maxScale" : 2500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Small Streams",
-          "whereClause" : "strm_order >= 2",
-          "minScale" : 2500000,
-          "maxScale" : 500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 500000
-        }
-      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "\"Inheriting From: \" + $feature.Viz_Status_LID + TextFormatting.NewLine + \"Notes: \"+$feature.Viz_Status_Reason",
+          "expression" : "\"Influential forecasts: \" + $feature.influential_forecasts",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1397,7 +1388,7 @@
               "type" : "CIMVisualVariableAuthoringInfo",
               "minSliderValue" : 1,
               "maxSliderValue" : 10,
-              "heading" : "Strm_Order"
+              "heading" : "stream_order"
             },
             "randomMax" : 1,
             "minSize" : 0.33000000000000002,
@@ -1412,7 +1403,7 @@
             "valueExpressionInfo" : {
               "type" : "CIMExpressionInfo",
               "title" : "Custom",
-              "expression" : "$feature.Strm_Order",
+              "expression" : "$feature.stream_order",
               "returnType" : "Default"
             }
           }
@@ -1460,7 +1451,7 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "max_status"
+          "viz_status"
         ],
         "groups" : [
           {
@@ -1637,22 +1628,19 @@
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing"
-      }
+      "snappable" : true
     },
     {
       "type" : "CIMFeatureLayer",
       "name" : "5 Days - Max Flood Status Forecast - Other Routing",
-      "uRI" : "CIMPATH=rfc_replace___route_5_day_maximum_streamflow_forecast/maximum_5_day_flood_status___other_routing.xml",
+      "uRI" : "CIMPATH=rfc_5_day_max_downstream_streamflow_forecast/hydrovis_services_rfc_based_5day_max_streamflow2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/35b9be8184c16ffb0786d14c7beb18e8.xml",
+      "metadataURI" : "CIMPATH=Metadata/231df24f7b63503d233119f3a603d16d.xml",
       "useSourceMetadata" : true,
-      "description" : "rf_replace_route_streamflow",
+      "description" : "hydrovis.services.rfc_based_5day_max_streamflow",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{46332697-36F8-476E-B3D0-D9A45B1A8C77}"
@@ -1709,7 +1697,16 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "inherited_rfc_forecasts",
+        "definitionExpression" : "viz_status = 'All Thresholds Undefined' Or viz_status = 'No Flooding' Or viz_status = 'No Forecast' Or viz_status = 'Undetermined' Or is_waterbody = 'yes' Or is_downstream_of_waterbody = 'yes'",
+        "definitionExpressionName" : "Query 1",
+        "definitionFilterChoices" : [
+          {
+            "type" : "CIMDefinitionFilter",
+            "name" : "Query 1",
+            "definitionExpression" : "viz_status = 'All Thresholds Undefined' Or viz_status = 'No Flooding' Or viz_status = 'No Forecast' Or viz_status = 'Undetermined' Or is_waterbody = 'yes' Or is_downstream_of_waterbody = 'yes'"
+          }
+        ],
+        "displayField" : "name",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -1721,8 +1718,29 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Associated NWS LID",
+            "fieldName" : "nws_station_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Has Forecast Point",
+            "fieldName" : "has_forecast_point",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Name",
+            "fieldName" : "name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Stream Order",
-            "fieldName" : "strm_order",
+            "fieldName" : "stream_order",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -1734,13 +1752,6 @@
             "searchMode" : "Exact"
           },
           {
-            "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
@@ -1756,21 +1767,21 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max Status",
-            "fieldName" : "max_status",
+            "alias" : "Time of Max Streamflow",
+            "fieldName" : "time_of_max",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Max Streamflow (cfs)",
-            "fieldName" : "max_flow",
+            "fieldName" : "streamflow",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
+              "roundingValue" : 0,
               "useSeparator" : true
             },
             "visible" : true,
@@ -1778,30 +1789,37 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Inherited RFC Forecast(s)",
-            "fieldName" : "inherited_rfc_forecasts",
+            "alias" : "Max Status",
+            "fieldName" : "viz_status",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Applied RFC Forecast",
-            "fieldName" : "viz_status_lid",
+            "alias" : "Influential Forecasts",
+            "fieldName" : "influential_forecasts",
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Waterbody Status",
-            "fieldName" : "waterbody_status",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
+		  {
             "type" : "CIMFieldDescription",
             "alias" : "Update Time",
             "fieldName" : "update_time",
             "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Is On Waterbody",
+            "fieldName" : "is_waterbody",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Is Downstream of Waterbody",
+            "fieldName" : "is_downstream_of_waterbody",
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -1831,9 +1849,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68514a7759455344593849736d643670416947387468654d646b494f6e59514c554a4d2f334b587a50524e673d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.services.%rnr_5day_max_streamflow_1_1_1_2_1_1_1_2",
+          "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name, reference_time, inherited_rfc_forecasts,max_flow,max_status,waterbody_status,viz_status_lid, strm_order, huc6, update_time, geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1841,58 +1859,62 @@
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
+          "extent" : {
+            "xmin" : -13812739.433699999,
+            "ymin" : 2978991.37810000032,
+            "xmax" : -8301225.27309999987,
+            "ymax" : 6282717.69849999994,
+            "spatialReference" : {
+              "wkid" : 102100,
+              "latestWkid" : 3857
+            }
+          },
           "queryFields" : [
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id",
-              "length" : 12
+              "alias" : "NWM Feature ID",
+              "length" : 50
+            },
+            {
+              "name" : "nws_station_id",
+              "type" : "esriFieldTypeString",
+              "alias" : "Associated NWS LID",
+              "length" : 20
+            },
+            {
+              "name" : "has_forecast_point",
+              "type" : "esriFieldTypeString",
+              "alias" : "Has Forecast Point",
+              "length" : 3
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 60
+              "alias" : "Name",
+              "length" : 100
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 25
+              "length" : 30
             },
             {
-              "name" : "inherited_rfc_forecasts",
+              "name" : "time_of_max",
               "type" : "esriFieldTypeString",
-              "alias" : "inherited_rfc_forecasts",
-              "length" : 255
+              "alias" : "Time of Max Streamflow",
+              "length" : 30
             },
             {
-              "name" : "max_flow",
+              "name" : "streamflow",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_flow"
+              "alias" : "Max Streamflow (cfs)"
             },
             {
-              "name" : "max_status",
-              "type" : "esriFieldTypeString",
-              "alias" : "max_status",
-              "length" : 5
-            },
-            {
-              "name" : "waterbody_status",
-              "type" : "esriFieldTypeString",
-              "alias" : "waterbody_status",
-              "length" : 15
-            },
-            {
-              "name" : "viz_status_lid",
-              "type" : "esriFieldTypeString",
-              "alias" : "viz_status_lid",
-              "length" : 5
-            },
-            {
-              "name" : "strm_order",
+              "name" : "stream_order",
               "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
+              "alias" : "Stream Order"
             },
             {
               "name" : "huc6",
@@ -1901,10 +1923,34 @@
               "length" : 6
             },
             {
+              "name" : "is_waterbody",
+              "type" : "esriFieldTypeString",
+              "alias" : "Is On Waterbody",
+              "length" : 3
+            },
+            {
+              "name" : "is_downstream_of_waterbody",
+              "type" : "esriFieldTypeString",
+              "alias" : "Is Downstream of Waterbody",
+              "length" : 3
+            },
+            {
+              "name" : "influential_forecasts",
+              "type" : "esriFieldTypeString",
+              "alias" : "Influential Forecasts",
+              "length" : 5000
+            },
+			{
               "name" : "update_time",
               "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 25
+              "alias" : "Update Time",
+              "length" : 30
+            },
+            {
+              "name" : "viz_status",
+              "type" : "esriFieldTypeString",
+              "alias" : "Best Guess Max Status",
+              "length" : 30
             },
             {
               "name" : "geom",
@@ -1935,41 +1981,12 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
-      "enableDisplayFilters" : true,
-      "displayFilters" : [
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Large Streams",
-          "whereClause" : "strm_order >= 4",
-          "maxScale" : 5000000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Medium Streams",
-          "whereClause" : "strm_order >= 3",
-          "minScale" : 5000000,
-          "maxScale" : 2500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Small Streams",
-          "whereClause" : "strm_order >= 2",
-          "minScale" : 2500000,
-          "maxScale" : 500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 500000
-        }
-      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "\"Applied Forecast:\" + TextFormatting.NewLine + \"<BOL>\"  + $feature.Viz_Status_LID + \"</BOL>\" ",
+          "expression" : "\"Influential forecasts: \" + TextFormatting.NewLine + $feature.influential_forecasts",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -2081,16 +2098,13 @@
               "fontReduction" : 4,
               "abbreviation" : 5
             },
-            "thinDuplicateLabels" : true,
-            "thinningDistance" : 4,
-            "thinningDistanceUnit" : "Inch",
+            "thinningDistanceUnit" : "Map",
             "truncationMarkerCharacter" : ".",
             "truncationMinimumLength" : 1,
             "truncationPreferredCharacters" : "aeiou",
             "truncationExcludedCharacters" : "1234567890",
             "polygonAnchorPointPerimeterInsetUnit" : "Point"
           },
-          "minimumScale" : 500000,
           "name" : "Class 1",
           "priority" : -1,
           "standardLabelPlacementProperties" : {
@@ -2208,7 +2222,6 @@
           "iD" : -1
         }
       ],
-      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMUniqueValueRenderer",
         "visualVariables" : [
@@ -2218,7 +2231,7 @@
               "type" : "CIMVisualVariableAuthoringInfo",
               "minSliderValue" : 1,
               "maxSliderValue" : 10,
-              "heading" : "Strm_Order"
+              "heading" : "stream_order"
             },
             "randomMax" : 1,
             "minSize" : 0.33000000000000002,
@@ -2233,7 +2246,7 @@
             "valueExpressionInfo" : {
               "type" : "CIMExpressionInfo",
               "title" : "Custom",
-              "expression" : "$feature.Strm_Order",
+              "expression" : "$feature.stream_order",
               "returnType" : "Default"
             }
           }
@@ -2281,8 +2294,9 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "max_status",
-          "waterbody_status"
+          "viz_status",
+          "is_waterbody",
+          "is_downstream_of_waterbody"
         ],
         "groups" : [
           {
@@ -2318,11 +2332,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            197,
-                            0,
-                            255,
+                            286.35000000000002,
+                            100,
+                            100,
                             100
                           ]
                         }
@@ -2334,29 +2348,25 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "Major - Downstream of Waterbody",
-                      "<Null>"
+                      "Major",
+                      "yes",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Major",
-                      "Waterbody"
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Major",
-                      "Downstream of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Major",
-                      "Downstream Of Waterbody"
+                      "yes",
+                      "no"
                     ]
                   }
                 ],
@@ -2392,11 +2402,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            255,
                             0,
-                            0,
+                            100,
+                            100,
                             100
                           ]
                         }
@@ -2408,36 +2418,25 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "Moderate - Downstream of Waterbody",
-                      "<Null>"
+                      "Moderate",
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Moderate",
-                      "Downstream of Waterbody"
+                      "yes",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Moderate",
-                      "Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Moderate",
-                      "Downstream Of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Moderate",
-                      "Waterbody"
+                      "yes",
+                      "yes"
                     ]
                   }
                 ],
@@ -2473,11 +2472,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            255,
-                            170,
-                            0,
+                            40,
+                            100,
+                            100,
                             100
                           ]
                         }
@@ -2490,28 +2489,24 @@
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Minor",
-                      "Downstream of Waterbody"
+                      "yes",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Minor",
-                      "Waterbody"
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Minor",
-                      "Downstream Of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Minor",
-                      "Waterbody"
+                      "yes",
+                      "no"
                     ]
                   }
                 ],
@@ -2547,11 +2542,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            255,
-                            255,
-                            0,
+                            60,
+                            100,
+                            100,
                             100
                           ]
                         }
@@ -2564,28 +2559,24 @@
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Action",
-                      "Downstream of Waterbody"
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Action",
-                      "Waterbody"
+                      "yes",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "Action",
-                      "Downstream Of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Action",
-                      "Waterbody"
+                      "yes",
+                      "yes"
                     ]
                   }
                 ],
@@ -2621,11 +2612,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            115,
-                            178,
-                            255,
+                            213,
+                            54.899999999999999,
+                            100,
                             100
                           ]
                         }
@@ -2637,50 +2628,25 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "No_flooding",
-                      "Waterbody"
+                      "No Flooding",
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "No Flooding",
-                      "Downstream of Waterbody"
+                      "yes",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "No Flooding",
-                      "Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No_Flooding",
-                      "Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No_Flooding",
-                      "Downstream of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No_Flooding",
-                      "Downstream Of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No Flooding",
-                      "Downstream Of Waterbody"
+                      "yes",
+                      "yes"
                     ]
                   }
                 ],
@@ -2716,11 +2682,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            190,
-                            210,
-                            255,
+                            221.53999999999999,
+                            25.489999999999998,
+                            100,
                             100
                           ]
                         }
@@ -2733,35 +2699,24 @@
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "No Forecast",
-                      "Downstream of Waterbody"
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
                       "No Forecast",
-                      "Waterbody"
+                      "yes",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "no_forecast",
-                      "Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No_Forecast",
-                      "Downstream Of Waterbody"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "No_Forecast",
-                      "Waterbody"
+                      "No Forecast",
+                      "yes",
+                      "yes"
                     ]
                   }
                 ],
@@ -2770,7 +2725,7 @@
               {
                 "type" : "CIMUniqueValueClass",
                 "editable" : true,
-                "label" : "Unable to Process Forecast (Unsuported Thresholds or Forecast Format - Waterbody or Downstream)",
+                "label" : "Unable to Process Forecast (Thresholds Undefined or Status Routing Criteria Not Met - Waterbody or Downstream)",
                 "patch" : "LineHorizontal",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -2797,11 +2752,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            178,
-                            178,
-                            178,
+                            0,
+                            0,
+                            69.799999999999997,
                             100
                           ]
                         }
@@ -2813,15 +2768,73 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "None",
-                      "Waterbody"
+                      "Undetermined",
+                      "no",
+                      "yes"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "None",
-                      "Downstream Of Waterbody"
+                      "Undetermined",
+                      "yes",
+                      "no"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "Undetermined",
+                      "yes",
+                      "yes"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "All Thresholds Undefined",
+                      "yes",
+                      "yes"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "All Thresholds Undefined",
+                      "no",
+                      "yes"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "All Thresholds Undefined",
+                      "yes",
+                      "no"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "<Null>",
+                      "no",
+                      "yes"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "<Null>",
+                      "yes",
+                      "no"
+                    ]
+                  },
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "<Null>",
+                      "yes",
+                      "yes"
                     ]
                   }
                 ],
@@ -2835,9 +2848,8 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "editable" : true,
                 "label" : "No Flooding (Forecast Issued in the Last 24 Hours)",
-                "patch" : "LineHorizontal",
+                "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
                   "symbol" : {
@@ -2852,11 +2864,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            115,
-                            178,
-                            255,
+                            213,
+                            54.899999999999999,
+                            100,
                             100
                           ]
                         }
@@ -2868,15 +2880,9 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "No_Flooding",
-                      "<Null>"
-                    ]
-                  },
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
                       "No Flooding",
-                      "<Null>"
+                      "no",
+                      "no"
                     ]
                   }
                 ],
@@ -2884,7 +2890,6 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "editable" : true,
                 "label" : "No Forecast (Assumed No Flooding)",
                 "patch" : "Default",
                 "symbol" : {
@@ -2901,11 +2906,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            190,
-                            210,
-                            255,
+                            221.53999999999999,
+                            25.489999999999998,
+                            100,
                             100
                           ]
                         }
@@ -2917,8 +2922,9 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "No_Forecast",
-                      "<Null>"
+                      "No Forecast",
+                      "no",
+                      "no"
                     ]
                   }
                 ],
@@ -2933,7 +2939,7 @@
               {
                 "type" : "CIMUniqueValueClass",
                 "editable" : true,
-                "label" : "Unable to Process Forecast (Unsuported Thresholds or Forecast Format)",
+                "label" : "Unable to Process Forecast (Thresholds Undefined or Status Routing Criteria Not Met)",
                 "patch" : "LineHorizontal",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -2949,11 +2955,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            178,
-                            178,
-                            178,
+                            0,
+                            0,
+                            69.799999999999997,
                             100
                           ]
                         }
@@ -2965,22 +2971,25 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "None",
-                      "None"
+                      "<Null>",
+                      "no",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "None",
-                      "nan"
+                      "All Thresholds Undefined",
+                      "no",
+                      "no"
                     ]
                   },
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "None",
-                      "<Null>"
+                      "Undetermined",
+                      "no",
+                      "no"
                     ]
                   }
                 ],
@@ -2993,10 +3002,7 @@
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing"
-      }
+      "snappable" : true
     }
   ],
   "binaryReferences" : [
@@ -3007,13 +3013,23 @@
     },
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/35b9be8184c16ffb0786d14c7beb18e8.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20181219</CreaDate><CreaTime>10542400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/231df24f7b63503d233119f3a603d16d.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230501</CreaDate><CreaTime>20264600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/dc12d35a8ab81daef5f958bf1caef003.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20211110</CreaDate><CreaTime>11501500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/3c4d034e687aa7211cb190ea6b0868fb.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230428</CreaDate><CreaTime>13235000</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/66cbb0592e369606a996805952874622.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230428</CreaDate><CreaTime>13304400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=SelectionSet/6d842f1b808300b7018a73f8c683da53.dat",
+      "data" : "CgMxLjAQARoHCgUxOTcxNA=="
     }
   ]
 }

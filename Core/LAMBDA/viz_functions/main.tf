@@ -176,7 +176,7 @@ locals {
   ingest_flow_threshold    = 0.001
 
   initialize_pipeline_subscriptions = toset([
-    "rnr_max_flows"
+    "rnr_wrf_hydro_output"
   ])
 }
 
