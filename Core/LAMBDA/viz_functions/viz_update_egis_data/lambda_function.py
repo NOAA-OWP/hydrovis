@@ -10,64 +10,83 @@ def lambda_handler(event, context):
     step = event['step']
     job_type = event['args']['job_type']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
+    reference_date = reference_time.strftime('%Y%m%d')
+    reference_hour_min = reference_time.strftime('%H%M')
     
     # Don't want to run for reference products because they already exist in the EGIS DB
     if event['args']['product']['configuration'] == "reference":
         return
     
     ################### Unstage EGIS Tables ###################
-    if step == "unstage" and job_type != "past_event":
-        target_tables = list(gen_dict_extract("target_table", event['args']))
-        all_single_tables = [table for table in target_tables if type(table) is not list]
-        all_list_tables = [table for table in target_tables if type(table) is list]
-        all_list_tables = [table for table_list in all_list_tables for table in table_list]
-        
-        all_tables = all_single_tables + all_list_tables
-        publish_tables = [table for table in all_tables if table.startswith("publish")]
-        dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
-
-        egis_db = database(db_type="egis")
-        unstage_db_tables(egis_db, dest_tables)
-        
-        return True
+    if step == "unstage":
+        if job_type == "past_event":
+            return
+        else:
+            print(f"Unstaging tables for {event['args']['product']['product']}")
+            target_tables = list(gen_dict_extract("target_table", event['args']))
+            all_single_tables = [table for table in target_tables if type(table) is not list]
+            all_list_tables = [table for table in target_tables if type(table) is list]
+            all_list_tables = [table for table_list in all_list_tables for table in table_list]
+            
+            all_tables = all_single_tables + all_list_tables
+            publish_tables = [table for table in all_tables if table.startswith("publish")]
+            dest_tables = [f"services.{table.split('.')[1]}" for table in publish_tables]
     
-    ################### Move Rasters ###################
-    if event['args'].get('output_rasters'):
-        s3 = boto3.resource('s3')
-        product_name = event['args']['product']['product']
-        mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
-        
-        workspace_rasters = event['args']['output_rasters']
-        workspace_rasters = [raster for raster in workspace_rasters if raster]
-        s3_bucket = event['args']['output_bucket']
-        
-        for s3_key in workspace_rasters:
-            s3_object = {"Bucket": s3_bucket, "Key": s3_key}
-            
-            processing_prefix = s3_key.split(product_name,1)[0]
-            cache_path = s3_key.split(product_name, 1)[1].replace('/workspace/tif', '')
-            cache_key = f"{processing_prefix}{product_name}/cache{cache_path}"
-
-            print(f"Caching {s3_key} at {cache_key}")
-            s3.meta.client.copy(s3_object, s3_bucket, cache_key)
-            
-            print("Deleting tif workspace raster")
-            s3.Object(s3_bucket, s3_key).delete()
-
-            raster_name = os.path.basename(s3_key).replace(".tif", "")
-            mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
-            published_prefix = f"{processing_prefix}{product_name}/published/{raster_name}"
-            
-            for extension in mrf_extensions:
-                mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
-                mrf_published_raster = f"{published_prefix}.{extension}"
+            egis_db = database(db_type="egis")
+            unstage_db_tables(egis_db, dest_tables)
+    
+            ################### Move Rasters ###################
+            if event['args']['product']['raster_outputs'].get('output_raster_workspaces'):
+                print(f"Moving and caching rasters for {event['args']['product']['product']}")
+                s3 = boto3.resource('s3')
+                output_raster_workspaces = [workspace for config, workspace in event['args']['product']['raster_outputs']['output_raster_workspaces'].items()]
+                mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
                 
-                if job_type == 'auto':
-                    print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
-                    s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
+                product_name = event['args']['product']['product']
+                s3_bucket = event['args']['product']['raster_outputs']['output_bucket']
+                
+                for output_raster_workspace in output_raster_workspaces:
+                    print(f"Moving and caching rasters in {output_raster_workspace}")
+                    output_raster_workspace = f"{output_raster_workspace}/tif"
+                        
+                    # Getting any sub configs such as fim_configs
+                    product_sub_config = output_raster_workspace.split(product_name,1)[1]
+                    product_sub_config = product_sub_config.split(reference_date,1)[0][1:-1]
+                    processing_prefix = output_raster_workspace.split(reference_date,1)[0][:-1]
+    
+                    if product_sub_config:
+                        cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}/{product_sub_config}"
+                    else:
+                        cache_path = f"viz_cache/{reference_date}/{reference_hour_min}/{product_name}"
+        
+                    workspace_rasters = list_s3_files(s3_bucket, output_raster_workspace)
+                    for s3_key in workspace_rasters:
+                        s3_object = {"Bucket": s3_bucket, "Key": s3_key}
+                        s3_filename = os.path.basename(s3_key)
+                        cache_key = f"{cache_path}/{s3_filename}"
             
-                print("Deleting a mrf workspace raster")
-                s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+                        print(f"Caching {s3_key} at {cache_key}")
+                        s3.meta.client.copy(s3_object, s3_bucket, cache_key)
+                        
+                        print("Deleting tif workspace raster")
+                        s3.Object(s3_bucket, s3_key).delete()
+            
+                        raster_name = s3_filename.replace(".tif", "")
+                        mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
+                        published_prefix = f"{processing_prefix}/published/{raster_name}"
+                        
+                        for extension in mrf_extensions:
+                            mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
+                            mrf_published_raster = f"{published_prefix}.{extension}"
+                            
+                            if job_type == 'auto':
+                                print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
+                                s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
+                        
+                            print("Deleting a mrf workspace raster")
+                            s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+            
+            return True
     
     ################### Stage EGIS Tables ###################
     if step == "update_summary_data":
@@ -82,7 +101,6 @@ def lambda_handler(event, context):
         
     tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
     
-    product_type = event['args']['product']['product_type']
     ## For Staging and Caching - Loop through all the tables relevant to the current step
     for table in tables:
         staged_table = f"{table}_stage"
@@ -106,7 +124,6 @@ def lambda_handler(event, context):
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
 
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
-            cleanup_cache(cache_bucket, table, reference_time)
 
         elif job_type == 'past_event':
             viz_schema = 'archive'
@@ -172,26 +189,21 @@ def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
         """
         cur.execute(sql)
     print(f"---> Refreshed {local_schema} foreign schema.")
-
-###################################
-# This function clears out old cache files outside of the buffer window
-def cleanup_cache(bucket, table, reference_time, retention_days=30, buffer_days=3):
-    s3_resource = boto3.resource('s3')
-
-    # Determine the date threshold for keeping max flows files
-    cuttoff_date = reference_time - timedelta(days=int(retention_days))
-    buffer_hours = int(buffer_days*24)
     
-    print(f"Clearing all cached versions of {table} older than {cuttoff_date}.")
-    # Loop through a few days worth of buffer hours after the winodw to try to delete old files
-    for hour in range(1, buffer_hours+1):
-        buffer_datetime = cuttoff_date - timedelta(hours=hour)
-        buffer_date = buffer_datetime.strftime("%Y%m%d")
-        buffer_hour = buffer_datetime.strftime("%H%M")
+##################################
+def list_s3_files(bucket, prefix):
+    s3 = boto3.client('s3')
+    files = []
+    paginator = s3.get_paginator('list_objects_v2')
+    for result in paginator.paginate(Bucket=bucket, Prefix=prefix):
+        if not result['KeyCount']:
+            continue
+        
+        for key in result['Contents']:
+            # Skip folders
+            if not key['Key'].endswith('/'):
+                files.append(key['Key'])
 
-        s3_key = f"viz_cache/{buffer_date}/{buffer_hour}/{table}.csv"
-
-        old_file = s3_file(bucket, s3_key)
-        if old_file.check_existence():
-            s3_resource.Object(bucket, s3_key).delete()
-            print(f"---> Deleted {s3_key} from {bucket}")
+    if not files:
+        print(f"No files found at {bucket}/{prefix}")
+    return files

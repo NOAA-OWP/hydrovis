@@ -229,8 +229,9 @@ class viz_lambda_pipeline:
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
         for target_table in list(gen_dict_extract("target_table", self.configuration.configuration_data_flow)):
+            target_table_schema = target_table.split(".")[0]
             target_table_name = target_table.split(".")[1]
-            new_table_name = f"{ref_prefix}{target_table_name}"
+            new_table_name = f"{ref_prefix}{target_table_schema}_{target_table_name}"
             sql_rename_dict[target_table] = f"archive.{new_table_name}"
         
         for product in self.pipeline_products:

@@ -62,7 +62,7 @@ def run_admin_tasks(event, folder, step, sql_replace):
     if step == 'ingest_prep':
         # if target table is not the original table, run the create command to create the table
         if past_event is True:
-            original_table = [k for k, v in sql_replace.items() if v == target_table and k != '']
+            original_table = [k for k, v in sql_replace.items() if v == target_table and k != ''][0]
             sql_replace.update({"{original_table}": original_table})
             run_sql('admin/create_table_from_original.sql', sql_replace)
         run_sql('admin/ingest_prep.sql', sql_replace)
