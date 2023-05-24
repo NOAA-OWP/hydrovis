@@ -97,7 +97,7 @@ def lambda_handler(event, context):
             # Ensuring that the description for the service matches the iteminfo
             matching_service = matching_services[0]
             if not matching_service.properties['description']:
-                print("Updating service propery description to match iteminfo")
+                print("Updating service property description to match iteminfo")
                 service_properties = matching_service.properties
                 service_properties['description'] = matching_service.iteminformation.properties['description']
                 matching_service.edit(dict(service_properties))
