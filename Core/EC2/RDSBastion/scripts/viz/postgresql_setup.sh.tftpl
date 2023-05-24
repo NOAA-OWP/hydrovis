@@ -133,7 +133,8 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${LOCATIONDBHOST}', dbname '$${LOCATIONDBNAME}', port '$${LOCATIONDBPORT}');
             CREATE USER MAPPING FOR $${VIZDBUSERNAME} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
             CREATE USER MAPPING FOR $${VIZ_PROC_ADMIN_RW_USER} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
-            IMPORT FOREIGN SCHEMA public LIMIT TO (usgs_gage) FROM SERVER wrds_location INTO external;"
+            IMPORT FOREIGN SCHEMA public FROM SERVER wrds_location INTO external;
+            ALTER SERVER wrds_location OPTIONS (set fetch_size '150000');"
 
 # Setting up EGIS DB - Part 2
 export PGPASSWORD=$${EGISDBPASSWORD}
