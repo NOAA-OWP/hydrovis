@@ -237,7 +237,7 @@ module "sns" {
   source = "./SNS"
 
   environment                = local.env.environment
-  rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket            = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }
 
@@ -605,7 +605,7 @@ module "viz_ec2" {
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
   nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
-  rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket             = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name

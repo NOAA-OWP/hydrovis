@@ -1,13 +1,5 @@
 DROP TABLE IF EXISTS publish.rfc_based_5day_max_inundation;
 
-WITH agg_status AS (
-    SELECT 
-        feature_id,
-        STRING_AGG(max_flows.forecast_nws_lid || ' @ ' || max_flows.forecast_issue_time || ' (' || max_flows.forecast_max_status || ')', ', ') AS inherited_rfc_forecasts,
-        INITCAP(MAX(REPLACE(max_flows.viz_max_status, '_', ' '))) AS max_status
-    FROM ingest.rnr_max_flows max_flows
-    GROUP BY feature_id
-)
 SELECT  
 	inun.hydro_id,
 	inun.hydro_id_str::TEXT AS hydro_id_str,
@@ -26,9 +18,9 @@ SELECT
 	channels.strm_order, 
     channels.name,
 	channels.state,
-    agg_status.inherited_rfc_forecasts,
-    agg_status.max_status
+    rnr_flow.influental_forecast_text AS inherited_rfc_forecasts,
+    rnr_flow.viz_status AS max_status
 INTO publish.rfc_based_5day_max_inundation
-FROM ingest.rfc_based_5day_max_inundation as inun 
-JOIN agg_status ON inun.feature_id = agg_status.feature_id
-left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;
+FROM ingest.rfc_based_5day_max_downstream_inundation as inun 
+JOIN publish.rfc_based_5day_max_streamflow rnr_flow ON rnr_flow.feature_id = inun.feature_id
+LEFT JOIN derived.channels_conus as channels ON channels.feature_id = inun.feature_id;

@@ -3,13 +3,6 @@ configuration: replace_route
 product_type: "fim"
 run: true
 
-ingest_files:
-    - file_format: max_flows/replace_route/{{datetime:%Y%m%d}}/rnr_{{datetime:%H}}_max_flows.csv
-      file_step: None
-      file_window: None
-      target_table: ingest.rnr_max_flows
-      target_keys: (feature_id)
-
 fim_configs:
   - name: rfc_based_5day_max_inundation
     target_table: ingest.rfc_based_5day_max_inundation
