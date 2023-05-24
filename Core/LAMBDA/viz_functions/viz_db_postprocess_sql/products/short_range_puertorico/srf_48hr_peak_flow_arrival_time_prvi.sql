@@ -30,7 +30,7 @@ JOIN derived.channels_prvi as channels ON forecasts.feature_id = channels.featur
 JOIN derived.recurrence_flows_prvi as rf ON forecasts.feature_id = rf.feature_id
 
 -- Join in high water arrival time for return time (the yaml config file ensures that arrival time finishes first for this, but we'll join on reference_time as well to ensure)
-JOIN publish.srf_high_water_arrival_time_prvi as arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
+JOIN publish.srf_48hr_high_water_arrival_time_prvi as arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
 GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_48hour_cms, channels.geom

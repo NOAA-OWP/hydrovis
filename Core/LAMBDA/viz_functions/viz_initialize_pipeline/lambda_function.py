@@ -470,10 +470,11 @@ class configuration:
             raster_output_bucket = os.environ['RASTER_OUTPUT_BUCKET']
             raster_output_prefix = os.environ['RASTER_OUTPUT_PREFIX']
             product_metadata['raster_outputs'] = {}
-            product_metadata['raster_outputs']['output_raster_workspaces'] = {}
+            product_metadata['raster_outputs']['output_bucket'] = ""
+            product_metadata['raster_outputs']['output_raster_workspaces'] = []
             if product_metadata['product_type'] == "raster":
                 product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
-                product_metadata['raster_outputs']['output_raster_workspaces'][product_name] = f"{raster_output_prefix}/{product_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"
+                product_metadata['raster_outputs']['output_raster_workspaces'].append({product_name: f"{raster_output_prefix}/{product_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"})
             
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
@@ -490,7 +491,7 @@ class configuration:
                     if fim_config['fim_type'] == "coastal":
                         if not product_metadata['raster_outputs'].get('output_bucket'):
                             product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
-                        product_metadata['raster_outputs']['output_raster_workspaces'][fim_config_name] = f"{raster_output_prefix}/{product_name}/{fim_config_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"
+                        product_metadata['raster_outputs']['output_raster_workspaces'].append({fim_config_name: f"{raster_output_prefix}/{product_name}/{fim_config_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"})
             
             if not product_metadata.get("postprocess_sql"):
                 product_metadata['postprocess_sql'] = []

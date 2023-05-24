@@ -14,8 +14,9 @@ def lambda_handler(event, context):
     file_window = event['product']['raster_input_files']['file_window']
     product_file = event['product']['raster_input_files']['product_file']
     input_bucket = event['product']['raster_input_files']['bucket']
+
     output_bucket = event['product']['raster_outputs']['output_bucket']
-    output_workspace = event['product']['raster_outputs']['output_raster_workspaces'][product_name]
+    output_workspace = event['product']['raster_outputs']['output_raster_workspaces'][0][product_name]
     reference_time = event['reference_time']
     reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
 
