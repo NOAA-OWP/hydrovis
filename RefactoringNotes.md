@@ -13,6 +13,9 @@
 - IAM
   - Roles
     - `HydrovisESRISSMDeploy_${var.region}` => `hv-vpp-${var.environment}-${var.region}-egis`
+- SecurityGroups
+  - Names
+    -  `ssm-session-manager-sg` => `hv-vpp-${var.environment}-vpc-access`
 - S3
   - Bucket Names
     - `hydrovis-${var.environment}-${var.name}-${var.region}` => `hv-vpp-${var.environment}-${var.region}-${var.name}`
