@@ -1,0 +1,14 @@
+name: srf_12hr_rapid_onset_flooding_probability
+dataset:
+    uris:
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/short_range/nwm.t{{datetime:%H}}z.short_range.channel_rt.f{{range:1,19,1,%03d}}.conus.nc
+    window: PT6H
+    repeat: PT1H
+    repeat_ref_time: 0:00:00
+    delay: PT1H47M
+    expect: PT2H15M
+    ping: PT5M
+    transfer: remote
+    clean: True
+process:
+    script: .\process.py

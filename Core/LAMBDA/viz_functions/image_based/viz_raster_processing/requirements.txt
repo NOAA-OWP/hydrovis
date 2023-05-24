@@ -1,7 +1,7 @@
-rioxarray
-netCDF4
-ecmwflibs
+rioxarray==0.14.1
+netCDF4==1.6.3
+ecmwflibs==0.5.3
 eccodes==1.2.0
-cfgrib
-requests
-isodate
+cfgrib==0.9.10.3
+requests==2.29.0
+isodate==0.6.1

@@ -3,9 +3,6 @@ import os
 import json
 from viz_classes import database
 
-class RequiredTableNotUpdated(Exception):
-    """ This is a custom exception to report back to the AWS Step Function that a required table (dependent_on_table) has not yet been updated with the current reference time. """
-
 def lambda_handler(event, context):
     step = event['step']
     folder = event['folder']
@@ -34,13 +31,6 @@ def lambda_handler(event, context):
         elif step == "products":
             folder = os.path.join(folder, event['args']['product']['configuration'])
             sql_file = event['args']['postprocess_sql']['sql_file']
-            if event.get('args').get('postprocess_sql').get('dependent_on_db_tables'):
-                dependent_on_tables = event['args']['postprocess_sql']['dependent_on_db_tables']
-                if len(dependent_on_tables) > 0:
-                    print("Dependent DB Table Specified - Checking if complete.")
-                    if check_required_tables(dependent_on_tables, reference_time, sql_replace) is False:
-                        print("Reference Time not yet present in required table. Pausing and Retrying.")
-                        raise RequiredTableNotUpdated
         # Summary
         elif step == 'summaries':
             folder = os.path.join(folder, event['args']['product']['product'])
@@ -48,6 +38,12 @@ def lambda_handler(event, context):
         
         ### Run the Appropriate SQL File ###
         sql_path = f"{folder}/{sql_file}.sql"
+        
+        # Checks if all tables references in sql file exist and are updated (if applicable)
+        # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
+        # and invoke a retry
+        database(db_type="viz").check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+
         run_sql(sql_path, sql_replace)
    
     return True
@@ -116,20 +112,3 @@ def run_sql(sql_path_or_str, sql_replace=None):
         connection.commit()
     print(f"Finished executing the SQL statement above.")
     return result
-
-# Check if a specified reference time is present in a database table
-def check_required_tables(dependent_on_tables, reference_time, sql_replace):
-    for table in dependent_on_tables:
-        sql = f"SELECT reference_time FROM {table} LIMIT 1"
-        for word, replacement in sql_replace.items():
-            sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
-        try:
-            result = run_sql(sql)
-        except: # table doesn't exist
-            return False
-        if not result: # table is empty
-            return False
-        elif result[0].replace(" UTC", "") == reference_time: # table reference time matches current reference time
-            return True
-        else: # table reference time doesn't match current reference time
-            return False

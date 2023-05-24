@@ -1,0 +1,11 @@
+service: srf_18hr_max_coastal_inundation_extent_noaa
+summary: Short-Range 18 Hour Maximum Coastal Inundation Extent Forecast
+description: Depicts the peak inundation extent of the National Water Model (NWM) total water level forecast 
+  over the next 18 hours. This service is derived from the analysis and assimilation configuration of the 
+  NWM over the contiguous U.S. Updated hourly.
+tags: national water model, nwm, srf, short, range, conus, schism, coastal, fim, inundation, extent
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

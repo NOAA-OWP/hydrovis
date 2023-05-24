@@ -21,5 +21,5 @@ SELECT
 	channels.state,
 	'ana_past_14day' AS config
 INTO publish.ana_past_14day_max_inundation
-FROM ingest.ana_past_14day_max_inundation as inun 
+FROM ingest.ana_past_14day_max_inundation as inun
 left join derived.channels_conus as channels ON channels.feature_id = inun.feature_id;

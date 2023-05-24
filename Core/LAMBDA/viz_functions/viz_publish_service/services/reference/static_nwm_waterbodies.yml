@@ -1,0 +1,9 @@
+service: static_nwm_waterbodies
+summary: NWM Waterbodies
+description: Depicts the waterbodies for the National Water Model
+tags: national water model, nws, fim, reference, waterbodies
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: true

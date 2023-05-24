@@ -30,7 +30,8 @@
             "Next": "Choice",
             "ResultPath": "$.result",
             "ResultSelector": {
-              "output_raster.$": "$.Payload.output_raster"
+              "output_raster.$": "$.Payload.output_raster",
+              "output_bucket.$": "$.Payload.output_bucket"
             }
           },
           "Choice": {
@@ -74,8 +75,7 @@
           },
           "Pass": {
             "Type": "Pass",
-            "End": true,
-            "InputPath": "$.result.output_raster"
+            "End": true
           }
         }
       },
@@ -93,7 +93,7 @@
           "sql_rename_dict.$": "$.sql_rename_dict"
         }
       },
-      "ResultPath": "$.hucs_to_process",
+      "ResultPath": null,
       "End": true
     }
   }

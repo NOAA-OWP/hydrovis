@@ -37,9 +37,10 @@ provider "aws" {
 module "iam-roles" {
   source = "./IAM/Roles"
 
-  environment = local.env.environment
-  account_id  = local.env.account_id
-  region      = local.env.region
+  environment                   = local.env.environment
+  account_id                    = local.env.account_id
+  region                        = local.env.region
+  nws_shared_account_s3_bucket  = local.env.nws_shared_account_s3_bucket
 }
 
 # IAM Users
@@ -189,6 +190,7 @@ module "vpc" {
   region                             = local.env.region
   vpc_ip_block                       = local.env.vpc_ip_block
   nwave_ip_block                     = local.env.nwave_ip_block
+  transit_gateway_id                 = local.env.transit_gateway_id
   public_route_peering_ip_block      = local.env.public_route_peering_ip_block
   public_route_peering_connection_id = local.env.public_route_peering_connection_id
 }
@@ -235,9 +237,7 @@ module "sns" {
   source = "./SNS"
 
   environment                = local.env.environment
-  nwm_data_bucket            = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_values_data_bucket = module.s3.buckets["fim"].bucket
-  rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket            = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }
 
@@ -288,7 +288,6 @@ module "viz_lambda_functions" {
   account_id                     = local.env.account_id
   region                         = local.env.region
   viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
-  nwm_data_bucket                = module.s3-replication.buckets["nwm"].bucket
   fim_data_bucket                = module.s3.buckets["deployment"].bucket
   fim_output_bucket              = module.s3.buckets["fim"].bucket
   max_values_bucket              = module.s3.buckets["fim"].bucket
@@ -298,6 +297,7 @@ module "viz_lambda_functions" {
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_hydrovis-viz-proc-pipeline-lambda.arn
   sns_topics                     = module.sns.sns_topics
+  nws_shared_account_nwm_sns     = local.env.nws_shared_account_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda_layers.es_logging.arn
   xarray_layer                   = module.lambda_layers.xarray.arn
@@ -319,6 +319,7 @@ module "viz_lambda_functions" {
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
+  default_tags                   = local.env.tags
 }
 
 # Simple Service Notifications
@@ -338,7 +339,7 @@ module "step_functions" {
   hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id] 
+  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id]
 }
 
 # Simple Service Notifications
@@ -422,6 +423,7 @@ module "ingest_lambda_functions" {
   backup_hml_bucket_arn       = module.s3.buckets["hml-backup"].arn
   lambda_subnet_ids           = [module.vpc.subnet_hydrovis-sn-prv-data1a.id, module.vpc.subnet_hydrovis-sn-prv-data1b.id]
   lambda_security_group_ids   = [module.security-groups.hydrovis-nat-sg.id]
+  nws_shared_account_hml_sns  = local.env.nws_shared_account_hml_sns
 }
 
 
@@ -601,9 +603,9 @@ module "viz_ec2" {
   dataservices_ip             = module.data-services.dataservices-ip
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
-  nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
+  nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
   nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
-  rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket             = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name

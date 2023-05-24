@@ -1,0 +1,482 @@
+{
+  "type" : "CIMMapDocument",
+  "version" : "2.7.0",
+  "build" : 26828,
+  "mapDefinition" : {
+    "type" : "CIMMap",
+    "name" : "NWM Snow Water Equivalent Analysis",
+    "uRI" : "CIMPATH=map/map.xml",
+    "sourceModifiedTime" : {
+      "type" : "TimeInstant",
+      "start" : 978307200000
+    },
+    "metadataURI" : "CIMPATH=Metadata/b08ff6556fce66a03134d3dcd2504b54.xml",
+    "useSourceMetadata" : true,
+    "illumination" : {
+      "type" : "CIMIlluminationProperties",
+      "ambientLight" : 75,
+      "sunPositionX" : -0.61237243569579003,
+      "sunPositionY" : 0.61237243569579003,
+      "sunPositionZ" : 0.5,
+      "illuminationSource" : "AbsoluteSunPosition",
+      "sunAzimuth" : 315,
+      "sunAltitude" : 30,
+      "showStars" : true,
+      "enableAmbientOcclusion" : true,
+      "enableEyeDomeLighting" : true
+    },
+    "layers" : [
+      "CIMPATH=nwm_snow_water_equivalent_analysis/ana_snow_water_equiv_mrf.xml"
+    ],
+    "defaultViewingMode" : "Map",
+    "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=past_72_hour_accumulated_precipitation/vizprocessing_publish_ana_72hr_accum_precip.xml"
+    ],
+    "defaultExtent" : {
+      "xmin" : -2474308.0471614236,
+      "ymin" : 76178.7700376557186,
+      "xmax" : 763712.968040505541,
+      "ymax" : 2216784.36940161046,
+      "spatialReference" : {
+        "wkt" : "PROJCS[\"Lambert_Conformal_Conic_2SP\",GEOGCS[\"GCS_unknown\",DATUM[\"D_unknown\",SPHEROID[\"unknown\",6370000.0,0.0]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Lambert_Conformal_Conic\"],PARAMETER[\"false_easting\",0.0],PARAMETER[\"false_northing\",0.0],PARAMETER[\"central_meridian\",-97.0],PARAMETER[\"standard_parallel_1\",30.0],PARAMETER[\"standard_parallel_2\",60.0],PARAMETER[\"latitude_of_origin\",40.0],UNIT[\"Meter\",1.0]]"
+      }
+    },
+    "elevationSurfaces" : [
+      {
+        "type" : "CIMMapElevationSurface",
+        "elevationMode" : "BaseGlobeSurface",
+        "name" : "Ground",
+        "verticalExaggeration" : 1,
+        "mapElevationID" : "{517BE08B-79DE-4E79-AEBB-C481AE488E6B}",
+        "color" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            100
+          ]
+        },
+        "surfaceTINShadingMode" : "Smooth",
+        "visibility" : true,
+        "expanded" : true
+      }
+    ],
+    "generalPlacementProperties" : {
+      "type" : "CIMMaplexGeneralPlacementProperties",
+      "invertedLabelTolerance" : 2,
+      "unplacedLabelColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          0,
+          0,
+          100
+        ]
+      },
+      "keyNumberGroups" : [
+        {
+          "type" : "CIMMaplexKeyNumberGroup",
+          "delimiterCharacter" : ".",
+          "horizontalAlignment" : "Left",
+          "maximumNumberOfLines" : 20,
+          "minimumNumberOfLines" : 2,
+          "name" : "Default",
+          "numberResetType" : "None",
+          "keyNumberMethod" : "PreventUnplacedLabels"
+        }
+      ],
+      "placementQuality" : "High"
+    },
+    "snappingProperties" : {
+      "type" : "CIMSnappingProperties",
+      "xYTolerance" : 10,
+      "xYToleranceUnit" : "SnapXYToleranceUnitPixel",
+      "snapToSketchEnabled" : true,
+      "snapRequestType" : "SnapRequestType_GeometricAndVisualSnapping",
+      "isZSnappingEnabled" : true
+    },
+    "spatialReference" : {
+      "wkt" : "PROJCS[\"Lambert_Conformal_Conic_2SP\",GEOGCS[\"GCS_unknown\",DATUM[\"D_unknown\",SPHEROID[\"unknown\",6370000.0,0.0]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Lambert_Conformal_Conic\"],PARAMETER[\"false_easting\",0.0],PARAMETER[\"false_northing\",0.0],PARAMETER[\"central_meridian\",-97.0],PARAMETER[\"standard_parallel_1\",30.0],PARAMETER[\"standard_parallel_2\",60.0],PARAMETER[\"latitude_of_origin\",40.0],UNIT[\"Meter\",1.0]]"
+    },
+    "timeDisplay" : {
+      "type" : "CIMMapTimeDisplay",
+      "defaultTimeIntervalUnits" : "esriTimeUnitsUnknown",
+      "timeValue" : {
+        "type" : "TimeExtent",
+        "start" : null,
+        "end" : null,
+        "empty" : false
+      },
+      "timeRelation" : "esriTimeRelationOverlaps"
+    },
+    "colorModel" : "RGB",
+    "scaleDisplayFormat" : "Value",
+    "clippingMode" : "None",
+    "nearPlaneClipDistanceMode" : "Automatic",
+    "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+  },
+  "layerDefinitions" : [
+    {
+      "type" : "CIMRasterLayer",
+      "name" : "Snow Water Equivalent",
+      "uRI" : "CIMPATH=nwm_snow_water_equivalent_analysis/ana_snow_water_equiv_mrf.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "description" : "ana_snow_water_equivalent.mrf",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{517BE08B-79DE-4E79-AEBB-C481AE488E6B}"
+      },
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "dataConnection" : {
+        "type" : "CIMStandardDataConnection",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_snow_water_equivalent\\published",
+        "workspaceFactory" : "Raster",
+        "dataset" : "ana_snow_water_equivalent.mrf",
+        "datasetType" : "esriDTAny"
+      },
+      "colorizer" : {
+        "type" : "CIMRasterClassifyColorizer",
+        "resamplingType" : "NearestNeighbor",
+        "noDataColor" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            0
+          ]
+        },
+        "normalizationType" : "Nothing",
+        "classBreaks" : [
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.050000000000000003,
+            "label" : "< 0.05\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                202,
+                247,
+                251,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.20000000000000001,
+            "label" : "0.05 - 0.2\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                163,
+                217,
+                247,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 0.40000000000000002,
+            "label" : "0.2 - 0.4\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                127,
+                162,
+                242,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 1,
+            "label" : "0.4 - 1\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                99,
+                100,
+                220,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 2,
+            "label" : "1 - 2\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                92,
+                62,
+                204,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 4,
+            "label" : "2 - 4\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                118,
+                27,
+                202,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 6,
+            "label" : "4 - 6\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                175,
+                46,
+                212,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 10,
+            "label" : "6 - 10\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                225,
+                80,
+                218,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 20,
+            "label" : "10 - 20\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                237,
+                114,
+                193,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 30,
+            "label" : "20 - 30\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                244,
+                149,
+                184,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 40,
+            "label" : "30 - 40\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                253,
+                185,
+                192,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 196.84999999999999,
+            "label" : "> 40\"",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                242,
+                217,
+                210,
+                100
+              ]
+            }
+          }
+        ],
+        "classificationMethod" : "Manual",
+        "colorRamp" : {
+          "type" : "CIMLinearContinuousColorRamp",
+          "colorSpace" : {
+            "type" : "CIMICCColorSpace",
+            "url" : "Default RGB"
+          },
+          "fromColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              60,
+              100,
+              96,
+              100
+            ]
+          },
+          "toColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              0,
+              100,
+              96,
+              100
+            ]
+          }
+        },
+        "field" : "Value",
+        "hillshadeZFactor" : 1,
+        "minimumBreak" : 0.01,
+        "showInAscendingOrder" : true,
+        "numberFormat" : {
+          "type" : "CIMNumericFormat",
+          "alignmentOption" : "esriAlignLeft",
+          "alignmentWidth" : 12,
+          "roundingOption" : "esriRoundNumberOfDecimals",
+          "roundingValue" : 2,
+          "useSeparator" : true
+        },
+        "heading" : "Snow Water Equivalent"
+      },
+      "autoComputeStatsHistogram" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/63fc4c3df6aa01b4c37a4daeea22b32d.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20221215</CreaDate><CreaTime>05414900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/b08ff6556fce66a03134d3dcd2504b54.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220906</CreaDate><CreaTime>17434600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCADIASwDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoA//Z</Data></Thumbnail></Binary></metadata>\r\n"
+    }
+  ],
+  "tableDefinitions" : [
+    {
+      "type" : "CIMStandaloneTable",
+      "name" : "Service Metadata",
+      "uRI" : "CIMPATH=past_72_hour_accumulated_precipitation/vizprocessing_publish_ana_72hr_accum_precip.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant",
+        "start" : 978307200000
+      },
+      "metadataURI" : "CIMPATH=Metadata/63fc4c3df6aa01b4c37a4daeea22b32d.xml",
+      "useSourceMetadata" : true,
+      "displayField" : "reference_time",
+      "editable" : true,
+      "fieldDescriptions" : [
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "oid",
+          "fieldName" : "oid",
+          "numberFormat" : {
+            "type" : "CIMNumericFormat",
+            "alignmentOption" : "esriAlignRight",
+            "alignmentWidth" : 0,
+            "roundingOption" : "esriRoundNumberOfDecimals",
+            "roundingValue" : 0
+          },
+          "readOnly" : true,
+          "visible" : false,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Reference Time",
+          "fieldName" : "reference_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Valid Time",
+          "fieldName" : "valid_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Update Time",
+          "fieldName" : "update_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        }
+      ],
+      "dataConnection" : {
+        "type" : "CIMSqlQueryDataConnection",
+        "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686b4e744e6d53537a414748372b46335a756c517576577a4b68362f3672536e42436f6c4a6a6c426e48646a4b3669656d4138716c737262622f4e794f734957482a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+        "workspaceFactory" : "SDE",
+        "dataset" : "vizprocessing.publish.%ana_72hr_accum_precip",
+        "datasetType" : "esriDTTable",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_snow_water_equivalent",
+        "oIDFields" : "oid",
+        "geometryType" : "esriGeometryNull",
+        "queryFields" : [
+          {
+            "name" : "oid",
+            "type" : "esriFieldTypeInteger",
+            "alias" : "oid"
+          },
+          {
+            "name" : "reference_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "reference_time",
+            "length" : 25
+          },
+          {
+            "name" : "valid_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "valid_time",
+            "length" : 25
+          },
+          {
+            "name" : "update_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "update_time",
+            "length" : 25
+          }
+        ]
+      },
+      "autoGenerateRowTemplates" : true,
+      "serviceTableID" : -1,
+      "showPopups" : true
+    }
+  ]
+}
