@@ -50,8 +50,6 @@ def lambda_handler(event, context):
                                         "short_range.forcing.f048.hawaii.nc",
                                         "short_range.channel_rt.f048.puertorico.nc",
                                         "short_range.forcing.f048.puertorico.nc",
-                                        "medium_range.channel_rt_1.f072.conus.nc",
-                                        "medium_range.channel_rt_1.f120.conus.nc",
                                         "medium_range.channel_rt_1.f240.conus.nc",
                                         "medium_range.forcing.f240.conus.nc"]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
