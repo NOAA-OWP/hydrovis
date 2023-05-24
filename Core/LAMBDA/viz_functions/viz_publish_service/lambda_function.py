@@ -1,6 +1,7 @@
 import boto3
 import os
 import time
+import json
 from arcgis.gis import GIS
 from viz_classes import s3_file
 import yaml
@@ -9,6 +10,8 @@ def lambda_handler(event, context):
     
     s3 = boto3.client('s3')
     folder = event['folder']
+    configuration = event['args']['configuration']
+    reference_time = event['args']['reference_time']
     service_name = event['args']['service']
     service_metadata = get_service_metadata(folder, service_name)
     
@@ -150,6 +153,14 @@ def lambda_handler(event, context):
             raise Exception(f"{service_name} failed to start in a timely manner")
             
         print(f"{service_name} started successfully")
+
+    print(json.dumps({
+        "configuration": configuration,
+        "pipeline_status_code": 13,
+        "reference_time": reference_time,
+        "service": service_name,
+        "message": "Service successfully published"
+    }))
             
             
     return True

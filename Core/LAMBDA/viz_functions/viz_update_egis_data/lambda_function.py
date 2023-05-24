@@ -1,6 +1,7 @@
 import boto3
 import os
-from viz_classes import database, s3_file
+import json
+from viz_classes import database
 from viz_lambda_shared_funcs import gen_dict_extract
 from datetime import datetime, timedelta
 
@@ -9,6 +10,7 @@ def lambda_handler(event, context):
     cache_bucket = os.environ['CACHE_BUCKET']
     step = event['step']
     job_type = event['args']['job_type']
+    configuration = event['args']['configuration']
     reference_time = datetime.strptime(event['args']['reference_time'], '%Y-%m-%d %H:%M:%S')
     reference_date = reference_time.strftime('%Y%m%d')
     reference_hour_min = reference_time.strftime('%H%M')
@@ -32,6 +34,10 @@ def lambda_handler(event, context):
 
             egis_db = database(db_type="egis")
             unstage_db_tables(egis_db, dest_tables)
+
+            pipeline_status_code = 11
+            log_message = "Unstaged DB Tables"
+            
         elif step == "unstage_rasters":
             ################### Move Rasters ###################
             print(f"Moving and caching rasters for {event['args']['product']['product']}")
@@ -81,19 +87,36 @@ def lambda_handler(event, context):
                 
                     print("Deleting a mrf workspace raster")
                     s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+
+            pipeline_status_code = 12
+            log_message = "Unstaged Rasters"
+
+        reference_time = event['args']['reference_time']
+        print(json.dumps({
+            "configuration": configuration,
+            "pipeline_status_code": pipeline_status_code,
+            "reference_time": reference_time,
+            "message": log_message
+        }))
         
         return True
     
     ################### Stage EGIS Tables ###################
     if step == "update_summary_data":
         tables =  event['args']['postprocess_summary']['target_table']
+        log_message = "Finished Staging Product Summary Tables"
+        pipeline_status_code = 10
     elif step == "update_fim_config_data":
         if not event['args']['fim_config'].get('postprocess'):
             return
         
         tables = [event['args']['fim_config']['postprocess']['target_table']]
+        log_message = "Finished Staging FIM config Tables"
+        pipeline_status_code = None
     else:
         tables = [event['args']['postprocess_sql']['target_table']]
+        log_message = "Finished Staging Product Postprocessing Tables"
+        pipeline_status_code = 8
         
     tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
     
@@ -124,6 +147,15 @@ def lambda_handler(event, context):
         elif job_type == 'past_event':
             viz_schema = 'archive'
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
+
+    reference_time = event['args']['reference_time']
+    if pipeline_status_code:
+        print(json.dumps({
+            "configuration": configuration,
+            "pipeline_status_code": pipeline_status_code,
+            "reference_time": reference_time,
+            "message": log_message
+        }))
     
     return True
 

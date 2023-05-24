@@ -53,7 +53,8 @@
       "ItemSelector": {
         "lambda_max_flow.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
-        "sql_rename_dict.$": "$.sql_rename_dict"
+        "sql_rename_dict.$": "$.sql_rename_dict",
+        "configuration.$": "$.configuration"
       }
     },
     "Input Data Groups": {
@@ -143,7 +144,8 @@
               "target_table.$": "$.db_ingest_group.target_table",
               "bucket.$": "$.db_ingest_group.bucket",
               "reference_time.$": "$.reference_time",
-              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above"
+              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above",
+              "configuration.$": "$.configuration"
             },
             "ItemsPath": "$.db_ingest_group.ingest_datasets"
           },
@@ -242,7 +244,8 @@
       "Parameters": {
         "db_max_flow.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
-        "sql_rename_dict.$": "$.sql_rename_dict"
+        "sql_rename_dict.$": "$.sql_rename_dict",
+        "configuration.$": "$.configuration"
       },
       "MaxConcurrency": 5,
       "Next": "Product Processing"
@@ -435,7 +438,8 @@
               "reference_time.$": "$.reference_time",
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict",
-              "postprocess_sql.$": "$$.Map.Item.Value"
+              "postprocess_sql.$": "$$.Map.Item.Value",
+              "configuration.$": "$.configuration"
             },
             "ResultPath": null
           },
@@ -759,7 +763,8 @@
               "reference_time.$": "$.reference_time",
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict",
-              "postprocess_summary.$": "$$.Map.Item.Value"
+              "postprocess_summary.$": "$$.Map.Item.Value",
+              "configuration.$": "$.configuration"
             },
             "ResultPath": null
           },
@@ -862,7 +867,8 @@
                       "job_type.$": "$.job_type",
                       "sql_rename_dict.$": "$.sql_rename_dict",
                       "raster_output_bucket.$": "$.product.raster_outputs.output_bucket",
-                      "raster_output_workspace.$": "$$.Map.Item.Value"
+                      "raster_output_workspace.$": "$$.Map.Item.Value",
+                      "configuration.$": "$.configuration"
                     },
                     "ItemsPath": "$.product.raster_outputs.output_raster_workspaces"
                   }
@@ -925,7 +931,8 @@
               "reference_time.$": "$.reference_time",
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict",
-              "service.$": "$$.Map.Item.Value"
+              "service.$": "$$.Map.Item.Value",
+              "configuration.$": "$.configuration"
             }
           },
           "Pass": {

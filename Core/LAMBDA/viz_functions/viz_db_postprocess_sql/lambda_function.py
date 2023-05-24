@@ -6,6 +6,7 @@ from viz_classes import database
 def lambda_handler(event, context):
     step = event['step']
     folder = event['folder']
+    configuration = event['args']['configuration']
     reference_time = event['args']['reference_time']
     sql_replace = event['args']['sql_rename_dict']
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
@@ -22,6 +23,8 @@ def lambda_handler(event, context):
         # Max Flow
         if step == "max_flows":
             sql_file = event['args']['db_max_flow']['max_flows_sql_file']
+            log_message = "Finished DB Max Flow Calculations"
+            pipeline_status_code = 6
         # FIM Config
         elif step == 'fim_config':
             if not event['args']['fim_config'].get('postprocess'):
@@ -31,10 +34,14 @@ def lambda_handler(event, context):
         elif step == "products":
             folder = os.path.join(folder, event['args']['product']['configuration'])
             sql_file = event['args']['postprocess_sql']['sql_file']
+            log_message = "Finished Product Postprocessing"
+            pipeline_status_code = 7
         # Summary
         elif step == 'summaries':
             folder = os.path.join(folder, event['args']['product']['product'])
             sql_file = event['args']['postprocess_summary']['sql_file'] 
+            log_message = "Finished Product Summaries"
+            pipeline_status_code = 9
         
         ### Run the Appropriate SQL File ###
         sql_path = f"{folder}/{sql_file}.sql"
@@ -45,6 +52,13 @@ def lambda_handler(event, context):
         database(db_type="viz").check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
         run_sql(sql_path, sql_replace)
+
+        print(json.dumps({
+            "configuration": configuration,
+            "pipeline_status_code": pipeline_status_code,
+            "reference_time": reference_time,
+            "message": log_message
+        }))
    
     return True
 
@@ -67,7 +81,7 @@ def run_admin_tasks(event, folder, step, sql_replace, reference_time):
         run_sql('admin/ingest_prep.sql', sql_replace)
         print(json.dumps({
             "configuration": configuration,
-            "status_code": 2,
+            "pipeline_status_code": 3,
             "reference_time": reference_time,
             "target_table": target_table,
             "message": "Prepped DB ingest for table"
@@ -79,7 +93,7 @@ def run_admin_tasks(event, folder, step, sql_replace, reference_time):
         run_sql('admin/ingest_finish.sql', sql_replace)
         print(json.dumps({
             "configuration": configuration,
-            "status_code": 2,
+            "pipeline_status_code": 5,
             "reference_time": reference_time,
             "target_table": target_table,
             "message": "Finished DB ingest for table"

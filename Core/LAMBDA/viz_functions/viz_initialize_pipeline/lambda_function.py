@@ -101,7 +101,7 @@ def lambda_handler(event, context):
             reference_time = pipeline.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S")
             print(json.dumps({
                 "configuration": pipeline.configuration.name,
-                "status_code": 1,
+                "pipeline_status_code": 1,
                 "reference_time": reference_time,
                 "message": "Invoked the viz pipeline"
             }))

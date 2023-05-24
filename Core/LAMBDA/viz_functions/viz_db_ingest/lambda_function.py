@@ -35,6 +35,7 @@ def lambda_handler(event, context):
     file = event['file']
     bucket = event['bucket']
     reference_time = event['reference_time']
+    configuration = event['configuration']
     keep_flows_at_or_above = event['keep_flows_at_or_above']
     
     print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
@@ -111,12 +112,22 @@ def lambda_handler(event, context):
         except Exception as e:
             print(f"Error: {e}")
             raise e
+        
+    print(json.dumps({
+        "configuration": configuration,
+        "pipeline_status_code": 4,
+        "reference_time": reference_time,
+        "target_table": target_table,
+        "message": "Loaded data for DB ingest",
+        "file": file,
+        "rows_imported": len(df_toLoad)
+    }))
     
     dump_dict = {
-                        "file": file,
-                        "target_table": target_table,
-                        "reference_time": reference_time,
-                        "rows_imported": len(df_toLoad),
-                        "nwm_version": nwm_version
-                    }
+        "file": file,
+        "target_table": target_table,
+        "reference_time": reference_time,
+        "rows_imported": len(df_toLoad),
+        "nwm_version": nwm_version
+    }
     return json.dumps(dump_dict)    # Return some info on the import

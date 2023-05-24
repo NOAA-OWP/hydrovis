@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import boto3
 import tempfile
+import json
 
 from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
 
@@ -38,6 +39,8 @@ def lambda_handler(event, context):
     """
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration")
+    configuration = event['args']['configuration']
+    reference_time = event['args']['reference_time']
     
     if event["step"] == "fim_config_max_file":
         config_name = event['args']['fim_config']['name']
@@ -49,7 +52,6 @@ def lambda_handler(event, context):
         fileset_bucket = event['args']['fim_config']['preprocess']['fileset_bucket']
         output_file = event['args']['fim_config']['preprocess']['output_file']
         output_file_bucket = event['args']['fim_config']['preprocess']['output_file_bucket']
-        reference_time = event['args']['reference_time']
         reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
         
         file_step = None if file_step == "None" else file_step
@@ -66,12 +68,19 @@ def lambda_handler(event, context):
         fileset_bucket = event['args']['lambda_max_flow']['fileset_bucket']
         output_file = event['args']['lambda_max_flow']['output_file']
         output_file_bucket = event['args']['lambda_max_flow']['output_file_bucket']
-        reference_time = event['args']['reference_time']
+        pipeline_status_code = 2
+        log_message = "Successfully created max flow file"
         
     print(f"Creating {output_file}")
     # Once the files exist, calculate the max flows
     aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
-    print(f"Successfully created {output_file} in {output_file_bucket}")
+
+    print(json.dumps({
+        "configuration": configuration,
+        "pipeline_status_code": pipeline_status_code,
+        "reference_time": reference_time,
+        "message": log_message
+    }))
 
     return event['args']
 
