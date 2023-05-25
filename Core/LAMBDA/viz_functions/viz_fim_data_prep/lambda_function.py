@@ -57,7 +57,7 @@ def setup_huc_inundation(event):
     # Checks if all tables references in sql file exist and are updated (if applicable)
     # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
     # and invoke a retry
-    process_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+    viz_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
     sql = open(sql_path, 'r').read().lower()
 
