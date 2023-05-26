@@ -85,6 +85,7 @@ def lambda_handler(event, context):
                 raise e
             new_item.update(item_properties={'snippet': summary, 'description': description,
                             'tags': tags, 'accessInformation': credits})
+            
             print(f"---> Updated {service_name} descriptions, tags, and credits in Portal.")
             if public_service:
                 new_item.share(org=True, everyone=True)
@@ -92,6 +93,14 @@ def lambda_handler(event, context):
             else:    
                 new_item.share(org=True)
                 print(f"---> Updated {service_name} sharing to org in Portal.")
+
+            # Ensuring that the description for the service matches the iteminfo
+            matching_service = matching_services[0]
+            if not matching_service.properties['description']:
+                print("Updating service property description to match iteminfo")
+                service_properties = matching_service.properties
+                service_properties['description'] = matching_service.iteminformation.properties['description']
+                matching_service.edit(dict(service_properties))
             
             # Create publish flag file
             tmp_published_file = f"/tmp/{service_name}"
