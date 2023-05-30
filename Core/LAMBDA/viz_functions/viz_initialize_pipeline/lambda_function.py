@@ -362,9 +362,6 @@ class configuration:
                 
             new_keys = [key for key in target_keys if key not in target_table_input_files[target_table]['target_keys'] and key]
             target_table_input_files[target_table]['target_keys'].extend(new_keys)
-            
-            if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > self.reference_time:
-                file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
 
             if file_window:
                 if not file_window_step:

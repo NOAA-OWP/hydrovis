@@ -76,7 +76,10 @@ def lambda_handler(event, context):
                                     "streamflow double precision)")
                 else:
                     ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    try:
+                        ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    except:
+                        ds['nwm_vers'] = 0
                     df = ds.to_dataframe().reset_index()
                     ds.close()
         
