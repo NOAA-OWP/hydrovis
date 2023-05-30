@@ -220,23 +220,25 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         for word, replacement in sql_replace.items():
             sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
         
-        required_tables = set(re.findall('(?<=FROM |JOIN )\w+\.\w+', sql, flags=re.IGNORECASE))
-        if not required_tables:
+        output_tables = set(re.findall('(?<=INTO )\w+\.\w+', sql, flags=re.IGNORECASE)) 
+        input_tables = set(re.findall('(?<=FROM |JOIN )\w+\.\w+', sql, flags=re.IGNORECASE))
+        check_tables = [t for t in input_tables if t not in output_tables]
+
+        if not check_tables:
             return True
         
         # This next 3 lines were added specifically to abort checking cache.max_flows_ana when creating 
         # cache.max_flows_ana_past_hour since cache.max_flow_ana will always be an hour behind at the 
-        # time of creating the past_hour table. Rather than hard-code it, I've left it more generalized 
+        # time of creating the past_hour table. Rather than hard-code it exactly, I've left it more generalized 
         # in case other similar cases come up. But this could ideally be removed once We figure out a 
         # new method for storing the past hour of max_flows_ana.
-        tables_that_invalidate_check = set(re.findall('(?<=INTO )\w+\.\w*past\w*', sql, flags=re.IGNORECASE))
-        if tables_that_invalidate_check:
+        if any('past' in t for t in output_tables):
             return True
 
         # Required tables exist and should be checked
         with self.connection as connection:
             cur = connection.cursor()
-            for table in required_tables:
+            for table in check_tables:
                 if issues_encountered and stop_on_first_issue:
                     break
                 schemaname, tablename = table.lower().split('.')
