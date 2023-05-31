@@ -80,7 +80,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
 
     depth_key = f'{output_workspace}/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
-    coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
+    coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_{domain}_huc8s.zip'
     temp_folder = tempfile.mkdtemp()
     bounds = None
 

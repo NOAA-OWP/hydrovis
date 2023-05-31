@@ -1,0 +1,11 @@
+service: ana_coastal_inundation_extent_prvi
+summary: Coastal Inundation Extent Analysis for Puerto Rico and Virgin Islands
+description: Depicts the inundation extent of the National Water Model (NWM) total water level forecast.
+  This service is derived from the analysis and assimilation configuration of the NWM over Puerto Rico and the U.S. Virgin Islands.
+  Updated hourly.
+tags: national water model, nwm, ana, schism, coastal, fim, inundation, extent, prvi, puertorico
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false
