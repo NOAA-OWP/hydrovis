@@ -35,10 +35,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -10043933.54418171,
-      "ymin" : 3794757.52702452661,
-      "xmax" : -10036031.1876277644,
-      "ymax" : 3798078.73427519621,
+      "xmin" : -10044359.3778829388,
+      "ymin" : 3793524.5557456119,
+      "xmax" : -10035605.3539265357,
+      "ymax" : 3799311.70555411093,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -1781,6 +1781,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1846,16 +1853,30 @@
             "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1883,25 +1904,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -1912,31 +1932,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -1947,19 +1967,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -2358,7 +2383,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0 AND magnitude = 'action'",
+        "definitionExpression" : "interval_stage =          0 AND magnitude = 'action'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
@@ -2438,6 +2463,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2503,15 +2535,29 @@
             },
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2539,25 +2585,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -2568,31 +2613,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -2603,19 +2648,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -3139,6 +3189,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3204,15 +3261,29 @@
             "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3240,25 +3311,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -3269,31 +3339,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -3304,19 +3374,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -3715,7 +3790,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0 AND magnitude = 'minor'",
+        "definitionExpression" : "interval_stage =  0 AND magnitude = 'minor'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
@@ -3795,6 +3870,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3860,15 +3942,29 @@
             },
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3896,25 +3992,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -3925,31 +4020,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -3960,19 +4055,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -4496,6 +4596,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4561,16 +4668,30 @@
             "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4598,25 +4719,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -4627,31 +4747,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -4662,19 +4782,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -5073,7 +5198,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0 AND magnitude = 'moderate'",
+        "definitionExpression" : "interval_stage =  0 AND magnitude = 'moderate'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
@@ -5153,6 +5278,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5218,15 +5350,29 @@
             },
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5254,25 +5400,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -5283,31 +5428,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -5318,19 +5463,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -5854,6 +6004,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5919,16 +6076,30 @@
             "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5956,25 +6127,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -5985,31 +6155,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -6020,19 +6190,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -6431,7 +6606,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0 AND magnitude = 'major'",
+        "definitionExpression" : "interval_stage =  0 AND magnitude = 'major'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
@@ -6511,6 +6686,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -6576,15 +6758,29 @@
             },
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6612,25 +6808,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -6641,31 +6836,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -6676,19 +6871,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -7132,7 +7332,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage = 0 AND magnitude = 'record'",
+        "definitionExpression" : "interval_stage =  0 AND magnitude = 'record'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
@@ -7212,6 +7412,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
             "fieldName" : "version",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -7277,15 +7484,29 @@
             },
             "visible" : false,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6879663255762b434e664e5a785855566c644d746b6f6c7a4d54515449774d564d504b6974473670574e43453d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684b4958444249444239624139536a46486c43692f6936392f4174346643326c74397170306a5665724131343d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3",
+          "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_3_3_4_5_6_7_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,lid_alt_m,viz,geom from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -7313,25 +7534,24 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "version",
-              "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "type" : "esriFieldTypeDouble",
+              "alias" : "version"
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "interval_stage",
@@ -7342,31 +7562,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 50
+              "length" : 60000
             },
             {
               "name" : "stage",
@@ -7377,19 +7597,24 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 255
+              "length" : 60000
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
