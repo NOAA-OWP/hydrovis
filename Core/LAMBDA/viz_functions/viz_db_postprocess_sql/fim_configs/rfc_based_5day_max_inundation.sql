@@ -21,6 +21,6 @@ SELECT
     rnr_flow.influental_forecast_text AS inherited_rfc_forecasts,
     rnr_flow.viz_status AS max_status
 INTO publish.rfc_based_5day_max_inundation
-FROM ingest.rfc_based_5day_max_downstream_inundation as inun 
+FROM ingest.rfc_based_5day_max_inundation as inun 
 JOIN publish.rfc_based_5day_max_streamflow rnr_flow ON rnr_flow.feature_id = inun.feature_id
 LEFT JOIN derived.channels_conus as channels ON channels.feature_id = inun.feature_id;

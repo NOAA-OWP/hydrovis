@@ -4,7 +4,7 @@ product_type: "vector"
 run: true
 
 ingest_files:
-    - file_format: replace_route/{{datetime:%Y%m%d}}/wrf_hydro/wrf_hydro_t{{datetime:%H}}.medium_range.channel_rt.f{{range:0,120,1,%03d}}.conus.nc
+    - file_format: replace_route/{{datetime:%Y%m%d}}/wrf_hydro/replace_route.t{{datetime:%H}}z.medium_range.channel_rt.f{{range:0,120,1,%03d}}.conus.nc
       file_step: None
       file_window: None
       target_table: ingest.rnr_wrf_hydro_outputs
