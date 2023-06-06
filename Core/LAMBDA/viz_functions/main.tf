@@ -172,20 +172,6 @@ locals {
   ingest_flow_threshold = 0.001
 
   initialize_pipeline_subscriptions = toset([
-    "nwm_channel_ana",
-    "nwm_forcing_ana",
-    "nwm_channel_ana_hi",
-    "nwm_forcing_ana_hi",
-    "nwm_channel_ana_prvi",
-    "nwm_forcing_ana_prvi",
-    "nwm_channel_srf",
-    "nwm_forcing_srf",
-    "nwm_channel_srf_hi",
-    "nwm_forcing_srf_hi",
-    "nwm_channel_srf_prvi",
-    "nwm_forcing_srf_prvi",
-    "nwm_channel_mrf_10day",
-    "nwm_forcing_mrf",
     "rnr_max_flows"
   ])
 }
