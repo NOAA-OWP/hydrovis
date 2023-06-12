@@ -203,7 +203,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     geom = [shape(i['geom']) for i in geoms]
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
-    df_final = df_final.dissolve(by="hydro_id").explode()
+    df_final = df_final.dissolve(by="hydro_id")
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
     
@@ -217,8 +217,6 @@ def create_inundation_catchment_boundary(huc8, branch):
     df_final['fim_version'] = FIM_VERSION
     df_final['huc8'] = huc8
     df_final['branch'] = branch
-
-    df_final = df_final.drop(columns=["level_1"])
                 
     return df_final
     
@@ -395,7 +393,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     geom = [shape(i['geom']) for i in geoms]
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
-    df_final = df_final.dissolve(by="hydro_id").explode()
+    df_final = df_final.dissolve(by="hydro_id")
     df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
@@ -421,7 +419,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
     df_final['feature_id_str'] = df_final['feature_id'].astype(str)
 
-    df_final = df_final.drop(columns=["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms", "level_1"])
+    df_final = df_final.drop(columns=["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"])
                 
     return df_final
 
