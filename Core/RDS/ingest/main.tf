@@ -57,6 +57,10 @@ resource "aws_db_instance" "hydrovis" {
   backup_retention_period      = 7
   skip_final_snapshot          = true
   auto_minor_version_upgrade   = false
+  tags = {
+    "hv-vpp-${var.environment}-data-ingest-rdsdbtag" : "hv-vpp-${var.environment}-data-ingest-rdsdbtag"
+    "noaa:monitoring"                                : "true"
+  }
 }
 
 resource "aws_route53_record" "hydrovis" {

@@ -286,6 +286,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -383,7 +390,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -401,7 +408,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "name",
@@ -418,7 +425,13 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
             },
             {
               "name" : "nwm_vers",
@@ -429,7 +442,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "peak_flow_arrival_hour",
@@ -455,7 +468,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",

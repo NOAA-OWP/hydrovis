@@ -345,6 +345,15 @@
                   "Retry": [
                     {
                       "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required Table Not Ran Yet (postprocess_sql.dependent_on_db_tables)"
+                    },
+                    {
+                      "ErrorEquals": [
                         "Lambda.ServiceException",
                         "Lambda.AWSLambdaException",
                         "Lambda.SdkClientException"

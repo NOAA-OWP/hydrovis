@@ -716,49 +716,49 @@
               "name" : "wrds_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "wrds_timestamp",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nrldb_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "nrldb_timestamp",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nwis_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "nwis_timestamp",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "metadata_sources",
               "type" : "esriFieldTypeString",
               "alias" : "metadata_sources",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_gage",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_gage",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nwm_seg",
               "type" : "esriFieldTypeString",
               "alias" : "nwm_seg",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "identifiers_goes_id",
               "type" : "esriFieldTypeString",
               "alias" : "identifiers_goes_id",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "identifiers_env_can_gage_id",
@@ -769,25 +769,25 @@
               "name" : "nws_data_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_wfo",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_geo_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_geo_rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_latitude",
@@ -803,25 +803,25 @@
               "name" : "nws_data_map_link",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_map_link",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_horizontal_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_horizontal_datum_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_state",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_state",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_county",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_county",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_county_code",
@@ -832,13 +832,13 @@
               "name" : "nws_data_huc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_huc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_hsa",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_hsa",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_zero_datum",
@@ -849,67 +849,67 @@
               "name" : "nws_data_vertical_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_vertical_datum_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_rfc_forecast_point",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc_forecast_point",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_rfc_defined_fcst_point",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc_defined_fcst_point",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_data_riverpoint",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_riverpoint",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_geo_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_geo_rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_map_link",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_map_link",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_coord_accuracy_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_coord_accuracy_code",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_latlon_datum_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_coord_method_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_coord_method_code",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_state",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_state",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_huc",
@@ -920,7 +920,7 @@
               "name" : "usgs_data_site_type",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_site_type",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_altitude",
@@ -936,13 +936,13 @@
               "name" : "usgs_data_alt_datum_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_alt_datum_code",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_alt_method_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_alt_method_code",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_drainage_area",
@@ -953,7 +953,7 @@
               "name" : "usgs_data_drainage_area_units",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_drainage_area_units",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_data_contrib_drainage_area",
@@ -979,79 +979,79 @@
               "name" : "nws_preferred_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_preferred_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_latlon_datum_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_preferred_state",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_state",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "nws_preferred_huc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_huc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_preferred_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_preferred_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_latlon_datum_name",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "usgs_preferred_state",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_state",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "assigned_crs",
               "type" : "esriFieldTypeString",
               "alias" : "assigned_crs",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "states",
               "type" : "esriFieldTypeString",
               "alias" : "states",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "mapped",
               "type" : "esriFieldTypeString",
               "alias" : "mapped",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "status",
               "type" : "esriFieldTypeString",
               "alias" : "status",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -1883,25 +1883,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -1912,31 +1912,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -1947,19 +1947,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -2539,25 +2539,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -2568,31 +2568,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -2603,19 +2603,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -3240,25 +3240,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -3269,31 +3269,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -3304,19 +3304,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -3896,25 +3896,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -3925,31 +3925,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -3960,19 +3960,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -4598,25 +4598,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -4627,31 +4627,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -4662,19 +4662,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -5254,25 +5254,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -5283,31 +5283,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -5318,19 +5318,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -5956,25 +5956,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -5985,31 +5985,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -6020,19 +6020,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -6612,25 +6612,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -6641,31 +6641,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -6676,19 +6676,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",
@@ -7313,25 +7313,25 @@
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "interval_stage",
@@ -7342,31 +7342,31 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
             },
             {
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "rfc",
               "type" : "esriFieldTypeString",
               "alias" : "rfc",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "stage",
@@ -7377,19 +7377,19 @@
               "name" : "stage_uni",
               "type" : "esriFieldTypeString",
               "alias" : "stage_uni",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "s_src",
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "viz",
               "type" : "esriFieldTypeString",
               "alias" : "viz",
-              "length" : 60000
+              "length" : 255
             },
             {
               "name" : "geom",

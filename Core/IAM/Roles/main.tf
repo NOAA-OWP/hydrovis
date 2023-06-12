@@ -14,6 +14,9 @@ variable "region" {
   type = string
 }
 
+variable "nws_shared_account_s3_bucket" {
+  type = string
+}
 
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
@@ -131,9 +134,10 @@ resource "aws_iam_role_policy" "viz_pipeline" {
   name   = "hv-vpp-${var.environment}-${var.region}-viz-pipeline"
   role   = aws_iam_role.viz_pipeline.id
   policy = templatefile("${path.module}/viz_pipeline.json.tftpl", {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
+    environment                   = var.environment
+    account_id                    = var.account_id
+    region                        = var.region
+    nws_shared_account_s3_bucket  = var.nws_shared_account_s3_bucket
   })
 }
 
@@ -244,9 +248,10 @@ resource "aws_iam_role_policy" "data_ingest" {
   name   = "hv-vpp-${var.environment}-${var.region}-data-ingest"
   role   = aws_iam_role.data_ingest.id
   policy = templatefile("${path.module}/data_ingest.json.tftpl", {
-    environment = var.environment
-    account_id  = var.account_id
-    region      = var.region
+    environment                   = var.environment
+    account_id                    = var.account_id
+    region                        = var.region
+    nws_shared_account_s3_bucket  = var.nws_shared_account_s3_bucket
   })
 }
 

@@ -6,14 +6,13 @@ WITH
 		(SELECT 
 			af.nws_lid, 
 			af.stage, 
-			CASE WHEN af.stage >= c.record_threshold THEN 'record' ELSE af.status END AS status,
+			af.status,
 		 	MIN(af.timestep) AS timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
 				WHEN af.status = 'moderate' THEN 3::integer
 				WHEN af.status = 'major' THEN 4::integer
-				WHEN af.stage >= c.record_threshold THEN 5::integer --Have to calculate record seperately since we learned that scale is outside action - major & not included in WRDS API statuses.
 				ELSE 0::integer
 			END AS status_value
 		FROM ingest.ahps_forecasts AS af
@@ -31,14 +30,13 @@ WITH
 		(SELECT 
 			af.nws_lid,  
 			af.stage, 
-			CASE WHEN af.stage >= c.record_threshold THEN 'record' ELSE af.status END AS status,
+			af.status,
 		 	MIN(af.timestep) AS timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
 				WHEN af.status = 'moderate' THEN 3::integer
 				WHEN af.status = 'major' THEN 4::integer
-				WHEN af.stage >= c.record_threshold THEN 5::integer --Have to calculate record seperately since we learned that scale is outside action - major & not included in WRDS API statuses.
 				ELSE 0::integer
 			END AS status_value
 		FROM ingest.ahps_forecasts AS af
@@ -56,14 +54,13 @@ WITH
 		(SELECT 
 			af.nws_lid,
 			af.stage,
-			CASE WHEN af.stage >= c.record_threshold THEN 'record' ELSE af.status END AS status,
+			af.status,
 		 	af.timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
 				WHEN af.status = 'moderate' THEN 3::integer
 				WHEN af.status = 'major' THEN 4::integer
-				WHEN af.stage >= c.record_threshold THEN 5::integer --Have to calculate record seperately since we learned that scale is outside action - major & not included in WRDS API statuses.
 				ELSE 0::integer
 			END AS status_value
 		FROM ingest.ahps_forecasts AS af
@@ -96,6 +93,10 @@ SELECT
 		WHEN max_stage.status_value < initial_stage.status_value THEN 'decreasing'::text
 		ELSE 'constant'::text
 	END AS forecast_trend,
+	CASE
+		WHEN max_stage.stage >= metadata.record_threshold THEN true
+		ELSE false
+	END AS record_forecast,
 	metadata.producer, 
 	metadata.issuer,
 	to_char(metadata.issued_time::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
@@ -103,7 +104,7 @@ SELECT
 	metadata.usgs_sitecode, 
 	metadata.nwm_feature_id, 
 	metadata.nws_name, 
-	metadata.usgs_name, 
+	metadata.usgs_name,
 	ST_TRANSFORM(ST_SetSRID(ST_MakePoint(metadata.longitude, metadata.latitude),4326),3857) as geom, 
 	metadata.action_threshold, 
 	metadata.minor_threshold, 

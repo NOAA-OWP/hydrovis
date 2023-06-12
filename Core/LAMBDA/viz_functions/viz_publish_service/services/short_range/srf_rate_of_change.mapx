@@ -274,6 +274,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Version",
             "fieldName" : "nwm_vers",
             "numberFormat" : {
@@ -384,7 +391,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 3",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 3",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -412,7 +419,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -429,7 +436,13 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
             },
             {
               "name" : "nwm_vers",
@@ -455,7 +468,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -486,7 +499,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8
@@ -1183,10 +1196,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1302,7 +1322,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_7_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 6",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 6",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1330,7 +1350,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -1347,7 +1367,7 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "nwm_vers",
@@ -1373,7 +1393,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -1404,7 +1424,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8
@@ -2101,10 +2121,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2220,7 +2247,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_8_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 9",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 9",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2248,7 +2275,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -2265,7 +2292,7 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "nwm_vers",
@@ -2291,7 +2318,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -2322,7 +2349,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8
@@ -3019,10 +3046,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3138,7 +3172,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_9_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 12",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 12",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3166,7 +3200,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -3183,7 +3217,7 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "nwm_vers",
@@ -3209,7 +3243,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -3240,7 +3274,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8
@@ -3937,10 +3971,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4056,7 +4097,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_10_5",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 15",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 15",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4084,7 +4125,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -4101,7 +4142,7 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "nwm_vers",
@@ -4127,7 +4168,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -4158,7 +4199,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8
@@ -4855,10 +4896,17 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-          {
+         {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC6",
             "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4974,7 +5022,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%srf_rate_of_change_2_11_6",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from hydrovis.services.srf_rate_of_change WHERE forecast_hour = 18",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,geom,reference_time,current_flow,change_cfs,change_perc,forecast_flow,high_water_threshold,update_time from vizprocessing.publish.srf_rate_of_change WHERE forecast_hour = 18",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5002,7 +5050,7 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -5019,7 +5067,7 @@
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
-              "length" : 60000
+              "length" : 6
             },
             {
               "name" : "nwm_vers",
@@ -5045,7 +5093,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "current_flow",
@@ -5076,7 +5124,7 @@
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             }
           ],
           "spatialStorageType" : 8

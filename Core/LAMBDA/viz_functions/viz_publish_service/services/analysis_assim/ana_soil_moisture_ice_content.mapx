@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "ana soil moisture ice content",
+    "name" : "Soil Moisture Ice Content Analysis",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant",
@@ -304,33 +304,76 @@
       "useSourceMetadata" : true,
       "displayField" : "reference_time",
       "editable" : true,
+      "fieldDescriptions" : [
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "oid",
+          "fieldName" : "oid",
+          "numberFormat" : {
+            "type" : "CIMNumericFormat",
+            "alignmentOption" : "esriAlignRight",
+            "alignmentWidth" : 0,
+            "roundingOption" : "esriRoundNumberOfDecimals",
+            "roundingValue" : 0
+          },
+          "readOnly" : true,
+          "visible" : false,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Reference Time",
+          "fieldName" : "reference_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Valid Time",
+          "fieldName" : "valid_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Update Time",
+          "fieldName" : "update_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        }
+      ],
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
         "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_soil_moisture_ice_content",
         "datasetType" : "esriDTTable",
-        "sqlQuery" : "select reference_time,valid_time,update_time from hydrovis.services.ana_soil_moisture_ice_content",
-        "oIDFields" : "reference_time",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.ana_soil_moisture_ice_content",
+        "oIDFields" : "oid",
         "geometryType" : "esriGeometryNull",
         "queryFields" : [
+          {
+            "name" : "oid",
+            "type" : "esriFieldTypeInteger",
+            "alias" : "oid"
+          },
           {
             "name" : "reference_time",
             "type" : "esriFieldTypeString",
             "alias" : "reference_time",
-            "length" : 60000
+            "length" : 25
           },
           {
             "name" : "valid_time",
             "type" : "esriFieldTypeString",
             "alias" : "valid_time",
-            "length" : 60000
+            "length" : 25
           },
           {
             "name" : "update_time",
             "type" : "esriFieldTypeString",
             "alias" : "update_time",
-            "length" : 60000
+            "length" : 25
           }
         ]
       },

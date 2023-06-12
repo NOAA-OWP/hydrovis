@@ -42,10 +42,11 @@ module "iam" {
 module "iam-roles" {
   source = "./IAM/Roles"
 
-  environment          = local.env.environment
-  account_id           = local.env.account_id
-  ami_owner_account_id = local.env.ami_owner_account_id
-  region               = local.env.region
+  environment                            = local.env.environment
+  account_id                             = local.env.account_id
+  ami_owner_account_id                   = local.env.ami_owner_account_id
+  region                                 = local.env.region
+  nws_shared_account_s3_bucket           = local.env.nws_shared_account_s3_bucket
 }
 
 # IAM Users
@@ -261,8 +262,6 @@ module "sns" {
 
   environment                = local.env.environment
   region                     = local.env.region
-  nwm_data_bucket            = module.s3-replication.buckets["nwm"].bucket
-  nwm_max_values_data_bucket = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }
@@ -442,6 +441,7 @@ module "ingest-lambda-functions" {
   backup_hml_bucket_arn       = module.s3.buckets["hml-backup"].arn
   lambda_subnet_ids           = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
   lambda_security_group_ids   = [module.security-groups.vpc_access.id]
+  nws_shared_account_hml_sns  = local.env.nws_shared_account_hml_sns
 }
 
 # # # Monitoring Module
@@ -590,15 +590,15 @@ module "viz-lambda-functions" {
   region                         = local.env.region
   viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
   fim_data_bucket                = module.s3.buckets["deployment"].bucket
-  deployment_bucket              = module.s3.buckets["deployment"].bucket
   fim_output_bucket              = module.s3.buckets["fim"].bucket
   max_values_bucket              = module.s3.buckets["fim"].bucket
-  viz_cache_bucket               = module.s3.buckets["fim"].bucket
-  nwm_data_bucket                = module.s3-replication.buckets["nwm"].bucket
   rnr_data_bucket                = module.s3.buckets["rnr"].bucket
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
+  viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
   sns_topics                     = module.sns.sns_topics
+  nws_shared_account_nwm_sns     = local.env.nws_shared_account_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda-layers.es_logging.arn
   xarray_layer                   = module.lambda-layers.xarray.arn
@@ -662,7 +662,7 @@ module "viz-ec2" {
   ]
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
-  nwm_data_bucket             = module.s3-replication.buckets["nwm"].bucket
+  nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
   nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
   rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket

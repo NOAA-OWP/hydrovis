@@ -18,11 +18,6 @@ variable "viz_authoritative_bucket" {
   type        = string
 }
 
-variable "nwm_data_bucket" {
-  description = "S3 bucket where the NWM forecast data will live."
-  type        = string
-}
-
 variable "fim_data_bucket" {
   description = "S3 bucket where the FIM data will live."
   type        = string
@@ -80,6 +75,10 @@ variable "db_lambda_subnets" {
 variable "sns_topics" {
   description = "SnS topics"
   type        = map(any)
+}
+
+variable "nws_shared_account_nwm_sns" {
+  type = string
 }
 
 variable "email_sns_topics" {
@@ -172,20 +171,6 @@ locals {
   ingest_flow_threshold = 0.001
 
   initialize_pipeline_subscriptions = toset([
-    "nwm_channel_ana",
-    "nwm_forcing_ana",
-    "nwm_channel_ana_hi",
-    "nwm_forcing_ana_hi",
-    "nwm_channel_ana_prvi",
-    "nwm_forcing_ana_prvi",
-    "nwm_channel_srf",
-    "nwm_forcing_srf",
-    "nwm_channel_srf_hi",
-    "nwm_forcing_srf_hi",
-    "nwm_channel_srf_prvi",
-    "nwm_forcing_srf_prvi",
-    "nwm_channel_mrf_10day",
-    "nwm_forcing_mrf",
     "rnr_max_flows"
   ])
 }
@@ -492,6 +477,19 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.sns_topics["${each.value}"].arn
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  topic_arn = var.nws_shared_account_nwm_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.nws_shared_account_nwm_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {

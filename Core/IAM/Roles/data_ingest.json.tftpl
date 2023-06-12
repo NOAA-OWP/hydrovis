@@ -115,6 +115,24 @@
       ]
     },
     {
+            "Sid": "SharedAccountS3",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetEncryptionConfiguration",
+                "s3:ListBucketMultipartUploads",
+                "s3:ListBucketVersions",
+                "s3:ListBucket",
+                "s3:GetBucketAcl",
+                "s3:ListMultipartUploadParts",
+                "s3:GetBucketLocation",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": [
+                "${nws_shared_account_s3_bucket}*"
+            ]
+    },
+    {
       "Sid": "VisualEditor5",
       "Effect": "Allow",
       "Action": "mq:*",

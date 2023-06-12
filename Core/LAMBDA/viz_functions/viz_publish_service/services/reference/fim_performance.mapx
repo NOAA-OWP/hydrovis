@@ -404,13 +404,13 @@
               "name" : "nws_lid",
               "type" : "esriFieldTypeString",
               "alias" : "nws_lid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "lid_name",
               "type" : "esriFieldTypeString",
               "alias" : "lid_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "feature_id",
@@ -421,19 +421,19 @@
               "name" : "wfo",
               "type" : "esriFieldTypeString",
               "alias" : "wfo",
-              "length" : 60000
+              "length" : 3
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "huc",
@@ -444,13 +444,13 @@
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "tp_area_km",
@@ -496,7 +496,7 @@
               "name" : "source",
               "type" : "esriFieldTypeString",
               "alias" : "source",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "geom",
@@ -2518,7 +2518,7 @@
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "contingency_tot_area_km2",
@@ -2594,19 +2594,19 @@
               "name" : "mag",
               "type" : "esriFieldTypeString",
               "alias" : "mag",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "bench",
               "type" : "esriFieldTypeString",
               "alias" : "bench",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 15
             }
           ],
           "spatialStorageType" : 8
@@ -3752,19 +3752,19 @@
               "name" : "version",
               "type" : "esriFieldTypeString",
               "alias" : "version",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "tp_area_km",
@@ -3810,7 +3810,7 @@
               "name" : "source",
               "type" : "esriFieldTypeString",
               "alias" : "source",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "geom",

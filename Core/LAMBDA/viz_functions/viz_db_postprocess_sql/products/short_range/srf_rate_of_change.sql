@@ -12,6 +12,7 @@ SELECT
     channels.strm_order::integer,
     channels.name,
     channels.huc6,
+    channels.state,
     channels.geom,
     srf.forecast_hour,
     srf.nwm_vers,

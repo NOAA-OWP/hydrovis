@@ -19,6 +19,7 @@ SELECT
     channels.strm_order::integer,
     channels.name,
     channels.huc6,
+    'AK' AS state,
     channels.geom
 INTO publish.srf_peak_flow_arrival_time_alaska
 FROM ingest.nwm_channel_rt_srf_alaska AS forecasts 

@@ -438,25 +438,25 @@
               "name" : "build_id",
               "type" : "esriFieldTypeString",
               "alias" : "build_id",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "occ_cls",
               "type" : "esriFieldTypeString",
               "alias" : "occ_cls",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "prim_occ",
               "type" : "esriFieldTypeString",
               "alias" : "prim_occ",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "prop_st",
               "type" : "esriFieldTypeString",
               "alias" : "prop_st",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "sqfeet",
@@ -472,37 +472,37 @@
               "name" : "censuscode",
               "type" : "esriFieldTypeString",
               "alias" : "censuscode",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "prod_date",
               "type" : "esriFieldTypeString",
               "alias" : "prod_date",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "source",
               "type" : "esriFieldTypeString",
               "alias" : "source",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "val_method",
               "type" : "esriFieldTypeString",
               "alias" : "val_method",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "hydro_id",
               "type" : "esriFieldTypeString",
               "alias" : "hydro_id",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "geom_xy",
@@ -1552,19 +1552,19 @@
               "name" : "geoid",
               "type" : "esriFieldTypeString",
               "alias" : "geoid",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "county",
               "type" : "esriFieldTypeString",
               "alias" : "county",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "state",
               "type" : "esriFieldTypeString",
               "alias" : "state",
-              "length" : 60000
+              "length" : 2
             },
             {
               "name" : "max_flow_cfs",
@@ -1645,13 +1645,13 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "geom",
@@ -2512,25 +2512,25 @@
               "name" : "build_id",
               "type" : "esriFieldTypeString",
               "alias" : "build_id",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "occ_cls",
               "type" : "esriFieldTypeString",
               "alias" : "occ_cls",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "prim_occ",
               "type" : "esriFieldTypeString",
               "alias" : "prim_occ",
-              "length" : 60000
+              "length" : 50
             },
             {
               "name" : "prop_st",
               "type" : "esriFieldTypeString",
               "alias" : "prop_st",
-              "length" : 60000
+              "length" : 30
             },
             {
               "name" : "sqfeet",
@@ -2546,37 +2546,37 @@
               "name" : "censuscode",
               "type" : "esriFieldTypeString",
               "alias" : "censuscode",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "prod_date",
               "type" : "esriFieldTypeString",
               "alias" : "prod_date",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "source",
               "type" : "esriFieldTypeString",
               "alias" : "source",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "val_method",
               "type" : "esriFieldTypeString",
               "alias" : "val_method",
-              "length" : 60000
+              "length" : 15
             },
             {
               "name" : "hydro_id",
               "type" : "esriFieldTypeString",
               "alias" : "hydro_id",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "streamflow_cfs",
@@ -3465,6 +3465,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
             "fieldName" : "reference_time",
             "visible" : true,
@@ -3587,7 +3594,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,oid  from hydrovis.services.ana_inundation_prvi",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.ana_inundation_prvi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3610,7 +3617,7 @@
               "name" : "hydro_id",
               "type" : "esriFieldTypeString",
               "alias" : "hydro_id",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "streamflow_cfs",
@@ -3626,37 +3633,37 @@
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 60000
+              "length" : 10
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "valid_time",
               "type" : "esriFieldTypeString",
               "alias" : "valid_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 60000
+              "length" : 25
             },
             {
               "name" : "branch",
               "type" : "esriFieldTypeString",
               "alias" : "branch",
-              "length" : 60000
+              "length" : 12
             },
             {
               "name" : "max_rc_stage_ft",
@@ -3687,7 +3694,7 @@
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 60000
+              "length" : 8
             },
             {
               "name" : "strm_order",
@@ -3698,7 +3705,13 @@
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60000
+              "length" : 60
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 2
             },
             {
               "name" : "oid",
