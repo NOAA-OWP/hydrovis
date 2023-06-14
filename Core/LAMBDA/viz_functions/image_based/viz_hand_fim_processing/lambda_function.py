@@ -1,4 +1,3 @@
-import json
 import boto3
 import rasterio
 import numpy as np
@@ -33,29 +32,33 @@ def lambda_handler(event, context):
                              and runtime environment
     """
     # Parse the event argument to get the necessary arguments for the function
-    huc8_branch = event['huc8_branch']
-    db_fim_table = event['db_fim_table']
+    run_values = event['run_values']
     reference_time = event['reference_time']
     product = event['product']
     fim_config = event['fim_config']
     data_bucket = event['data_bucket']
     data_prefix = event['data_prefix']
-    huc = event['huc']
+    fim_config_name = fim_config['name']
+    db_fim_table = fim_config['target_table']
+    process_by = fim_config.get('process_by', ['huc'])
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
+    huc8_branch = run_values['huc8_branch']
     huc8 = huc8_branch.split("-")[0]
     branch = huc8_branch.split("-")[1]
+    s3_path_piece = ''
     
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+        s3_path_piece = '/'.join([run_values[by] for by in process_by])
+        subsetted_streams = f"{data_prefix}/{product}/{fim_config_name}/workspace/{date}/{hour}/data/{s3_path_piece}_data.csv"
 
-        print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
+        print(f"Processing HUC {huc8} for {fim_config_name} for {date}T{hour}:00:00Z")
 
         # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
         catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
@@ -72,7 +75,7 @@ def lambda_handler(event, context):
             print("->Calculating flood depth")
             stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc8_branch)  # get stages
         else:
-            print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}")
+            print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
 
         # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
         if stage_lookup.empty:
@@ -87,7 +90,7 @@ def lambda_handler(event, context):
     db_table = db_fim_table.split(".")[-1]
 
     try:
-        if "aep" in db_schema or "fim_catchments" in db_schema:
+        if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
             process_db = database(db_type="egis")
         else:
             process_db = database(db_type="viz")
@@ -462,7 +465,8 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     print(f"Removing {len(df_forecast[df_forecast['hand_stage_m']==0])} reaches with a 0 interpolated stage")
     df_forecast = df_forecast[df_forecast['hand_stage_m']!=0]
 
-    df_forecast = df_forecast[['hydro_id','hand_stage_m', 'streamflow_cms', 'feature_id']].set_index('hydro_id')
+    df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
+    df_forecast = df_forecast.set_index('hydro_id')
     df_forecast = df_forecast.join(df_hydro_max)
     print(f"{len(df_forecast)} reaches will be processed")
      
