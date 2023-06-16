@@ -95,7 +95,7 @@ def lambda_handler(event, context):
                 print(f"---> Updated {service_name} sharing to org in Portal.")
 
             # Ensuring that the description for the service matches the iteminfo
-            matching_service = matching_services[0]
+            matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
             if not matching_service.properties['description']:
                 print("Updating service property description to match iteminfo")
                 service_properties = matching_service.properties
