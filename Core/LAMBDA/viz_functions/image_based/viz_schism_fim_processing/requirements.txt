@@ -12,3 +12,4 @@ geopandas==0.12.2
 SQLAlchemy==1.4.46
 GeoAlchemy2==0.12.3
 psycopg2-binary==2.9.3
+boto3==1.26.90
