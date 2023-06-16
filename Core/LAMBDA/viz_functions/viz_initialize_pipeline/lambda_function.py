@@ -331,6 +331,7 @@ class configuration:
             configuration_name = 'replace_route'
             date = matches[1]
             hour = matches[2]
+            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
         else:
             if 'analysis_assim' in filename:
                 matches = re.findall(r"(.*)/nwm.(\d{8})/(.*)/nwm.t(\d{2})z\.(.*)\..*\.tm(.*)\.(.*)\.nc", filename)[0]
