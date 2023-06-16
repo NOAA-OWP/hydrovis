@@ -61,7 +61,7 @@ def setup_huc_inundation(event):
     # and invoke a retry
     viz_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
-    sql = open(sql_path, 'r').read().lower()
+    sql = open(sql_path, 'r').read()
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)
     

@@ -327,10 +327,11 @@ class configuration:
             configuration_name = "rfc"
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:{minute[-2:]}:00", '%Y-%m-%d %H:%M:%S')
         elif 'replace_route' in filename:
-            matches = re.findall(r"(.*)/(\d{8})/wrf_hydro/wrf_hydro.t(\d{2})z.medium_range.channel_rt.f(\d{3,5}).(.*)\.nc", filename)[0]
+            matches = re.findall(r"(.*)/(\d{8})/wrf_hydro/replace_route.t(\d{2})z.medium_range.channel_rt.f(\d{3,5}).(.*)\.nc", filename)[0]
             configuration_name = 'replace_route'
             date = matches[1]
             hour = matches[2]
+            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
         else:
             if 'analysis_assim' in filename:
                 matches = re.findall(r"(.*)/nwm.(\d{8})/(.*)/nwm.t(\d{2})z\.(.*)\..*\.tm(.*)\.(.*)\.nc", filename)[0]
