@@ -112,7 +112,7 @@ class AWSEgisPublishingProcess(PipelineProcess):
         elif self.service_name.startswith("srf"):
             self.configuration = "short_range"
         elif self.service_name.startswith("mrf"):
-            self.configuration = "medium_range"
+            self.configuration = "medium_range_mem1"
 
         self.server_name = service_data["egis_server"]
         self.folder_name = service_data["egis_folder"]
