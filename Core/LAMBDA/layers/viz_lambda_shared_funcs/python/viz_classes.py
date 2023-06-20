@@ -326,71 +326,52 @@ class s3_file:
         configuration = event['resources'][0].split("/")[-1]
         eventbridge_time = datetime.datetime.strptime(event['time'], '%Y-%m-%dT%H:%M:%SZ')
 
-        para = False
-        if "_para" in configuration:
-            para = True
-
+        coastal = False
         if "coastal" in configuration:
-            base_config = configuration
-            nwm_file_type = 'total_water'
-            domain = 'coastal'
-            configuration = base_config
+            coastal = True
+            
+        forcing = False
+        if "forcing" in configuration:
+            forcing = True
+
+        if "hawaii" in configuration:
+            domain = "hawaii"
+        elif "puertorico" in configuration:
+            domain = "puertorico"
+        elif "alaska" in configuration:
+            domain = "alaska"
         else:
-            if "analysis_assim" in configuration:
-                base_config = "analysis_assim"
-            elif "short_range" in configuration:
-                base_config = "short_range"
-            elif "medium_range_gfs" in configuration:
-                base_config = "medium_range_gfs"
-            elif "medium_range_nbm" in configuration:
-                base_config = "medium_range_nbm"
+            domain = "conus"
 
-            nwm_file_type = configuration.split(base_config)[0][:-1]
-            domain = configuration.split(base_config)[-1]
-            if domain:
-                domain = domain[1:]
-                domain = domain.replace("_para", "")
-                configuration = f"{base_config}_{domain}"
-            else:
-                domain = "conus"
-                configuration = base_config
-
-        if nwm_file_type == "forcing":
-            configuration = f"{nwm_file_type}_{configuration}"
-
-        if "analysis_assim" in base_config:
+        if "analysis_assim" in configuration:
             if "14day" in configuration:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0, hour=0)
-            elif domain == "coastal":
+            elif coastal and domain in ["conus", "puertorico"]:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0)
-        elif "short_range" in base_config:
+        elif "short_range" in configuration:
             if domain in ["hawaii", "puertorico"]:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=3)
             elif domain == "alaska":
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
-            elif domain == "coastal":
+            elif coastal:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=2)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=1)
-        elif "medium_range" in base_config:
-            if nwm_file_type == "forcing":
+        elif "medium_range" in configuration:
+            if forcing:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=5)
             elif domain == "alaska":
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=6)
-            elif domain == "coastal":
+            elif coastal:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=13)
             else:
                 reference_time = eventbridge_time.replace(microsecond=0, second=0, minute=0) - datetime.timedelta(hours=7)
 
         bucket = os.environ.get("DATA_BUCKET_UPLOAD") if os.environ.get("DATA_BUCKET_UPLOAD") else "nomads"
 
-        if "14day" not in configuration:
-            reference_time = reference_time - datetime.timedelta(hours=1)
-            
-        if para and "_para" not in configuration:
-            configuration = f"{configuration}_para"
+        reference_time = reference_time - datetime.timedelta(hours=1)
         
         return configuration, reference_time, bucket
 
