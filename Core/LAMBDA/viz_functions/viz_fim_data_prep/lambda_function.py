@@ -126,7 +126,7 @@ def setup_huc_inundation(event):
         
         s3_keys = []
         df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
-        df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
+        df_streamflows_split = [df_split for df_split in np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20) if not df_split.empty]
         for index, df in enumerate(df_streamflows_split):
             # Key for the csv file that will be stored in S3
             csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
