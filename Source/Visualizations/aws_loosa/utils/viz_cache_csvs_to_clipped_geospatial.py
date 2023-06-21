@@ -38,7 +38,7 @@ def download_files_from_s3(bucket_name, folder_name, destination_dir, sso_profil
 
         # Construct the local file path
         local_file_path = os.path.join(destination_dir, file_name)
-        final_file_path = local_file_path.replace(".csv", f".{output_format}")
+        final_file_path = local_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
 
         if any([x in file_name for x in skip_files_with]):
             continue
@@ -108,7 +108,7 @@ def convert_folder_csvs_to_geospatial(folder_path, output_format='gpkg', clip_to
     for filename in os.listdir(folder_path):
         if filename.endswith('.csv') and "ana_streamflow" not in filename:
             csv_file_path = os.path.join(folder_path, filename)
-            out_filepath = csv_file_path.replace(".csv", f".{output_format}")
+            out_filepath = csv_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
             if os.path.exists(out_filepath) and overwrite is False:
                 print(f"{out_filepath} already exists and overwrite is false. Skipping.")
             else:         
@@ -136,10 +136,10 @@ if __name__ == '__main__':
     ########## Specify your Args Here #############
     sso_profile = None # The name of the AWS SSO profile you created, or set to None if you want to pull from the current environment of an EC2 machine (see notes above)
     bucket_name = 'hydrovis-ti-fim-us-east-1' # Set this based on the hydrovis environment you are pulling from, e.g. 'hydrovis-ti-fim-us-east-1', 'hydrovis-uat-fim-us-east-1', 'hydrovis-prod-fim-us-east-1'
-    start_date = date(2017, 8, 27)
-    end_date = date(2017, 8, 27)
-    reference_times = ["1200"]
-    include_files_with = [] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
+    start_date = date(2017, 8, 25)
+    end_date = date(2017, 9, 4)
+    reference_times = ["0000","0100","0200","0300","0400","0500"]
+    include_files_with = ["ana_inundation"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
     skip_files_with = [] # Anything you want to be skipped when filtering S3 files e.g. ["ana_streamflow", "rapid_onset_flooding"]
     clip_to_states = [] # Provide a list of state abbreviations to clip to set states, e.g. ["AL", "GA", "MS"]
     output_format = "gpkg" # Set to gpkg or shp - Can add any OGR formats, with some tweaks to the file_format logic in the functions above. BEWARE - large FIM files can be too large for shapefiles, and results may be truncated.
