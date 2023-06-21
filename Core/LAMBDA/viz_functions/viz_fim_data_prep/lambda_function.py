@@ -2,6 +2,7 @@ import boto3
 import os
 import datetime
 import time
+import re
 import numpy as np
 import pandas as pd
 
@@ -40,6 +41,10 @@ def setup_huc_inundation(event):
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     sql_replace = event['args']['sql_rename_dict']
     one_off = event['args'].get("hucs")
+    if fim_config.get("states_to_run"):
+        states_to_run = fim_config.get("states_to_run")
+    else:
+        states_to_run = []
     
     if sql_replace.get(target_table):
         target_table = sql_replace.get(target_table)
@@ -57,11 +62,29 @@ def setup_huc_inundation(event):
     # Checks if all tables references in sql file exist and are updated (if applicable)
     # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
     # and invoke a retry
-    viz_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+    process_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
     sql = open(sql_path, 'r').read().lower()
+    # replace portions of SQL with any items in the dictionary (at least has reference_time)
+    # sort the replace dictionary to have longer values upfront first
+    sql_replace_sorted = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
+    for word, replacement in sql_replace_sorted:
+        sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)
+    
+    # If only running select states, add additional where clauses to the SQL
+    if len(states_to_run) > 0:
+        additional_where_clauses = " AND (channels.state = '"
+        for i, state in enumerate(states_to_run):
+            additional_where_clauses += state
+            if i+1 < len(states_to_run):
+                additional_where_clauses += "' OR channels.state = '"
+            else:
+                additional_where_clauses += "')"
+        sql += additional_where_clauses
+    if "rfc" in fim_config_name:
+        sql += " group by max_forecast.feature_id, streamflow_cms, huc8, branch_id, hydro_id"
     
     fim_type = fim_config['fim_type']
     if fim_type == "coastal":
