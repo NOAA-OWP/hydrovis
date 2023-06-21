@@ -12,6 +12,11 @@ EGISDBHOST="${EGISDBHOST}"
 EGISDBPORT=${EGISDBPORT}
 EGISDBUSERNAME="${EGISDBUSERNAME}"
 EGISDBPASSWORD="${EGISDBPASSWORD}"
+LOCATIONDBNAME="${LOCATIONDBNAME}"
+LOCATIONDBHOST="${LOCATIONDBHOST}"
+LOCATIONDBPORT=${LOCATIONDBPORT}
+LOCATIONDBUSER="${LOCATIONDBUSER}"
+LOCATIONDBPASS="${LOCATIONDBPASS}"
 DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
 HOME="${HOME}"
 VIZ_PROC_ADMIN_RW_USER="${VIZ_PROC_ADMIN_RW_USER}"
@@ -126,7 +131,21 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
             ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
 
-echo "Setting up external.usgs_gage table in the EVIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
+echo "Setting up wrds location foreign table in the VIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
+psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
+    -tAc "do
+            '
+            declare
+            l_rec record;
+            begin
+            for l_rec in (select foreign_table_schema, foreign_table_name 
+                            from information_schema.foreign_tables
+                            where foreign_table_schema = ''external'') loop
+                execute format(''drop foreign table %I.%I'', l_rec.foreign_table_schema, l_rec.foreign_table_name);
+            end loop;
+            end;
+            '"
+
 psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
     -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
             DROP SERVER IF EXISTS wrds_location CASCADE;
@@ -134,7 +153,7 @@ psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME
             CREATE USER MAPPING FOR $${VIZDBUSERNAME} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
             CREATE USER MAPPING FOR $${VIZ_PROC_ADMIN_RW_USER} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
             IMPORT FOREIGN SCHEMA public FROM SERVER wrds_location INTO external;
-            ALTER SERVER wrds_location OPTIONS (set fetch_size '150000');"
+            ALTER SERVER wrds_location OPTIONS (fetch_size '150000');"
 
 # Setting up EGIS DB - Part 2
 export PGPASSWORD=$${EGISDBPASSWORD}
