@@ -75,14 +75,12 @@
       "MaxConcurrency": 40,
       "ItemsPath": "$.huc_branch_data.huc_branches_to_process",
       "Parameters": {
-        "huc.$": "$$.Map.Item.Value.huc",
-        "huc8_branch.$": "$$.Map.Item.Value.huc8_branch",
+        "run_values.$": "$$.Map.Item.Value",
         "data_prefix.$": "$.data_prefix",
         "data_bucket.$": "$.data_bucket",
         "fim_config.$": "$.fim_config",
         "product.$": "$.product",
-        "reference_time.$": "$.reference_time",
-        "db_fim_table.$": "$.db_fim_table"
+        "reference_time.$": "$.reference_time"
       }
     }
   }

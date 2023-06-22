@@ -131,7 +131,7 @@ resource "aws_s3_object" "raster_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_raster_processing.zip"
   source      = data.archive_file.raster_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
+  source_hash = data.archive_file.raster_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_raster_processing_image" {
@@ -192,7 +192,7 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
 resource "null_resource" "viz_raster_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
+    source_hash = data.archive_file.raster_processing_zip.output_md5
   }
 
   provisioner "local-exec" {
@@ -244,7 +244,7 @@ resource "aws_s3_object" "optimize_rasters_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_optimize_rasters.zip"
   source      = data.archive_file.optimize_rasters_zip.output_path
-  source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
+  source_hash = data.archive_file.optimize_rasters_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_optimize_rasters_image" {
@@ -305,7 +305,7 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
 resource "null_resource" "viz_optimize_rasters_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
+    source_hash = data.archive_file.optimize_rasters_zip.output_md5
   }
 
   provisioner "local-exec" {
@@ -375,7 +375,7 @@ resource "aws_s3_object" "hand_fim_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_hand_fim_processing.zip"
   source      = data.archive_file.hand_fim_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+  source_hash = data.archive_file.hand_fim_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
@@ -436,7 +436,7 @@ resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
 resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+    source_hash = data.archive_file.hand_fim_processing_zip.output_md5
     fim_version = var.fim_version
   }
 
@@ -505,7 +505,7 @@ resource "aws_s3_object" "schism_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "viz/viz_schism_fim_processing.zip"
   source      = data.archive_file.schism_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+  source_hash = data.archive_file.schism_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
@@ -566,7 +566,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 resource "null_resource" "viz_schism_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+    source_hash = data.archive_file.schism_processing_zip.output_md5
   }
 
   provisioner "local-exec" {
