@@ -211,8 +211,8 @@ data "cloudinit_config" "startup" {
       EGISDBPORT             = var.egis_db_port
       EGISDBUSERNAME         = jsondecode(var.egis_db_secret_string)["username"]
       EGISDBPASSWORD         = jsondecode(var.egis_db_secret_string)["password"]
-      LOCATIONDBHOST         = var.location_db_name
-      LOCATIONDBNAME         = var.ingest_db_address
+      LOCATIONDBNAME         = var.location_db_name
+      LOCATIONDBHOST         = var.ingest_db_address
       LOCATIONDBPORT         = var.ingest_db_port
       LOCATIONDBUSER         = jsondecode(var.ingest_db_secret_string)["username"]
       LOCATIONDBPASS         = jsondecode(var.ingest_db_secret_string)["password"]
