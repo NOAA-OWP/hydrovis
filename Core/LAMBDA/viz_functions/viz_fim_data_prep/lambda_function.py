@@ -77,14 +77,19 @@ def setup_huc_inundation(event):
     else:
         print("Running inland FIM workflow")
         df_streamflows = viz_db.run_sql_in_db(sql)
+        df_streamflows['fim_model'] = "hand"
 
         if one_off:
-            df_streamflows = df_streamflows[df_streamflows["huc8"].isin(one_off)]
+            df_streamflows = df_streamflows[df_streamflows["huc8_branch"].str.contains('|'.join(one_off))]
 
-        ras2fim_cond_1 = (df_streamflows['ras2fim_start_streamflow_cms']<=df_streamflows['streamflow_cms'])
-        ras2fim_cond_2 = (df_streamflows['streamflow_cms']<=df_streamflows['ras2fim_end_streamflow_cms'])
-        df_streamflows['fim_model'] = "hand"
-        df_streamflows.loc[ras2fim_cond_1 & ras2fim_cond_2, "fim_model"] = "ras2fim"
+        if "ras2fim_start_streamflow_cms" in df_streamflows.columns:
+            df_streamflows['ras2fim_start_streamflow_cms'] = df_streamflows['ras2fim_start_streamflow_cms'].astype(float)
+            df_streamflows['ras2fim_end_streamflow_cms'] = df_streamflows['ras2fim_end_streamflow_cms'].astype(float)
+            
+            ras2fim_cond_1 = (df_streamflows['ras2fim_start_streamflow_cms']<=df_streamflows['streamflow_cms'])
+            ras2fim_cond_2 = (df_streamflows['streamflow_cms']<=df_streamflows['ras2fim_end_streamflow_cms'])
+            df_streamflows.loc[ras2fim_cond_1 & ras2fim_cond_2, "fim_model"] = "ras2fim"
+            df_streamflows = df_streamflows[~df_streamflows['feature_id'].duplicated() | df_streamflows['fim_model'].eq('hand')]
 
         # Parses the forecast key to get the necessary metadata for the output file
         date = reference_date.strftime("%Y%m%d")
@@ -116,7 +121,7 @@ def setup_huc_inundation(event):
                 s3_keys.append(csv_key)
             
                 # Save the dataframe as a local netcdf file
-                tmp_csv = f'corey_data/{os.path.basename(csv_key)}.csv'
+                tmp_csv = f'/tmp/{os.path.basename(csv_key)}.csv'
                 df.to_csv(tmp_csv, index=False)
             
                 # Upload the csv file into S3
@@ -221,7 +226,7 @@ def write_data_csv_file(product, fim_config, huc, reference_date, huc_data, fim_
     csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config}/workspace/{date}/{hour}/data/{fim_model}_{huc}_data.csv"
 
     # Save the dataframe as a local netcdf file
-    tmp_csv = f'corey_data/{os.path.basename(csv_key)}.csv'
+    tmp_csv = f'/tmp/{os.path.basename(csv_key)}.csv'
     huc_data.to_csv(tmp_csv, index=False)
 
     # Upload the csv file into S3

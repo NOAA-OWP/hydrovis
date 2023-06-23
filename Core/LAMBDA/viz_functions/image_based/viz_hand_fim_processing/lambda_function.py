@@ -12,8 +12,8 @@ import re
 from viz_classes import s3_file, database
 
 FIM_BUCKET = os.environ['FIM_BUCKET']
-FIM_PREFIX = os.environ['FIM_PREFIX']
-FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+HAND_PREFIX = os.environ['HAND_PREFIX']
+FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", HAND_PREFIX)[0]
 
 s3 = boto3.client("s3")
 
@@ -58,13 +58,13 @@ def lambda_handler(event, context):
         print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
 
         # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-        catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+        catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
         catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
 
-        hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+        hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
         hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
 
-        rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
+        rating_curve_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
         rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
 
         stage_lookup = pd.DataFrame()
@@ -107,7 +107,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     """
         Creates the catchment boundary polygons
     """
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
     
     catchment_dataset = None
     try:
@@ -226,8 +226,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
     # join metadata to get path to FIM datasets
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
     
     try:
         print(f"Creating inundation for huc {huc8} and branch {branch}")
@@ -409,16 +409,16 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
     df_final['reference_time'] = reference_time
-    df_final['huc8'] = huc8
-    df_final['branch'] = branch
-    df_final['hand_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
+    df_final['huc8'] = f"{huc8}-{branch}"
+    df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
     df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
     df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-    df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
-    df_final['feature_id_str'] = df_final['feature_id'].astype(str)
+    df_final['fim_model_hydro_id_str'] = df_final['hydro_id'].astype(str)
+    df_final['nwm_feature_id_str'] = df_final['feature_id'].astype(str)
 
+    df_final = df_final.rename(columns={"hydro_id": "fim_model_hydro_id", "feature_id": "nwm_feature_id"})
     df_final = df_final.drop(columns=["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"])
                 
     return df_final
