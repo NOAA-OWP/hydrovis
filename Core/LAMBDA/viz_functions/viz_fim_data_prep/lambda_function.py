@@ -140,15 +140,16 @@ def setup_huc_inundation(event):
     
 def get_branch_iteration(event):
     s3 = boto3.client("s3")
-    print(event)
     local_data_file = os.path.join("/tmp", os.path.basename(event['args']['huc_branches_to_process']))
     s3.download_file(event['args']['data_bucket'], event['args']['huc_branches_to_process'], local_data_file)
     df = pd.read_csv(local_data_file)
     df['huc'] = df['huc'].astype(str).str.zfill(6)
+    df['fim_model'] = "hand"
+    df.loc[df['data_key'].str.contains("ras2fim"), 'fim_model'] = 'ras2fim'
     os.remove(local_data_file)
     
     return_object = {
-        "huc_branches_to_process": df[["huc8_branch", "huc"]].to_dict("records")
+        "huc_branches_to_process": df[["huc8_branch", "huc", "data_key", "fim_model"]].to_dict("records")
     }
     
     return return_object

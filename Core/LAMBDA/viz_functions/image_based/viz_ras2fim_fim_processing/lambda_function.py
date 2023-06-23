@@ -16,6 +16,7 @@ from viz_classes import s3_file, database
 FIM_BUCKET = os.environ['FIM_BUCKET']
 RAS2FIM_PREFIX = os.environ['RAS2FIM_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*)/?", RAS2FIM_PREFIX)[0]
+FIM_VERSION = f"ras2fim_{FIM_VERSION}"
 
 s3 = boto3.client("s3")
 
@@ -35,24 +36,26 @@ def lambda_handler(event, context):
                              and runtime environment
     """
     # Parse the event argument to get the necessary arguments for the function
+    huc8_branch = event['huc8_branch']
     db_fim_table = event['db_fim_table']
     reference_time = event['reference_time']
-    service = event['service']
+    product = event['product']
     fim_config = event['fim_config']
     data_bucket = event['data_bucket']
     data_prefix = event['data_prefix']
-    huc8 = event['huc8']
+    huc = event['huc']
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
+    huc8 = huc8_branch.split("-")[0]
     
     catchment_key = f'{RAS2FIM_PREFIX}/{huc8}/feature_id.tif'
     catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
     
     print(f"Processing RAS2REM for huc {huc8}")
 
-    subsetted_streams = f"{data_prefix}/{huc8}.csv"
+    subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/ras2fim_{huc}_data.csv"
 
     print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
     ras2rem_key = f'{RAS2FIM_PREFIX}/{huc8}/rem_12090301_meter_blocked.tif'
@@ -81,7 +84,7 @@ def lambda_handler(event, context):
     db_table = db_fim_table.split(".")[-1]
 
     try:
-        if "reference" in db_schema or "fim_catchments" in db_schema:
+        if "aep" in db_schema or "fim_catchments" in db_schema:
             process_db = database(db_type="egis")
         else:
             process_db = database(db_type="viz")
@@ -89,11 +92,11 @@ def lambda_handler(event, context):
         df_inundation.to_postgis(db_table, con=process_db.engine, schema=db_schema, if_exists='append')
     except Exception as e:
         process_db.engine.dispose()
-        raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
+        raise Exception(f"Failed to add inundation data to DB for {huc8} - ({e})")
     
     process_db.engine.dispose()
     
-    print(f"Successfully processed tif for HUC {huc8} and branch {branch} for {service} for {reference_time}")
+    print(f"Successfully processed tif for HUC {huc8} for {product} for {reference_time}")
 
     return df_inundation
 

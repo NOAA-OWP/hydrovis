@@ -14,6 +14,7 @@ from viz_classes import s3_file, database
 FIM_BUCKET = os.environ['FIM_BUCKET']
 HAND_PREFIX = os.environ['HAND_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", HAND_PREFIX)[0]
+FIM_VERSION = f"hand_{FIM_VERSION}"
 
 s3 = boto3.client("s3")
 
@@ -53,7 +54,7 @@ def lambda_handler(event, context):
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+        subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/hand_{huc}_data.csv"
 
         print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
 
