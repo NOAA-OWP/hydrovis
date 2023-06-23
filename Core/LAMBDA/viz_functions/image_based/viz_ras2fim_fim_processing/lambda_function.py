@@ -98,8 +98,6 @@ def lambda_handler(event, context):
     
     print(f"Successfully processed tif for HUC {huc8} for {product} for {reference_time}")
 
-    return df_inundation
-
 def create_inundation_output(huc8, stage_lookup, reference_time, catchment_key, ras2rem_key):
     """
         Creates the actual inundation output from the stages, catchments, and ras2rem grids
