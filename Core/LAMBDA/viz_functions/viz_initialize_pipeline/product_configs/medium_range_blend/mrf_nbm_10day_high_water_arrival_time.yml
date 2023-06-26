@@ -1,0 +1,18 @@
+product: mrf_nbm_10day_high_water_arrival_time
+configuration: medium_range_blend
+product_type: "vector"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_blend/nwm.t{{datetime:%H}}z.medium_range_blend.channel_rt.f{{range:3,243,3,%03d}}.conus.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_mrf_nbm
+      target_keys: (feature_id, streamflow)
+
+postprocess_sql:
+  - sql_file: mrf_nbm_10day_high_water_arrival_time
+    target_table: publish.mrf_nbm_10day_high_water_arrival_time
+
+services:
+  - mrf_nbm_10day_high_water_arrival_time

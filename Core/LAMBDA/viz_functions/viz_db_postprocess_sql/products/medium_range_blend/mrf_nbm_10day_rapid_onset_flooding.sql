@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_nbm_rapid_onset_flooding;
+DROP TABLE IF EXISTS publish.mrf_nbm_10day_rapid_onset_flooding;
 -- Calculate rapid onset reaches
 WITH rapid_onset AS (
 	-- Calculate the info for the start of a rapid flood event - >=100% flow in one hour.
@@ -10,7 +10,7 @@ WITH rapid_onset AS (
 				(
 				WITH series AS -- Calculate a full 240 hour series for every feature_id, so that unadjacent hours aren't compared
 					(SELECT channels.feature_id, generate_series(3,240,3) AS forecast_hour
-					 FROM derived.channels_conus channels JOIN cache.mrf_nbm_max_flows as mf on channels.feature_id = mf.feature_id
+					 FROM derived.channels_conus channels JOIN cache.max_flows_mrf_nbm as mf on channels.feature_id = mf.feature_id
 					 WHERE channels.strm_order <= 4
 					)
 				SELECT series.feature_id, series.forecast_hour, CASE WHEN streamflow is NOT NULL THEN (streamflow * 35.315) ELSE 0.001 END AS streamflow -- Set streamflow to 0.01 in cases where it is missing, so we don't get a divide by zero error
@@ -55,6 +55,7 @@ SELECT channels.feature_id,
 	channels.strm_order,
 	channels.name,
 	channels.huc6,
+	channels.state,
     rapid_onset.nwm_vers,
     rapid_onset.reference_time,
 	flood_start_hour, 
@@ -65,7 +66,7 @@ SELECT channels.feature_id,
 	high_water_threshold,
 	ST_LENGTH(channels.geom)*0.000621371 AS reach_Length_miles, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	geom
-INTO publish.mrf_nbm_rapid_onset_flooding
+INTO publish.mrf_nbm_10day_rapid_onset_flooding
 FROM derived.channels_conus channels
 JOIN rapid_onset ON channels.feature_id = rapid_onset.feature_id
 where channels.strm_order <= 4;
