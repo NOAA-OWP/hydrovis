@@ -361,7 +361,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_streamflow_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,valid_time,streamflow,update_time,geom from hydrovis.services.ana_streamflow_alaska_para",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,valid_time,streamflow,update_time,geom from hydrovis.services.ana_streamflow_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

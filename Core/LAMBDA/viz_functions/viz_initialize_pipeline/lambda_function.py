@@ -52,7 +52,14 @@ def lambda_handler(event, context):
                                         "short_range.forcing.f048.puertorico.nc",
                                         "medium_range.channel_rt_1.f240.conus.nc",
                                         "medium_range.forcing.f240.conus.nc",
-                                        "medium_range.channel_rt.f119.conus.nc"]
+                                        "medium_range.channel_rt.f119.conus.nc",
+                                        "medium_range_blend.channel_rt.f240.conus.nc",
+                                        "medium_range_blend.forcing.f240.conus.nc",
+                                        "analysis_assim.channel_rt.tm00.alaska.nc",
+                                        "analysis_assim.forcing.tm00.alaska.nc",
+                                        "short_range.forcing.f015.alaska.nc",
+                                        "medium_range.forcing.f240.alaska.nc",
+                                        "medium_range_blend.forcing.f240.alaska.nc"]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
