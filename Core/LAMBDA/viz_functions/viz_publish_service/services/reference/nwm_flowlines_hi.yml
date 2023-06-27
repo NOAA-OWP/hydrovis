@@ -1,9 +1,0 @@
-service: nwm_flowlines_hi
-summary: NWM Flowlines for Hawaii
-description: Depicts the NWM flowlines within Hawaii
-tags: national water model, nwm, reference, flowlines, hawaii, hi
-credits: National Water Model, NOAA/NWS National Water Center
-egis_server: server
-egis_folder: reference
-feature_service: false
-public_service: true

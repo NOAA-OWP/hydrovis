@@ -7,13 +7,13 @@ import geopandas as gpd
 import os
 import time
 import datetime
-from shapely.geometry import shape
-from shapely.ops import unary_union
+import re
 
 from viz_classes import s3_file, database
 
 FIM_BUCKET = os.environ['FIM_BUCKET']
 FIM_PREFIX = os.environ['FIM_PREFIX']
+FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
 
 s3 = boto3.client("s3")
 
@@ -206,14 +206,15 @@ def create_inundation_catchment_boundary(huc8, branch):
     df_final = df_final.dissolve(by="hydro_id")
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
-    print("dropping duplicates")
+    
     if df_final.index.has_duplicates:
+        print("dropping duplicates")
         df_final = df_final.drop_duplicates()
     
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
-    df_final['fim_version'] = FIM_PREFIX.split("fim_")[-1]
+    df_final['fim_version'] = FIM_VERSION
     df_final['huc8'] = huc8
     df_final['branch'] = branch
                 
@@ -399,12 +400,14 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
         
     df_final = df_final.join(stage_lookup).dropna()
     
-    df_final = df_final.drop_duplicates()
+    if df_final.index.has_duplicates:
+        print("dropping duplicates")
+        df_final = df_final.drop_duplicates()
     
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
-    df_final['fim_version'] = FIM_PREFIX.split("fim_")[-1]
+    df_final['fim_version'] = FIM_VERSION
     df_final['reference_time'] = reference_time
     df_final['huc8'] = huc8
     df_final['branch'] = branch

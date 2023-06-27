@@ -1,0 +1,7 @@
+product: static_stage_based_catfim
+configuration: reference
+product_type: "vector"
+run: true
+
+services:
+  - static_stage_based_catfim_noaa

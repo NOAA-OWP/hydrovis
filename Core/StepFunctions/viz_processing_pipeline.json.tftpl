@@ -75,6 +75,15 @@
             "Retry": [
               {
                 "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
+              {
+                "ErrorEquals": [
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException"
@@ -152,6 +161,15 @@
             "Retry": [
               {
                 "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
+              {
+                "ErrorEquals": [
                   "Lambda.ServiceException",
                   "Lambda.AWSLambdaException",
                   "Lambda.SdkClientException"
@@ -194,6 +212,15 @@
               }
             },
             "Retry": [
+              {
+                "ErrorEquals": [
+                  "RequiredTableNotUpdated"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 30,
+                "MaxAttempts": 20,
+                "Comment": "Required table(s) not yet updated as expected"
+              },
               {
                 "ErrorEquals": [
                   "Lambda.ServiceException",
@@ -279,15 +306,11 @@
               }
             ],
             "Next": "Map",
-            "ResultPath": "$.output_rasters",
-            "ResultSelector": {
-              "output_rasters.$": "$.Payload.output_rasters",
-              "output_bucket.$": "$.Payload.output_bucket"
-            }
+            "OutputPath": "$.Payload"
           },
           "Map": {
             "Type": "Map",
-            "Next": "Product Postprocessing",
+            "Next": "Clean Up State Input",
             "Iterator": {
               "StartAt": "Optimize Rasters",
               "States": {
@@ -323,6 +346,16 @@
             },
             "ResultPath": null
           },
+          "Clean Up State Input": {
+            "Type": "Pass",
+            "Next": "Product Postprocessing",
+            "Parameters": {
+              "job_type.$": "$.job_type",
+              "reference_time.$": "$.reference_time",
+              "product.$": "$.product",
+              "sql_rename_dict.$": "$.sql_rename_dict"
+            }
+          },
           "Product Postprocessing": {
             "Type": "Map",
             "ItemProcessor": {
@@ -350,7 +383,7 @@
                       "BackoffRate": 1,
                       "IntervalSeconds": 30,
                       "MaxAttempts": 20,
-                      "Comment": "Required Table Not Ran Yet (postprocess_sql.dependent_on_db_tables)"
+                      "Comment": "Required table(s) not yet updated as expected"
                     },
                     {
                       "ErrorEquals": [
@@ -472,6 +505,15 @@
                   "Retry": [
                     {
                       "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
+                    {
+                      "ErrorEquals": [
                         "Lambda.ServiceException",
                         "Lambda.AWSLambdaException",
                         "Lambda.SdkClientException"
@@ -523,9 +565,7 @@
                     "reference_time.$": "$.Output.reference_time",
                     "product.$": "$.Output.product",
                     "fim_config.$": "$.Output.fim_config",
-                    "output_bucket.$": "$.Output.data_bucket",
-                    "sql_rename_dict.$": "$.Output.sql_rename_dict",
-                    "output_rasters.$": "$.Output.hucs_to_process"
+                    "sql_rename_dict.$": "$.Output.sql_rename_dict"
                   }
                 },
                 "HUC Processing Map": {
@@ -583,6 +623,15 @@
                   "Retry": [
                     {
                       "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
+                    {
+                      "ErrorEquals": [
                         "Lambda.ServiceException",
                         "Lambda.AWSLambdaException",
                         "Lambda.SdkClientException"
@@ -636,7 +685,7 @@
           },
           "Parallelize Summaries": {
             "Type": "Map",
-            "Next": "Update EGIS Data - Unstage",
+            "Next": "Parallel",
             "Iterator": {
               "StartAt": "Postprocess SQL - Summary",
               "States": {
@@ -652,6 +701,15 @@
                     }
                   },
                   "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "BackoffRate": 1,
+                      "IntervalSeconds": 30,
+                      "MaxAttempts": 20,
+                      "Comment": "Required table(s) not yet updated as expected"
+                    },
                     {
                       "ErrorEquals": [
                         "Lambda.ServiceException",
@@ -705,40 +763,113 @@
             },
             "ResultPath": null
           },
-          "Update EGIS Data - Unstage": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Parameters": {
-              "FunctionName": "${update_egis_data_arn}",
-              "Payload": {
-                "args.$": "$",
-                "step": "unstage"
-              }
-            },
-            "Retry": [
+          "Parallel": {
+            "Type": "Parallel",
+            "Next": "Auto vs. Past Event Run",
+            "Branches": [
               {
-                "ErrorEquals": [
-                  "Lambda.ServiceException",
-                  "Lambda.AWSLambdaException",
-                  "Lambda.SdkClientException"
-                ],
-                "IntervalSeconds": 2,
-                "MaxAttempts": 6,
-                "BackoffRate": 2,
-                "Comment": "Lambda Service Errors"
+                "StartAt": "Update EGIS Data - Unstage DB Tables",
+                "States": {
+                  "Update EGIS Data - Unstage DB Tables": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::lambda:invoke",
+                    "Parameters": {
+                      "FunctionName": "${update_egis_data_arn}",
+                      "Payload": {
+                        "args.$": "$",
+                        "step": "unstage_db_tables"
+                      }
+                    },
+                    "Retry": [
+                      {
+                        "ErrorEquals": [
+                          "Lambda.ServiceException",
+                          "Lambda.AWSLambdaException",
+                          "Lambda.SdkClientException"
+                        ],
+                        "IntervalSeconds": 2,
+                        "MaxAttempts": 6,
+                        "BackoffRate": 2,
+                        "Comment": "Lambda Service Errors"
+                      },
+                      {
+                        "ErrorEquals": [
+                          "UndefinedTable"
+                        ],
+                        "BackoffRate": 2,
+                        "IntervalSeconds": 5,
+                        "MaxAttempts": 3,
+                        "Comment": "Stage Table Doesn't Exist"
+                      }
+                    ],
+                    "ResultPath": null,
+                    "End": true
+                  }
+                }
               },
               {
-                "ErrorEquals": [
-                  "UndefinedTable"
-                ],
-                "BackoffRate": 2,
-                "IntervalSeconds": 5,
-                "MaxAttempts": 3,
-                "Comment": "Stage Table Doesn't Exist"
+                "StartAt": "Unstage Rasters",
+                "States": {
+                  "Unstage Rasters": {
+                    "Type": "Map",
+                    "ItemProcessor": {
+                      "ProcessorConfig": {
+                        "Mode": "INLINE"
+                      },
+                      "StartAt": "Update EGIS Data - Unstage Rasters",
+                      "States": {
+                        "Update EGIS Data - Unstage Rasters": {
+                          "Type": "Task",
+                          "Resource": "arn:aws:states:::lambda:invoke",
+                          "Parameters": {
+                            "FunctionName": "${update_egis_data_arn}",
+                            "Payload": {
+                              "args.$": "$",
+                              "step": "unstage_rasters"
+                            }
+                          },
+                          "Retry": [
+                            {
+                              "ErrorEquals": [
+                                "Lambda.ServiceException",
+                                "Lambda.AWSLambdaException",
+                                "Lambda.SdkClientException"
+                              ],
+                              "IntervalSeconds": 2,
+                              "MaxAttempts": 6,
+                              "BackoffRate": 2,
+                              "Comment": "Lambda Service Errors"
+                            },
+                            {
+                              "ErrorEquals": [
+                                "UndefinedTable"
+                              ],
+                              "BackoffRate": 2,
+                              "IntervalSeconds": 5,
+                              "MaxAttempts": 3,
+                              "Comment": "Stage Table Doesn't Exist"
+                            }
+                          ],
+                          "ResultPath": null,
+                          "End": true
+                        }
+                      }
+                    },
+                    "End": true,
+                    "ItemSelector": {
+                      "product.$": "$.product",
+                      "reference_time.$": "$.reference_time",
+                      "job_type.$": "$.job_type",
+                      "sql_rename_dict.$": "$.sql_rename_dict",
+                      "raster_output_bucket.$": "$.product.raster_outputs.output_bucket",
+                      "raster_output_workspace.$": "$$.Map.Item.Value"
+                    },
+                    "ItemsPath": "$.product.raster_outputs.output_raster_workspaces"
+                  }
+                }
               }
             ],
-            "ResultPath": null,
-            "Next": "Auto vs. Past Event Run"
+            "ResultPath": null
           },
           "Auto vs. Past Event Run": {
             "Type": "Choice",

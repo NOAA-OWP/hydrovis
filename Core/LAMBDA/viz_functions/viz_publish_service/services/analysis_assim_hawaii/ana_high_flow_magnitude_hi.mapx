@@ -273,7 +273,7 @@
               "name",
               "huc6",
               "nwm_vers",
-              "ref_time",
+              "reference_time",
               "max_flow",
               "recur_cat",
               "bankfull",

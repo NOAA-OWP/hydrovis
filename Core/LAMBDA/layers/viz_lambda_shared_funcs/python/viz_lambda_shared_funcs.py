@@ -178,8 +178,8 @@ def get_most_recent_s3_file(bucket, configuration):
     # Set the S3 prefix based on the confiuration
     def get_s3_prefix(configuration, date):
         if configuration == 'replace_route':
-            prefix = f"max_flows/replace_route/{date}/"
-        elif configuration == 'replace_route':
+            prefix = f"replace_route/{date}/wrf_hydro/"
+        elif configuration == 'ahps':
             prefix = f"max_stage/ahps/{date}/"
         elif configuration in {'analysis_assim', 'analysis_assim_hawaii', 'analysis_assim_puertorico',
                                'short_range', 'short_range_hawaii', 'short_range_puertorico',

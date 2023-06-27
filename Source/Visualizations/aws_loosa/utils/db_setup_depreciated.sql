@@ -522,13 +522,13 @@ CREATE TABLE cache.max_flows_ana_prvi (
 );
 ALTER TABLE cache.max_flows_ana_prvi OWNER TO viz_proc_admin_rw_user;
     
-CREATE TABLE cache.max_flows_mrf (
+CREATE TABLE cache.max_flows_mrf_gfs (
     feature_id integer,
     maxflow_3day double precision,
     maxflow_5day double precision,
     maxflow_10day double precision
 );
-ALTER TABLE cache.max_flows_mrf OWNER TO viz_proc_admin_rw_user;
+ALTER TABLE cache.max_flows_mrf_gfs OWNER TO viz_proc_admin_rw_user;
 
 CREATE TABLE cache.max_flows_srf (
     feature_id integer,

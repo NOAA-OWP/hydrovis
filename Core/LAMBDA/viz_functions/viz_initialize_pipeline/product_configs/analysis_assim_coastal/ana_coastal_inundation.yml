@@ -4,17 +4,19 @@ product_type: "fim"
 run: true
 
 fim_configs:
-  - name: ana_coastal_pacific
-    target_table: ingest.ana_coastal_pacific
+  - name: ana_coastal_inundation_pacific
+    target_table: ingest.ana_coastal_inundation_pacific
     fim_type: coastal
+    sql_file: coastal_pacific
     preprocess:
         file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_pacific/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.pacific.nc
         file_step: None
         file_window: None
         output_file: max_elevs/analysis_assim_coastal_pacific/{{datetime:%Y%m%d}}/ana_coastal_pacific_{{datetime:%H}}_max_elevs.nc
-  - name: ana_coastal_atlgulf
-    target_table: ingest.ana_coastal_atlgulf
+  - name: ana_coastal_inundation_atlgulf
+    target_table: ingest.ana_coastal_inundation_atlgulf
     fim_type: coastal
+    sql_file: coastal_atlgulf
     preprocess:
         file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_atlgulf/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.atlgulf.nc
         file_step: None
@@ -22,11 +24,8 @@ fim_configs:
         output_file: max_elevs/analysis_assim_coastal_atlgulf/{{datetime:%Y%m%d}}/ana_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
       
 postprocess_sql:
-  - sql_file: ana_coastal_inundation_depth
-    target_table: publish.ana_coastal_inundation_depth
-  - sql_file: ana_coastal_inundation_extent
-    target_table: publish.ana_coastal_inundation_extent
+  - sql_file: ana_coastal_inundation
+    target_table: publish.ana_coastal_inundation
 
 services:
-  - ana_coastal_inundation_extent
-  - ana_coastal_inundation_depth
+  - ana_coastal_inundation_extent_noaa

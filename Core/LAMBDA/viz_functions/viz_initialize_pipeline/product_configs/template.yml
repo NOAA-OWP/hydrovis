@@ -42,6 +42,7 @@ fim_configs:  # (OPTIONAL) List of fim configurations to run
   - name: fim_config_1 # (REQUIRED) Name of the fim configuration
     target_table: ingest.inundation  # (REQUIRED) Name of the DB table where the fileset will be imported
     fim_type: hand  # (REQUIRED) hand or coastal indicating the type of fim config being ran
+    sql_file: fim_data_prep_sql_file_name  # (OPTIONAL) Name of the fim data prep sql file
     preprocess:  # (OPTIONAL) Dictionary dictating what files to preprocess for the fim config if needed
       - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.nc # (REQUIRED) File path to data with regex type format for dynamic handling
         file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
@@ -54,8 +55,6 @@ fim_configs:  # (OPTIONAL) List of fim configurations to run
 postprocess_sql:  # (OPTIONAL) List of postprocess sql files to run in the postprocess sql lambda function
   - sql_file: postprocess_sql_file_name  # (REQUIRED) Name of the ingest postprocess sql file
     target_table: publish.product  # (REQUIRED) Name of the DB table where the fileset will be imported
-    dependent_on_db_tables:  # (OPTIONAL) A list of other product database table(s) - i.e. publish schema tables - that the current product postprocessing is dependent on (will wait until this table has the current reference time).
-      - publish.dependent_on_db_tables # (REQUIRED) Name of the dependent DB table
 
 product_summaries:  # (OPTIONAL) List of dictionaries which provides the names of the summary sql files to run in the postprocess sql lambda function and their table output results
   - sql_file:  product_summary_sql_file_name  # (REQUIRED) Name of the summary sql file ran in the postprocess sql lambda function

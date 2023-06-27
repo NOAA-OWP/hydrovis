@@ -9,28 +9,31 @@ import boto3
 import xml.dom.minidom as DOM
 
 from aws_loosa.consts import paths
-from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata, get_mapx_files
+from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata, get_mapx_files, check_s3_file_existence
 
 s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')
 
 service_dict = {
-    "branch_0_catchments": "fim_catchments",
-    "branch_0_catchments_hi": "fim_catchments",
-    "branch_0_catchments_prvi": "fim_catchments",
-    "branch_gms_catchments": "fim_catchments",
-    "branch_gms_catchments_hi": "fim_catchments",
-    "branch_gms_catchments_prvi": "fim_catchments",
-    "nwm_flowlines": "reference",
-    "nwm_flowlines_hi": "reference",
-    "nwm_flowlines_prvi": "reference",
-    "possible_coastal_omission": "reference",
-    "nwm_waterbodies": "reference",
-    "fim_performance": "reference",
-    "flow_based_catfim": "reference",
-    "stage_based_catfim": "reference",
-    "nwm_aep_fim": "aep_fim",
-    "src_skill": "reference"
+    "static_hand_catchments_0_branches_noaa": "fim_catchments",
+    "static_hand_catchments_0_branches_hi_noaa": "fim_catchments",
+    "static_hand_catchments_0_branches_prvi_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_hi_noaa": "fim_catchments",
+    "static_hand_catchments_gms_branches_prvi_noaa": "fim_catchments",
+    "static_nwm_flowlines": "reference",
+    "static_nwm_flowlines_hi": "reference",
+    "static_nwm_flowlines_prvi": "reference",
+    "static_nwm_coastal_domain_noaa": "reference",
+    "static_nwm_waterbodies": "reference",
+    "static_nwm_waterbodies_hi": "reference",
+    "static_nwm_waterbodies_prvi": "reference",
+    "static_public_fim_domain": "reference",
+    "static_hand_inundation_performance_metrics_noaa": "reference",
+    "static_flow_based_catfim_noaa": "reference",
+    "static_stage_based_catfim_noaa": "reference",
+    "static_nwm_aep_inundation_extent_library_noaa": "aep_fim",
+    "static_hand_rating_curve_performance_metrics_noaa": "reference"
 }
 
 
@@ -89,6 +92,7 @@ def update_db_sd_files():
     print("Updating mapx files and creating SD files")
     sd_folder = os.path.join(paths.AUTHORITATIVE_ROOT, "sd_files")
     deployment_bucket = os.environ['DEPLOYMENT_DATA_BUCKET']
+    fim_output_bucket = os.environ['FIM_OUTPUT_BUCKET']
 
     print("Creating connection string to DB")
     conn_str = arcpy.management.CreateDatabaseConnectionString(
@@ -136,16 +140,22 @@ def update_db_sd_files():
            ExtraArgs={"ServerSideEncryption": "aws:kms"}
         )
 
+        print(f"Deleting publish flag for {service_name}")
+        publish_folder = service_data['egis_folder']
+        publish_server = service_data['egis_server']
+        publish_flag = f"published_flags/{publish_server}/{publish_folder}/{service_name}/{service_name}"
+        if check_s3_file_existence(fim_output_bucket, publish_flag):
+            s3_client.delete_object(Bucket=fim_output_bucket, Key=publish_flag)
 
 def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     sd_service_name = f"{service_name}{consts.SERVICE_NAME_TAG}"
     sd_creation_folder = "C:\\Users\\arcgis\\sd_creation"
-    sd_file = os.path.join(sd_creation_folder, service_name)
+    sd_creation_file = os.path.join(sd_creation_folder, service_name)
 
     if not os.path.exists(sd_creation_folder):
         os.makedirs(sd_creation_folder)
 
-    if os.path.exists(sd_file):
+    if os.path.exists(sd_creation_file):
         print(f"SD file already created for {service_name}")
         return
 
@@ -168,7 +178,8 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
         layerCIM = layer.getDefinition('V2')
 
         if layer.isRasterLayer:
-            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}\\{service_name}\\published"
+            current_s3_workspace = layerCIM.dataConnection.workspaceConnectionString
+            new_s3_workspace = f"DATABASE={paths.HYDROVIS_S3_CONNECTION_FILE_PATH}{current_s3_workspace.split('acs')[1]}"
             layerCIM.dataConnection.workspaceConnectionString = new_s3_workspace
         else:
             new_query = f"select * from hydrovis.{schema}.{service_name}"
@@ -335,7 +346,7 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
         print(e)
         return
 
-    file2 = open(sd_file,"w+")
+    file2 = open(sd_creation_file,"w+")
     file2.close()
 
     os.remove(sddraft_output_filename)

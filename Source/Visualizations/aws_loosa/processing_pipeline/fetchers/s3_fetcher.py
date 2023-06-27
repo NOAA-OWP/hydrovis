@@ -29,18 +29,12 @@ class S3Fetcher(DataFetcher):
             timeout = self.DEFAULT_TIMEOUT
         try:
             uriparts = urlparse(src)
-            scheme = uriparts.scheme.replace('s3-', '')
             host = uriparts.netloc
-            path = uriparts.path
-            path_parts = path.split('/')
-            bucket = path_parts[1]
-            object_key = '/'.join(path_parts[2:])
-
-            s3_endpoint = urlunparse((scheme, host, '', '', '', ''))
+            bucket = host.replace("arn:aws:s3:::", "").replace(".s3.amazonaws.com", "")
+            object_key = uriparts.path[1:]
 
             res = boto3.resource(
                 's3',
-                endpoint_url=s3_endpoint,
                 aws_access_key_id=self.access_key,
                 aws_secret_access_key=self.secret_key
             )
@@ -66,18 +60,12 @@ class S3Fetcher(DataFetcher):
             timeout = self.DEFAULT_TIMEOUT
         try:
             uriparts = urlparse(src)
-            scheme = uriparts.scheme.replace('s3-', '')
             host = uriparts.netloc
-            path = uriparts.path
-            path_parts = path.split('/')
-            bucket = path_parts[1]
-            object_key = '/'.join(path_parts[2:])
-
-            s3_endpoint = urlunparse((scheme, host, '', '', '', ''))
+            bucket = host.replace("arn:aws:s3:::", "").replace(".s3.amazonaws.com", "")
+            object_key = uriparts.path[1:]
 
             res = boto3.resource(
                 's3',
-                endpoint_url=s3_endpoint,
                 aws_access_key_id=self.access_key,
                 aws_secret_access_key=self.secret_key
             )

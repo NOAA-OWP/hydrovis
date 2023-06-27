@@ -14,11 +14,7 @@ variable "deployment_bucket" {
   type = string
 }
 
-variable "raster_output_bucket" {
-  type = string
-}
-
-variable "raster_output_prefix" {
+variable "max_values_bucket" {
   type = string
 }
 
@@ -39,10 +35,6 @@ variable "ecr_repository_image_tag" {
 }
 
 variable "fim_version" {
-  type = string
-}
-
-variable "max_values_bucket" {
   type = string
 }
 
@@ -74,6 +66,10 @@ variable "egis_db_user_secret_string" {
   type = string
 }
 
+variable "default_tags" {
+  type = map(string)
+}
+
 locals {
   viz_optimize_rasters_lambda_name = "hv-vpp-${var.environment}-viz-optimize-rasters"
   viz_hand_fim_processing_lambda_name = "hv-vpp-${var.environment}-viz-hand-fim-processing"
@@ -96,13 +92,30 @@ data "archive_file" "raster_processing_zip" {
       filename = source.key
     }
   }
+
   source {
     content  = file("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
     filename = "viz_classes.py"
   }
+
   source {
     content  = file("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_lambda_shared_funcs.py")
     filename = "viz_lambda_shared_funcs.py"
+  }
+
+  source {
+    content = templatefile("${path.module}/viz_raster_processing/serverless.yml.tmpl", {
+      SERVICE_NAME       = replace(local.viz_raster_processing_lambda_name, "_", "-")
+      LAMBDA_TAGS        = jsonencode(merge(var.default_tags, { Name = local.viz_raster_processing_lambda_name }))
+      DEPLOYMENT_BUCKET  = var.deployment_bucket
+      AWS_DEFAULT_REGION = var.region
+      LAMBDA_NAME        = local.viz_raster_processing_lambda_name
+      AWS_ACCOUNT_ID     = var.account_id
+      IMAGE_REPO_NAME    = aws_ecr_repository.viz_raster_processing_image.name
+      IMAGE_TAG          = var.ecr_repository_image_tag
+      LAMBDA_ROLE_ARN    = var.lambda_role
+    })
+    filename = "serverless.yml"
   }
 }
 
@@ -114,7 +127,7 @@ resource "aws_s3_object" "raster_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_raster_processing_image" {
-  name                 = "hv-vpp-${var.environment}-viz-raster-processing"
+  name                 = local.viz_raster_processing_lambda_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -125,7 +138,7 @@ resource "aws_ecr_repository" "viz_raster_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_raster_processing_lambda" {
-  name          = "hv-vpp-${var.environment}-viz-raster-processing"
+  name          = local.viz_raster_processing_lambda_name
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -139,7 +152,7 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
     image                       = "aws/codebuild/standard:6.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode = true
+    privileged_mode             = true
 
     environment_variable {
       name  = "AWS_DEFAULT_REGION"
@@ -150,46 +163,21 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
       name  = "AWS_ACCOUNT_ID"
       value = var.account_id
     }
-    
+
     environment_variable {
       name  = "IMAGE_REPO_NAME"
       value = aws_ecr_repository.viz_raster_processing_image.name
     }
-    
+
     environment_variable {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
     }
-
-    environment_variable {
-      name  = "LAMBDA_NAME"
-      value = local.viz_raster_processing_lambda_name
-    }
-    
-    environment_variable {
-      name  = "LAMBDA_ROLE_ARN"
-      value = var.lambda_role
-    }
-
-    environment_variable {
-      name  = "DEPLOYMENT_BUCKET"
-      value = var.deployment_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUT_BUCKET"
-      value = var.raster_output_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUT_PREFIX"
-      value = var.raster_output_prefix
-    }
   }
 
   source {
-    type            = "S3"
-    location        = "${aws_s3_object.raster_processing_zip_upload.bucket}/${aws_s3_object.raster_processing_zip_upload.key}"
+    type     = "S3"
+    location = "${aws_s3_object.raster_processing_zip_upload.bucket}/${aws_s3_object.raster_processing_zip_upload.key}"
   }
 }
 
@@ -236,6 +224,21 @@ data "archive_file" "optimize_rasters_zip" {
       filename = source.key
     }
   }
+
+  source {
+    content = templatefile("${path.module}/viz_optimize_rasters/serverless.yml.tmpl", {
+      SERVICE_NAME       = replace(local.viz_optimize_rasters_lambda_name, "_", "-")
+      LAMBDA_TAGS        = jsonencode(merge(var.default_tags, { Name = local.viz_optimize_rasters_lambda_name }))
+      DEPLOYMENT_BUCKET  = var.deployment_bucket
+      AWS_DEFAULT_REGION = var.region
+      LAMBDA_NAME        = local.viz_optimize_rasters_lambda_name
+      AWS_ACCOUNT_ID     = var.account_id
+      IMAGE_REPO_NAME    = aws_ecr_repository.viz_optimize_rasters_image.name
+      IMAGE_TAG          = var.ecr_repository_image_tag
+      LAMBDA_ROLE_ARN    = var.lambda_role
+    })
+    filename = "serverless.yml"
+  }
 }
 
 resource "aws_s3_object" "optimize_rasters_zip_upload" {
@@ -246,7 +249,7 @@ resource "aws_s3_object" "optimize_rasters_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_optimize_rasters_image" {
-  name                 = "hv-vpp-${var.environment}-viz-optimize-rasters"
+  name                 = local.viz_optimize_rasters_lambda_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -257,7 +260,7 @@ resource "aws_ecr_repository" "viz_optimize_rasters_image" {
 }
 
 resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
-  name          = "hv-vpp-${var.environment}-viz-optimize-rasters"
+  name          = local.viz_optimize_rasters_lambda_name
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -271,7 +274,7 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
     image                       = "aws/codebuild/standard:6.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode = true
+    privileged_mode             = true
 
     environment_variable {
       name  = "AWS_DEFAULT_REGION"
@@ -282,36 +285,21 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
       name  = "AWS_ACCOUNT_ID"
       value = var.account_id
     }
-    
+
     environment_variable {
       name  = "IMAGE_REPO_NAME"
       value = aws_ecr_repository.viz_optimize_rasters_image.name
     }
-    
+
     environment_variable {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
     }
-
-    environment_variable {
-      name  = "LAMBDA_NAME"
-      value = local.viz_optimize_rasters_lambda_name
-    }
-    
-    environment_variable {
-      name  = "LAMBDA_ROLE_ARN"
-      value = var.lambda_role
-    }
-
-    environment_variable {
-      name  = "DEPLOYMENT_BUCKET"
-      value = var.deployment_bucket
-    }
   }
 
   source {
-    type            = "S3"
-    location        = "${aws_s3_object.optimize_rasters_zip_upload.bucket}/${aws_s3_object.optimize_rasters_zip_upload.key}"
+    type     = "S3"
+    location = "${aws_s3_object.optimize_rasters_zip_upload.bucket}/${aws_s3_object.optimize_rasters_zip_upload.key}"
   }
 }
 
@@ -358,9 +346,38 @@ data "archive_file" "hand_fim_processing_zip" {
       filename = source.key
     }
   }
+
   source {
     content  = file("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
     filename = "viz_classes.py"
+  }
+
+  source {
+    content = templatefile("${path.module}/viz_hand_fim_processing/serverless.yml.tmpl", {
+      SERVICE_NAME       = replace(local.viz_hand_fim_processing_lambda_name, "_", "-")
+      LAMBDA_TAGS        = jsonencode(merge(var.default_tags, { Name = local.viz_hand_fim_processing_lambda_name }))
+      DEPLOYMENT_BUCKET  = var.deployment_bucket
+      AWS_DEFAULT_REGION = var.region
+      LAMBDA_NAME        = local.viz_hand_fim_processing_lambda_name
+      AWS_ACCOUNT_ID     = var.account_id
+      IMAGE_REPO_NAME    = aws_ecr_repository.viz_hand_fim_processing_image.name
+      IMAGE_TAG          = var.ecr_repository_image_tag
+      LAMBDA_ROLE_ARN    = var.lambda_role
+      FIM_BUCKET         = var.fim_data_bucket
+      FIM_PREFIX         = "fim_${replace(var.fim_version, ".", "_")}/hand_datasets"
+      VIZ_DB_DATABASE    = var.viz_db_name
+      VIZ_DB_HOST        = var.viz_db_host
+      VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD    = jsondecode(var.viz_db_user_secret_string)["password"]
+      EGIS_DB_DATABASE   = var.egis_db_name
+      EGIS_DB_HOST       = var.egis_db_host
+      EGIS_DB_USERNAME   = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD   = jsondecode(var.egis_db_user_secret_string)["password"]
+      SECURITY_GROUP_1   = var.hand_fim_processing_sgs[0]
+      SUBNET_1           = var.hand_fim_processing_subnets[0]
+      SUBNET_2           = var.hand_fim_processing_subnets[1]
+    })
+    filename = "serverless.yml"
   }
 }
 
@@ -372,7 +389,7 @@ resource "aws_s3_object" "hand_fim_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
-  name                 = "hv-vpp-${var.environment}-hand-fim-processing"
+  name                 = local.viz_hand_fim_processing_lambda_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -383,7 +400,7 @@ resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
-  name          = "hv-vpp-${var.environment}-viz-hand-fim-processing"
+  name          = local.viz_hand_fim_processing_lambda_name
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -397,7 +414,7 @@ resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
     image                       = "aws/codebuild/standard:6.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode = true
+    privileged_mode             = true
 
     environment_variable {
       name  = "AWS_DEFAULT_REGION"
@@ -408,101 +425,21 @@ resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
       name  = "AWS_ACCOUNT_ID"
       value = var.account_id
     }
-    
+
     environment_variable {
       name  = "IMAGE_REPO_NAME"
       value = aws_ecr_repository.viz_hand_fim_processing_image.name
     }
-    
+
     environment_variable {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
     }
-
-    environment_variable {
-      name  = "LAMBDA_NAME"
-      value = local.viz_hand_fim_processing_lambda_name
-    }
-    
-    environment_variable {
-      name  = "LAMBDA_ROLE_ARN"
-      value = var.lambda_role
-    }
-
-    environment_variable {
-      name  = "DEPLOYMENT_BUCKET"
-      value = var.deployment_bucket
-    }
-
-    environment_variable {
-      name  = "FIM_BUCKET"
-      value = var.fim_data_bucket
-    }
-
-    environment_variable {
-      name  = "FIM_PREFIX"
-      value = "fim/fim_${replace(var.fim_version, ".", "_")}"
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_DATABASE"
-      value = var.viz_db_name
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_HOST"
-      value = var.viz_db_host
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_USERNAME"
-      value = jsondecode(var.viz_db_user_secret_string)["username"]
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_PASSWORD"
-      value = jsondecode(var.viz_db_user_secret_string)["password"]
-    }
-
-    environment_variable {
-      name  = "EGIS_DB_DATABASE"
-      value = var.egis_db_name
-    }
-
-    environment_variable {
-      name  = "EGIS_DB_HOST"
-      value = var.egis_db_host
-    }
-
-    environment_variable {
-      name  = "EGIS_DB_USERNAME"
-      value = jsondecode(var.egis_db_user_secret_string)["username"]
-    }
-
-    environment_variable {
-      name  = "EGIS_DB_PASSWORD"
-      value = jsondecode(var.egis_db_user_secret_string)["password"]
-    }
-
-    environment_variable {
-      name  = "SECURITY_GROUP_1"
-      value = var.hand_fim_processing_sgs[0]
-    }
-
-    environment_variable {
-      name  = "SUBNET_1"
-      value = var.hand_fim_processing_subnets[0]
-    }
-
-    environment_variable {
-      name  = "SUBNET_2"
-      value = var.hand_fim_processing_subnets[1]
-    }
   }
 
   source {
-    type            = "S3"
-    location        = "${aws_s3_object.hand_fim_processing_zip_upload.bucket}/${aws_s3_object.hand_fim_processing_zip_upload.key}"
+    type     = "S3"
+    location = "${aws_s3_object.hand_fim_processing_zip_upload.bucket}/${aws_s3_object.hand_fim_processing_zip_upload.key}"
   }
 }
 
@@ -551,9 +488,35 @@ data "archive_file" "schism_processing_zip" {
       filename = source.key
     }
   }
+
   source {
     content  = file("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
     filename = "viz_classes.py"
+  }
+
+  source {
+    content = templatefile("${path.module}/viz_schism_fim_processing/serverless.yml.tmpl", {
+      SERVICE_NAME       = replace(local.viz_schism_fim_processing_lambda_name, "_", "-")
+      LAMBDA_TAGS        = jsonencode(merge(var.default_tags, { Name = local.viz_schism_fim_processing_lambda_name }))
+      DEPLOYMENT_BUCKET  = var.deployment_bucket
+      AWS_DEFAULT_REGION = var.region
+      LAMBDA_NAME        = local.viz_schism_fim_processing_lambda_name
+      AWS_ACCOUNT_ID     = var.account_id
+      IMAGE_REPO_NAME    = aws_ecr_repository.viz_schism_fim_processing_image.name
+      IMAGE_TAG          = var.ecr_repository_image_tag
+      LAMBDA_ROLE_ARN    = var.lambda_role
+      MAX_VALS_BUCKET    = var.max_values_bucket
+      INPUTS_BUCKET      = var.deployment_bucket
+      INPUTS_PREFIX      = "schism_fim"
+      VIZ_DB_DATABASE    = var.viz_db_name
+      VIZ_DB_HOST        = var.viz_db_host
+      VIZ_DB_PASSWORD    = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
+      SECURITY_GROUP_1   = var.hand_fim_processing_sgs[0]
+      SUBNET_1           = var.hand_fim_processing_subnets[0]
+      SUBNET_2           = var.hand_fim_processing_subnets[1]
+    })
+    filename = "serverless.yml"
   }
 }
 
@@ -565,7 +528,7 @@ resource "aws_s3_object" "schism_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
-  name                 = "hv-vpp-${var.environment}-schism-fim-processing"
+  name                 = local.viz_schism_fim_processing_lambda_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -576,7 +539,7 @@ resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
 }
 
 resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
-  name          = "hv-vpp-${var.environment}-viz-schism-fim-processing"
+  name          = local.viz_schism_fim_processing_lambda_name
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
   service_role  = var.lambda_role
@@ -590,7 +553,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
     image                       = "aws/codebuild/standard:6.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode = true
+    privileged_mode             = true
 
     environment_variable {
       name  = "AWS_DEFAULT_REGION"
@@ -601,85 +564,15 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
       name  = "AWS_ACCOUNT_ID"
       value = var.account_id
     }
-    
+
     environment_variable {
       name  = "IMAGE_REPO_NAME"
       value = aws_ecr_repository.viz_schism_fim_processing_image.name
     }
-    
+
     environment_variable {
       name  = "IMAGE_TAG"
       value = var.ecr_repository_image_tag
-    }
-
-    environment_variable {
-      name  = "LAMBDA_NAME"
-      value = local.viz_schism_fim_processing_lambda_name
-    }
-    
-    environment_variable {
-      name  = "LAMBDA_ROLE_ARN"
-      value = var.lambda_role
-    }
-
-    environment_variable {
-      name  = "INPUTS_BUCKET"
-      value = var.deployment_bucket
-    }
-
-    environment_variable {
-      name  = "INPUTS_PREFIX"
-      value = "schism_fim"
-    }
-
-    environment_variable {
-      name  = "MAX_VALS_BUCKET"
-      value = var.max_values_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUTS_BUCKET"
-      value = var.raster_output_bucket
-    }
-
-    environment_variable {
-      name  = "OUTPUTS_PREFIX"
-      value = "processing_outputs"
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_DATABASE"
-      value = var.viz_db_name
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_HOST"
-      value = var.viz_db_host
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_USERNAME"
-      value = jsondecode(var.viz_db_user_secret_string)["username"]
-    }
-
-    environment_variable {
-      name  = "VIZ_DB_PASSWORD"
-      value = jsondecode(var.viz_db_user_secret_string)["password"]
-    }
-
-    environment_variable {
-      name  = "SECURITY_GROUP_1"
-      value = var.hand_fim_processing_sgs[0]
-    }
-
-    environment_variable {
-      name  = "SUBNET_1"
-      value = var.hand_fim_processing_subnets[0]
-    }
-
-    environment_variable {
-      name  = "SUBNET_2"
-      value = var.hand_fim_processing_subnets[1]
     }
   }
 

@@ -1,0 +1,12 @@
+service: rfc_based_5day_max_streamflow
+summary: RFC Based 5-Day Maximum Streamflow Forecast
+description: Depicts maximum forecast streamflow over the next 5 days derived from the official 
+  River Forecast Center (RFC) forecast routed downstream through the National Water Model (NWM) 
+  stream network. Maximum streamflows are available downstream of RFC forecast points whose forecast 
+  reaches action status or greater. Updated hourly.
+tags: streamflow, national water model, nwm, rfc, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: rfc
+feature_service: false
+public_service: false

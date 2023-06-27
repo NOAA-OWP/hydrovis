@@ -122,7 +122,7 @@ $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
 $env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
-$env:RNR_MAX_FLOWS_DATA_BUCKET = $RNR_MAX_FLOWS_DATA_BUCKET
+$env:RNR_DATA_BUCKET = $RNR_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
@@ -146,7 +146,7 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
-[Environment]::SetEnvironmentVariable("RNR_MAX_FLOWS_DATA_BUCKET", $env:RNR_MAX_FLOWS_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("RNR_DATA_BUCKET", $env:RNR_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $env:FIM_OUTPUT_BUCKET, "2")
@@ -238,9 +238,15 @@ LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
 $s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/viz_authoritative_data/"
 aws s3 cp $s3_authoritative $AUTHORITATIVE_ROOT --recursive
 
+Install-Module -Name Invoke-CommandAs -force
+$ec2host = hostname
+$strScriptUser = "$ec2host\$PIPELINE_USER"
+$PSS = ConvertTo-SecureString $PIPELINE_USER_ACCOUNT_PASSWORD -AsPlainText -Force
+$cred = new-object system.management.automation.PSCredential $strScriptUser,$PSS
+
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\create_s3_connection_files.py"
+$python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\create_s3_connection_files.py"
+Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -255,15 +261,8 @@ $ACL.SetAccessRule($AccessRule)
 $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
-Set-Location -Path $AWS_SERVICE_REPO
-& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" "aws_loosa\deploy\update_data_stores_and_sd_files.py"
-
-LogWrite "DELETING PUBLISHED FLAGS IF THEY EXIST"
-$EXISTING_PUBLISHED_FLAGS = aws s3 ls $FLAGS_ROOT
-if ($EXISTING_PUBLISHED_FLAGS) {
-    LogWrite "DELETING PUBLISHED FLAGS"
-    aws s3 rm $FLAGS_ROOT --recursive
-}
+$python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
+Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
