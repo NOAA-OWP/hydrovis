@@ -238,6 +238,7 @@ LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
 $s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/viz_authoritative_data/"
 aws s3 cp $s3_authoritative $AUTHORITATIVE_ROOT --recursive
 
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5 -Force
 Install-Module -Name Invoke-CommandAs -force
 $ec2host = hostname
 $strScriptUser = "$ec2host\$PIPELINE_USER"
