@@ -226,6 +226,8 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
     $python_exe = $user_python_exe
 }
 
+$env:PIP_TRUSTED_HOST = "pypi.org files.pythonhosted.org"
+
 LogWrite "INSTALLING AWS SERVICE REPO"
 $AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Source\Visualizations"
 Set-Location -Path $AWS_SERVICE_REPO
