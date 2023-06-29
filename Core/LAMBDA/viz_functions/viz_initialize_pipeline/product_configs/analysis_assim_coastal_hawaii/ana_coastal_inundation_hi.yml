@@ -19,3 +19,4 @@ fim_configs:
 
 services:
   - ana_coastal_inundation_extent_hi_noaa
+  - ana_coastal_inundation_depth_hi_noaa

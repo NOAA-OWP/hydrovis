@@ -29,3 +29,4 @@ postprocess_sql:
 
 services:
   - ana_coastal_inundation_extent_noaa
+  - ana_coastal_inundation_depth_noaa

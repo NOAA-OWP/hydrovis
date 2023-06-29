@@ -59,6 +59,7 @@ def lambda_handler(event, context):
             for s3_key in workspace_rasters:
                 s3_object = {"Bucket": s3_bucket, "Key": s3_key}
                 s3_filename = os.path.basename(s3_key)
+                s3_extension = os.path.splitext(s3_filename)[1]
                 cache_key = f"{cache_path}/{s3_filename}"
     
                 print(f"Caching {s3_key} at {cache_key}")
@@ -67,11 +68,16 @@ def lambda_handler(event, context):
                 print("Deleting tif workspace raster")
                 s3.Object(s3_bucket, s3_key).delete()
     
-                raster_name = s3_filename.replace(".tif", "")
-                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
+                raster_name = s3_filename.replace(s3_extension, "")
+                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(s3_extension, "")
                 published_prefix = f"{processing_prefix}/published/{raster_name}"
                 
-                for extension in mrf_extensions:
+                if s3_extension == '.tif':
+                    process_extensions = mrf_extensions
+                else:
+                    process_extensions = [s3_extension[1:]]
+
+                for extension in process_extensions:
                     mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
                     mrf_published_raster = f"{published_prefix}.{extension}"
                     
