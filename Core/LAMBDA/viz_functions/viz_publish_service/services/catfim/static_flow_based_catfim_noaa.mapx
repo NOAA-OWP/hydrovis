@@ -1091,7 +1091,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -1133,7 +1133,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1161,7 +1161,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1175,7 +1175,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1189,7 +1189,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1203,7 +1203,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1860,7 +1860,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -1902,7 +1902,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1930,7 +1930,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1944,7 +1944,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1958,7 +1958,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -1972,7 +1972,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -2629,7 +2629,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -2671,7 +2671,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -2699,7 +2699,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -2713,7 +2713,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -2727,7 +2727,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -2741,7 +2741,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -3398,7 +3398,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -3440,7 +3440,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -3468,7 +3468,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -3482,7 +3482,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -3496,7 +3496,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -3510,7 +3510,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -4167,7 +4167,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -4209,7 +4209,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -4237,7 +4237,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -4251,7 +4251,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -4265,7 +4265,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
@@ -4279,7 +4279,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
             "visible" : false,
             "searchMode" : "Exact"
