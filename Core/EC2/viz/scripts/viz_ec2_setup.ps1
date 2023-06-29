@@ -226,12 +226,19 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
     $python_exe = $user_python_exe
 }
 
-$env:PIP_TRUSTED_HOST = "pypi.org files.pythonhosted.org"
+$window_pip_exe = "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\Scripts\pip.exe"
+$user_pip_exe = "C:\Users\$PIPELINE_USER\AppData\Local\ESRI\conda\envs\viz\Scripts\pip.exe"
+if (Test-Path -Path $window_pip_exe -PathType Leaf) {
+    $pip_exe = $window_pip_exe
+} else {
+    $pip_exe = $user_pip_exe
+}
 
 LogWrite "INSTALLING AWS SERVICE REPO"
 $AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Source\Visualizations"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
+& $pip_exe install -r requirements.txt
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz typing_extensions=4.1.1 dask=2021.10.0
 & $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42 shapely==1.8.5.post1 fiona==1.8.22
