@@ -354,7 +354,27 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "4_egis_postgresql_setup.sh"
+    filename     = "4_viz_setup_foreign_tables.sh"
+    content      = templatefile("${path.module}/scripts/utils/setup_foreign_tables.tftpl", {
+      db_name             = local.dbs["viz"]["db_name"]
+      db_host             = local.dbs["viz"]["db_host"]
+      db_port             = local.dbs["viz"]["db_port"]
+      db_username         = local.dbs["viz"]["db_username"]
+      db_password         = local.dbs["viz"]["db_password"]
+      db_schema           = "external"
+      foreign_db_name     = local.dbs["location"]["db_name"]
+      foreign_db_host     = local.dbs["location"]["db_host"]
+      foreign_db_port     = local.dbs["location"]["db_port"]
+      foreign_db_username = local.dbs["location"]["db_username"]
+      foreign_password    = local.dbs["location"]["db_password"]
+      foreign_server      = "wrds_location"
+      user_mappings       = [local.dbs["viz"]["db_username"], jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "5_egis_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/egis/postgresql_setup.sh.tftpl", {
       deployment_bucket          = var.data_deployment_bucket
       postgis_setup_s3_key       = aws_s3_object.postgis_setup.key
@@ -377,7 +397,7 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "5_egis_restore_db_dumps.sh"
+    filename     = "6_egis_restore_db_dumps.sh"
     content      = templatefile("${path.module}/scripts/utils/restore_db_dumps_from_s3.sh.tftpl", {
       db_name     = local.dbs["egis"]["db_name"]
       db_host     = local.dbs["egis"]["db_host"]

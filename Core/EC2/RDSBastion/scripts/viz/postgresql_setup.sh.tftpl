@@ -36,29 +36,3 @@ psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_
 # Add permissions for aws_s3 extension to viz user.
 echo "Adding permissions to aws_s3 extension for viz user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
-
-
-echo "Setting up wrds location foreign table in the VIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" \
-    -tAc "do
-            '
-            declare
-            l_rec record;
-            begin
-            for l_rec in (select foreign_table_schema, foreign_table_name 
-                            from information_schema.foreign_tables
-                            where foreign_table_schema = ''external'') loop
-                execute format(''drop foreign table %I.%I'', l_rec.foreign_table_schema, l_rec.foreign_table_name);
-            end loop;
-            end;
-            '"
-
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" \
-    -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
-            DROP SERVER IF EXISTS wrds_location CASCADE;
-            CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '${location_db_host}', dbname '${location_db_name}', port '${location_db_port}');
-            CREATE USER MAPPING FOR ${viz_db_username} SERVER wrds_location OPTIONS (user '${location_db_username}', password '${location_db_password}');
-            CREATE USER MAPPING FOR ${viz_proc_admin_rw_username} SERVER wrds_location OPTIONS (user '${location_db_username}', password '${location_db_password}');
-            IMPORT FOREIGN SCHEMA public FROM SERVER wrds_location INTO external;
-            ALTER SERVER wrds_location OPTIONS (fetch_size '150000');"
-
