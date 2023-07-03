@@ -368,7 +368,7 @@ data "cloudinit_config" "startup" {
       foreign_db_username = local.dbs["location"]["db_username"]
       foreign_db_password = local.dbs["location"]["db_password"]
       foreign_server      = "wrds_location"
-      user_mappings       = [local.dbs["viz"]["db_username"], jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
+      user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
     })
   }
 
