@@ -177,6 +177,10 @@ resource "aws_s3_object" "setup_upload" {
 ## Data Blocks ##
 #################
 
+data "external" "github_repo_commit" {
+  program = ["git", "log", "-1", "--pretty={%x22output%x22:%x22%H%x22}"]
+}
+
 data "cloudinit_config" "pipeline_setup" {
   gzip          = false
   base64_encode = false
@@ -209,6 +213,7 @@ data "cloudinit_config" "pipeline_setup" {
       HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
       GITHUB_REPO_PREFIX             = var.github_repo_prefix
       GITHUB_HOST                    = var.github_host
+      GITHUB_REPO_COMMIT             = data.external.github_repo_commit.result.output
       VIZ_DB_HOST                    = var.viz_db_host
       VIZ_DB_DATABASE                = var.viz_db_name
       VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]

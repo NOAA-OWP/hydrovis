@@ -261,6 +261,7 @@ module "sns" {
   source = "./SNS"
 
   environment                = local.env.environment
+  region                     = local.env.region
   rnr_data_bucket            = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }

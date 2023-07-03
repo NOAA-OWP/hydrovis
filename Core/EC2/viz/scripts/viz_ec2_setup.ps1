@@ -161,15 +161,18 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 
 function GetRepo
 {
-   Param ([string]$branch, [string]$prefix, [string]$repo)
+   Param ([string]$commit, [string]$prefix, [string]$repo)
 
    if (Test-Path -Path $repo) {
        Remove-Item $repo -Recurse
        Get-ChildItem $repo -Hidden -Recurse | Remove-Item -Force -Recurse
    }
-   git clone -b $branch $prefix/$repo
-
+   
+   git clone $prefix/$repo
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
+
+   git checkout $commit
+   if ($LASTEXITCODE -gt 0) { throw "Error occurred checking out " + $commit }
 }
 
 function Retry([Action]$action)
@@ -210,7 +213,7 @@ New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 Set-Location -Path $VIZ_DIR
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
+Retry({GetRepo $GITHUB_REPO_COMMIT $GITHUB_REPO_PREFIX hydrovis.git})
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3

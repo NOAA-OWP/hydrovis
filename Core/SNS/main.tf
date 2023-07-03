@@ -3,6 +3,11 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  description = "Hydrovis region"
+  type        = string
+}
+
 variable "rnr_data_bucket" {
   description = "S3 bucket for rnr output data"
   type        = string
