@@ -218,9 +218,6 @@ Retry({GetRepo $GITHUB_REPO_COMMIT $GITHUB_REPO_PREFIX hydrovis.git})
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
 
-LogWrite "ACTIVATING viz VIRTUAL ENVIRONMENT"
-& "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\activate.bat" viz
-
 $window_python_exe = "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe"
 $user_python_exe = "C:\Users\$PIPELINE_USER\AppData\Local\ESRI\conda\envs\viz\python.exe"
 if (Test-Path -Path $window_python_exe -PathType Leaf) {

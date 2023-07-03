@@ -10,7 +10,6 @@ EGIS_DB_SCHEMA = "services"
 CACHE_ROOT = os.environ.get('CACHE_ROOT')
 FLAGS_ROOT = os.environ.get('FLAGS_ROOT')
 PRO_PROJECT_ROOT = os.environ.get('PRO_PROJECT_ROOT')
-PRISTINE_ROOT = os.environ.get('PRISTINE_ROOT')
 PUBLISHED_ROOT = os.environ.get('PUBLISHED_ROOT')
 WORKSPACE_ROOT = os.environ.get('WORKSPACE_ROOT')
 
