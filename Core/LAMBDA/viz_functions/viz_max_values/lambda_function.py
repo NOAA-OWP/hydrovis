@@ -69,10 +69,15 @@ def lambda_handler(event, context):
         reference_time = event['args']['reference_time']
         
     print(f"Creating {output_file}")
-    # Once the files exist, calculate the max flows
-    aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
-    print(f"Successfully created {output_file} in {output_file_bucket}")
-
+    try:
+        # Once the files exist, calculate the max flows
+        aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+        print(f"Successfully created {output_file} in {output_file_bucket}")
+    except Exception as e:
+        print(f'Exception encountered: {e}')
+        if 'optional' not in event['args']['fim_config'] or not event['args']['fim_config']['optional']:
+            raise e
+    
     return event['args']
 
 
