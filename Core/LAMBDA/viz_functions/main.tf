@@ -397,7 +397,7 @@ resource "aws_lambda_function" "viz_max_values" {
   environment {
     variables = {
       CACHE_DAYS         = 1
-      DATA_BUCKET_UPLOAD = var.fim_data_bucket
+      DATA_BUCKET_UPLOAD = var.fim_output_bucket
     }
   }
   s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
