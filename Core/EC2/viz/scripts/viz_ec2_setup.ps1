@@ -171,7 +171,7 @@ function GetRepo
    git clone $prefix/$repo
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
 
-   Set-Location $repo
+   Set-Location $repo.replace(".git", "")
 
    git checkout $commit
    if ($LASTEXITCODE -gt 0) { throw "Error occurred checking out " + $commit }
