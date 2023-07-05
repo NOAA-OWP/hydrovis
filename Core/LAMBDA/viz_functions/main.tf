@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns ]
+    }
+  }
+}
+
 variable "environment" {
   description = "Hydrovis environment"
   type        = string
@@ -486,6 +495,7 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
 }
 
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  provider = aws.sns
   topic_arn = var.nws_shared_account_nwm_sns
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn

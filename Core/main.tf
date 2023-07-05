@@ -31,6 +31,19 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias                    = "sns"
+  region                   = local.env.nws_shared_account_sns_region
+  profile                  = local.env.environment
+  shared_credentials_files = ["/cloud/aws/credentials"]
+
+  default_tags {
+    tags = merge(local.env.tags, {
+      CreatedBy = "Terraform"
+    })
+  }
+}
+
 ###################### STAGE 1 ######################
 
 # IAM Settings
@@ -422,6 +435,10 @@ module "data-services" {
 
 module "ingest-lambda-functions" {
   source = "./LAMBDA/ingest_functions"
+  providers = {
+    aws = aws
+    aws.sns = aws.sns
+  }
 
   environment                 = local.env.environment
   region                      = local.env.region
@@ -584,6 +601,10 @@ module "egis-monitor" {
 # Viz Lambda Functions
 module "viz-lambda-functions" {
   source = "./LAMBDA/viz_functions"
+  providers = {
+    aws = aws
+    aws.sns = aws.sns
+  }
 
   environment                    = local.env.environment
   account_id                     = local.env.account_id

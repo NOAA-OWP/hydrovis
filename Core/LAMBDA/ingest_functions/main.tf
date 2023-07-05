@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns ]
+    }
+  }
+}
+
 variable "environment" {
   description = "Hydrovis environment"
   type        = string
@@ -153,6 +162,7 @@ resource "aws_lambda_function" "hml_reciever" {
 ################################
 
 resource "aws_sns_topic_subscription" "shared_account_hml_sns_trigger" {
+  provider  = aws.sns
   topic_arn = var.nws_shared_account_hml_sns
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.hml_reciever.arn
