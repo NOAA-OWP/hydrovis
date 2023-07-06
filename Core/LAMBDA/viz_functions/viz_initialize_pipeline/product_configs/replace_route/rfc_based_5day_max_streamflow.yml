@@ -1,0 +1,36 @@
+product: rfc_based_5day_max_streamflow
+configuration: replace_route
+product_type: "vector"
+run: true
+
+ingest_files:
+    - file_format: replace_route/{{datetime:%Y%m%d}}/wrf_hydro/replace_route.t{{datetime:%H}}z.medium_range.channel_rt.f{{range:0,120,1,%03d}}.conus.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.rnr_wrf_hydro_outputs
+      target_keys: (station_id)
+    
+    - file_format: replace_route/{{datetime:%Y%m%d}}/forecasts/{{datetime:%H}}Z_run_issue_times.csv
+      file_step: None
+      file_window: None
+      target_table: ingest.rnr_forecasts
+      target_keys: (lid)
+
+db_max_flows:
+  - name: rnr_max_flows
+    target_table: cache.max_flows_rnr
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: rnr_max_flows
+
+postprocess_sql:
+  - sql_file: rfc_based_5day_max_streamflow
+    target_table: publish.rfc_based_5day_max_streamflow
+  
+product_summaries:
+  - sql_file:  rfc_points
+    target_table:
+      - publish.rfc_based_5day_max_streamflow_rfc_points
+
+services:
+  - rfc_based_5day_max_streamflow

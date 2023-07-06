@@ -51,7 +51,8 @@ def lambda_handler(event, context):
                                         "short_range.channel_rt.f048.puertorico.nc",
                                         "short_range.forcing.f048.puertorico.nc",
                                         "medium_range.channel_rt_1.f240.conus.nc",
-                                        "medium_range.forcing.f240.conus.nc"]
+                                        "medium_range.forcing.f240.conus.nc",
+                                        "medium_range.channel_rt.f119.conus.nc"]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
@@ -283,9 +284,9 @@ class viz_lambda_pipeline:
 # A configuration defines the data sources that a set of services require to run, and is primarily used to define the ingest files that must be
 # compiled before various service data can be generated. A particular reference_time is always associted with a configuration.
 # Example Configurations:
-#   - short_range - A NWM short_range forecast... used for services like srf_max_high_flow_magnitude, srf_high_water_arrival_time, srf_max_inundation, etc.
-#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_max_high_flow_magnitude, mrf_high_water_arrival_time, mrf_max_inundation, etc.
-#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_stage service data.
+#   - short_range - A NWM short_range forecast... used for services like srf_18hr_max_high_flow_magnitude, srf_18hr_high_water_arrival_time, srf_48hr_max_inundation, etc.
+#   - medium_range_mem1 - The first ensemble member of a NWM medium_range forecast... used for services like mrf_gfs_10day_max_high_flow_magnitude, mrf_gfs_10day_high_water_arrival_time, mrf_gfs_max_inundation, etc.
+#   - ahps - The ahps RFC forecast and location data (currently gathered from the WRDS forecast and location APIs) that are required to produce rfc_max_forecast service data.
 #   - replace_route - The ourput of the replace and route model that are required to produce the rfc_5day_max_downstream streamflow and inundation services.
 
 class configuration:
@@ -325,6 +326,12 @@ class configuration:
             minute = matches[3]
             configuration_name = "rfc"
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:{minute[-2:]}:00", '%Y-%m-%d %H:%M:%S')
+        elif 'replace_route' in filename:
+            matches = re.findall(r"(.*)/(\d{8})/wrf_hydro/replace_route.t(\d{2})z.medium_range.channel_rt.f(\d{3,5}).(.*)\.nc", filename)[0]
+            configuration_name = 'replace_route'
+            date = matches[1]
+            hour = matches[2]
+            reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
         else:
             if 'analysis_assim' in filename:
                 matches = re.findall(r"(.*)/nwm.(\d{8})/(.*)/nwm.t(\d{2})z\.(.*)\..*\.tm(.*)\.(.*)\.nc", filename)[0]
@@ -441,6 +448,8 @@ class configuration:
     def get_product_metadata(self, specific_products=None, run_only=True):
         all_product_metadata = []
         pipeline_run_time = self.reference_time.strftime("%H:%M")
+        pipeline_run_date = self.reference_time.strftime("%Y%m%d")
+        pipeline_run_hour = self.reference_time.strftime("%H")
         
         product_configs_dir = os.path.join('product_configs', self.name)
         configuration_product_ymls = os.listdir(product_configs_dir)
@@ -449,6 +458,7 @@ class configuration:
 
             product_stream = open(yml_path, 'r')
             product_metadata = yaml.safe_load(product_stream)
+            product_name = product_metadata['product']
             
             if product_metadata.get("run_times"):
                 all_run_times = []
@@ -463,14 +473,32 @@ class configuration:
             
             if product_metadata.get("raster_input_files"):
                 product_metadata['raster_input_files']['bucket'] = self.input_bucket
+
+            raster_output_bucket = os.environ['RASTER_OUTPUT_BUCKET']
+            raster_output_prefix = os.environ['RASTER_OUTPUT_PREFIX']
+            product_metadata['raster_outputs'] = {}
+            product_metadata['raster_outputs']['output_bucket'] = ""
+            product_metadata['raster_outputs']['output_raster_workspaces'] = []
+            if product_metadata['product_type'] == "raster":
+                product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
+                product_metadata['raster_outputs']['output_raster_workspaces'].append({product_name: f"{raster_output_prefix}/{product_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"})
             
             if not product_metadata.get("fim_configs"):
                 product_metadata['fim_configs'] = []
             else:
                 for fim_config in product_metadata['fim_configs']:
+                    fim_config_name = fim_config['name']
+                    if not fim_config.get('sql_file'):
+                        fim_config['sql_file'] = fim_config_name
+
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
+
+                    if fim_config['fim_type'] == "coastal":
+                        if not product_metadata['raster_outputs'].get('output_bucket'):
+                            product_metadata['raster_outputs']['output_bucket'] = raster_output_bucket
+                        product_metadata['raster_outputs']['output_raster_workspaces'].append({fim_config_name: f"{raster_output_prefix}/{product_name}/{fim_config_name}/{pipeline_run_date}/{pipeline_run_hour}/workspace"})
             
             if not product_metadata.get("postprocess_sql"):
                 product_metadata['postprocess_sql'] = []

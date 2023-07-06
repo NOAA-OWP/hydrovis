@@ -1,7 +1,0 @@
-product: stage_based_catfim
-configuration: reference
-product_type: "vector"
-run: true
-
-services:
-  - stage_based_catfim

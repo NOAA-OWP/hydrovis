@@ -2,7 +2,7 @@ import sys
 sys.path.append("../utils")
 from lambda_function import sum_rasters, create_raster, upload_raster
 
-def main(product_name, data_bucket, input_files, reference_time):
+def main(product_name, data_bucket, input_files, reference_time, output_bucket, output_workspace):
     reversed_input_files = sorted(input_files, reverse=True)
     all_uploaded_rasters = []
 
@@ -27,11 +27,9 @@ def main(product_name, data_bucket, input_files, reference_time):
             total_sum += data_sum
         
         filtered_sum = total_sum.where(total_sum>0.01)
-        local_raster = create_raster(filtered_sum, crs)
-        
-        raster_name = f"past_{hour2}hour_accum_precipitation"
+        local_raster = create_raster(filtered_sum, crs, f"past_{hour2}hour_accum_precipitation")
 
-        uploaded_raster = upload_raster(reference_time, local_raster, product_name, raster_name)
+        uploaded_raster = upload_raster(local_raster, output_bucket, output_workspace)
         all_uploaded_rasters.append(uploaded_raster)
     
     return all_uploaded_rasters

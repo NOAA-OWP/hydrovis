@@ -32,6 +32,7 @@ def lambda_handler(event, context):
 def setup_huc_inundation(event):
     fim_config = event['args']['fim_config']
     fim_config_name = fim_config['name']
+    fim_config_sql = fim_config['sql_file']
     target_table = fim_config['target_table']
     product = event['args']['product']['product']
     configuration = event['args']['product']['configuration']
@@ -51,8 +52,14 @@ def setup_huc_inundation(event):
         process_db = viz_db
 
     # Find the sql file, and replace any items in the dictionary
-    sql_path = f'data_sql/{fim_config_name}.sql'
-    sql = open(sql_path, 'r').read().lower()
+    sql_path = f'data_sql/{fim_config_sql}.sql'
+
+    # Checks if all tables references in sql file exist and are updated (if applicable)
+    # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
+    # and invoke a retry
+    viz_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+
+    sql = open(sql_path, 'r').read()
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)
     
@@ -96,7 +103,7 @@ def setup_huc_inundation(event):
         
         s3_keys = []
         df_streamflows = df_streamflows.drop_duplicates("huc8_branch")
-        df_streamflows_split = np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20)
+        df_streamflows_split = [df_split for df_split in np.array_split(df_streamflows[["huc8_branch", "huc", "data_key"]], 20) if not df_split.empty]
         for index, df in enumerate(df_streamflows_split):
             # Key for the csv file that will be stored in S3
             csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"

@@ -1,0 +1,12 @@
+service: ana_past_72hr_snow_water_equivalent_change_noaa
+summary: 72 Hour Snow Water Equivalent Change
+description: Depicts snow water equivalent changes over the past 24, 48, and 72 
+  hours derived from the operational National Water Model (NWM) analysis and assimilation. 
+  Data for each interval can be seen by using a filter to select the name of the 
+  desired layer. Updated hourly.
+tags: national, water, model, nwm, snow, water, equvalent, ana
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: image
+egis_folder: nwm
+feature_service: false
+public_service: false

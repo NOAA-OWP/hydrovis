@@ -160,19 +160,23 @@ variable "viz_pipeline_step_function_arn" {
   type = string
 }
 
+variable "default_tags" {
+  type = map(string)
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 data "aws_caller_identity" "current" {}
 
 locals {
-  egis_host      = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
-  service_suffix = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
-  raster_output_prefix = "processing_outputs"
+  egis_host                = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
+  service_suffix           = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
+  raster_output_prefix     = "processing_outputs"
   ecr_repository_image_tag = "latest"
-  ingest_flow_threshold = 0.001
+  ingest_flow_threshold    = 0.001
 
   initialize_pipeline_subscriptions = toset([
-    "rnr_max_flows"
+    "rnr_wrf_hydro_output"
   ])
 }
 
@@ -208,10 +212,10 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
   environment {
     variables = {
-      DATASERVICES_HOST                 = var.dataservices_ip
-      MAX_VALS_BUCKET                   = var.max_values_bucket
-      PROCESSED_OUTPUT_PREFIX           = "max_stage/ahps"
-      INITIALIZE_PIPELINE_FUNCTION      = aws_lambda_function.viz_initialize_pipeline.arn
+      DATASERVICES_HOST            = var.dataservices_ip
+      MAX_VALS_BUCKET              = var.max_values_bucket
+      PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
+      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
   }
   s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
@@ -285,7 +289,7 @@ resource "aws_lambda_function" "viz_max_values" {
   ephemeral_storage {
     size = 1024
   }
-  timeout       = 900
+  timeout = 900
 
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
@@ -295,7 +299,7 @@ resource "aws_lambda_function" "viz_max_values" {
   environment {
     variables = {
       CACHE_DAYS         = 1
-      DATA_BUCKET_UPLOAD  = var.fim_data_bucket
+      DATA_BUCKET_UPLOAD = var.fim_data_bucket
     }
   }
   s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
@@ -352,6 +356,8 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       DATA_BUCKET_UPLOAD    = var.fim_data_bucket
       MAX_VALS_DATA_BUCKET  = var.max_values_bucket
       RNR_DATA_BUCKET       = var.rnr_data_bucket
+      RASTER_OUTPUT_BUCKET  = var.fim_output_bucket
+      RASTER_OUTPUT_PREFIX  = local.raster_output_prefix
       INGEST_FLOW_THRESHOLD = local.ingest_flow_threshold
       VIZ_DB_DATABASE       = var.viz_db_name
       VIZ_DB_HOST           = var.viz_db_host
@@ -442,10 +448,10 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST     = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -502,10 +508,10 @@ resource "aws_lambda_function" "viz_db_ingest" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE = var.viz_db_name
+      VIZ_DB_HOST     = var.viz_db_host
+      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_ingest_zip_upload.bucket
@@ -564,18 +570,18 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
   }
   environment {
     variables = {
-      EGIS_DB_DATABASE    = var.egis_db_name
-      EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
-      FIM_DATA_BUCKET             = var.fim_data_bucket
-      FIM_VERSION                 = var.fim_version
-      PROCESSED_OUTPUT_BUCKET     = var.fim_output_bucket
-      PROCESSED_OUTPUT_PREFIX     = "processing_outputs"
-      VIZ_DB_DATABASE             = var.viz_db_name
-      VIZ_DB_HOST                 = var.viz_db_host
-      VIZ_DB_USERNAME             = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
+      EGIS_DB_DATABASE        = var.egis_db_name
+      EGIS_DB_HOST            = var.egis_db_host
+      EGIS_DB_USERNAME        = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD        = jsondecode(var.egis_db_user_secret_string)["password"]
+      FIM_DATA_BUCKET         = var.fim_data_bucket
+      FIM_VERSION             = var.fim_version
+      PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
+      PROCESSED_OUTPUT_PREFIX = "processing_outputs"
+      VIZ_DB_DATABASE         = var.viz_db_name
+      VIZ_DB_HOST             = var.viz_db_host
+      VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD         = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.fim_data_prep_zip_upload.bucket
@@ -634,15 +640,15 @@ resource "aws_lambda_function" "viz_update_egis_data" {
   }
   environment {
     variables = {
-      EGIS_DB_DATABASE    = var.egis_db_name
-      EGIS_DB_HOST        = var.egis_db_host
-      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
-      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
-      VIZ_DB_DATABASE     = var.viz_db_name
-      VIZ_DB_HOST         = var.viz_db_host
-      VIZ_DB_USERNAME     = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD     = jsondecode(var.viz_db_user_secret_string)["password"]
-      CACHE_BUCKET        = var.viz_cache_bucket
+      EGIS_DB_DATABASE = var.egis_db_name
+      EGIS_DB_HOST     = var.egis_db_host
+      EGIS_DB_USERNAME = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD = jsondecode(var.egis_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE  = var.viz_db_name
+      VIZ_DB_HOST      = var.viz_db_host
+      VIZ_DB_USERNAME  = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD  = jsondecode(var.viz_db_user_secret_string)["password"]
+      CACHE_BUCKET     = var.viz_cache_bucket
     }
   }
   s3_bucket        = aws_s3_object.update_egis_data_zip_upload.bucket
@@ -747,20 +753,19 @@ module "image_based_lambdas" {
   region      = var.region
   deployment_bucket = var.deployment_bucket
   max_values_bucket = var.max_values_bucket
-  raster_output_bucket = var.fim_output_bucket
-  raster_output_prefix = local.raster_output_prefix
   lambda_role = var.lambda_role
   hand_fim_processing_sgs = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets
-  ecr_repository_image_tag = local.ecr_repository_image_tag
-  fim_version = var.fim_version
-  fim_data_bucket = var.fim_data_bucket
-  viz_db_name = var.viz_db_name
-  viz_db_host = var.viz_db_host
-  viz_db_user_secret_string = var.viz_db_user_secret_string
-  egis_db_name = var.egis_db_name
-  egis_db_host = var.egis_db_host
-  egis_db_user_secret_string = var.egis_db_user_secret_string
+  ecr_repository_image_tag    = local.ecr_repository_image_tag
+  fim_version                 = var.fim_version
+  fim_data_bucket             = var.fim_data_bucket
+  viz_db_name                 = var.viz_db_name
+  viz_db_host                 = var.viz_db_host
+  viz_db_user_secret_string   = var.viz_db_user_secret_string
+  egis_db_name                = var.egis_db_name
+  egis_db_host                = var.egis_db_host
+  egis_db_user_secret_string  = var.egis_db_user_secret_string
+  default_tags                = var.default_tags
 }
 
 ########################################################################################################################################

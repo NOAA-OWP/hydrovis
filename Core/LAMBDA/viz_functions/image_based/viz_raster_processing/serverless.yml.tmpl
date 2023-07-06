@@ -1,0 +1,17 @@
+service: ${SERVICE_NAME}
+provider:
+  stackTags: ${LAMBDA_TAGS}
+  name: aws
+  deploymentBucket: 
+    name: ${DEPLOYMENT_BUCKET}
+    serverSideEncryption: AES256
+  region: ${AWS_DEFAULT_REGION}
+functions:
+  lambda:
+    name: ${LAMBDA_NAME}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}
+    role: ${LAMBDA_ROLE_ARN}
+    memorySize: 2560
+    timeout: 900
+    ephemeralStorageSize: 1024
+

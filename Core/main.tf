@@ -237,7 +237,7 @@ module "sns" {
   source = "./SNS"
 
   environment                = local.env.environment
-  rnr_max_flows_data_bucket  = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket            = module.s3.buckets["rnr"].bucket
   error_email_list           = local.env.sns_email_lists
 }
 
@@ -319,6 +319,7 @@ module "viz_lambda_functions" {
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
   dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
+  default_tags                   = local.env.tags
 }
 
 # Simple Service Notifications
@@ -338,7 +339,7 @@ module "step_functions" {
   hand_fim_processing_arn   = module.viz_lambda_functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz_lambda_functions.schism_fim_processing.arn
   email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id] 
+  aws_instances_to_reboot   = [module.rnr_ec2.ec2.id]
 }
 
 # Simple Service Notifications
@@ -604,7 +605,7 @@ module "viz_ec2" {
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
   nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
-  rnr_max_flows_data_bucket   = module.s3.buckets["rnr"].bucket
+  rnr_data_bucket             = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
   ec2_instance_profile_name   = module.iam-roles.profile_HydrovisESRISSMDeploy.name

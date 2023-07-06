@@ -38,7 +38,7 @@ def kickoff_viz_lambdas():
 
 
     print(f"Invoking db_ingest function for replace_route")
-    ingest_payload = {"configuration": "replace_route", "bucket": os.environ['RNR_MAX_FLOWS_DATA_BUCKET']}
+    ingest_payload = {"configuration": "replace_route", "bucket": os.environ['RNR_DATA_BUCKET']}
     client.invoke(
         FunctionName=ingest_lambda,
         InvocationType='Event',

@@ -26,6 +26,9 @@ fim_configs:
       target_table: publish.ana_inundation
   
 product_summaries:
+  - sql_file:  public_subset
+    target_table:
+      - publish.ana_inundation_public
   - sql_file:  src_skill
     target_table:
       - publish.ana_inundation_src_skill
@@ -36,4 +39,5 @@ product_summaries:
       - publish.ana_inundation_hucs
 
 services:
-  - ana_inundation
+  - ana_inundation_extent
+  - ana_inundation_extent_noaa

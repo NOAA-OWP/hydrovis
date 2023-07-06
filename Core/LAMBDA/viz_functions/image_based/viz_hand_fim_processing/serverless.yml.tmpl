@@ -1,0 +1,33 @@
+service: ${SERVICE_NAME}
+provider:
+  stackTags: ${LAMBDA_TAGS}
+  name: aws
+  deploymentBucket: 
+    name: ${DEPLOYMENT_BUCKET}
+    serverSideEncryption: AES256
+  region: ${AWS_DEFAULT_REGION}
+functions:
+  lambda:
+    name: ${LAMBDA_NAME}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}
+    role: ${LAMBDA_ROLE_ARN}
+    memorySize: 3072
+    timeout: 900
+    ephemeralStorageSize: 1024
+    environment:
+      FIM_BUCKET: ${FIM_BUCKET}
+      FIM_PREFIX: ${FIM_PREFIX}
+      VIZ_DB_DATABASE: ${VIZ_DB_DATABASE}
+      VIZ_DB_HOST: ${VIZ_DB_HOST}
+      VIZ_DB_PASSWORD: ${VIZ_DB_PASSWORD}
+      VIZ_DB_USERNAME: ${VIZ_DB_USERNAME}
+      EGIS_DB_DATABASE: ${EGIS_DB_DATABASE}
+      EGIS_DB_HOST: ${EGIS_DB_HOST}
+      EGIS_DB_PASSWORD: ${EGIS_DB_PASSWORD}
+      EGIS_DB_USERNAME: ${EGIS_DB_USERNAME}
+    vpc:
+      securityGroupIds:
+        - ${SECURITY_GROUP_1}
+      subnetIds:
+        - ${SUBNET_1}
+        - ${SUBNET_2}

@@ -45,6 +45,7 @@ METERS_TO_FT = 3.281
 
 def lambda_handler(event, context):
     step = event['step']
+    huc = event['huc']
     reference_time = event['args']['reference_time']
     sql_rename_dict = event['args']['sql_rename_dict']
     fim_config = event['args']['fim_config']['name']
@@ -52,32 +53,34 @@ def lambda_handler(event, context):
     target_table = event['args']['fim_config']['target_table']
     max_elevs_file_bucket = event['args']['fim_config']['max_file_bucket']
     max_elevs_file = event['args']['fim_config']['max_file']
+
+    output_bucket = event['args']['product']['raster_outputs']['output_bucket']
+    output_workspaces = event['args']['product']['raster_outputs']['output_raster_workspaces']
+    output_workspace = next(list(workspace.values())[0] for workspace in output_workspaces if list(workspace.keys())[0] == fim_config)
+
     schism_fim_s3_uri = f's3://{max_elevs_file_bucket}/{max_elevs_file}'
 
     reference_date = dt.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     
     print(f"Processing the {fim_config} fim config")
-    huc = event['huc']
-    output_bucket = event['output_bucket']
-    output_prefix = event['output_prefix']
 
-    depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix)
+    depth_key = create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_workspace)
+    
     return {
-        "output_raster": depth_key
+        "output_raster": depth_key,
+        "output_bucket": output_bucket
     }
 
-def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_prefix):
+def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_date, target_table, output_bucket, output_workspace):
     domain = [d for d in DOMAINS if d in schism_fim_s3_uri][0]
     full_ref_time = reference_date.strftime("%Y-%m-%d %H:%M:%S UTC")
-    ref_date_str = reference_date.strftime("%Y%m%D")
-    hour = reference_date.strftime("%H")
 
     target_table_schema = target_table.split(".")[0]
     target_table = target_table.split(".")[1]
 
-    depth_key = f'{output_prefix}/{product}/{fim_config}/{ref_date_str}/{hour}/workspace/tif/{huc}.tif'
+    depth_key = f'{output_workspace}/tif/{huc}.tif'
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
-    coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_huc8s_wgs1984.zip'
+    coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_{domain}_huc8s.zip'
     temp_folder = tempfile.mkdtemp()
     bounds = None
 
@@ -156,7 +159,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     print("Removing temp files...")
     rmtree(temp_folder)
 
-    print(f"Successfully processed SCHISM FIM for HUC {huc} of {fim_config} for {ref_date_str}")
+    print(f"Successfully processed SCHISM FIM for HUC {huc} of {fim_config} for {full_ref_time}")
     return depth_key
 
 #
