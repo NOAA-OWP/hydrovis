@@ -12,5 +12,5 @@ tags: nws, flood, categorical, hand, fim, catfim, inundation, library, rfc, heig
 credits: National Water Model, NOAA/NWS National Water Center, Advanced Hydrologic Prediction Service, National River Layer Database
 egis_server: server
 egis_folder: fim_libs
-feature_service: false
+feature_service: true
 public_service: false
