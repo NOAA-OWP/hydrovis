@@ -9,5 +9,5 @@ tags: arrival time, national water model, nwm, mrf, medium, range, conus
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
-feature_service: false
+feature_service: true
 public_service: true
