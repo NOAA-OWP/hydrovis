@@ -364,7 +364,7 @@ data "archive_file" "hand_fim_processing_zip" {
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
       FIM_BUCKET         = var.fim_data_bucket
-      FIM_PREFIX         = "fim_${replace(var.fim_version, ".", "_")}/hand_datasets"
+      FIM_PREFIX         = "fim/fim_${replace(var.fim_version, ".", "_")}/hand_datasets"
       VIZ_DB_DATABASE    = var.viz_db_name
       VIZ_DB_HOST        = var.viz_db_host
       VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
