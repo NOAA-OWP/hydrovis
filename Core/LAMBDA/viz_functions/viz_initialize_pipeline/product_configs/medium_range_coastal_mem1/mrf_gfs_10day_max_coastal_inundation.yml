@@ -1,5 +1,5 @@
 product: mrf_gfs_10day_max_coastal_inundation
-configuration: medium_range_mem1_coastal
+configuration: medium_range_coastal_mem1
 product_type: "fim"
 run: true
 
