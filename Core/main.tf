@@ -320,6 +320,7 @@ module "viz_lambda_functions" {
   dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
+  nwm_dataflow_version           = local.env.nwm_dataflow_version
 }
 
 # Simple Service Notifications

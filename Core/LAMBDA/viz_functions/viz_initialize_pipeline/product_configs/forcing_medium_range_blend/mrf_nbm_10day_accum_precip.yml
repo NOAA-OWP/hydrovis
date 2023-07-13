@@ -5,7 +5,7 @@ run: true
 
 raster_input_files:
   product_file: 10day_accum_precip
-  file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/forcing_medium_range_blend/nwm.t{{datetime:%H}}z.medium_range_blend.forcing.f{{range:1,241,1,%03d}}.conus.nc
+  file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/forcing_medium_range_blend/nwm.t{{datetime:%H}}z.medium_range_blend.forcing.f{{range:1,241,1,%03d}}.conus.nc
   file_step: None
   file_window: None
       

@@ -645,7 +645,7 @@ def parse_range_token_value(reference_date_file, range_token):
 def get_file_tokens(file_pattern):
     token_dict = {}
     tokens = re.findall("{{[a-z]*:[^{]*}}", file_pattern)
-    token_dict = {'datetime': [], 'range': []}
+    token_dict = {'datetime': [], 'range': [], 'variable': []}
     for token in tokens:
         token_key = token.split(":")[0][2:]
         token_value = token.split(":")[1][:-2]
@@ -682,9 +682,19 @@ def parse_datetime_token_value(input_file, reference_date, datetime_token):
 
     return new_input_file
 
+def parse_variable_token_value(input_file, variable_token):
+    
+    variable_value = os.environ[variable_token]
+    new_input_file = input_file.replace(f"{{{{variable:{variable_token}}}}}", variable_value)
+
+    return new_input_file
+
 def get_formatted_files(file_pattern, token_dict, reference_date):
     reference_date_file = file_pattern
     reference_date_files = []
+    for variable_token in token_dict['variable']:
+        reference_date_file = parse_variable_token_value(reference_date_file, variable_token)
+        
     for datetime_token in token_dict['datetime']:
         reference_date_file = parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
 
