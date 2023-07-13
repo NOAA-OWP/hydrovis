@@ -148,6 +148,10 @@ variable "egis_db_secret_string" {
   type = string
 }
 
+variable "nwm_dataflow_version" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
@@ -235,6 +239,7 @@ data "cloudinit_config" "pipeline_setup" {
       EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
       AWS_REGION                     = var.region
+      NWM_DATAFLOW_VERSION           = var.nwm_dataflow_version
     })
   }
 }

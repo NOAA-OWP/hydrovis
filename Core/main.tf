@@ -626,6 +626,7 @@ module "viz_ec2" {
   egis_db_host                = data.aws_db_instance.egis_rds.address
   egis_db_name                = local.env.egis_db_name
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  nwm_dataflow_version        = local.env.nwm_dataflow_version
 }
 
 module "sagemaker" {

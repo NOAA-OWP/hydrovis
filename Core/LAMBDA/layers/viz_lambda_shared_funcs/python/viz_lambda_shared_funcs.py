@@ -181,13 +181,10 @@ def get_most_recent_s3_file(bucket, configuration):
             prefix = f"replace_route/{date}/wrf_hydro/"
         elif configuration == 'ahps':
             prefix = f"max_stage/ahps/{date}/"
-        elif configuration in {'analysis_assim', 'analysis_assim_hawaii', 'analysis_assim_puertorico',
-                               'short_range', 'short_range_hawaii', 'short_range_puertorico',
-                               'medium_range_mem1'}:
-            prefix = f"common/data/model/com/nwm/prod/nwm.{date}/{configuration}/"
         else:
-            print("Configuration not supported.")
-            return
+            nwm_dataflow_version = os.environ.get("NWM_DATAFLOW_VERSION") if os.environ.get("NWM_DATAFLOW_VERSION") else "prod"
+            prefix = f"common/data/model/com/nwm/{nwm_dataflow_version}/nwm.{date}/{configuration}/"
+
         return prefix
 
     # Get all S3 files that match the bucket / prefix

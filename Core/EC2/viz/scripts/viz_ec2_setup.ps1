@@ -133,6 +133,7 @@ $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
 $env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
 $env:RNR_DATA_BUCKET = $RNR_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
+$env:NWM_DATAFLOW_VERSION = $NWM_DATAFLOW_VERSION
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
 $env:VIZ_DB_HOST = $VIZ_DB_HOST
@@ -159,6 +160,7 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("RNR_DATA_BUCKET", $env:RNR_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("NWM_DATAFLOW_VERSION", $env:NWM_DATAFLOW_VERSION, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $env:FIM_OUTPUT_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("VIZ_DB_HOST", $env:VIZ_DB_HOST, "2")
