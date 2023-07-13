@@ -347,7 +347,7 @@ class configuration:
             else:
                 raise Exception(f"Configuration not set for {filename}")
             date = matches[1]
-            configuration_name = matches[2]
+            configuration_name = matches[2].replace('_atlgulf', '')
             hour = matches[3]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
             
