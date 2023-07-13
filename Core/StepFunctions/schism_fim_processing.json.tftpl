@@ -94,6 +94,34 @@
         }
       },
       "ResultPath": null,
+      "Next": "Create VRT"
+    },
+    "Create VRT": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${optimize_rasters_arn}",
+        "Payload": {
+          "step": "create_vrt",
+          "output_bucket.$": "$.data_bucket",
+          "output_prefix.$": "$.data_prefix",
+          "args": {
+            "fim_config.$": "$.fim_config",
+            "product.$": "$.product"
+          }
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 2,
+          "BackoffRate": 2
+        }
+      ],
+      "ResultPath": null,
       "End": true
     }
   }
