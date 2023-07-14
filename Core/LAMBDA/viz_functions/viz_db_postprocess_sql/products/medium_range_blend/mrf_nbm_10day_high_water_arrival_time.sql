@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_nbm_high_water_arrival_time;
+DROP TABLE IF EXISTS publish.mrf_nbm_10day_high_water_arrival_time;
 WITH arrival_time AS (
      SELECT forecasts.feature_id, 
         min(forecasts.forecast_hour) AS t_high_water_threshold,
@@ -25,6 +25,7 @@ SELECT channels.feature_id,
     channels.name,
     channels.strm_order,
     channels.huc6,
+    channels.state,
     arrival_time.nwm_vers,
     arrival_time.reference_time,
     arrival_time.t_high_water_threshold,
@@ -34,6 +35,6 @@ SELECT channels.feature_id,
     arrival_time.max_flow,
     arrival_time.update_time,
     channels.geom
-INTO publish.mrf_nbm_high_water_arrival_time
+INTO publish.mrf_nbm_10day_high_water_arrival_time
 FROM derived.channels_conus channels
 JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;

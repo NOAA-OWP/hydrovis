@@ -386,7 +386,8 @@ class s3_file:
             elif configuration_name == 'ahps':
                 prefix = f"max_stage/ahps/{date}/"
             else:
-                prefix = f"common/data/model/com/nwm/prod/nwm.{date}/{configuration_name}/"
+                nwm_dataflow_version = os.environ.get("NWM_DATAFLOW_VERSION") if os.environ.get("NWM_DATAFLOW_VERSION") else "prod"
+                prefix = f"common/data/model/com/nwm/{nwm_dataflow_version}/nwm.{date}/{configuration_name}/"
                 
             return prefix
             
