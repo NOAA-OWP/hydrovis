@@ -70,6 +70,10 @@ variable "default_tags" {
   type = map(string)
 }
 
+variable "nwm_dataflow_version" {
+  type = string
+}
+
 locals {
   viz_optimize_rasters_lambda_name      = "hv_vpp_optimize_rasters_${var.environment}"
   viz_hand_fim_processing_lambda_name   = "hv_vpp_hand_fim_processing_${var.environment}"
@@ -122,6 +126,7 @@ data "archive_file" "raster_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_raster_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
+      NWM_DATAFLOW_VERSION = var.nwm_dataflow_version
     })
     filename = "serverless.yml"
   }

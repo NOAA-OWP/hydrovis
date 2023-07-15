@@ -304,6 +304,7 @@ resource "aws_lambda_function" "viz_max_values" {
     variables = {
       CACHE_DAYS         = 1
       DATA_BUCKET_UPLOAD = var.fim_data_bucket
+      NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
   s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
@@ -771,6 +772,7 @@ module "image_based_lambdas" {
   egis_db_host                = var.egis_db_host
   egis_db_user_secret_string  = var.egis_db_user_secret_string
   default_tags                = var.default_tags
+  nwm_dataflow_version        = var.nwm_dataflow_version
 }
 
 ########################################################################################################################################
