@@ -8,5 +8,5 @@ tags: nws, flood, categorical, hand, fim, inundation, height, above, nearest, dr
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: fim_libs
-feature_service: false
+feature_service: true
 public_service: false

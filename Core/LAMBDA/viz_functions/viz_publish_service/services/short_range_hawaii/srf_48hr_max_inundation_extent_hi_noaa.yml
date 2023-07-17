@@ -17,5 +17,5 @@ tags: national water model, nwm, srf, short, range, hawaii, hi, fim, inundation,
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
-feature_service: false
+feature_service: true
 public_service: false

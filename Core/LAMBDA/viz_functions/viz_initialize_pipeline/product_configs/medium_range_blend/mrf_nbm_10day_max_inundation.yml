@@ -1,0 +1,71 @@
+product: mrf_nbm_10day_max_inundation
+configuration: medium_range_blend
+product_type: "fim"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend/nwm.t{{datetime:%H}}z.medium_range_blend.channel_rt.f{{range:3,243,3,%03d}}.conus.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_mrf_nbm
+      target_keys: (feature_id, streamflow)
+
+db_max_flows:
+  - name: mrf_nbm_max_flows
+    target_table: cache.max_flows_mrf_nbm
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_nbm_max_flows
+
+fim_configs:
+  - name: mrf_nbm_max_inundation_3day
+    target_table: ingest.mrf_nbm_max_inundation_3day
+    fim_type: hand
+    postprocess:
+      sql_file: mrf_nbm_max_inundation_3day
+      target_table: publish.mrf_nbm_max_inundation_3day
+  - name: mrf_nbm_max_inundation_5day
+    target_table: ingest.mrf_nbm_max_inundation_5day
+    fim_type: hand
+    postprocess:
+      sql_file: mrf_nbm_max_inundation_5day
+      target_table: publish.mrf_nbm_max_inundation_5day
+  - name: mrf_nbm_max_inundation_10day
+    target_table: ingest.mrf_nbm_max_inundation_10day
+    fim_type: hand
+    postprocess:
+      sql_file: mrf_nbm_max_inundation_10day
+      target_table: publish.mrf_nbm_max_inundation_10day
+  
+product_summaries:
+  - sql_file:  5day_public_subset
+    target_table:
+      - publish.mrf_nbm_max_inundation_5day_public
+  - sql_file:  3day_src_skill
+    target_table:
+      - publish.mrf_nbm_max_inundation_3day_src_skill
+  - sql_file:  3day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_nbm_max_inundation_3day_building_footprints
+      - publish.mrf_nbm_max_inundation_3day_counties
+      - publish.mrf_nbm_max_inundation_3day_hucs
+  - sql_file:  5day_src_skill
+    target_table:
+      - publish.mrf_nbm_max_inundation_5day_src_skill
+  - sql_file:  5day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_nbm_max_inundation_5day_building_footprints
+      - publish.mrf_nbm_max_inundation_5day_counties
+      - publish.mrf_nbm_max_inundation_5day_hucs
+  - sql_file:  10day_src_skill
+    target_table:
+      - publish.mrf_nbm_max_inundation_10day_src_skill
+  - sql_file:  10day_building_footprints_fimpact
+    target_table:
+      - publish.mrf_nbm_max_inundation_10day_building_footprints
+      - publish.mrf_nbm_max_inundation_10day_counties
+      - publish.mrf_nbm_max_inundation_10day_hucs
+
+services:
+  - mrf_nbm_10day_max_inundation_extent_noaa
+  - mrf_nbm_5day_max_inundation_extent

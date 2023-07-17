@@ -461,62 +461,6 @@ module "ingest-lambda-functions" {
   nws_shared_account_hml_sns  = local.env.nws_shared_account_hml_sns
 }
 
-# # # Monitoring Module
-# # module "monitoring" {
-# #   source = "./Monitoring"
-
-# #   # General Variables
-# #   environment                   = local.env.environment
-# #   account_id                    = local.env.account_id
-# #   region                        = local.env.region
-# #   opensearch_security_group_ids = [module.security-groups.opensearch-access.id]
-# #   data_subnet_ids               = [
-# #     module.vpc.subnet_private_a.id,
-# #     module.vpc.subnet_private_b.id
-# #   ]
-
-# #   # DashboardUsersCredentials Module
-# #   dashboard_users_and_roles = {
-# #     wpod = ["readall", "opensearch_dashboards_read_only"]
-# #   }
-
-# #   # OpenSearch Module
-# #   vpc_id             = module.vpc.vpc_main.id
-# #   task_role_arn      = module.iam-roles.role_hydrovis-ecs-resource-access.arn
-# #   execution_role_arn = module.iam-roles.role_hydrovis-ecs-task-execution.arn
-
-# #   # LogIngest Module
-# #   ami_owner_account_id                 = local.env.ami_owner_account_id
-# #   logstash_instance_subnet_id          = module.vpc.subnet_private_a.id
-# #   logstash_instance_availability_zone  = module.vpc.subnet_private_a.availability_zone
-# #   logstash_instance_profile_name       = module.iam-roles.profile_data_services.name
-# #   logstash_instance_security_group_ids = [
-# #     module.security-groups.opensearch-access.id,
-# #     module.security-groups.vpc_access.id
-# #   ]
-# #   deployment_bucket                    = module.s3.buckets["deployment"].bucket
-# #   lambda_trigger_functions             = [
-# #     module.viz-lambda-functions.max_values.function_name,
-# #     module.ingest-lambda-functions.hml_reciever.function_name,
-# #     module.viz-lambda-functions.db_ingest.function_name
-# #   ]
-# #   buckets_and_parameters = {
-# #     "hml" = {
-# #       bucket_name         = "hydrovis-${local.env.environment}-hml-${local.env.region}"
-# #       comparison_operator = "LessThanLowerThreshold"
-# #     }
-# #     "nwm" = {
-# #       bucket_name         = "hydrovis-${local.env.environment}-nwm-${local.env.region}"
-# #       comparison_operator = "LessThanLowerThreshold"
-# #     }
-# #     "pcpanl" = {
-# #       bucket_name         = "hydrovis-${local.env.environment}-pcpanl-${local.env.region}"
-# #       comparison_operator = "LessThanLowerThreshold"
-# #     }
-# #   }
-# #   private_route_53_zone = module.private-route53.zone
-# # }
-
 # Data Ingest
 module "data-ingest-ec2" {
   source = "./EC2/Ingest"
@@ -642,6 +586,7 @@ module "viz-lambda-functions" {
   dataservices_host              = module.data-services.dns_name
   viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
+  nwm_dataflow_version           = local.env.nwm_dataflow_version
 }
 
 module "step-functions" {
@@ -704,6 +649,7 @@ module "viz-ec2" {
   egis_db_name                = local.env.egis_db_name
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   private_route_53_zone       = module.private-route53.zone
+  nwm_dataflow_version        = local.env.nwm_dataflow_version
 }
 
 module "sync-wrds-location-db" {

@@ -173,6 +173,10 @@ variable "default_tags" {
   type = map(string)
 }
 
+variable "nwm_dataflow_version" {
+  type = string
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 
@@ -396,8 +400,9 @@ resource "aws_lambda_function" "viz_max_values" {
 
   environment {
     variables = {
-      CACHE_DAYS         = 1
-      DATA_BUCKET_UPLOAD = var.fim_output_bucket
+      CACHE_DAYS            = 1
+      DATA_BUCKET_UPLOAD    = var.fim_output_bucket
+      NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
   s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
@@ -461,6 +466,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
       VIZ_DB_HOST           = var.viz_db_host
       VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
+      NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
@@ -865,6 +871,7 @@ module "image-based-lambdas" {
   egis_db_host                = var.egis_db_host
   egis_db_user_secret_string  = var.egis_db_user_secret_string
   default_tags                = var.default_tags
+  nwm_dataflow_version        = var.nwm_dataflow_version
 }
 
 ########################################################################################################################################

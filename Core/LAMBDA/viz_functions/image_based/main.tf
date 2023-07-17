@@ -70,6 +70,10 @@ variable "default_tags" {
   type = map(string)
 }
 
+variable "nwm_dataflow_version" {
+  type = string
+}
+
 locals {
   viz_optimize_rasters_lambda_name = "hv-vpp-${var.environment}-viz-optimize-rasters"
   viz_hand_fim_processing_lambda_name = "hv-vpp-${var.environment}-viz-hand-fim-processing"
@@ -114,6 +118,7 @@ data "archive_file" "raster_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_raster_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
+      NWM_DATAFLOW_VERSION = var.nwm_dataflow_version
     })
     filename = "serverless.yml"
   }
@@ -123,7 +128,7 @@ resource "aws_s3_object" "raster_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_raster_processing.zip"
   source      = data.archive_file.raster_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
+  source_hash = data.archive_file.raster_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_raster_processing_image" {
@@ -184,7 +189,7 @@ resource "aws_codebuild_project" "viz_raster_processing_lambda" {
 resource "null_resource" "viz_raster_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.raster_processing_zip.output_path)
+    source_hash = data.archive_file.raster_processing_zip.output_md5
   }
 
   provisioner "local-exec" {
@@ -245,7 +250,7 @@ resource "aws_s3_object" "optimize_rasters_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_optimize_rasters.zip"
   source      = data.archive_file.optimize_rasters_zip.output_path
-  source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
+  source_hash = data.archive_file.optimize_rasters_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_optimize_rasters_image" {
@@ -306,7 +311,7 @@ resource "aws_codebuild_project" "viz_optimize_raster_lambda" {
 resource "null_resource" "viz_optimize_rasters_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.optimize_rasters_zip.output_path)
+    source_hash = data.archive_file.optimize_rasters_zip.output_md5
   }
 
   provisioner "local-exec" {
@@ -385,7 +390,7 @@ resource "aws_s3_object" "hand_fim_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_hand_fim_processing.zip"
   source      = data.archive_file.hand_fim_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+  source_hash = data.archive_file.hand_fim_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_hand_fim_processing_image" {
@@ -446,7 +451,7 @@ resource "aws_codebuild_project" "viz_hand_fim_processing_lambda" {
 resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.hand_fim_processing_zip.output_path)
+    source_hash = data.archive_file.hand_fim_processing_zip.output_md5
     fim_version = var.fim_version
   }
 
@@ -524,7 +529,7 @@ resource "aws_s3_object" "schism_processing_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_schism_fim_processing.zip"
   source      = data.archive_file.schism_processing_zip.output_path
-  source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+  source_hash = data.archive_file.schism_processing_zip.output_md5
 }
 
 resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
@@ -585,7 +590,7 @@ resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
 resource "null_resource" "viz_schism_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
-    source_hash = filemd5(data.archive_file.schism_processing_zip.output_path)
+    source_hash = data.archive_file.schism_processing_zip.output_md5
   }
 
   provisioner "local-exec" {

@@ -1,7 +1,7 @@
 name: ana_anomaly
 dataset:
     uris:
-        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+        - s3-https://$NWM_DATA_BUCKET$.s3.amazonaws.com/common/data/model/com/nwm/$NWM_DATAFLOW_VERSION$/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
     window: P14D
     repeat: PT1H
     repeat_ref_time: 0:00:00
