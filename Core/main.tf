@@ -341,7 +341,7 @@ module "rds-viz" {
   private_route_53_zone = module.private-route53.zone
 }
 
-# # ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
+###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
 # EGIS Route53 DNS
 module "private-route53-egis" {
@@ -356,6 +356,7 @@ module "rds-egis" {
   source = "./RDS/egis"
 
   environment = local.env.environment
+  region      = local.env.region
 
   private_route_53_zone = module.private-route53.zone
 }
@@ -395,7 +396,7 @@ module "rds-bastion" {
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz-proc-dev-rw-user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  viz_db_address                  = module.rds-viz.dns_name
+  viz_db_address                  = module.rds-viz.instance.address
   viz_db_port                     = module.rds-viz.instance.port
   viz_db_name                     = local.env.viz_db_name
   egis_db_master_secret_string    = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
@@ -540,7 +541,7 @@ module "egis-monitor" {
   ec2_kms_key               = module.kms.key_arns["egis"]
 }
 
-# ###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
+###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
 
 # Viz Lambda Functions
 module "viz-lambda-functions" {

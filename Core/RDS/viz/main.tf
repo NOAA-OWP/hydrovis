@@ -48,7 +48,7 @@ resource "aws_db_subnet_group" "hydrovis" {
 
 resource "aws_db_parameter_group" "hydrovis" {
   name   = "hv-vpp-${var.environment}-viz-processing"
-  family = "postgres12"
+  family = "postgres15"
 
   parameter {
     name  = "shared_buffers"
@@ -70,7 +70,7 @@ resource "aws_db_instance" "hydrovis" {
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"
-  engine_version               = "12.8"
+  engine_version               = "15.3"
   username                     = jsondecode(var.db_viz_processing_secret_string)["username"]
   password                     = jsondecode(var.db_viz_processing_secret_string)["password"]
   db_subnet_group_name         = aws_db_subnet_group.hydrovis.name

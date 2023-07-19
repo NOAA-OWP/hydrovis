@@ -45,7 +45,7 @@ resource "aws_db_instance" "hydrovis" {
   allocated_storage            = 500
   storage_type                 = "gp2"
   engine                       = "postgres"
-  engine_version               = "12.8"
+  engine_version               = "15.3"
   username                     = jsondecode(var.db_ingest_secret_string)["username"]
   password                     = jsondecode(var.db_ingest_secret_string)["password"]
   db_subnet_group_name         = aws_db_subnet_group.hydrovis.name

@@ -20,6 +20,7 @@ locals {
 
   wacky_egis_alb_names = {
     us-east-1 = {
+      ti = "hv-ti-egis-pub-prtl-alb"
       uat = "hv-uat-pub-lb-pub-age-alb"
       prod = "hv-prod-pub-lb-alb-pub-age-alb"
     }

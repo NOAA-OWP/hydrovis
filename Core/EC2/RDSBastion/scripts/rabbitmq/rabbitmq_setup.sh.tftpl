@@ -64,7 +64,7 @@ curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:app
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/hml/q/hml_event_queue"
 
 echo "Binding hml exchange to xml_queue queue for ${mq_vhost}"
-curl -u ${mq_username}:${mq_password} --fail--silent --show-error -H "content-type:application/json" -X POST \
+curl -u ${mq_username}:${mq_password} --silent --show-error -H "content-type:application/json" -X POST \
      -d '{"routing_key":"xml_queue", "arguments":{}}' \
      "https://$${RHOST}/api/bindings/${mq_vhost}/e/hml/q/xml_queue"
 

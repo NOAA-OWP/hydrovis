@@ -72,6 +72,10 @@ resource "aws_imagebuilder_image_recipe" "windows" {
   }
 
   component {
+    component_arn = aws_imagebuilder_component.chrome_install.arn
+  }
+
+  component {
     component_arn = aws_imagebuilder_component.pgadmin_install.arn
   }
 
@@ -114,7 +118,7 @@ resource "aws_imagebuilder_component" "git_install" {
             onFailure = "Abort"
             inputs = [
               {
-                source = "https://github.com/git-for-windows/git/releases/download/v2.39.1.windows.1/Git-2.39.1-32-bit.exe"
+                source = "https://github.com/git-for-windows/git/releases/download/v2.41.0.windows.3/Git-2.41.0.3-64-bit.exe"
                 destination = "C:\\Temp\\git_setup.exe"
               }
             ]
@@ -128,6 +132,47 @@ resource "aws_imagebuilder_component" "git_install" {
               arguments = [
                 "/VERYSILENT",
                 "/NORESTART"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_imagebuilder_component" "chrome_install" {
+  name        = "chrome_install"
+  description = "Install Chrome"
+  platform    = "Windows"
+  version     = "1.0.0"
+  
+  data = yamlencode({
+    schemaVersion = 1.0
+    phases = [
+      {
+        name = "build"
+        steps = [
+          {
+            name = "DownloadChromeSetup"
+            action = "WebDownload"
+            onFailure = "Abort"
+            inputs = [
+              {
+                source = "http://dl.google.com/chrome/install/375.126/chrome_installer.exe"
+                destination = "C:\\Temp\\chrome_setup.exe"
+              }
+            ]
+          },
+          {
+            name = "RunChromeSetup"
+            action = "ExecuteBinary"
+            onFailure = "Abort"
+            inputs = {
+              path = "{{build.DownloadChromeSetup.inputs[0].destination}}"
+              arguments = [
+                "/silent",
+                "/install"
               ]
             }
           }
@@ -155,7 +200,7 @@ resource "aws_imagebuilder_component" "pgadmin_install" {
             onFailure = "Abort"
             inputs = [
               {
-                source = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v6.9/windows/pgadmin4-6.9-x64.exe"
+                source = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v7.4/windows/pgadmin4-7.4-x64.exe"
                 destination = "C:\\Temp\\pgadmin_setup.exe"
               }
             ]
