@@ -563,10 +563,31 @@ def check_if_file_exists(bucket, file, download=False):
             print(f"{file} exists in {bucket}")
         else:
             if "/prod" in file:
-                https_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
-                if requests.head(https_file).status_code == 200:
+
+                date_metadata = re.findall("(\d{8})/[a-z0-9_]*/nwm.t(\d{2})z.*[ftm](\d*)\.", file)
+                date = date_metadata[0][0]
+                initialize_hour = date_metadata[0][1]
+                delta_hour = date_metadata[0][2]
+
+                model_initialization_datetime = datetime.strptime(f"{date}{initialize_hour}", "%Y%m%d%H")
+                forecast_datetime = model_initialization_datetime + timedelta(hours=int(delta_hour))
+                forecast_date = forecast_datetime.strftime("%Y")
+                forecast_date_hour = forecast_datetime.strftime("%Y%m%d%H")
+                
+                google_file = file.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
+                if "channel" in file:
+                    retro_file = f"https://noaa-nwm-retrospective-2-1-pds.s3.amazonaws.com/model_output/{forecast_date}/{forecast_date_hour}00.CHRTOUT_DOMAIN1.comp"
+                else:
+                    retro_file = f"https://noaa-nwm-retrospective-2-1-pds.s3.amazonaws.com/forcing/{forecast_date}/{forecast_date_hour}00.LDASIN_DOMAIN1.comp"
+                    
+                if requests.head(google_file).status_code == 200:
                     file_exists = True
+                    https_file = google_file
                     print("File does not exist on S3 (even though it should), but does exists on Google Cloud.")
+                elif requests.head(retro_file).status_code == 200:
+                    file_exists = True
+                    https_file = retro_file
+                    print("File does not exist on S3 (even though it should), but does exists in the retrospective data in AWS.")
             elif "/para" in file:
                 https_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
                 if requests.head(https_file).status_code == 200:
