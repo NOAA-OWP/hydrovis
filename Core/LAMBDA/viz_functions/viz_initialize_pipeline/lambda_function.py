@@ -59,7 +59,14 @@ def lambda_handler(event, context):
                                         "analysis_assim.forcing.tm00.alaska.nc",
                                         "short_range.forcing.f015.alaska.nc",
                                         "medium_range.forcing.f240.alaska.nc",
-                                        "medium_range_blend.forcing.f240.alaska.nc"]
+                                        "medium_range_blend.forcing.f240.alaska.nc",
+                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        "short_range_coastal.total_water.f018.atlgulf.nc",
+                                        "short_range_coastal.total_water.f048.puertorico.nc",
+                                        "short_range_coastal.total_water.f048.hawaii.nc"]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
