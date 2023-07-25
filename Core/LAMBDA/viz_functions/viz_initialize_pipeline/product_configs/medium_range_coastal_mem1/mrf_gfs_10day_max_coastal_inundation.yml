@@ -70,7 +70,7 @@ fim_configs:
     sql_file: coastal_atlgulf
     preprocess:
         optional: true
-        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,73,3,%03d}}.atlgulf.nc
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,73,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_3day_{{datetime:%H}}_max_elevs.nc
@@ -84,7 +84,7 @@ fim_configs:
     sql_file: coastal_atlgulf
     preprocess:
         optional: true
-        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,121,3,%03d}}.atlgulf.nc
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,121,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_5day_{{datetime:%H}}_max_elevs.nc
@@ -98,7 +98,7 @@ fim_configs:
     sql_file: coastal_atlgulf
     preprocess:
         optional: true
-        file_format: common/data/model/com/nwm/para/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,241,3,%03d}}.atlgulf.nc
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,241,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_10day_{{datetime:%H}}_max_elevs.nc
