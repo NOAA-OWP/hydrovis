@@ -10,5 +10,5 @@ SELECT forecasts.feature_id,
     round((max(CASE WHEN forecasts.forecast_hour <= 120 THEN forecasts.streamflow ELSE NULL END) * 35.315)::numeric, 2) AS maxflow_5day_cfs,
     round((max(forecasts.streamflow) * 35.315)::numeric, 2) AS maxflow_10day_cfs
 INTO cache.mrf_gfs_max_flows_alaska
-FROM ingest.nwm_channel_rt_mrf_gfs_alaska forecasts
+FROM ingest.nwm_channel_rt_mrf_gfs_alaska_mem1 forecasts
 GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;
