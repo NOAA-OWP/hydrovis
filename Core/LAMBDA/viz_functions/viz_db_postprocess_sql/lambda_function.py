@@ -49,6 +49,7 @@ def lambda_handler(event, context):
 
 # Special function to handle admin-only sql tasks
 def run_admin_tasks(event, folder, step, sql_replace):
+    past_event = True if len(sql_replace) > 1 else False
     target_table = event['args']['db_ingest_group']['target_table']
     index_columns = event['args']['db_ingest_group']['index_columns']
     index_name = event['args']['db_ingest_group']['index_name']
@@ -60,15 +61,20 @@ def run_admin_tasks(event, folder, step, sql_replace):
     sql_replace.update({"{target_schema}": target_schema})
     sql_replace.update({"{index_name}": index_name})
     sql_replace.update({"{index_columns}": index_columns})
-    
+
     if step == 'ingest_prep':
+        # if target table is not the original table, run the create command to create the table
+        if past_event is True:
+            original_table = [k for k, v in sql_replace.items() if v == target_table and k != ''][0]
+            sql_replace.update({"{original_table}": original_table})
+            run_sql('admin/create_table_from_original.sql', sql_replace)
         run_sql('admin/ingest_prep.sql', sql_replace)
 
     if step == 'ingest_finish':
         sql_replace.update({"{files_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         sql_replace.update({"{rows_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         run_sql('admin/ingest_finish.sql', sql_replace)
-    
+        
 # Run sql from string or file, and replace any items basd on the sql_replace dictionary.
 def run_sql(sql_path_or_str, sql_replace=None):
     result = None
@@ -82,8 +88,10 @@ def run_sql(sql_path_or_str, sql_replace=None):
         sql = sql_path_or_str
 
     # replace portions of SQL with any items in the dictionary (at least has reference_time)
-    for word, replacement in sql_replace.items():
-        sql = re.sub(word, replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+    # sort the replace dictionary to have longer values upfront first
+    sql_replace = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
+    for word, replacement in sql_replace:
+        sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
         
     viz_db = database(db_type="viz")
     with viz_db.get_db_connection() as connection:

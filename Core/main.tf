@@ -320,6 +320,7 @@ module "viz_lambda_functions" {
   dataservices_ip                = module.data-services.dataservices-ip
   viz_pipeline_step_function_arn = module.step_functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
+  nwm_dataflow_version           = local.env.nwm_dataflow_version
 }
 
 # Simple Service Notifications
@@ -625,6 +626,7 @@ module "viz_ec2" {
   egis_db_host                = data.aws_db_instance.egis_rds.address
   egis_db_name                = local.env.egis_db_name
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  nwm_dataflow_version        = local.env.nwm_dataflow_version
 }
 
 module "sagemaker" {
