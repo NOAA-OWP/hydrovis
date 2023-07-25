@@ -116,3 +116,4 @@ postprocess_sql:
 
 services:
   - mrf_gfs_10day_max_coastal_inundation_extent_noaa
+  - mrf_gfs_10day_max_coastal_inundation_depth_noaa

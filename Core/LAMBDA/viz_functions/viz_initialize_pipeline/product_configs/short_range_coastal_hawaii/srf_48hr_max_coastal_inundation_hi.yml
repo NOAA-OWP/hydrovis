@@ -19,3 +19,4 @@ fim_configs:
 
 services:
   - srf_48hr_max_coastal_inundation_extent_hi_noaa
+  - srf_48hr_max_coastal_inundation_depth_hi_noaa

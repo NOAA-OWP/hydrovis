@@ -16,5 +16,5 @@ tags: medium, range, forecast, streamflow, rapid, onset, flood, probability, nat
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
-feature_service: false
+feature_service: true
 public_service: true
