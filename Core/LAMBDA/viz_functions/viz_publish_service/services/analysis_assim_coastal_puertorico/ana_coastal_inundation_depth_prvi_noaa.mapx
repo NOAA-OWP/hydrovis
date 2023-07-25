@@ -145,7 +145,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\ana_coastal_inundation_hi\\ana_coastal_inundation_hi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.27.2.29\\viz\\published\\raster_connection.acs\\ana_coastal_inundation_prvi\\ana_coastal_inundation_prvi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"
