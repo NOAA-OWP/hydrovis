@@ -9,6 +9,7 @@ ingest_files:
       file_window: None
       target_table: ingest.nwm_channel_rt_mrf_nbm
       target_keys: (feature_id, streamflow)
+      dependent_on: publish.mrf_gfs_max_inundation_10day_hucs # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
 
 db_max_flows:
   - name: mrf_nbm_max_flows

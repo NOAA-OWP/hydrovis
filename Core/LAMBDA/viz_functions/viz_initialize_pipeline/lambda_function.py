@@ -38,28 +38,49 @@ def lambda_handler(event, context):
     # (lots of false starts, but it only amounts to about $1 a month)
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
-        pipeline_iniitializing_files = ["analysis_assim.channel_rt.tm00.conus.nc",
+        pipeline_iniitializing_files = [
+                                        ## ANA ##
+                                        "analysis_assim.channel_rt.tm00.conus.nc",
                                         "analysis_assim.forcing.tm00.conus.nc",
                                         "analysis_assim.channel_rt.tm0000.hawaii.nc",
                                         "analysis_assim.forcing.tm00.hawaii.nc",
                                         "analysis_assim.channel_rt.tm00.puertorico.nc",
                                         "analysis_assim.forcing.tm00.puertorico.nc",
+                                        "analysis_assim.channel_rt.tm00.alaska.nc",
+                                        "analysis_assim.forcing.tm00.alaska.nc",
+                                        
+                                        ## SRF ##
                                         "short_range.channel_rt.f018.conus.nc",
                                         "short_range.forcing.f018.conus.nc",
                                         "short_range.channel_rt.f04800.hawaii.nc",
                                         "short_range.forcing.f048.hawaii.nc",
                                         "short_range.channel_rt.f048.puertorico.nc",
                                         "short_range.forcing.f048.puertorico.nc",
+                                        "short_range.forcing.f015.alaska.nc",
+                                        "short_range.channel_rt.f015.alaska.nc",
+                                        
+                                        ## MRF GFS ##
                                         "medium_range.channel_rt_1.f240.conus.nc",
                                         "medium_range.forcing.f240.conus.nc",
                                         "medium_range.channel_rt.f119.conus.nc",
+                                        "medium_range.channel_rt_1.f240.alaska.nc",
+                                        "medium_range.forcing.f240.alaska.nc",
+                                        
+                                        ## MRF NBM ##
                                         "medium_range_blend.channel_rt.f240.conus.nc",
                                         "medium_range_blend.forcing.f240.conus.nc",
-                                        "analysis_assim.channel_rt.tm00.alaska.nc",
-                                        "analysis_assim.forcing.tm00.alaska.nc",
-                                        "short_range.forcing.f015.alaska.nc",
-                                        "medium_range.forcing.f240.alaska.nc",
-                                        "medium_range_blend.forcing.f240.alaska.nc"]
+                                        "medium_range_blend.channel_rt.f240.alaska.nc",
+                                        "medium_range_blend.forcing.f240.alaska.nc",
+
+                                        ## Coastal ##
+                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        "short_range_coastal.total_water.f018.atlgulf.nc",
+                                        "short_range_coastal.total_water.f048.puertorico.nc",
+                                        "short_range_coastal.total_water.f048.hawaii.nc"
+                                        ]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
@@ -368,6 +389,7 @@ class configuration:
             target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
             target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
             target_keys = target_keys[1:-1].replace(" ","").split(",")
+            dependent_on = file_group['dependent_on'] if file_group.get('dependent_on') else ""
             
             if target_table not in target_table_input_files:
                 target_table_input_files[target_table] = {}
@@ -415,7 +437,8 @@ class configuration:
                 "index_name": index_name,
                 "bucket": bucket,
                 "keep_flows_at_or_above": float(os.environ['INGEST_FLOW_THRESHOLD']),
-                "data_origin": data_origin
+                "data_origin": data_origin,
+                "dependent_on": dependent_on
             })
             
         return ingest_sets
@@ -538,7 +561,7 @@ class configuration:
                 self.lambda_max_flows.extend([max_flow for max_flow in product['lambda_max_flows'] if max_flow not in self.lambda_max_flows])
                 
             if product.get('ingest_files'):
-                self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
+                self.ingest_groups.extend([ingest_group for ingest_group in product['ingest_files'] if ingest_group not in self.ingest_groups])
                 
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
         
