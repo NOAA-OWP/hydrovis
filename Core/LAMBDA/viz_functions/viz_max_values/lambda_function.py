@@ -38,7 +38,6 @@ def lambda_handler(event, context):
     """
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration")
-    optional = False
     
     if event["step"] == "fim_config_max_file":
         config_name = event['args']['fim_config']['name']
@@ -50,7 +49,6 @@ def lambda_handler(event, context):
         fileset_bucket = preprocess_args['fileset_bucket']
         output_file = preprocess_args['output_file']
         output_file_bucket = preprocess_args['output_file_bucket']
-        optional = 'optional' in preprocess_args and preprocess_args['optional']
         reference_time = event['args']['reference_time']
         reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
         
@@ -71,14 +69,9 @@ def lambda_handler(event, context):
         reference_time = event['args']['reference_time']
         
     print(f"Creating {output_file}")
-    try:
-        # Once the files exist, calculate the max flows
-        aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
-        print(f"Successfully created {output_file} in {output_file_bucket}")
-    except Exception as e:
-        print(f'Exception encountered: {e}')
-        if not optional:
-            raise e
+    # Once the files exist, calculate the max flows
+    aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+    print(f"Successfully created {output_file} in {output_file_bucket}")
     
     return event['args']
 
