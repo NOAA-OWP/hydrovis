@@ -13,6 +13,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_pacific_mem1_3day_{{datetime:%H}}_max_elevs.nc
+  
   - name: mrf_gfs_5day_max_coastal_inundation_pacific
     target_table: ingest.mrf_gfs_5day_max_coastal_inundation_pacific
     fim_type: coastal
@@ -22,6 +23,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_pacific_mem1_5day_{{datetime:%H}}_max_elevs.nc
+  
   - name: mrf_gfs_10day_max_coastal_inundation_pacific
     target_table: ingest.mrf_gfs_10day_max_coastal_inundation_pacific
     fim_type: coastal
@@ -31,6 +33,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_pacific_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_pacific_mem1_10day_{{datetime:%H}}_max_elevs.nc
+  
   - name: mrf_gfs_3day_max_coastal_inundation_atlgulf
     target_table: ingest.mrf_gfs_3day_max_coastal_inundation_atlgulf
     fim_type: coastal
@@ -40,6 +43,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_3day_{{datetime:%H}}_max_elevs.nc
+  
   - name: mrf_gfs_5day_max_coastal_inundation_atlgulf
     target_table: ingest.mrf_gfs_5day_max_coastal_inundation_atlgulf
     fim_type: coastal
@@ -49,6 +53,7 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_5day_{{datetime:%H}}_max_elevs.nc
+  
   - name: mrf_gfs_10day_max_coastal_inundation_atlgulf
     target_table: ingest.mrf_gfs_10day_max_coastal_inundation_atlgulf
     fim_type: coastal
@@ -58,6 +63,48 @@ fim_configs:
         file_step: None
         file_window: None
         output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_10day_{{datetime:%H}}_max_elevs.nc
+  
+  - name: mrf_gfs_3day_max_coastal_inundation_atlgulf_psurge
+    target_table: ingest.mrf_gfs_3day_max_coastal_inundation_atlgulf_psurge
+    fim_type: coastal
+    sql_file: coastal_atlgulf
+    preprocess:
+        optional: true
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,73,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_3day_{{datetime:%H}}_max_elevs.nc
+    postprocess:
+        sql_file: mrf_gfs_3day_max_coastal_inundation_atlgulf_psurge
+        target_table: publish.mrf_gfs_3day_max_coastal_inundation_atlgulf_psurge
+  
+  - name: mrf_gfs_5day_max_coastal_inundation_atlgulf_psurge
+    target_table: ingest.mrf_gfs_5day_max_coastal_inundation_atlgulf_psurge
+    fim_type: coastal
+    sql_file: coastal_atlgulf
+    preprocess:
+        optional: true
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,121,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_5day_{{datetime:%H}}_max_elevs.nc
+    postprocess:
+        sql_file: mrf_gfs_5day_max_coastal_inundation_atlgulf_psurge
+        target_table: publish.mrf_gfs_5day_max_coastal_inundation_atlgulf_psurge
+  
+  - name: mrf_gfs_10day_max_coastal_inundation_atlgulf_psurge
+    target_table: ingest.mrf_gfs_10day_max_coastal_inundation_atlgulf_psurge
+    fim_type: coastal
+    sql_file: coastal_atlgulf
+    preprocess:
+        optional: true
+        file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_coastal_atlgulf_mem1_psurge/nwm.t{{datetime:%H}}z.medium_range_coastal.total_water.psurge.f{{range:3,241,3,%03d}}.atlgulf.nc
+        file_step: None
+        file_window: None
+        output_file: max_elevs/medium_range_coastal_atlgulf_mem1/{{datetime:%Y%m%d}}/mrf_gfs_coastal_atlgulf_mem1_psurge_10day_{{datetime:%H}}_max_elevs.nc
+    postprocess:
+        sql_file: mrf_gfs_10day_max_coastal_inundation_atlgulf_psurge
+        target_table: publish.mrf_gfs_10day_max_coastal_inundation_atlgulf_psurge
       
 postprocess_sql:
   - sql_file: mrf_gfs_3day_max_coastal_inundation

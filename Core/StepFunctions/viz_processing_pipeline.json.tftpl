@@ -485,10 +485,45 @@
                       ],
                       "BackoffRate": 1,
                       "IntervalSeconds": 120,
-                      "MaxAttempts": 35,
+                      "MaxAttempts": 25,
                       "Comment": "Missing S3 File"
                     }
                   ],
+                  "Next": "FIM Data Preparation",
+                  "OutputPath": "$.Payload",
+                  "Catch": [
+                    {
+                      "ErrorEquals": [
+                        "MissingS3FileException"
+                      ],
+                      "Next": "Check if optional",
+                      "Comment": "MissingS3FileException",
+                      "ResultPath": null
+                    }
+                  ]
+                },
+                "Check if optional": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "And": [
+                        {
+                          "Variable": "$.fim_config.preprocess.optional",
+                          "IsPresent": true
+                        },
+                        {
+                          "Variable": "$.fim_config.preprocess.optional",
+                          "BooleanEquals": true
+                        }
+                      ],
+                      "Next": "FIM Data Preparation"
+                    }
+                  ],
+                  "Default": "Fail"
+                },
+                "Fail": {
+                  "Type": "Fail"
+                },
                   "Next": "FIM Data Preparation",
                   "OutputPath": "$.Payload"
                 },
