@@ -588,11 +588,6 @@ def check_if_file_exists(bucket, file, download=False):
                     file_exists = True
                     https_file = retro_file
                     print("File does not exist on S3 (even though it should), but does exists in the retrospective data in AWS.")
-            elif "/para" in file:
-                https_file = file.replace("common/data/model/com/nwm/para", "https://para.nomads.ncep.noaa.gov/pub/data/nccf/com/nwm/para")
-                if requests.head(https_file).status_code == 200:
-                    file_exists = True
-                    print("File does not exist on S3 (even though it should), but does exists on NOMADS para.")
             else:
                 raise Exception("Code could not handle request for file")
 
@@ -613,10 +608,6 @@ def check_if_file_exists(bucket, file, download=False):
                 except:
                     print(f"Failed to open {download_path}. Retrying in case file was corrupted on download")
                     tries +=1
-
-            if "para" in file:
-                print(f"Uploading {file} to {bucket}")
-                s3.upload_file(download_path, bucket, file)
         else:
             print(f"Downloading {file} from s3")
             s3.download_file(bucket, file, download_path)
