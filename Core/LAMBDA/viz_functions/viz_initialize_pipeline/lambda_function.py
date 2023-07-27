@@ -197,6 +197,36 @@ class viz_lambda_pipeline:
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         if self.job_type == "past_event":
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
+            for word, replacement in self.sql_rename_dict.items():
+                self.configuration.configuration_data_flow = json.loads(json.dumps(self.configuration.configuration_data_flow).replace(word, replacement))
+                self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
+            self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time.strftime("%Y-%m-%d %H:%M:%S")}) #Add a reference time for placeholders in sql files
+        
+        # This allows for filtering FIM runs to a select list of States (this is passed through to FIM Data Prep labmda, where filter is applied)
+        if self.start_event.get("states_to_run_fim"):
+            for product in self.pipeline_products:
+                product['states_to_run'] = self.start_event.get("states_to_run_fim") # only works for fimpact right now
+                if product['fim_configs']:
+                    for fim_config in product['fim_configs']:
+                        fim_config['states_to_run'] = self.start_event.get("states_to_run_fim")
+        
+        # This allows for skipping ingest step all together - useful if you're testing or re-running and are OK using the ingest data already in the database
+        if self.start_event.get("skip_ingest"):
+            if self.start_event.get("skip_ingest") is True:
+                self.configuration.configuration_data_flow['db_ingest_groups'] = []
+        
+        # This allows for skipping max flows step alltogether - useful if you're testing or re-running and are OK using the ingest data already in the database
+        if self.start_event.get("skip_max_flows"):
+            if self.start_event.get("skip_max_flows") is True:
+                self.configuration.configuration_data_flow['db_max_flows'] = []
+                self.configuration.configuration_data_flow['lambda_max_flows'] = []
+                
+        # This skips running FIM all-together
+        if self.start_event.get("skip_fim"):
+            if self.start_event.get("skip_fim") is True:
+                for product in self.pipeline_products:
+                     if product['fim_configs']:
+                         product['fim_configs'] = []
         
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
@@ -281,15 +311,20 @@ class viz_lambda_pipeline:
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
         for target_table in list(gen_dict_extract("target_table", self.configuration.configuration_data_flow)):
+            target_table_schema = target_table.split(".")[0]
             target_table_name = target_table.split(".")[1]
-            new_table_name = f"{ref_prefix}{target_table_name}"
+            new_table_name = f"{ref_prefix}{target_table_schema}_{target_table_name}"
             sql_rename_dict[target_table] = f"archive.{new_table_name}"
         
         for product in self.pipeline_products:
             for target_table in list(gen_dict_extract("target_table", product)):
-                target_table_name = target_table.split(".")[1]
-                new_table_name = f"{ref_prefix}{target_table_name}"
-                sql_rename_dict[target_table] = f"archive.{new_table_name}"
+                if type(target_table) != list:
+                    target_table = [target_table]
+                for table in target_table:
+                    target_table_schema = table.split(".")[0]
+                    target_table_name = table.split(".")[1]
+                    new_table_name = f"{ref_prefix}{target_table_schema}_{target_table_name}"
+                    sql_rename_dict[table] = f"archive.{new_table_name}"
             
         self.sql_rename_dict = sql_rename_dict
     
@@ -398,9 +433,6 @@ class configuration:
                 
             new_keys = [key for key in target_keys if key not in target_table_input_files[target_table]['target_keys'] and key]
             target_table_input_files[target_table]['target_keys'].extend(new_keys)
-            
-            if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > self.reference_time:
-                file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
 
             if file_window:
                 if not file_window_step:
@@ -520,6 +552,9 @@ class configuration:
                     fim_config_name = fim_config['name']
                     if not fim_config.get('sql_file'):
                         fim_config['sql_file'] = fim_config_name
+                    
+                    if hasattr(self, "states_to_run_fim"):
+                        fim_config['states_to_run'] = self.states_to_run_fim
 
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']

@@ -16,6 +16,7 @@ Returns:
 import os
 import boto3
 import json
+from datetime import datetime
 import numpy as np
 import xarray as xr
 import pandas as pd
@@ -28,7 +29,7 @@ s3_resource = boto3.resource('s3')
 
 class MissingS3FileException(Exception):
     """ my custom exception class """
-    
+
 def lambda_handler(event, context):
 
     target_table = event['target_table']
@@ -36,6 +37,7 @@ def lambda_handler(event, context):
     bucket = event['bucket']
     reference_time = event['reference_time']
     keep_flows_at_or_above = event['keep_flows_at_or_above']
+    reference_time_dt = datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S')
     
     print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
     download_path = check_if_file_exists(bucket, file, download=True)
@@ -75,8 +77,12 @@ def lambda_handler(event, context):
                     cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (station_id integer, time timestamp without time zone, "
                                     "streamflow double precision)")
                 else:
+                    try:
+                        ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    except: # retrospective files don't have a nwm_version, so set to 0 instead - also set the reference time manually for timestep calculation, as those are diferent in the retrospective files.
+                        ds['nwm_vers'] = 0
+                        ds['reference_time'] = reference_time_dt
                     ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
                     df = ds.to_dataframe().reset_index()
                     ds.close()
         
