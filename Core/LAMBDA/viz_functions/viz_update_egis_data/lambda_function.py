@@ -18,8 +18,10 @@ def lambda_handler(event, context):
         return
     
     ################### Unstage EGIS Tables ###################
-    if "unstage" in step and job_type != "past_event":
-        if step == "unstage_db_tables":
+    if "unstage" in step:
+        if job_type == "past_event":
+            return
+        elif step == "unstage_db_tables":
             print(f"Unstaging tables for {event['args']['product']['product']}")
             target_tables = list(gen_dict_extract("target_table", event['args']))
             all_single_tables = [table for table in target_tables if type(table) is not list]
@@ -91,7 +93,7 @@ def lambda_handler(event, context):
         return True
     
     ################### Stage EGIS Tables ###################
-    if step == "update_summary_data":
+    elif step == "update_summary_data":
         tables =  event['args']['postprocess_summary']['target_table']
     elif step == "update_fim_config_data":
         if not event['args']['fim_config'].get('postprocess'):
@@ -100,31 +102,35 @@ def lambda_handler(event, context):
         tables = [event['args']['fim_config']['postprocess']['target_table']]
     else:
         tables = [event['args']['postprocess_sql']['target_table']]
+    
+    # Set the viz schema to work with based on the job type    
+    if job_type == 'auto':
+        viz_schema = 'publish'
+    elif job_type == 'past_event':
+        viz_schema = 'archive'
         
-    tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
+    # Get the table names without the schemas
+    tables = [table.split(".")[1] for table in tables if table.split(".")[0]==viz_schema]
     
     ## For Staging and Caching - Loop through all the tables relevant to the current step
     for table in tables:
         staged_table = f"{table}_stage"
         viz_db = database(db_type="viz")
         egis_db = database(db_type="egis")
+        
+        # Get columns of the table
+        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+                cur.execute(f"SELECT * FROM {viz_schema}.{table} LIMIT 1")
+                column_names = [desc[0] for desc in cur.description]
+                columns = ', '.join(column_names)
             
         if job_type == 'auto':
-            viz_schema = 'publish'
-            
-            # Get columns of the table
-            with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-                    cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-                    column_names = [desc[0] for desc in cur.description]
-                    columns = ', '.join(column_names)
-            
             # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
             except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
 
         elif job_type == 'past_event':

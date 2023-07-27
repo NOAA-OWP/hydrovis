@@ -42,13 +42,13 @@ def lambda_handler(event, context):
     if event["step"] == "fim_config_max_file":
         config_name = event['args']['fim_config']['name']
         print(f"Getting fileset for {config_name}")
-        
-        file_pattern = event['args']['fim_config']['preprocess']['file_format']
-        file_step = event['args']['fim_config']['preprocess']['file_step']
-        file_window = event['args']['fim_config']['preprocess']['file_window']
-        fileset_bucket = event['args']['fim_config']['preprocess']['fileset_bucket']
-        output_file = event['args']['fim_config']['preprocess']['output_file']
-        output_file_bucket = event['args']['fim_config']['preprocess']['output_file_bucket']
+        preprocess_args = event['args']['fim_config']['preprocess']
+        file_pattern = preprocess_args['file_format']
+        file_step = preprocess_args['file_step']
+        file_window = preprocess_args['file_window']
+        fileset_bucket = preprocess_args['fileset_bucket']
+        output_file = preprocess_args['output_file']
+        output_file_bucket = preprocess_args['output_file_bucket']
         reference_time = event['args']['reference_time']
         reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
         
@@ -72,7 +72,7 @@ def lambda_handler(event, context):
     # Once the files exist, calculate the max flows
     aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
     print(f"Successfully created {output_file} in {output_file_bucket}")
-
+    
     return event['args']
 
 

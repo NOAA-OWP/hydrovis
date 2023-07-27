@@ -26,7 +26,8 @@
     },
     "layers" : [
       "CIMPATH=map/_dataset_vrt.xml",
-      "CIMPATH=map/_dataset_vrt2.xml"
+      "CIMPATH=map/_dataset_vrt2.xml",
+      "CIMPATH=map/_dataset_vrt3.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -304,6 +305,163 @@
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
         "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_pacific\\published",
+        "workspaceFactory" : "Raster",
+        "dataset" : "_dataset.vrt",
+        "datasetType" : "esriDTAny"
+      },
+      "colorizer" : {
+        "type" : "CIMRasterClassifyColorizer",
+        "resamplingType" : "NearestNeighbor",
+        "noDataColor" : {
+          "type" : "CIMRGBColor",
+          "values" : [
+            255,
+            255,
+            255,
+            0
+          ]
+        },
+        "normalizationType" : "Nothing",
+        "classBreaks" : [
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 1,
+            "label" : "< 1'",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                115,
+                223,
+                255,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 3,
+            "label" : "1' - 3'",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                0,
+                112,
+                255,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 6,
+            "label" : "3' - 6'",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                255,
+                255,
+                0,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 9,
+            "label" : "6' - 9'",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                255,
+                170,
+                0,
+                100
+              ]
+            }
+          },
+          {
+            "type" : "CIMRasterClassBreak",
+            "upperBound" : 999,
+            "label" : "> 9'",
+            "color" : {
+              "type" : "CIMRGBColor",
+              "values" : [
+                255,
+                0,
+                0,
+                100
+              ]
+            }
+          }
+        ],
+        "classificationMethod" : "Manual",
+        "colorRamp" : {
+          "type" : "CIMLinearContinuousColorRamp",
+          "colorSpace" : {
+            "type" : "CIMICCColorSpace",
+            "url" : "Default RGB"
+          },
+          "fromColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              60,
+              100,
+              96,
+              100
+            ]
+          },
+          "toColor" : {
+            "type" : "CIMHSVColor",
+            "values" : [
+              0,
+              100,
+              96,
+              100
+            ]
+          }
+        },
+        "field" : "Value",
+        "hillshadeZFactor" : 1,
+        "showInAscendingOrder" : true,
+        "numberFormat" : {
+          "type" : "CIMNumericFormat",
+          "alignmentOption" : "esriAlignLeft",
+          "alignmentWidth" : 12,
+          "roundingOption" : "esriRoundNumberOfDecimals",
+          "roundingValue" : 6,
+          "useSeparator" : true
+        }
+      }
+    },
+    {
+      "type" : "CIMRasterLayer",
+      "name" : "PSURGE Coastal Inundation Depth",
+      "uRI" : "CIMPATH=map/_dataset_vrt3.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant",
+        "start" : 978307200000
+      },
+      "metadataURI" : "CIMPATH=Metadata/d37718d89ece7ecbefff4476d478739a.xml",
+      "useSourceMetadata" : true,
+      "description" : "_dataset.vrt",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{898F2553-05D3-4719-B747-5466725BAA27}"
+      },
+      "layerType" : "Operational",
+      "minScale" : 500000,
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "dataConnection" : {
+        "type" : "CIMStandardDataConnection",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf_psurge\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"
