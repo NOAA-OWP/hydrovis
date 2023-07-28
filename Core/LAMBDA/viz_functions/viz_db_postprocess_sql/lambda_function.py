@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         
     # Admin tasks
     if folder == 'admin':
-         run_admin_tasks(event, folder, step, sql_replace)
+         run_admin_tasks(event, folder, step, sql_replace, reference_time)
     else:
         # Max Flow
         if step == "max_flows":
@@ -48,11 +48,12 @@ def lambda_handler(event, context):
     return True
 
 # Special function to handle admin-only sql tasks
-def run_admin_tasks(event, folder, step, sql_replace):
+def run_admin_tasks(event, folder, step, sql_replace, reference_time):
     past_event = True if len(sql_replace) > 1 else False
     target_table = event['args']['db_ingest_group']['target_table']
     index_columns = event['args']['db_ingest_group']['index_columns']
     index_name = event['args']['db_ingest_group']['index_name']
+    dependent_on = event['args']['db_ingest_group']['dependent_on']
     target_schema = target_table.split('.')[0]
     target_table_only = target_table.split('.')[-1]
     
@@ -61,7 +62,11 @@ def run_admin_tasks(event, folder, step, sql_replace):
     sql_replace.update({"{target_schema}": target_schema})
     sql_replace.update({"{index_name}": index_name})
     sql_replace.update({"{index_columns}": index_columns})
-
+    
+    # This will effectively pause an ingest group / pipeline if a dependent_on key is present - currently used to have MRF NBM run after MRF GFS
+    if dependent_on != "":
+        database(db_type="viz").check_required_tables_updated(f"SELECT * FROM {dependent_on} LIMIT 1", sql_replace, reference_time, raise_if_false=True)
+    
     if step == 'ingest_prep':
         # if target table is not the original table, run the create command to create the table
         if past_event is True:

@@ -146,7 +146,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\ana_coastal_inundation\\ana_coastal_inundation_atlgulf\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"

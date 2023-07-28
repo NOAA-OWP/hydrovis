@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_peak_flow_arrival_time_alaska;
+DROP TABLE IF EXISTS publish.srf_15hr_peak_flow_arrival_time_alaska;
 
 WITH arrival_time AS (
      SELECT 
@@ -20,8 +20,9 @@ SELECT
     channels.name,
     channels.huc6,
     'AK' AS state,
+    -9999.0 as high_water_threshold,
     channels.geom
-INTO publish.srf_peak_flow_arrival_time_alaska
+INTO publish.srf_15hr_peak_flow_arrival_time_alaska
 FROM ingest.nwm_channel_rt_srf_alaska AS forecasts 
 
 -- Join in max flows on max streamflow to only get peak flows

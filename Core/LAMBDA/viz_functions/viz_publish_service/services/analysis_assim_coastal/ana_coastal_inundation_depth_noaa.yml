@@ -1,4 +1,4 @@
-service: ana_coastal_inundation_depth
+service: ana_coastal_inundation_depth_noaa
 summary: Coastal Inundation Depth Analysis
 description: Depicts the inundation depth of the National Water Model (NWM) total water level forecast. 
   This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. 
