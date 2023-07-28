@@ -103,8 +103,8 @@ root_status_trace_reaches AS (
 		ON fcst.lid = mf.nws_station_id
 	LEFT JOIN threshold
 		ON threshold.nws_station_id = mf.nws_station_id
-	WHERE rfc_defined_fcst_point IS TRUE
-	ORDER BY feature_id, rfc_defined_fcst_point DESC
+	WHERE rfc_defined_fcst_point IS TRUE OR issue_time IS NOT NULL
+	ORDER BY feature_id, issue_time, rfc_defined_fcst_point DESC
 ),
 
 status_trace AS (
