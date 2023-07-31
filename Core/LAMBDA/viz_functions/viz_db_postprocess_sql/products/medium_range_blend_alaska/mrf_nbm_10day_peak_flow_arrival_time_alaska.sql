@@ -4,7 +4,7 @@ WITH arrival_time AS(
     SELECT 
            forecasts.feature_id, 
            max(forecasts.forecast_hour)+1 AS t_normal
-    FROM ingest.nwm_channel_rt_mrf_nbm_alaska AS forecasts
+    FROM ingest.nwm_channel_rt_mrf_nbm_ak AS forecasts
     GROUP BY forecasts.feature_id
 )
 
@@ -25,10 +25,10 @@ SELECT
     channels.geom
    
 INTO publish.mrf_nbm_10day_peak_flow_arrival_time_alaska
-FROM ingest.nwm_channel_rt_mrf_nbm_alaska AS forecasts
+FROM ingest.nwm_channel_rt_mrf_nbm_ak AS forecasts
 
 -- Join in max flows on max streamflow to only get peak flows
-JOIN cache.mrf_nbm_max_flows_alaska AS max_flows
+JOIN cache.mrf_nbm_max_flows_ak AS max_flows
     ON forecasts.feature_id = max_flows.feature_id AND round((forecasts.streamflow*35.315)::numeric, 2) = max_flows.maxflow_10day_cfs
 
 -- Join in channels data to get reach metadata and geometry

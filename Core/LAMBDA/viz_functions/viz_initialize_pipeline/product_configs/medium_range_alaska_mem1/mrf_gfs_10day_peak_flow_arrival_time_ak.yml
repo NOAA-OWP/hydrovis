@@ -7,12 +7,12 @@ ingest_files:
     - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_alaska_mem1/nwm.t{{datetime:%H}}z.medium_range.channel_rt_1.f{{range:3,243,3,%03d}}.alaska.nc
       file_step: None
       file_window: None
-      target_table: ingest.nwm_channel_rt_mrf_gfs_alaska_mem1
+      target_table: ingest.nwm_channel_rt_mrf_gfs_ak_mem1
       target_keys: (feature_id, streamflow)
 
 db_max_flows:
   - name: mrf_gfs_max_flows_ak
-    target_table: cache.mrf_gfs_max_flows_alaska
+    target_table: cache.mrf_gfs_max_flows_ak
     target_keys: (feature_id, streamflow)
     method: database
     max_flows_sql_file: mrf_gfs_max_flows_ak

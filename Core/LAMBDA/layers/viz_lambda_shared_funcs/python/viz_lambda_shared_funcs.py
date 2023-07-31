@@ -589,8 +589,6 @@ def check_if_file_exists(bucket, file, download=False):
                     file_exists = True
                     https_file = retro_file
                     print("File does not exist on S3 (even though it should), but does exists in the retrospective data in AWS.")
-            else:
-                raise Exception("Code could not handle request for file")
 
         if not file_exists:
             raise MissingS3FileException(f"{file} does not exist on S3.")
