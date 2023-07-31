@@ -50,8 +50,11 @@ def lambda_handler(event, context):
     fim_config = event['args']['fim_config']['name']
     product = event['args']['product']['product']
     target_table = event['args']['fim_config']['target_table']
-    max_elevs_file_bucket = event['args']['fim_config'].get('max_file_bucket', event['args']['fim_config']['preprocess']['output_file_bucket'])
-    max_elevs_file = event['args']['fim_config'].get('max_file', event['args']['fim_config']['preprocess']['output_file'])
+    fim_config_preprocessing = event['args']['fim_config'].get('preprocess', {})
+    preprocessing_output_file_format = fim_config_preprocessing.get('output_file')
+    preprocessing_output_file_bucket = fim_config_preprocessing.get('output_file_bucket')
+    max_elevs_file_bucket = event['args']['fim_config'].get('max_file_bucket', preprocessing_output_file_bucket)
+    max_elevs_file = event['args']['fim_config'].get('max_file', preprocessing_output_file_format)
 
     output_bucket = event['args']['product']['raster_outputs']['output_bucket']
     output_workspaces = event['args']['product']['raster_outputs']['output_raster_workspaces']
