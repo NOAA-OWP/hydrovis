@@ -64,7 +64,7 @@ def setup_huc_inundation(event):
     # and invoke a retry
     process_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
-    sql = open(sql_path, 'r').read().lower()
+    sql = open(sql_path, 'r').read()
     # replace portions of SQL with any items in the dictionary (at least has reference_time)
     # sort the replace dictionary to have longer values upfront first
     sql_replace_sorted = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
@@ -84,7 +84,11 @@ def setup_huc_inundation(event):
                 additional_where_clauses += "')"
         sql += additional_where_clauses
     if "rfc" in fim_config_name:
-        sql += " group by max_forecast.feature_id, streamflow_cms, huc8, branch_id, hydro_id"
+        alias = 'max_forecast' if 'max_forecast' in sql else 'rnr'
+        if sql.strip().endswith(';'):
+            sql = sql.replace(';', f' group by {alias}.feature_id, streamflow_cms, huc8, branch_id, hydro_id;')
+        else:
+            sql += " group by max_forecast.feature_id, streamflow_cms, huc8, branch_id, hydro_id"
     
     fim_type = fim_config['fim_type']
     if fim_type == "coastal":
