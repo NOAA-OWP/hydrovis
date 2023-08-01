@@ -17,8 +17,10 @@ locals {
   db_instance_names = {
     us-east-1 = {
       ti = "hv-ti-egis-rds-pg-egdb"
+      uat = "hv-uat-egis-db-pg-egdb"
     }
     us-east-2 = {
+      uat = "hv-uat-egis-data-pg-egdb"
     }
   }
 }
