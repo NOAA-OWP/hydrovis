@@ -39,9 +39,6 @@ fim_configs:
       target_table: publish.mrf_nbm_max_inundation_10day
   
 product_summaries:
-  - sql_file:  5day_public_subset
-    target_table:
-      - publish.mrf_nbm_max_inundation_5day_public
   - sql_file:  3day_src_skill
     target_table:
       - publish.mrf_nbm_max_inundation_3day_src_skill
@@ -69,4 +66,3 @@ product_summaries:
 
 services:
   - mrf_nbm_10day_max_inundation_extent_noaa
-  - mrf_nbm_5day_max_inundation_extent
