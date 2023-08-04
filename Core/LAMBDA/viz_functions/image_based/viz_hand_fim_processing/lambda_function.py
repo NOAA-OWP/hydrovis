@@ -14,6 +14,7 @@ from viz_classes import s3_file, database
 FIM_BUCKET = os.environ['FIM_BUCKET']
 FIM_PREFIX = os.environ['FIM_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+FIM_VERSION = f'hand_{FIM_VERSION}'
 
 s3 = boto3.client("s3")
 
@@ -406,18 +407,18 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
-    df_final = df_final.rename(columns={"index": "hydro_id"})
+    df_final = df_final.rename(columns={"index": "fim_model_hydro_id", "hydro_id": "fim_model_hydro_id", "feature_id": "nwm_feature_id"})
     df_final['fim_version'] = FIM_VERSION
     df_final['reference_time'] = reference_time
     df_final['huc8'] = huc8
     df_final['branch'] = branch
-    df_final['hand_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
+    df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
     df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
     df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-    df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
-    df_final['feature_id_str'] = df_final['feature_id'].astype(str)
+    df_final['fim_model_hydro_id_str'] = df_final['fim_model_hydro_id'].astype(str)
+    df_final['nwm_feature_id_str'] = df_final['nwm_feature_id'].astype(str)
 
     df_final = df_final.drop(columns=["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"])
                 
