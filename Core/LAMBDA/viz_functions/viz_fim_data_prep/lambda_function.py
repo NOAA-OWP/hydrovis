@@ -109,8 +109,8 @@ def setup_huc_inundation(event):
         }
     else:
         print("Running inland HAND workflow")
-        ras_features = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
-        df_streamflows = get_features_for_HAND_processing(sql, ras_features, viz_db)
+        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
+        df_streamflows = get_features_for_HAND_processing(sql, ras_publish_table, viz_db)
 
         if one_off:
             hucs_to_process = one_off
@@ -260,7 +260,8 @@ def write_data_csv_file(product, fim_config, huc, reference_date, huc_data):
     return csv_key
     
 def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service):
-    ras_query_sql = f"""
+
+    ras_insertion_sql = f"""
         WITH feature_streamflows as (
             {streamflow_sql}
         ), ras2fim_boundaries as (
@@ -268,107 +269,72 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
                 geom,
                 discharge_cms,
                 feature_id,
-                lag(discharge_cms) OVER (PARTITION BY feature_id ORDER BY discharge_cms) as previous_discharge_cms
+                lag(discharge_cms) OVER (PARTITION BY feature_id ORDER BY discharge_cms) as previous_discharge_cms,
+                stage_ft,
+                version
             FROM dev.ras2fim_geocurves
             WHERE discharge_cms IS NOT NULL
             ORDER BY discharge_cms
+        ), max_ras2fim_boundaries as (
+            SELECT 
+                max(discharge_cfs) as max_rc_discharge_cfs,
+                max(stage_ft) as max_rc_stage_ft,
+                feature_id
+            FROM dev.ras2fim_geocurves
+            WHERE discharge_cms IS NOT NULL
+            GROUP BY feature_id
         )
-        
+    
+        INSERT INTO {db_fim_table}
         SELECT
-            rb.feature_id,
-            rb.geom,
-            rb.previous_discharge_cms,
-            rb.discharge_cms,
-            fs.streamflow_cms,
-            fhc.huc6
+            rb.feature_id as fim_model_hydro_id,
+            rb.feature_id::TEXT as fim_model_hydro_id_str,
+            ST_Transform(rb.geom, 3857) as geom,
+            rb.feature_id as nwm_feature_id,
+            rb.feature_id::TEXT as nwm_feature_id_str,
+            ROUND((fs.streamflow_cms * 35.315)::numeric, 2) as streamflow_cfs,
+            rb.stage_ft as fim_stage_ft,
+            mrb.max_rc_stage_ft,
+            mrb.max_rc_discharge_cfs,
+            CONCAT ('ras2fim_', rb.version) as fim_version,
+            '{reference_time}' as reference_time,
+            fhc.huc8,
+            NULL as branch
         FROM ras2fim_boundaries rb
         JOIN feature_streamflows fs ON fs.feature_id = rb.feature_id
         JOIN derived.featureid_huc_crosswalk fhc ON fs.feature_id = fhc.feature_id
+        JOIN max_ras2fim_boundaries mrb ON rb.feature_id = mrb.feature_id
         WHERE rb.discharge_cms >= fs.streamflow_cms AND rb.previous_discharge_cms < fs.streamflow_cms
     """
     
-    print("Determing if ras2fim models can be used in this run")
-    df_valid_ras = viz_db.run_sql_in_db(ras_query_sql)
-    
-    print(f"{len(df_valid_ras['feature_id'])} ras2fim models will be used this run")
-    if not df_valid_ras['feature_id'].empty:
-        print(f"Adding ras2fim models to {db_fim_table}")
-        ras_insertion_sql = f"""
-            WITH feature_streamflows as (
-                {streamflow_sql}
-            ), ras2fim_boundaries as (
-                SELECT 
-                    geom,
-                    discharge_cms,
-                    feature_id,
-                    lag(discharge_cms) OVER (PARTITION BY feature_id ORDER BY discharge_cms) as previous_discharge_cms,
-                    stage_ft,
-                    version
-                FROM dev.ras2fim_geocurves
-                WHERE discharge_cms IS NOT NULL
-                ORDER BY discharge_cms
-            ), max_ras2fim_boundaries as (
-                SELECT 
-                    max(discharge_cfs) as max_rc_discharge_cfs,
-                    max(stage_ft) as max_rc_stage_ft,
-                    feature_id
-                FROM dev.ras2fim_geocurves
-                WHERE discharge_cms IS NOT NULL
-                GROUP BY feature_id
-            )
-        
-            INSERT INTO {db_fim_table}
-            SELECT
-                rb.feature_id as fim_model_hydro_id,
-                rb.feature_id::TEXT as fim_model_hydro_id_str,
-                ST_Transform(rb.geom, 3857) as geom,
-                rb.feature_id as nwm_feature_id,
-                rb.feature_id::TEXT as nwm_feature_id_str,
-                ROUND((fs.streamflow_cms * 35.315)::numeric, 2) as streamflow_cfs,
-                rb.stage_ft as fim_stage_ft,
-                mrb.max_rc_stage_ft,
-                mrb.max_rc_discharge_cfs,
-                CONCAT ('ras2fim_', rb.version) as fim_version,
-                '{reference_time}' as reference_time,
-                fhc.huc8,
-                NULL as branch
-            FROM ras2fim_boundaries rb
-            JOIN feature_streamflows fs ON fs.feature_id = rb.feature_id
-            JOIN derived.featureid_huc_crosswalk fhc ON fs.feature_id = fhc.feature_id
-            JOIN max_ras2fim_boundaries mrb ON rb.feature_id = mrb.feature_id
-            WHERE rb.discharge_cms >= fs.streamflow_cms AND rb.previous_discharge_cms < fs.streamflow_cms
-        """
-        
-        if reference_service:
-            table = db_fim_table.split('.')[-1]
-            publish_interim_table = f"publish.{table}"
-            ras_insertion_sql = ras_insertion_sql.replace(db_fim_table, publish_interim_table)
-            print(f"Adding {len(df_valid_ras['feature_id'])} ras2fim models to {publish_interim_table}")
-        else:
-            print(f"Adding {len(df_valid_ras['feature_id'])} ras2fim models to {db_fim_table}")
-            
-        with viz_db.get_db_connection() as connection:
-            cur = connection.cursor()
-            cur.execute(ras_insertion_sql)
-    
-        if reference_service:
-            with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-                cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-                column_names = [desc[0] for desc in cur.description]
-                columns = ', '.join(column_names)
-            
-            print(f"Copying {publish_interim_table} to {db_fim_table}")
-            try: # Try copying the data
-                copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
-            except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
-                refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-                copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
-        
-        ras_features = df_valid_ras['feature_id'].values.tolist()
-        
-        return ras_features
+    publish_table = db_fim_table
+    if reference_service:
+        table = db_fim_table.split('.')[-1]
+        publish_table = f"publish.{table}"
+        ras_insertion_sql = ras_insertion_sql.replace(db_fim_table, publish_table)
 
-def get_features_for_HAND_processing(streamflow_sql, ras_features, viz_db):
+    print(f"Adding ras2fim models to {db_fim_table}")
+        
+    with viz_db.get_db_connection() as connection:
+        cur = connection.cursor()
+        cur.execute(ras_insertion_sql)
+
+    if reference_service:
+        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+            cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+            column_names = [desc[0] for desc in cur.description]
+            columns = ', '.join(column_names)
+        
+        print(f"Copying {publish_table} to {db_fim_table}")
+        try: # Try copying the data
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+        except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
+            refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+    
+    return publish_table
+
+def get_features_for_HAND_processing(streamflow_sql, db_fim_table, viz_db):
     hand_sql = f"""
         WITH feature_streamflows as (
             {streamflow_sql}
@@ -382,14 +348,12 @@ def get_features_for_HAND_processing(streamflow_sql, ras_features, viz_db):
             fs.streamflow_cms
         FROM derived.fim4_featureid_crosswalk AS crosswalk
         JOIN feature_streamflows fs ON fs.feature_id = crosswalk.feature_id
+        LEFT JOIN {db_fim_table} r2f ON r2f.nwm_feature_id = crosswalk.feature_id
         WHERE
             crosswalk.huc8 IS NOT NULL AND 
-            crosswalk.lake_id = -999
+            crosswalk.lake_id = -999 AND
+            r2f.nwm_feature_id IS NULL
     """
-    
-    if ras_features:
-        print("Updating HAND query to not search for ras features")
-        hand_sql += f" AND crosswalk.feature_id NOT IN ({str(ras_features)[1:-1]})"
     
     print("Determing features to be processed by HAND")
     df_hand = viz_db.run_sql_in_db(hand_sql)
