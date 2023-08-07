@@ -115,6 +115,7 @@ resource "aws_instance" "replace_and_route" {
 
   lifecycle {
     ignore_changes = [ami]
+    replace_triggered_by = [aws_s3_object.replace_route]
   }
 
   tags = {

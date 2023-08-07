@@ -122,6 +122,7 @@ resource "aws_instance" "ingest_prc1" {
 
   lifecycle {
     ignore_changes = [ami]
+    replace_triggered_by = [aws_s3_object.hml_ingester]
   }
 
   tags = {
@@ -151,6 +152,7 @@ resource "aws_instance" "ingest_prc2" {
 
   lifecycle {
     ignore_changes = [ami]
+    replace_triggered_by = [aws_s3_object.hml_ingester]
   }
 
   tags = {
