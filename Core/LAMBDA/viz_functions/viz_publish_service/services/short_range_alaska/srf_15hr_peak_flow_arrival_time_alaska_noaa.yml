@@ -1,10 +1,8 @@
 service: srf_15hr_peak_flow_arrival_time_alaska_noaa
 summary: Short-Range 15 Hour Peak Flow Arrival Time Forecast for Alaska
 description: Depicts expected peak flow arrival times derived from the operational National 
-  Water Model (NWM) short-range forecast. Shown are reaches that are expected to have flow at 
-  or above the high water threshold over the next 15 hours. Reaches are colored by the time at 
-  which they are expected to be at their maximum flow within the forecast period. High water 
-  flows were derived using a 40-year retrospective analysis of the NWM (v2.1). Updated hourly.
+  Water Model (NWM) short-range forecast for Alaska. Reaches are colored by the time at 
+  which they are expected to be at their maximum flow within the forecast period. Updated hourly.
 tags: arrival time, national water model, nwm, srf, short, range, conus
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
