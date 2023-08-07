@@ -100,7 +100,12 @@ def lambda_handler(event, context):
                 print("Updating service property description to match iteminfo")
                 service_properties = matching_service.properties
                 service_properties['description'] = matching_service.iteminformation.properties['description']
-                matching_service.edit(dict(service_properties))
+                try:
+                    matching_service.edit(dict(service_properties))
+                except:
+                    matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
+                    if not matching_service.properties['description']:
+                        raise Exception("Failed to update the map service description")
             
             # Create publish flag file
             tmp_published_file = f"/tmp/{service_name}"
