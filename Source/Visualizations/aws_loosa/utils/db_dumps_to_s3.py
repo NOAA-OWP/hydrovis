@@ -5,7 +5,6 @@ version_suffix = '2023_0214'
 pg_dump_exe_location = r"C:/users/administrator/desktop/temp_db_dumps" #Copy pg_dump.exe here. This must be in a user directory, you will have permission errors with system folder. No spaces.
 local_output_folder = r"C:/users/administrator/desktop/temp_db_dumps"
 s3_output_bucket = "hydrovis-ti-deployment-us-east-1" #Set these to None if you don't want to upload to S3
-s3_output_path = "viz/db_pipeline/db_dumps/" #Set these to None if you don't want to upload to S3
 
 ###################################
 def dump_schema(schema, output_folder, file_prefix, version_suffix, dump_type='data_and_schema'):
@@ -24,6 +23,7 @@ def dump_schema(schema, output_folder, file_prefix, version_suffix, dump_type='d
         print(f"Uploaded to S3: {output_file}")
 
 ################ Viz Database ###################
+s3_output_path = "viz_db_dumps/" #Set these to None if you don't want to upload to S3
 db_host = "hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com"
 db_name = "vizprocessing"
 db_user = "viz_proc_admin_rw_user"
@@ -39,6 +39,7 @@ dump_schema("dev", local_output_folder, file_prefix="vizDB_", version_suffix=ver
 dump_schema("scenarios", local_output_folder, file_prefix="vizDB_", version_suffix=version_suffix)
 
 ################ EGIS Database ###################
+s3_output_path = "egis_db_dumps/" #Set these to None if you don't want to upload to S3
 db_host = "hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com"
 db_name = "hydrovis"
 db_user = "hydrovis"

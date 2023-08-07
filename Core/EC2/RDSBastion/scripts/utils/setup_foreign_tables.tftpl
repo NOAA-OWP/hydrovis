@@ -1,0 +1,38 @@
+#!/bin/bash
+
+echo ""
+echo "---- SETTING UP FOREIGN TABLES ----"
+
+export PGOPTIONS='-c client_min_messages=warning'
+export PGPASSWORD=${db_password}
+
+echo "Dropping existing foreign tables in the ${db_schema} schema"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" \
+    -tAc "do
+            '
+            declare
+            l_rec record;
+            begin
+            for l_rec in (select foreign_table_schema, foreign_table_name 
+                            from information_schema.foreign_tables
+                            where foreign_table_schema = ''${db_schema}'') loop
+                execute format(''drop foreign table %I.%I'', l_rec.foreign_table_schema, l_rec.foreign_table_name);
+            end loop;
+            end;
+            '"
+
+echo "Creating new foreign tables in the ${db_schema} schema"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" \
+    -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+            DROP SERVER IF EXISTS ${foreign_server} CASCADE;
+            CREATE SERVER ${foreign_server} FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '${foreign_db_host}', dbname '${foreign_db_name}', port '${foreign_db_port}');
+            CREATE USER MAPPING FOR ${db_username} SERVER ${foreign_server} OPTIONS (user '${foreign_db_username}', password '${foreign_db_password}');
+            IMPORT FOREIGN SCHEMA public FROM SERVER ${foreign_server} INTO ${db_schema};
+            ALTER SERVER ${foreign_server} OPTIONS (fetch_size '150000');"
+
+%{ for user in user_mappings ~}
+echo "Creating user mappings for ${user}"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" \
+    -tAc "CREATE USER MAPPING FOR ${user} SERVER ${foreign_server} OPTIONS (user '${foreign_db_username}', password '${foreign_db_password}');"
+
+%{ endfor ~}

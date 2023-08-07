@@ -26,9 +26,6 @@ variable "access_principal_arns" {
   type = list(string)
 }
 
-variable "replication_role_name" {
-  type = string
-}
 
 resource "aws_kms_key" "hydrovis-s3" {
   description         = "Used for hydrovis-${var.environment}-${var.name}-${var.region} bucket encryption"
@@ -79,10 +76,31 @@ resource "aws_kms_key" "hydrovis-s3" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, concat(var.access_principal_arns, ["arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"]))
+            AWS = concat(var.admin_team_arns, var.access_principal_arns)
           }
           Resource = "*"
           Sid      = "Allow use of the key"
+        },
+        {
+          Action = [
+            "kms:DescribeKey",
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey",
+            "kms:GenerateDataKeyWithoutPlaintext"
+          ]
+          Effect = "Allow"
+          Principal = {
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
+            }
+          }
+          Resource = "*"
+          Sid      = "Allow use of the key for replication"
         },
       ]
     }
@@ -147,25 +165,18 @@ resource "aws_s3_bucket_policy" "hydrovis" {
       Version = "2008-10-17"
       Statement = [
         {
-          Action = "s3:PutObject"
-          Condition = {
-            StringNotEquals = {
-              "s3:x-amz-server-side-encryption" = "aws:kms"
-            }
-          }
-          Effect    = "Deny"
-          Principal = "*"
-          Resource  = "${aws_s3_bucket.hydrovis.arn}/*"
-          Sid       = "DenyUnEncryptedObjectUploads"
-        },
-        {
           Action = [
             "s3:ReplicateDelete",
             "s3:ReplicateObject",
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
+            }
           }
           Resource = "${aws_s3_bucket.hydrovis.arn}/*"
           Sid      = "PermissionsOnObjects"
@@ -178,7 +189,12 @@ resource "aws_s3_bucket_policy" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"
+            AWS = "arn:aws:iam::${var.prod_account_id}:root"
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = concat(["arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"], var.access_principal_arns)
+            }
           }
           Resource = aws_s3_bucket.hydrovis.arn
           Sid      = "PermissionsOnBucket"

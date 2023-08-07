@@ -1,195 +1,38 @@
 #!/bin/bash
 
+export PGOPTIONS='-c client_min_messages=warning'
+
+postgres_data_folder="/home/ec2-user/postgres_data"
+
+echo ""
 echo "---- SETTING UP VIZ DB ----"
 
-VIZDBNAME="${VIZDBNAME}"
-VIZDBHOST="${VIZDBHOST}"
-VIZDBPORT=${VIZDBPORT}
-VIZDBUSERNAME="${VIZDBUSERNAME}"
-VIZDBPASSWORD="${VIZDBPASSWORD}"
-EGISDBNAME="${EGISDBNAME}"
-EGISDBHOST="${EGISDBHOST}"
-EGISDBPORT=${EGISDBPORT}
-EGISDBUSERNAME="${EGISDBUSERNAME}"
-EGISDBPASSWORD="${EGISDBPASSWORD}"
-LOCATIONDBNAME="${LOCATIONDBNAME}"
-LOCATIONDBHOST="${LOCATIONDBHOST}"
-LOCATIONDBPORT=${LOCATIONDBPORT}
-LOCATIONDBUSER="${LOCATIONDBUSER}"
-LOCATIONDBPASS="${LOCATIONDBPASS}"
-DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
-HOME="${HOME}"
-VIZ_PROC_ADMIN_RW_USER="${VIZ_PROC_ADMIN_RW_USER}"
-VIZ_PROC_ADMIN_RW_PASS="${VIZ_PROC_ADMIN_RW_PASS}"
-VIZ_PROC_DEV_RW_USER="${VIZ_PROC_DEV_RW_USER}"
-VIZ_PROC_DEV_RW_PASS="${VIZ_PROC_DEV_RW_PASS}"
-
-### set correct db dump file names / versions here - These should be in the S3 bucket at {DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps ###
-egisDB_services="egisDB_services_2023_0725.dump"
-egisDB_reference="egisDB_reference_2023_0613.dump"
-egisDB_aep_fim="egisDB_aep_fim_2023_0613.dump"
-egisDB_fim_catchments="egisDB_fim_catchments_2023_0613.dump"
-
-vizDB_admin="vizDB_admin_2023_0424.dump"
-vizDB_archive="vizDB_archive_2023_0214.dump"
-vizDB_cache="vizDB_cache_2023_0725.dump"
-vizDB_derived="vizDB_derived_2023_0613.dump"
-vizDB_ingest="vizDB_ingest_2023_0725.dump"
-vizDB_publish="vizDB_publish_2023_0725.dump"
-vizDB_external="vizDB_external_2023_0214.dump"
-
-### install postgresql ###
-sudo yum install -y postgresql12
-
-# Setting up EGIS DB
-export PGPASSWORD=$${EGISDBPASSWORD}
-
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -f "$${HOME}/postgis_setup.sql"
-rm "$${HOME}/postgis_setup.sql"
-
-# Cleaning up EGIS DB - Part 1
-echo "Drop EGIS Services Schema"
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS services CASCADE;"
-
-echo "Setting up services schema in the EGIS DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${egisDB_services}" "$${HOME}/egisDB_services.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_services.dump"
-rm "$${HOME}/egisDB_services.dump"
 
 # Setting up Viz DB
-export PGPASSWORD=$${VIZDBPASSWORD}
+export PGPASSWORD=${viz_db_password}
+
 
 # Adding postgis extension and aws export extentions to Viz DB
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/ingest/database/postgis_setup.sql" "$${HOME}/postgis_setup.sql"
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -f "$${HOME}/postgis_setup.sql"
-rm "$${HOME}/postgis_setup.sql"
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
+echo "Setting up postgis..."
+aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_folder}/postgis_setup.sql" --only-show-errors
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAf "$${postgres_data_folder}/postgis_setup.sql"
+rm "$${postgres_data_folder}/postgis_setup.sql"
+
+
+echo "Setting up aws_s3..."
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
+
 
 # Adding users to Viz DB
 echo "Adding viz proc user..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_ADMIN_RW_USER};"
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_ADMIN_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '$${VIZ_PROC_ADMIN_RW_PASS}';"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_admin_rw_username};"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "ALTER ROLE ${viz_proc_admin_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 2000 ENCRYPTED PASSWORD '${viz_proc_admin_rw_password}';"
 
 echo "Adding viz dev user..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "CREATE ROLE $${VIZ_PROC_DEV_RW_USER};"
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "ALTER ROLE $${VIZ_PROC_DEV_RW_USER} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '$${VIZ_PROC_DEV_RW_PASS}';"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_dev_rw_username};"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "ALTER ROLE ${viz_proc_dev_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '${viz_proc_dev_rw_password}';"
+
 
 # Add permissions for aws_s3 extension to viz user.
 echo "Adding permissions to aws_s3 extension for viz user..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "GRANT USAGE ON schema aws_s3 TO $${VIZ_PROC_ADMIN_RW_USER}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO $${VIZ_PROC_ADMIN_RW_USER};"
-
-# Drop Viz DB Schemas
-echo "Cleaning up Viz DB..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -c "DROP SCHEMA IF EXISTS admin CASCADE; DROP SCHEMA IF EXISTS archive CASCADE; DROP SCHEMA IF EXISTS ingest CASCADE; DROP SCHEMA IF EXISTS derived CASCADE; DROP SCHEMA IF EXISTS external CASCADE; DROP SCHEMA IF EXISTS fim CASCADE; DROP SCHEMA IF EXISTS cache CASCADE; DROP SCHEMA IF EXISTS publish CASCADE;"
-
-# Resoring Viz DB Schema Dumps
-echo "Setting up admin schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_admin}" "$${HOME}/vizDB_admin.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_admin.dump"
-rm "$${HOME}/vizDB_admin.dump"
-
-echo "Setting up archive schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_archive}" "$${HOME}/vizDB_archive.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_archive.dump"
-rm "$${HOME}/vizDB_archive.dump"
-
-echo "Setting up cache schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_cache}" "$${HOME}/vizDB_cache.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_cache.dump"
-rm "$${HOME}/vizDB_cache.dump"
-
-echo "Setting up derived schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_derived}" "$${HOME}/vizDB_derived.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_derived.dump"
-rm "$${HOME}/vizDB_derived.dump"
-
-echo "Setting up ingest schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_ingest}" "$${HOME}/vizDB_ingest.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_ingest.dump"
-rm "$${HOME}/vizDB_ingest.dump"
-
-echo "Setting up publish schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_publish}" "$${HOME}/vizDB_publish.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_publish.dump"
-rm "$${HOME}/vizDB_publish.dump"
-
-echo "Setting up external schema in the VIZ DB..."
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${vizDB_external}" "$${HOME}/vizDB_external.dump"
-pg_restore -h "$${VIZDBHOST}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" -U $${VIZDBUSERNAME} -j 4 -v "$${HOME}/vizDB_external.dump"
-rm "$${HOME}/vizDB_external.dump"
-
-# Adding Dev Schema to Viz DB #ToDo: Only do this in Dev / TI environments.
-echo "Setting up dev schema in the VIZ DB and grant full permissions to both viz proc and dev users..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
-    -tAc "DROP SCHEMA IF EXISTS dev CASCADE;
-            CREATE SCHEMA dev;
-            GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_ADMIN_RW_USER};
-            GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_ADMIN_RW_USER};
-            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_ADMIN_RW_USER};
-            GRANT ALL ON SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
-            GRANT ALL ON ALL TABLES IN SCHEMA dev TO $${VIZ_PROC_DEV_RW_USER};
-            ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT all ON TABLES TO $${VIZ_PROC_DEV_RW_USER};"
-
-echo "Setting up wrds location foreign table in the VIZ GIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
-    -tAc "do
-            '
-            declare
-            l_rec record;
-            begin
-            for l_rec in (select foreign_table_schema, foreign_table_name 
-                            from information_schema.foreign_tables
-                            where foreign_table_schema = ''external'') loop
-                execute format(''drop foreign table %I.%I'', l_rec.foreign_table_schema, l_rec.foreign_table_name);
-            end loop;
-            end;
-            '"
-
-psql -h "$${VIZDBHOST}" -U "$${VIZDBUSERNAME}" -p $${VIZDBPORT} -d "$${VIZDBNAME}" \
-    -tAc "CREATE EXTENSION IF NOT EXISTS postgres_fdw;
-            DROP SERVER IF EXISTS wrds_location CASCADE;
-            CREATE SERVER wrds_location FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${LOCATIONDBHOST}', dbname '$${LOCATIONDBNAME}', port '$${LOCATIONDBPORT}');
-            CREATE USER MAPPING FOR $${VIZDBUSERNAME} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
-            CREATE USER MAPPING FOR $${VIZ_PROC_ADMIN_RW_USER} SERVER wrds_location OPTIONS (user '$${LOCATIONDBUSER}', password '$${LOCATIONDBPASS}');
-            IMPORT FOREIGN SCHEMA public FROM SERVER wrds_location INTO external;
-            ALTER SERVER wrds_location OPTIONS (fetch_size '150000');"
-
-# Setting up EGIS DB - Part 2
-export PGPASSWORD=$${EGISDBPASSWORD}
-
-# Adding foreign data wrapper-linked schema to the viz processing publish, for the transfer of published data.
-echo "Setting up vizprc_publish schema in the EGIS DB, ensuring postgres_fdw extension installed, and setting up foreign table wrappers..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" \
-    -tAc "DROP SCHEMA IF EXISTS vizprc_publish;
-            CREATE SCHEMA IF NOT EXISTS vizprc_publish;
-            GRANT ALL ON SCHEMA vizprc_publish TO $${EGISDBUSERNAME};
-            GRANT ALL ON ALL TABLES IN SCHEMA vizprc_publish TO $${EGISDBUSERNAME};
-            ALTER DEFAULT PRIVILEGES IN SCHEMA vizprc_publish GRANT all ON TABLES TO $${EGISDBUSERNAME};
-
-            CREATE EXTENSION IF NOT EXISTS postgres_fdw;
-            DROP SERVER IF EXISTS vizprc_db CASCADE;
-            CREATE SERVER vizprc_db FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host '$${VIZDBHOST}', dbname '$${VIZDBNAME}', port '$${VIZDBPORT}');
-            CREATE USER MAPPING FOR $${EGISDBUSERNAME} SERVER vizprc_db OPTIONS (user '$${VIZ_PROC_ADMIN_RW_USER}', password '$${VIZ_PROC_ADMIN_RW_PASS}');
-            IMPORT FOREIGN SCHEMA publish FROM SERVER vizprc_db INTO vizprc_publish;"
-
-# Restoring EGIS Reference Schema Dumps
-echo "Setting up reference schema in the EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS reference CASCADE;"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${egisDB_reference}" "$${HOME}/egisDB_reference.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_reference.dump"
-rm "$${HOME}/egisDB_reference.dump"
-
-# Restoring AEP FIM Schema Dump
-echo "Setting up aep_fim schema in the EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS aep_fim CASCADE;"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${egisDB_aep_fim}" "$${HOME}/egisDB_aep_fim.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_aep_fim.dump"
-rm "$${HOME}/egisDB_aep_fim.dump"
-
-# Restoring FIM Catchments Schema Dumps
-echo "Setting up fim_catchments schema in the EGIS DB..."
-psql -h "$${EGISDBHOST}" -U "$${EGISDBUSERNAME}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -c "DROP SCHEMA IF EXISTS fim_catchments CASCADE;"
-aws s3 cp "s3://$${DEPLOYMENT_BUCKET}/viz/db_pipeline/db_dumps/$${egisDB_fim_catchments}" "$${HOME}/egisDB_fim_catchments.dump"
-pg_restore -h "$${EGISDBHOST}" -p $${EGISDBPORT} -d "$${EGISDBNAME}" -U $${EGISDBUSERNAME} -j 4 -v "$${HOME}/egisDB_fim_catchments.dump"
-rm "$${HOME}/egisDB_fim_catchments.dump"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"

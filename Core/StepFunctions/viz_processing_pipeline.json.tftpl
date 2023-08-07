@@ -78,8 +78,8 @@
                   "RequiredTableNotUpdated"
                 ],
                 "BackoffRate": 1,
-                "IntervalSeconds": 30,
-                "MaxAttempts": 20,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 45,
                 "Comment": "Required table(s) not yet updated as expected"
               },
               {
@@ -485,7 +485,7 @@
                       ],
                       "BackoffRate": 1,
                       "IntervalSeconds": 120,
-                      "MaxAttempts": 25,
+                      "MaxAttempts": 15,
                       "Comment": "Missing S3 File"
                     }
                   ],
@@ -523,9 +523,6 @@
                 },
                 "Fail": {
                   "Type": "Fail"
-                },
-                  "Next": "FIM Data Preparation",
-                  "OutputPath": "$.Payload"
                 },
                 "FIM Data Preparation": {
                   "Type": "Task",

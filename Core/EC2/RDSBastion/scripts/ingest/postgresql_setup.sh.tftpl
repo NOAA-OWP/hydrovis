@@ -1,128 +1,61 @@
 #!/bin/bash
 
-echo "---- SETTING UP INGEST DB ----"
+export PGOPTIONS='-c client_min_messages=warning'
 
-FORECASTDB="${FORECASTDB}"
-LOCATIONDB="${LOCATIONDB}"
-DBHOST="${DBHOST}"
-DBPORT=${DBPORT}
-DBUSERNAME="${DBUSERNAME}"
-DBPASSWORD="${DBPASSWORD}"
-DEPLOYMENT_BUCKET="${DEPLOYMENT_BUCKET}"
-INGESTDBUSERS="${INGESTDBUSERS}"
-LOCATIONDBUSERS="${LOCATIONDBUSERS}"
+### set correct db dump file name / version here - These should be in the S3 bucket at {DEPLOYMENT_BUCKET}/location_db_dumps/ ###
+wrds_location3="wrds_location3.sql.gz"
 
-### install postgresql ###
-sudo yum install -y postgresql12
+postgres_data_folder="/home/ec2-user/postgres_data"
 
-### Constants ###
-HOME="/home/ec2-user"
-PGPASS="$${HOME}/.pgpass"
-HML_S3_PREFIX="ingest/database"
-POSTGIS_SCRIPT="postgis_setup.sql"
-USERS_SCRIPT="ingest_users.sql"
-BASE_SCRIPT="$${FORECASTDB}_base.sql.gz"
-LOCATION_S3_PREFIX="location/database"
-LOCATION_DUMP="wrds_location3.dump"
-DOWNLOAD_DIRECTORY="$${HOME}/postgres_data"
-POSTGIS_FILE="$${DOWNLOAD_DIRECTORY}/$${POSTGIS_SCRIPT}"
-BASE_FILE="$${DOWNLOAD_DIRECTORY}/$${BASE_SCRIPT}"
-USERS_FILE="/deploy_files/$${USERS_SCRIPT}"
-LOCATION_FILE="$${DOWNLOAD_DIRECTORY}/$${LOCATION_DUMP}"
-DROP_DATABASE=0
-REMOVE_BASE_FILE=0
-REMOVE_USERS_FILE=0
-REMOVE_DIRECTORY=0
+echo ""
+echo "---- SETTING UP FORECAST DB ----"
 
-export PGPASSWORD=$${DBPASSWORD}
-
-### Create/validate pgpass file ###
-function create_pgpass()
-{
-  local FOUND=0
-  local DBPASSLINE="$${DBHOST}:*:*:$${DBUSERNAME}:$${DBPASSWORD}"
-  ### Check to see if file is present, and if so, validate it ###
-  if [ -f "$${DBPASS}" ]
-  then
-    while IFS= read -r LINE
-    do
-      if [ "$${LINE}" = "$${DBPASSLINE}" ]
-      then
-        FOUND=1
-        break 
-      fi
-    done < "$${DBPASS}"
-    if [ $${FOUND} -eq 0 ]
-    then
-      echo "Appending line to $${DBPASS}"
-      echo "$${DBPASSLINE}" >> "$${DBPASS}"
-    else
-      echo "Matching entry found in $${DBPASS}. No need to modify."
-    fi
-  else
-    echo "Creating new $${DBPASS}..."
-    echo "$${DBPASSLINE}" > "$${DBPASS}"
-  fi
-
-  chmod 600 "$${DBPASS}"
-}
-
-# Create PGPASS
-create_pgpass
-
-# Download database contents
-echo "Downloading s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${POSTGIS_SCRIPT}..."
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${POSTGIS_SCRIPT} $${DOWNLOAD_DIRECTORY}/
-REMOVE_BASE_FILE=1
-
-echo "Downloading s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${BASE_SCRIPT}..."
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${HML_S3_PREFIX}/$${BASE_SCRIPT} $${DOWNLOAD_DIRECTORY}/
-REMOVE_BASE_FILE=1
-
-echo "Downloading s3://$${DEPLOYMENT_BUCKET}/$${LOCATION_S3_PREFIX}/$${LOCATION_DUMP}..."
-aws s3 cp s3://$${DEPLOYMENT_BUCKET}/$${LOCATION_S3_PREFIX}/$${LOCATION_DUMP} $${DOWNLOAD_DIRECTORY}/
-REMOVE_BASE_FILE=1
-
-REMOVE_USERS_FILE=1
-
-# Uncompress
-gzip -d "$${BASE_FILE}"
-BASE_FILE="$${BASE_FILE/.gz}"
+export PGPASSWORD=${db_password}
 
 # Setting up DB
-echo "Setting up postgis.."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${FORECASTDB}" -f "$${POSTGIS_FILE}"
+echo "Setting up postgis..."
+aws s3 cp s3://${deployment_bucket}/${postgis_setup_s3_key} $${postgres_data_folder}/postgis_setup.sql --only-show-errors
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -qtAf "$${postgres_data_folder}/postgis_setup.sql"
+rm "$${postgres_data_folder}/postgis_setup.sql"
+
 
 # Update users
-echo "Creating users..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT}  -d "$${FORECASTDB}" -f "$${USERS_FILE}"
+echo "Setting up forecast users..."
+aws s3 cp s3://${deployment_bucket}/${ingest_user_s3_key} $${postgres_data_folder}/ingest_users.sql --only-show-errors
+psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}" -qtAf "$${postgres_data_folder}/ingest_users.sql"
+rm "$${postgres_data_folder}/ingest_users.sql"
+
 
 # Updating permissions
 echo "Granting database level permissions..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT}  -d "$${FORECASTDB}" \
-    -tAc "REVOKE CONNECT ON DATABASE $${FORECASTDB} FROM PUBLIC;
-            GRANT CONNECT ON DATABASE $${FORECASTDB} to $${INGESTDBUSERS};
-            COMMENT ON DATABASE $${FORECASTDB} IS 
+psql -h "${db_host}" -U "${db_username}" -p ${db_port}  -d "${forecast_db_name}" \
+    -qtAc "REVOKE CONNECT ON DATABASE ${forecast_db_name} FROM PUBLIC;
+            GRANT CONNECT ON DATABASE ${forecast_db_name} to ${ingest_db_users};
+            COMMENT ON DATABASE ${forecast_db_name} IS 
             'database for storing river forecasts';"
 
-# Create table schemas for HML Ingest
-echo "Setting up HML ingest on $${PGHOST}..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${FORECASTDB}" -f "$${BASE_FILE}"
 
-# Dump WRDS Location
-echo "Setting up WRDS Location on $${PGHOST}..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -d "$${FORECASTDB}" -c "\c" -c "create database $${LOCATIONDB};"
-pg_restore -h "$${DBHOST}" -p $${DBPORT} -d "$${LOCATIONDB}" -U $${DBUSERNAME} -v $${LOCATION_FILE}
+# Create table schemas for HML Ingest
+echo "Setting up forecast tables..."
+aws s3 cp s3://${deployment_bucket}/${rfcfcst_base_s3_key} $${postgres_data_folder}/rfcfcst_base.sql.gz --only-show-errors
+gzip -d "$${postgres_data_folder}/rfcfcst_base.sql.gz"
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${forecast_db_name}" -qtAf "$${postgres_data_folder}/rfcfcst_base.sql"
+rm "$${postgres_data_folder}/rfcfcst_base.sql"
+
+
+echo ""
+echo "---- SETTING UP LOCATION DB ----"
+echo "Setting up location tables..."
+psql -h "${db_host}" -U "${db_username}" -qtc "CREATE DATABASE ${location_db_name};"
+aws s3 cp s3://${deployment_bucket}/location_db_dumps/$${wrds_location3} $${postgres_data_folder}/wrds_location3.sql.gz --only-show-errors
+cat $${postgres_data_folder}/wrds_location3.sql.gz | gunzip | psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${location_db_name}" -qtA
+rm "$${postgres_data_folder}/wrds_location3.sql.gz"
+
 
 # Updating permissions
 echo "Granting database level permissions..."
-psql -h "$${DBHOST}" -U "$${DBUSERNAME}" -p $${DBPORT} -d "$${LOCATIONDB}" \
-    -tAc "REVOKE CONNECT ON DATABASE $${LOCATIONDB} FROM PUBLIC;
-            GRANT CONNECT ON DATABASE $${LOCATIONDB} to $${LOCATIONDBUSERS};
-            COMMENT ON DATABASE $${LOCATIONDB} IS 
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${location_db_name}" \
+    -qtAc "REVOKE CONNECT ON DATABASE ${location_db_name} FROM PUBLIC;
+            GRANT CONNECT ON DATABASE ${location_db_name} to ${location_db_users};
+            COMMENT ON DATABASE ${location_db_name} IS 
             'database for storing location metadata';"
-
-DROP_DATABASE=0
-
-
-

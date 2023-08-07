@@ -2,7 +2,7 @@
 New-Item -Path "C:\" -Name "LicenseManager" -ItemType "directory"
 Copy-S3Object -Bucket 'hydrovis-${environment}-egis-${region}' -Key 'software/LicenseManager/LMDeploy.zip' -LocalFile 'C:\LicenseManager\LMDeploy.zip'
 Copy-S3Object -Bucket 'hydrovis-${environment}-egis-${region}' -Key 'software/LicenseManager/vc_redist.x86.exe' -LocalFile 'C:\LicenseManager\vc_redist.x86.exe'
-New-NetFirewallRule -DisplayName 'ArcGIS License Manager' -Profile 'Any' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 27000-27010, 1066
+New-NetFirewallRule -DisplayName 'ArcGIS License Manager' -Profile 'Any' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 27000-27010, 1066, 5152
 cd C:\LicenseManager
 Expand-Archive -Path "C:\LicenseManager\LMDeploy.zip"  -DestinationPath "C:\LicenseManager"
 Install-Module -Name ArcGIS -Force

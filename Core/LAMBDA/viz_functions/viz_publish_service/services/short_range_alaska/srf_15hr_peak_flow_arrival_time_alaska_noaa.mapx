@@ -934,7 +934,7 @@
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "14 - 18 hours or Beyond Forecast",
+            "label" : "14 - 15 hours or Beyond Forecast",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",

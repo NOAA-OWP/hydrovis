@@ -145,7 +145,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.27.2.29\\viz\\published\\raster_connection.acs\\ana_coastal_inundation_prvi\\ana_coastal_inundation_prvi\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_coastal_inundation_prvi\\ana_coastal_inundation_prvi\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"

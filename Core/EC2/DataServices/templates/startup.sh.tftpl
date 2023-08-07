@@ -4,23 +4,16 @@ echo "Setting up Rsyslog Configuration"
 # Used for Rsyslog to send relevant logs to Logstash
 sudo mkdir -p /etc/systemd/system/rsyslog.service.d/
 { echo "[Service]"; 
-  echo "Environment=\"LOGSTASH_IP=logstash.hydrovis.internal\"";
   echo "Environment=\"HYDROVIS_APPLICATION=${logging_application_name}\"";
 } | sudo tee /etc/systemd/system/rsyslog.service.d/override.conf
 sudo systemctl daemon-reload
 sudo systemctl restart rsyslog
 
+
 echo "Disabling Vlab Hostkey Requirement"
 # Disable the need to require VLab's host key for the git clone commands
 # Couldn't seem to figure out how to properly add Vlab to the known_hosts file
 export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i /home/ec2-user/.ssh/${ssh_key_filename} -o IdentitiesOnly=yes"
-
-
-echo "Installing System Dependencies"
-sudo yum -y install git
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 echo "Setting up WRDS File Structure"
 sudo chmod 777 /wrds

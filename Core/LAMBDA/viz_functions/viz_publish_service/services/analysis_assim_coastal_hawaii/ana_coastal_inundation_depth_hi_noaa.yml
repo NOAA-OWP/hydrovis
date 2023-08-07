@@ -1,4 +1,4 @@
-service: ana_coastal_inundation_depth_hawaii_noaa
+service: ana_coastal_inundation_depth_hi_noaa
 summary: Coastal Inundation Depth Analysis for Hawaii
 description: Depicts the inundation depth of the National Water Model (NWM) total water level forecast. 
   This service is derived from the analysis and assimilation configuration of the NWM over Hawaii.

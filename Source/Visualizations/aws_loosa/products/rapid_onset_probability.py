@@ -121,7 +121,7 @@ def srf_rapid_onset_probability(a_event_time, a_input_files, percent_change_thre
         print(f"Processing model_initialization_hour {model_initialization_hour}")
         model_output_valid_hours = df_model_initialization_hour['model_output_valid_hour'].values
 
-        df_ensemble = xr.open_mfdataset(df_model_initialization_hour['index'].values.tolist(), drop_variables=drop_vars, parallel=True, preprocess=preprocess).to_dataframe()  # Use dask to open up all ensemble files at once and change streamflow col to datetime
+        df_ensemble = xr.open_mfdataset(df_model_initialization_hour['index'].values.tolist(), drop_variables=drop_vars, preprocess=preprocess, combine='by_coords').to_dataframe()  # Use dask to open up all ensemble files at once and change streamflow col to datetime
         df_ensemble = df_ensemble[model_output_valid_hours]
         df_ensemble = df_ensemble.loc[(df_ensemble!=0).any(axis=1)]  # Remove all rows with a 0 value for every timestep
         df = df_ensemble.join(df_main)  # Join main data to ref_hour data
@@ -319,7 +319,7 @@ def mrf_rapid_onset_probability(a_event_time, a_input_files, percent_change_thre
     for ensemble in ensemble_members:
         print(f"Processing ensemble {ensemble}")
         df_ensemble = df_all_input_files[df_all_input_files['ensemble_member']==ensemble]  # Get ensemble specific metadata
-        df_ensemble = xr.open_mfdataset(df_ensemble['index'].values.tolist(), drop_variables=drop_vars, parallel=True, preprocess=preprocess).to_dataframe()  # Use dask to open up all ensemble files at once and change streamflow col to datetime
+        df_ensemble = xr.open_mfdataset(df_ensemble['index'].values.tolist(), drop_variables=drop_vars, preprocess=preprocess, combine='by_coords').to_dataframe()  # Use dask to open up all ensemble files at once and change streamflow col to datetime
         df_ensemble = df_ensemble.loc[(df_ensemble!=0).any(axis=1)]  # Remove all rows with a 0 value for every timestep
         df = df_ensemble.join(df_main)  # Join main data to ensemble data
         df = df[df['strm_order'] <= stream_reaches_at_or_below]  # Only look at lower order streams

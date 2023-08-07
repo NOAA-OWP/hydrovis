@@ -60,7 +60,7 @@ variable "aws_instances_to_reboot" {
 ################################################
 
 resource "aws_sfn_state_machine" "reboot_ec2_instances_step_function" {
-    name     = "reboot_ec2_instances_${var.environment}"
+    name     = "hv-vpp-${var.environment}-reboot-ec2-instances"
     role_arn = var.lambda_role
 
     definition = templatefile("${path.module}/reboot_ec2_instances.json.tftpl", {
@@ -85,7 +85,7 @@ resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
 ##################################################
 
 resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
-    name     = "process_schism_fim_${var.environment}"
+    name     = "hv-vpp-${var.environment}-process-schism-fim"
     role_arn = var.lambda_role
 
     definition = templatefile("${path.module}/schism_fim_processing.json.tftpl", {
@@ -100,7 +100,7 @@ resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
 ########################################
 
 resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
-    name     = "viz_pipeline_${var.environment}"
+    name     = "hv-vpp-${var.environment}-viz-pipeline"
     role_arn = var.lambda_role
 
     definition = templatefile("${path.module}/viz_processing_pipeline.json.tftpl", {
@@ -122,7 +122,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
 ###############################################
 
 resource "aws_sfn_state_machine" "hand_fim_processing_step_function" {
-    name     = "hand_fim_processing_${var.environment}"
+    name     = "hv-vpp-${var.environment}-hand-fim-processing"
     role_arn = var.lambda_role
 
     definition = templatefile("${path.module}/hand_fim_processing.json.tftpl", {
@@ -133,7 +133,7 @@ resource "aws_sfn_state_machine" "hand_fim_processing_step_function" {
 
 ####### Step Function Failure / Time Out SNS #######
 resource "aws_cloudwatch_event_rule" "viz_pipeline_step_function_failure" {
-  name        = "viz_pipeline_step_function_failure_${var.environment}"
+  name        = "hv-vpp-${var.environment}-viz-pipeline-step-function-failure"
   description = "Alert when the viz step function times out or fails."
 
   event_pattern = <<EOF

@@ -149,7 +149,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_soil_moisture\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\ana_soil_moisture\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "ana_soil_moisture.mrf",
         "datasetType" : "esriDTAny"
@@ -738,7 +738,7 @@
       ],
       "dataConnection" : {
         "type" : "CIMSqlQueryDataConnection",
-        "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6838474c307054577333773964576b7641755473645070746174665764746d645a70624b4373473145437374333639664d6d6e6f426e74715865626c683775736c2a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+        "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
         "workspaceFactory" : "SDE",
         "dataset" : "vizprocessing.publish.%ana_soil_moisture",
         "datasetType" : "esriDTTable",

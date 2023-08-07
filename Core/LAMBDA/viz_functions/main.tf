@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns ]
+    }
+  }
+}
+
 variable "environment" {
   description = "Hydrovis environment"
   type        = string
@@ -152,7 +161,7 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
-variable "dataservices_ip" {
+variable "dataservices_host" {
   type = string
 }
 
@@ -170,7 +179,6 @@ variable "nwm_dataflow_version" {
 
 ########################################################################################################################################
 ########################################################################################################################################
-data "aws_caller_identity" "current" {}
 
 locals {
   egis_host                = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
@@ -195,18 +203,18 @@ data "archive_file" "wrds_api_handler_zip" {
 
   source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
 
-  output_path = "${path.module}/viz_wrds_api_handler_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_wrds_api_handler_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "wrds_api_handler_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_wrds_api_handler.zip"
+  key         = "terraform_artifacts/${path.module}/viz_wrds_api_handler.zip"
   source      = data.archive_file.wrds_api_handler_zip.output_path
   source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_wrds_api_handler" {
-  function_name = "viz_wrds_api_handler_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-wrds-api-handler"
   description   = "Lambda function to ping WRDS API and format outputs for processing."
   memory_size   = 512
   timeout       = 900
@@ -216,7 +224,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
   environment {
     variables = {
-      DATASERVICES_HOST            = var.dataservices_ip
+      DATASERVICES_HOST            = var.dataservices_host
       MAX_VALS_BUCKET              = var.max_values_bucket
       PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
@@ -234,7 +242,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_wrds_api_handler_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-wrds-api-handler"
   }
 }
 
@@ -268,6 +276,96 @@ resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
   }
 }
 
+##################################
+## EGIS Health Checker Function ##
+##################################
+data "archive_file" "egis_health_checker_zip" {
+  type = "zip"
+
+  source_file = "${path.module}/egis_health_checker/lambda_function.py"
+
+  output_path = "${path.module}/temp/egis_health_checker_${var.environment}_${var.region}.zip"
+}
+
+resource "aws_s3_object" "egis_health_checker_zip_upload" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/egis_health_checker.zip"
+  source      = data.archive_file.egis_health_checker_zip.output_path
+  source_hash = filemd5(data.archive_file.egis_health_checker_zip.output_path)
+}
+
+resource "aws_lambda_function" "egis_health_checker" {
+  function_name = "hv-vpp-${var.environment}-egis-health-checker"
+  description   = "Lambda function to ping WRDS API and format outputs for processing."
+  memory_size   = 512
+  timeout       = 300
+
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+
+  environment {
+    variables = {
+      GIS_HOST = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
+    }
+  }
+  s3_bucket        = aws_s3_object.egis_health_checker_zip_upload.bucket
+  s3_key           = aws_s3_object.egis_health_checker_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.egis_health_checker_zip.output_path)
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.requests_layer
+  ]
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-egis-health-checker"
+  }
+}
+
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes_egis_health_checker" {
+  rule      = aws_cloudwatch_event_rule.every_five_minutes.name
+  target_id = aws_lambda_function.egis_health_checker.function_name
+  arn       = aws_lambda_function.egis_health_checker.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda_egis_health_checker" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.egis_health_checker.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn
+}
+
+resource "aws_lambda_function_event_invoke_config" "egis_health_checker" {
+  function_name          = resource.aws_lambda_function.egis_health_checker.function_name
+  maximum_retry_attempts = 0
+  destination_config {
+    on_failure {
+      destination = var.email_sns_topics["egis_healthcheck_errors"].arn
+    }
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
+  alarm_name                = "${var.environment}_egis_healthcheck"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm       = 1
+  evaluation_periods        = 1
+
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = 600
+  statistic           = "Sum"
+  threshold           = 2
+  treat_missing_data   = "notBreaching"
+
+  dimensions = {
+    FunctionName = resource.aws_lambda_function.egis_health_checker.function_name
+  }
+}
+
 #########################
 ## Max Values Function ##
 #########################
@@ -276,18 +374,18 @@ data "archive_file" "max_values_zip" {
 
   source_file = "${path.module}/viz_max_values/lambda_function.py"
 
-  output_path = "${path.module}/viz_max_values_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_max_values_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "max_values_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_max_values.zip"
+  key         = "terraform_artifacts/${path.module}/viz_max_values.zip"
   source      = data.archive_file.max_values_zip.output_path
   source_hash = filemd5(data.archive_file.max_values_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_max_values" {
-  function_name = "viz_max_values_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-max-values"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
@@ -302,8 +400,8 @@ resource "aws_lambda_function" "viz_max_values" {
 
   environment {
     variables = {
-      CACHE_DAYS         = 1
-      DATA_BUCKET_UPLOAD = var.fim_data_bucket
+      CACHE_DAYS            = 1
+      DATA_BUCKET_UPLOAD    = var.fim_output_bucket
       NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
@@ -324,7 +422,7 @@ resource "aws_lambda_function" "viz_max_values" {
   ]
 
   tags = {
-    "Name" = "viz_max_values_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-max-values"
   }
 }
 
@@ -336,18 +434,18 @@ data "archive_file" "initialize_pipeline_zip" {
 
   source_dir = "${path.module}/viz_initialize_pipeline"
 
-  output_path = "${path.module}/viz_initialize_pipeline_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_initialize_pipeline_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "initialize_pipeline_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_initialize_pipeline.zip"
+  key         = "terraform_artifacts/${path.module}/viz_initialize_pipeline.zip"
   source      = data.archive_file.initialize_pipeline_zip.output_path
   source_hash = filemd5(data.archive_file.initialize_pipeline_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_initialize_pipeline" {
-  function_name = "viz_initialize_pipeline_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-initialize-pipeline"
   description   = "Lambda function to receive automatic input from sns or lambda invocation, parse the event, construct a pipeline dictionary, and invoke the viz pipeline state machine with it."
   memory_size   = 128
   timeout       = 300
@@ -358,7 +456,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   environment {
     variables = {
       STEP_FUNCTION_ARN     = var.viz_pipeline_step_function_arn
-      DATA_BUCKET_UPLOAD    = var.fim_data_bucket
+      DATA_BUCKET_UPLOAD    = var.fim_output_bucket
       MAX_VALS_DATA_BUCKET  = var.max_values_bucket
       RNR_DATA_BUCKET       = var.rnr_data_bucket
       RASTER_OUTPUT_BUCKET  = var.fim_output_bucket
@@ -383,7 +481,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
     var.pandas_layer
   ]
   tags = {
-    "Name" = "viz_initialize_pipeline_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-initialize-pipeline"
   }
 }
 
@@ -403,6 +501,7 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
 }
 
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  provider = aws.sns
   topic_arn = var.nws_shared_account_nwm_sns
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
@@ -433,18 +532,18 @@ data "archive_file" "db_postprocess_sql_zip" {
 
   source_dir = "${path.module}/viz_db_postprocess_sql"
 
-  output_path = "${path.module}/viz_db_postprocess_sql_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_db_postprocess_sql_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_db_postprocess_sql.zip"
+  key         = "terraform_artifacts/${path.module}/viz_db_postprocess_sql.zip"
   source      = data.archive_file.db_postprocess_sql_zip.output_path
   source_hash = filemd5(data.archive_file.db_postprocess_sql_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_db_postprocess_sql" {
-  function_name = "viz_db_postprocess_sql_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-db-postprocess-sql"
   description   = "Lambda function to run arg-driven sql code against the viz database."
   memory_size   = 128
   timeout       = 900
@@ -471,7 +570,7 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_db_postprocess_sql_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-db-postprocess-sql"
   }
 }
 
@@ -493,18 +592,18 @@ data "archive_file" "db_ingest_zip" {
 
   source_file = "${path.module}/viz_db_ingest/lambda_function.py"
 
-  output_path = "${path.module}/viz_db_ingest_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_db_ingest_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "db_ingest_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_db_ingest.zip"
+  key         = "terraform_artifacts/${path.module}/viz_db_ingest.zip"
   source      = data.archive_file.db_ingest_zip.output_path
   source_hash = filemd5(data.archive_file.db_ingest_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_db_ingest" {
-  function_name = "viz_db_ingest_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-db-ingest"
   description   = "Lambda function to ingest individual files into the viz processing postgresql database."
   memory_size   = 1280
   timeout       = 900
@@ -533,7 +632,7 @@ resource "aws_lambda_function" "viz_db_ingest" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_db_ingest_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-db-ingest"
   }
 }
 
@@ -555,18 +654,18 @@ data "archive_file" "fim_data_prep_zip" {
 
   source_dir = "${path.module}/viz_fim_data_prep"
 
-  output_path = "${path.module}/viz_fim_data_prep_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_fim_data_prep_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "fim_data_prep_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_fim_data_prep.zip"
+  key         = "terraform_artifacts/${path.module}/viz_fim_data_prep.zip"
   source      = data.archive_file.fim_data_prep_zip.output_path
   source_hash = filemd5(data.archive_file.fim_data_prep_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_fim_data_prep" {
-  function_name = "viz_fim_data_prep_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-fim-data-prep"
   description   = "Lambda function to setup a fim run by retriving max flows from the database, prepare an ingest database table, and creating a dictionary for huc-based worker lambdas to use."
   memory_size   = 2048
   timeout       = 900
@@ -603,7 +702,7 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_fim_data_prep_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-fim-data-prep"
   }
 }
 
@@ -625,18 +724,18 @@ data "archive_file" "update_egis_data_zip" {
 
   source_file = "${path.module}/viz_update_egis_data/lambda_function.py"
 
-  output_path = "${path.module}/viz_update_egis_data_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_update_egis_data_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "update_egis_data_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_update_egis_data.zip"
+  key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
   source      = data.archive_file.update_egis_data_zip.output_path
   source_hash = filemd5(data.archive_file.update_egis_data_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_update_egis_data" {
-  function_name = "viz_update_egis_data_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-update-egis-data"
   description   = "Lambda function to copy a postprocesses service table into the egis postgreql database, as well as cache data in the viz database."
   memory_size   = 128
   timeout       = 900
@@ -669,7 +768,7 @@ resource "aws_lambda_function" "viz_update_egis_data" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_update_egis_data_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-update-egis-data"
   }
 }
 
@@ -691,18 +790,18 @@ data "archive_file" "publish_service_zip" {
 
   source_dir = "${path.module}/viz_publish_service"
 
-  output_path = "${path.module}/viz_publish_service_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_publish_service_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "publish_service_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/viz_publish_service.zip"
+  key         = "terraform_artifacts/${path.module}/viz_publish_service.zip"
   source      = data.archive_file.publish_service_zip.output_path
   source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
 }
 
 resource "aws_lambda_function" "viz_publish_service" {
-  function_name = "viz_publish_service_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-viz-publish-service"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
   memory_size   = 1024
   timeout       = 600
@@ -717,7 +816,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_USERNAME        = "hydrovis.proc"
       PUBLISH_FLAG_BUCKET = var.max_values_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
-      SD_S3_PATH          = "viz/db_pipeline/pro_project_data/sd_files/"
+      SD_S3_PATH          = "viz_sd_files/"
       SERVICE_TAG         = local.service_suffix
     }
   }
@@ -733,7 +832,7 @@ resource "aws_lambda_function" "viz_publish_service" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_publish_service_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-publish-service"
   }
 }
 
@@ -751,7 +850,7 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
 ## Image Based Lambdas ##
 #########################
 
-module "image_based_lambdas" {
+module "image-based-lambdas" {
   source = "./image_based"
 
   environment = var.environment
@@ -810,18 +909,26 @@ output "wrds_api_handler" {
   value = aws_lambda_function.viz_wrds_api_handler
 }
 
+output "egis_health_checker" {
+  value = aws_lambda_function.egis_health_checker
+}
+
 output "hand_fim_processing" {
-  value = module.image_based_lambdas.hand_fim_processing
+  value = module.image-based-lambdas.hand_fim_processing
 }
 
 output "schism_fim_processing" {
-  value = module.image_based_lambdas.schism_fim_processing
+  value = module.image-based-lambdas.schism_fim_processing
 }
 
 output "optimize_rasters" {
-  value = module.image_based_lambdas.optimize_rasters
+  value = module.image-based-lambdas.optimize_rasters
 }
 
 output "raster_processing" {
-  value = module.image_based_lambdas.raster_processing
+  value = module.image-based-lambdas.raster_processing
+}
+
+output "egis_healthcheck_alarm" {
+  value = aws_cloudwatch_metric_alarm.egis_healthcheck_errors
 }

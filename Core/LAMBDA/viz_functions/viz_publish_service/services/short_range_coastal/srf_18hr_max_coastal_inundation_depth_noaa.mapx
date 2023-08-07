@@ -147,7 +147,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"
@@ -304,7 +304,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_pacific\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_pacific\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"
@@ -461,7 +461,7 @@
       "blendingMode" : "Alpha",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=\\\\10.26.150.30\\viz\\published\\raster_connection.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf_psurge\\published",
+        "workspaceConnectionString" : "DATABASE=\\\\viz-fileshare.hydrovis.internal\\viz\\published\\connection_files\\HydroVis_S3_processing_outputs.acs\\srf_18hr_max_coastal_inundation\\srf_18hr_max_coastal_inundation_atlgulf_psurge\\published",
         "workspaceFactory" : "Raster",
         "dataset" : "_dataset.vrt",
         "datasetType" : "esriDTAny"
