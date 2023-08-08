@@ -717,7 +717,7 @@
           },
           "Parallelize Summaries": {
             "Type": "Map",
-            "Next": "Parallel",
+            "Next": "Auto vs. Past Event Run",
             "Iterator": {
               "StartAt": "Postprocess SQL - Summary",
               "States": {
@@ -795,9 +795,20 @@
             },
             "ResultPath": null
           },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Pass"
+              }
+            ],
+            "Default": "Parallel"
+          },
           "Parallel": {
             "Type": "Parallel",
-            "Next": "Auto vs. Past Event Run",
+            "Next": "Service Publishing",
             "Branches": [
               {
                 "StartAt": "Update EGIS Data - Unstage DB Tables",
@@ -902,17 +913,6 @@
               }
             ],
             "ResultPath": null
-          },
-          "Auto vs. Past Event Run": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.job_type",
-                "StringEquals": "past_event",
-                "Next": "Pass"
-              }
-            ],
-            "Default": "Service Publishing"
           },
           "Service Publishing": {
             "Type": "Map",
