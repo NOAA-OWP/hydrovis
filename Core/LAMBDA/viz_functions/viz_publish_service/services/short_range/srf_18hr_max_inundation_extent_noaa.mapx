@@ -5899,7 +5899,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id",
+            "fieldName" : "nwm_feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5913,7 +5913,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Hydro ID",
-            "fieldName" : "hydro_id",
+            "fieldName" : "fim_model_hydro_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5969,8 +5969,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "HAND Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "FIM Stage (ft)",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -6062,7 +6062,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,hand_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.srf_18hr_max_inundation",
+          "sqlQuery" : "select fim_model_hydro_id_str AS fim_model_hydro_id,streamflow_cfs,fim_stage_ft,nwm_feature_id_str AS nwm_feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.srf_18hr_max_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6082,9 +6082,9 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
+              "name" : "fim_model_hydro_id",
               "type" : "esriFieldTypeString",
-              "alias" : "hydro_id",
+              "alias" : "fim_model_hydro_id",
               "length" : 10
             },
             {
@@ -6093,21 +6093,21 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
-              "name" : "feature_id",
+              "name" : "nwm_feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id",
+              "alias" : "nwm_feature_id",
               "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 10
+              "length" : 20
             },
             {
               "name" : "reference_time",
