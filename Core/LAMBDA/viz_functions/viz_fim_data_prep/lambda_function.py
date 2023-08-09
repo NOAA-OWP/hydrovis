@@ -272,7 +272,7 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
                 lag(discharge_cms) OVER (PARTITION BY feature_id ORDER BY discharge_cms) as previous_discharge_cms,
                 stage_ft,
                 version
-            FROM dev.ras2fim_geocurves
+            FROM ras2fim.geocurves
             WHERE discharge_cms IS NOT NULL
             ORDER BY discharge_cms
         ), max_ras2fim_boundaries as (
@@ -280,7 +280,7 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
                 max(discharge_cfs) as max_rc_discharge_cfs,
                 max(stage_ft) as max_rc_stage_ft,
                 feature_id
-            FROM dev.ras2fim_geocurves
+            FROM ras2fim.geocurves
             WHERE discharge_cms IS NOT NULL
             GROUP BY feature_id
         )
