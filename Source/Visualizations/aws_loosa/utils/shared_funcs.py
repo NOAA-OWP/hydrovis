@@ -10,6 +10,7 @@ import psycopg2.extras
 import os
 import shutil
 import boto3
+import tempfile
 
 from aws_loosa.consts.paths import PROCESSED_OUTPUT_BUCKET, PROCESSED_OUTPUT_PREFIX
 arcpy.env.overwriteOutput = True
@@ -285,14 +286,15 @@ def create_service_db_tables(df, data_table_name, sql_files, service_table_names
                 move_db_table(egis_connection, f"vizprc_publish.{service_table_name}", f"services.{service_table_name}", columns, add_oid=True, add_geom_index=True, update_srid=None) #Copy the publish table from the vizprc db to the egis db, using fdw
 
         print(f"Creating shapefile for {service_table_name}")
-        shapefile_folder = f"C:\\tmp\\{service_table_name}"
-        shapefile_zip = f"C:\\tmp\\{service_table_name}.zip"
+        tempdir = tempfile.mkdtemp()
+        shapefile_folder = os.path.join(tempdir, service_table_name)
+        shapefile_zip = os.path.join(tempdir, f"{service_table_name}.zip")
 
         if os.path.exists(shapefile_folder):
             shutil.rmtree(shapefile_folder)
             
         os.mkdir(shapefile_folder)
-        shapefile = f"{shapefile_folder}\\{service_table_name}.shp"
+        shapefile = os.path.join(shapefile_folder, f"{service_table_name}.shp")
         gdf = run_sql_in_db(f"select * from publish.{service_table_name}", return_geodataframe=True)
 
         gdf.to_file(shapefile, index=False)

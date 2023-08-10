@@ -1,8 +1,8 @@
 service: srf_48hr_max_coastal_inundation_extent_prvi_noaa
 summary: Short-Range 48 Hour Maximum Coastal Inundation Extent Forecast for Puerto Rico and Virgin Islands
 description: Depicts the peak inundation extent of the National Water Model (NWM) total water level forecast 
-  over the next 48 hours. This service is derived from the analysis and assimilation configuration of the 
-  NWM over Puerto Rico and the U.S. Virgin Islands. Updated hourly.
+  over the next 48 hours. This service is derived from the short-range configuration of the 
+  NWM over Puerto Rico and the U.S. Virgin Islands. Updated every 12 hours.
 tags: national water model, nwm, srf, short, range, schism, coastal, fim, inundation, extent, puertorico, prvi
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server

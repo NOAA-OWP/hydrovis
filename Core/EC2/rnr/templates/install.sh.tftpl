@@ -55,12 +55,12 @@ sudo chown ssm-user: /rnr
 
 echo "Installing WRF-Hydro Files"
 cd /rnr
-sudo aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/rnr/wrf_hydro.tgz .
+sudo aws s3 cp s3://${deployment_bucket}/${wrf_hydro_s3_key} ./wrf_hydro.tgz
 sudo tar -zxvf wrf_hydro.tgz
 
 echo "Installing Replace and Route"
 cd /rnr
-sudo aws s3 cp s3://${DEPLOYMENT_DATA_BUCKET}/rnr/owp-viz-replace-route.tgz .
+sudo aws s3 cp s3://${deployment_bucket}/${replace_route_s3_key} ./owp-viz-replace-route.tgz
 sudo tar -zxvf owp-viz-replace-route.tgz
 #git clone https://vlab.ncep.noaa.gov/code-review/a/owp-viz-replace-route
 
@@ -71,7 +71,7 @@ sudo bash install.sh -s
 
 echo "Copying Static Resources"
 cd /rnr
-sudo aws s3 cp  s3://${DEPLOYMENT_DATA_BUCKET}/rnr/rnr_static.tgz  .
+sudo aws s3 cp s3://${deployment_bucket}/${rnr_static_s3_key} ./rnr_static.tgz
 sudo tar -zxvf rnr_static.tgz
 sudo chown root static
 sudo chgrp root static

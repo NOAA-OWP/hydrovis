@@ -3,6 +3,11 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  description = "Hydrovis region"
+  type        = string
+}
+
 variable "rnr_data_bucket" {
   description = "S3 bucket for rnr output data"
   type        = string
@@ -13,7 +18,6 @@ variable "error_email_list" {
 }
 
 data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
 
 locals {
 
@@ -37,10 +41,10 @@ locals {
 
 resource "aws_sns_topic" "sns_topics" {
   for_each     = local.sns_topics
-  name         = "${lower(var.environment)}_${each.key}"
-  display_name = "${lower(var.environment)}_${each.key}"
+  name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+  display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   tags = {
-    Name = "${lower(var.environment)}_${each.key}"
+    Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   }
 }
 
@@ -214,10 +218,10 @@ data "aws_iam_policy_document" "lambda_trigger_sns_topic_policies" {
 
 resource "aws_sns_topic" "email_sns_topics" {
   for_each     = var.error_email_list
-  name         = "${lower(var.environment)}_${each.key}"
-  display_name = "${lower(var.environment)}_${each.key}"
+  name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+  display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   tags = {
-    Name = "${lower(var.environment)}_${each.key}"
+    Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
   }
 }
 

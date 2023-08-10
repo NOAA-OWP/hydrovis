@@ -14,11 +14,7 @@ variable "account_id" {
   type = string
 }
 
-variable "replication_role_name" {
-  type = string
-}
-
-variable "source_access_user_name" {
+variable "source_service_account_arn" {
   type = string
 }
 
@@ -39,12 +35,12 @@ variable "admin_team_arns" {
 }
 
 resource "aws_kms_key" "hydrovis" {
-  description         = "Symmetric CMK for KMS-KEY-ARN for ${upper(var.name)} Incoming Bucket"
+  description         = "KMS Key for ${upper(var.name)} Incoming Bucket"
   enable_key_rotation = true
   policy = jsonencode(
     {
       Version = "2012-10-17"
-      Id      = "key-hydrovis-prod-${var.name}-incoming-kms-cmk-policy"
+      Id      = "hydrovis-${var.environment}-${var.name}-incoming-${var.region}-s3-policy"
       Statement = [
         {
           Action = "kms:*"
@@ -90,10 +86,15 @@ resource "aws_kms_key" "hydrovis" {
           ]
           Effect = "Allow"
           Principal = {
-            AWS = concat(var.admin_team_arns, [
-              "arn:aws:iam::${var.prod_account_id}:user/${var.source_access_user_name}",
-              "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}",
-            ])
+            AWS = var.prod_account_id
+          }
+          Condition = {
+            "StringEqualsIfExists" = {
+              "aws:PrincipalArn" = concat(var.admin_team_arns, [
+                var.source_service_account_arn,
+                "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}",
+              ])
+            }
           }
           Resource = "*"
           Sid      = "Allow use of the key"
@@ -104,12 +105,12 @@ resource "aws_kms_key" "hydrovis" {
 }
 
 resource "aws_kms_alias" "hydrovis" {
-  name          = "alias/noaa-nws-hydrovis-prod-${var.name}-incoming-s3-cmk-alias"
+  name          = "alias/hydrovis-${var.environment}-${var.name}-incoming-${var.region}-s3"
   target_key_id = aws_kms_key.hydrovis.key_id
 }
 
 resource "aws_iam_role" "hydrovis" {
-  name  = var.replication_role_name
+  name  = "hydrovis-prod-${var.name}-replication-${var.region}"
   assume_role_policy = jsonencode(
     {
       Version = "2008-10-17"
@@ -135,7 +136,7 @@ resource "aws_iam_role" "hydrovis" {
           {
             Action   = "iam:PassRole"
             Effect   = "Allow"
-            Resource = "arn:aws:iam::${var.prod_account_id}:role/${var.replication_role_name}"
+            Resource = "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}"
             Sid      = "VisualEditor4"
           },
           {
@@ -150,8 +151,8 @@ resource "aws_iam_role" "hydrovis" {
             ]
             Effect = "Allow"
             Resource = [
-              "arn:aws:s3:::hydrovis-prod-${var.name}-incoming-us-east-1/*",
-              "arn:aws:s3:::hydrovis-prod-${var.name}-incoming-us-east-1",
+              "arn:aws:s3:::hydrovis-prod-${var.name}-incoming-${var.region}/*",
+              "arn:aws:s3:::hydrovis-prod-${var.name}-incoming-${var.region}",
             ]
             Sid = "VisualEditor8"
           },
@@ -159,7 +160,7 @@ resource "aws_iam_role" "hydrovis" {
             Action = "kms:Decrypt"
             Condition = {
               StringLike = {
-                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+                "kms:ViaService" = "s3.${var.region}.amazonaws.com"
               }
             }
             Effect   = "Allow"
@@ -173,7 +174,7 @@ resource "aws_iam_role" "hydrovis" {
                 "kms:ResourceAliases" = "alias/hydrovis-*-${var.name}-*"
               }
               StringLike = {
-                "kms:ViaService" = "s3.us-east-1.amazonaws.com"
+                "kms:ViaService" = "s3.${var.region}.amazonaws.com"
               }
             }
             Effect   = "Allow"
@@ -201,7 +202,7 @@ resource "aws_iam_role" "hydrovis" {
 }
 
 resource "aws_s3_bucket" "hydrovis" {
-  bucket = "hydrovis-prod-${var.name}-incoming-us-east-1"
+  bucket = "hydrovis-prod-${var.name}-incoming-${var.region}"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "hydrovis" {
@@ -233,13 +234,18 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis" {
     id       = "${upper(var.name)}ReplicationRoleToProd${upper(var.name)}"
     priority = 0
     status   = "Enabled"
+
     filter {}
 
+    delete_marker_replication {
+      status = "Disabled"
+    }
+
     destination {
-      bucket = "arn:aws:s3:::hydrovis-prod-${var.name}-us-east-1"
+      bucket = "arn:aws:s3:::hydrovis-prod-${var.name}-${var.region}"
 
       encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.prod_account_id}:alias/hydrovis-prod-${var.name}-us-east-1-s3"
+        replica_kms_key_id = "arn:aws:kms:${var.region}:${var.prod_account_id}:alias/hydrovis-prod-${var.name}-${var.region}-s3"
       }
     }
 
@@ -254,14 +260,19 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis" {
     id       = "${upper(var.name)}ReplicationRoleToUat${upper(var.name)}"
     priority = 1
     status   = "Enabled"
+        
     filter {}
+
+    delete_marker_replication {
+      status = "Disabled"
+    }
 
     destination {
       account = "${var.uat_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-uat-${var.name}-us-east-1"
+      bucket     = "arn:aws:s3:::hydrovis-uat-${var.name}-${var.region}"
 
       encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.uat_account_id}:alias/hydrovis-uat-${var.name}-us-east-1-s3"
+        replica_kms_key_id = "arn:aws:kms:${var.region}:${var.uat_account_id}:alias/hydrovis-uat-${var.name}-${var.region}-s3"
       }
 
       access_control_translation {
@@ -276,28 +287,38 @@ resource "aws_s3_bucket_replication_configuration" "hydrovis" {
     }
   }
 
-  rule {
-    id       = "${upper(var.name)}ReplicationRoleToTi${upper(var.name)}"
-    priority = 2
-    status   = "Enabled"
-    filter {}
+  # Only create Ti replication rule for regions that have a Ti environment
+  dynamic rule {
+    for_each = var.ti_account_id != "" ? [1] : []
 
-    destination {
-      account = "${var.ti_account_id}"
-      bucket     = "arn:aws:s3:::hydrovis-ti-${var.name}-us-east-1"
+    content {
+      id       = "${upper(var.name)}ReplicationRoleToTi${upper(var.name)}"
+      priority = 2
+      status   = "Enabled"
+          
+      filter {}
 
-      encryption_configuration {
-        replica_kms_key_id = "arn:aws:kms:us-east-1:${var.ti_account_id}:alias/hydrovis-ti-${var.name}-us-east-1-s3"
+      delete_marker_replication {
+        status = "Disabled"
       }
 
-      access_control_translation {
-        owner = "Destination"
-      }
-    }
+      destination {
+        account = "${var.ti_account_id}"
+        bucket     = "arn:aws:s3:::hydrovis-ti-${var.name}-${var.region}"
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = "Enabled"
+        encryption_configuration {
+          replica_kms_key_id = "arn:aws:kms:${var.region}:${var.ti_account_id}:alias/hydrovis-ti-${var.name}-${var.region}-s3"
+        }
+
+        access_control_translation {
+          owner = "Destination"
+        }
+      }
+
+      source_selection_criteria {
+        sse_kms_encrypted_objects {
+          status = "Enabled"
+        }
       }
     }
   }
@@ -322,28 +343,4 @@ resource "aws_s3_bucket_versioning" "hydrovis" {
   versioning_configuration {
     status = "Enabled"
   }
-}
-
-resource "aws_s3_bucket_policy" "hydrovis" {
-  bucket = aws_s3_bucket.hydrovis.bucket
-
-  policy = jsonencode(
-    {
-      Version = "2008-10-17"
-      Statement = [
-        {
-          Action = "s3:PutObject"
-          Condition = {
-            StringNotEquals = {
-              "s3:x-amz-server-side-encryption" = "aws:kms"
-            }
-          }
-          Effect    = "Deny"
-          Principal = "*"
-          Resource  = "${aws_s3_bucket.hydrovis.arn}/*"
-          Sid       = "DenyUnEncryptedObjectUploads"
-        },
-      ]
-    }
-  )
 }

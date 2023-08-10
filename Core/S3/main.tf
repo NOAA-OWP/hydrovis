@@ -40,3 +40,7 @@ module "bucket" {
 output "buckets" {
   value = { for bucket_short_name in keys(var.buckets_and_bucket_users) : bucket_short_name => module.bucket[bucket_short_name].bucket }
 }
+
+output "keys" {
+  value = { for bucket_short_name in keys(var.buckets_and_bucket_users) : bucket_short_name => module.bucket[bucket_short_name].key }
+}

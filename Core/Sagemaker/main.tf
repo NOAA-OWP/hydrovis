@@ -24,7 +24,7 @@ variable "kms_key_id" {
 }
 
 resource "aws_sagemaker_notebook_instance" "ni" {
-  name            = "viz-notebook-${var.environment}"
+  name            = "hv-vpp-${var.environment}-viz-notebook"
   role_arn        = var.iam_role
   instance_type   = "ml.t2.xlarge"
   volume_size     = 100

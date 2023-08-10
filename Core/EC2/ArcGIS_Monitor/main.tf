@@ -7,7 +7,7 @@ variable "environment" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -21,6 +21,10 @@ variable "ec2_instance_sgs" {
 }
 
 variable "ec2_instance_subnet" {
+  type = string
+}
+
+variable "ec2_instance_availability_zone" {
   type = string
 }
 
@@ -43,8 +47,9 @@ resource "aws_instance" "arcgismonitor" {
   instance_type          = "m5.xlarge"
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
+  availability_zone      = var.ec2_instance_availability_zone
   iam_instance_profile   = var.ec2_instance_profile_name
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   #root disk
   root_block_device {
@@ -63,7 +68,7 @@ resource "aws_instance" "arcgismonitor" {
   }
 
   tags = {
-    Name = "hv-${var.environment}-egis-ArcGIS-Monitor"
+    Name = "hv-vpp-${var.environment}-egis-monitor"
     OS   = "Windows"
   }
 }
@@ -76,13 +81,13 @@ data "aws_ami" "windows" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-win2019-STIG*"]
+    values = ["windows-server-2019-awscli-git-pgadmin-arcgis-stig*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 data "cloudinit_config" "arcgismonitor" {
@@ -101,11 +106,3 @@ data "cloudinit_config" "arcgismonitor" {
 #################################################################################################################################
 ## Admin will have to login and install/run post-instatll for ArcGIS Monitor. Monitor will have to be manully configured ##
 #################################################################################################################################
-
-#############
-## Outputs ##
-#############
-
-output "arcgis_monitor_ip" {
-  value = aws_instance.arcgismonitor.private_ip
-}

@@ -10,7 +10,7 @@
 ################################
 import boto3
 import datetime as dt
-import geopandas as gp
+import geopandas as gpd
 import fiona
 import numpy as np
 import rasterio
@@ -24,8 +24,7 @@ import xarray as xr
 
 from shutil import rmtree
 from scipy.interpolate import griddata
-from rasterio.io import MemoryFile
-from rasterio.merge import merge
+from rasterio import features
 from rasterio.session import AWSSession
 from shapely.geometry import box
 from time import sleep
@@ -51,8 +50,11 @@ def lambda_handler(event, context):
     fim_config = event['args']['fim_config']['name']
     product = event['args']['product']['product']
     target_table = event['args']['fim_config']['target_table']
-    max_elevs_file_bucket = event['args']['fim_config']['max_file_bucket']
-    max_elevs_file = event['args']['fim_config']['max_file']
+    fim_config_preprocessing = event['args']['fim_config'].get('preprocess', {})
+    preprocessing_output_file_format = fim_config_preprocessing.get('output_file')
+    preprocessing_output_file_bucket = fim_config_preprocessing.get('output_file_bucket')
+    max_elevs_file_bucket = event['args']['fim_config'].get('max_file_bucket', preprocessing_output_file_bucket)
+    max_elevs_file = event['args']['fim_config'].get('max_file', preprocessing_output_file_format)
 
     output_bucket = event['args']['product']['raster_outputs']['output_bucket']
     output_workspaces = event['args']['product']['raster_outputs']['output_raster_workspaces']
@@ -82,7 +84,7 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     dem_filename = f's3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/dems/{domain}/{huc}.tif'
     coastal_hucs = f'zip+s3://{INPUTS_BUCKET}/{INPUTS_PREFIX}/hucs/coastal_{domain}_huc8s.zip'
     temp_folder = tempfile.mkdtemp()
-    bounds = None
+    huc_feature = None
 
     print("Executing lambda handler...")
     print(f"Writing tempfiles to {temp_folder}")
@@ -91,39 +93,42 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
         with fiona.open(coastal_hucs, "r") as shapefile:
             for feature in shapefile:
                 if feature['properties']['huc8_str'] == huc:
-                    bounds = feature['geometry']
+                    huc_feature = feature
                     break
 
-    if not bounds:
+    if not huc_feature:
         raise Exception(f'HUC {huc} not found in file {coastal_hucs}')
     
     print(f'Processing Schism FIM for HUC {huc}...')
     # limit the schism data to only the relevant HUC8
-    clipped_npds = clip_to_extent(schism_fim_s3_uri, bounds, temp_folder)
-    if len(clipped_npds.x) == 0:
-        print(f"!! No forecast points in netCDF in HUC {huc}")
-        return
-    else:
+    try:
+        clipped_npds = clip_to_extent(schism_fim_s3_uri, huc_feature)
+        
+        if len(clipped_npds.x) == 0:
+            print(f"!! No forecast points in netCDF in HUC {huc}")
+            raise Exception
+
         print(f".. {len(clipped_npds.x)} forecast points in HUC {huc}")
+        # interpolate the schism data
+        interp_grid_file = interpolate(clipped_npds, GRID_SIZE, temp_folder)
 
-    # interpolate the schism data
-    interp_grid_file = interpolate(clipped_npds, GRID_SIZE, temp_folder)
+        # subtract dem from schism data 
+        # (includes code to match extent/resolution)
+        wse_grid = wse_to_depth(interp_grid_file, dem_filename, temp_folder)
+        if wse_grid == "":
+            print("!! No overlap between raster and DEM")
+            return
 
-    # subtract dem from schism data 
-    # (includes code to match extent/resolution)
-    wse_grid = wse_to_depth(interp_grid_file, dem_filename, temp_folder)
-    if wse_grid == "":
-        print("!! No overlap between raster and DEM")
-        return
-
-    # apply masks
-    masked_grid = mask_fim(wse_grid, domain, temp_folder)
+        # apply masks
+        final_grid = mask_fim(wse_grid, domain, temp_folder)
+    except Exception as e:
+        final_grid = create_empty_grid_for_feature(huc_feature, temp_folder)
     
     print(f"Uploading depth grid to AWS at s3://{output_bucket}/{depth_key}")
-    S3.upload_file(masked_grid, output_bucket, depth_key)
+    S3.upload_file(final_grid, output_bucket, depth_key)
 
     # translate all > 0 depth values to 1 for wet (everything else [dry] already 0)
-    binary_fim = fim_to_binary(masked_grid, temp_folder)
+    binary_fim = fim_to_binary(final_grid, temp_folder)
     
     # We shouldn't need to clip since the raster is already at the HUC level
     # clipped_result = clip_to_shape(binary_fim, bounds)
@@ -134,7 +139,6 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
     }
 
     polygon_df = raster_to_polygon_dataframe(binary_fim, attributes)
-
 
     if polygon_df.empty:
         print("Raster to polygon yielded no features.")
@@ -165,10 +169,10 @@ def create_fim_by_huc(huc, schism_fim_s3_uri, product, fim_config, reference_dat
 #
 # Clips SCHISM forecast points to fit some shapefile bounds
 #
-def clip_to_extent(schism_fim_s3_uri, clip_bounds, temp_folder):
+def clip_to_extent(schism_fim_s3_uri, clip_feature):
     print("++ Clipping SCHISM point domain to new domain ++")
 
-    bounds = rasterio.features.bounds(clip_bounds)
+    bounds = rasterio.features.bounds(clip_feature['geometry'])
     fs = s3fs.S3FileSystem()
     print(f'Opening {schism_fim_s3_uri}...')
     with fs.open(schism_fim_s3_uri, 'rb') as f:
@@ -483,7 +487,7 @@ def clip_to_shape(current_raster, final_clip_bounds):
     return final_filename
 
 def raster_to_polygon_dataframe(input_raster, attributes):
-    gpd_polygonized_raster = gp.GeoDataFrame()
+    gpd_polygonized_raster = gpd.GeoDataFrame()
     with rasterio.Env(AWS_SESSION):
         with rasterio.open(input_raster) as src:
             image = src.read(1).astype('float32')
@@ -493,53 +497,44 @@ def raster_to_polygon_dataframe(input_raster, attributes):
             )
             geoms = list(results)
             if geoms:
-                gpd_polygonized_raster  = gp.GeoDataFrame.from_features(geoms, crs='4326')
+                gpd_polygonized_raster  = gpd.GeoDataFrame.from_features(geoms, crs='4326')
     
     return gpd_polygonized_raster
 
-def mosaic_rasters(raster_s3_uris, output_bucket):
-    temp_dir = tempfile.mkdtemp()
-    temp_result_fpath = os.path.join(temp_dir, 'mosaic.tif')
-    if len(raster_s3_uris) == 0:
-        print("!! No FIM results to mosaic, returning empty string")
-        return ""
+def create_empty_grid_for_feature(feature, output_dpath):
+    output_fpath = os.path.join(output_dpath, 'empty.tif')
+    ds = gpd.GeoDataFrame.from_features([feature])
+    geom = [shapes for shapes in ds.geometry]
+    x_min = ds.bounds.minx[0]
+    x_max = ds.bounds.maxx[0]
+    y_min = ds.bounds.miny[0]
+    y_max = ds.bounds.maxy[0]
 
-    # fix a glitch in numpy and rasterio merge combo
-    def pre121_max(old_data, new_data, old_nodata, new_nodata, **kwargs):
-        mask = np.logical_and(~old_nodata, ~new_nodata)
-        old_data[mask] = np.maximum(old_data[mask], new_data[mask])
-        mask = np.logical_and(old_nodata, ~new_nodata)
-        old_data[mask] = new_data[mask]
+    # Get number of grid cells in x and y directions
+    x_size = np.arange(x_min, x_max, GRID_SIZE).size
+    y_size = np.arange(y_min, y_max, GRID_SIZE).size
 
-    # work around the glitch by setting nan values to 0 so we can do a max
-    memfiles = []
-    for uri in raster_s3_uris:
-        print(f'Fetching from s3 to memory: {uri}')
-        with rasterio.Env(AWS_SESSION):
-            with rasterio.open(uri) as rst:
-                data = rst.read()
-                data = np.nan_to_num(data)
-                meta = rst.profile
-        memfile = MemoryFile()
-        memfiles.append(memfile.open(**meta))
-        memfiles[-1].write(data[0], 1)
-        S3.delete_object(Bucket=output_bucket, Key=uri.split(output_bucket)[1][1:])
-    merged_ras, merged_trans = merge(memfiles, method=pre121_max)
-    for m in memfiles:
-        m.close()
-    # set the 0 values back to nan
-    merged_ras[merged_ras==0] = np.nan
-    merged_meta = {"driver": "GTiff",
-        "height": merged_ras.shape[1],
-        "width": merged_ras.shape[2],
-        "compress": 'lzw',
-        "crs": "epsg:4326",
-        "count": 1,
-        "dtype": merged_ras.dtype,
-        "transform": merged_trans}
+    transform = rasterio.transform.from_origin(x_min, y_max, GRID_SIZE, GRID_SIZE)
 
-    print(f"+++ Writing out mosaic'd raster to {temp_result_fpath} +++")
-    with rasterio.open(temp_result_fpath, "w", **merged_meta) as dest:
-        dest.write(merged_ras[0], 1)
+    empty_grid = features.rasterize(geom,
+                                out_shape=(x_size, y_size),
+                                fill=0,
+                                out=None,
+                                transform=transform,
+                                all_touched=False,
+                                default_value=0,
+                                dtype=None)
     
-    return temp_result_fpath
+    with rasterio.open(output_fpath, 'w',
+            height=empty_grid.shape[0],
+            width=empty_grid.shape[1],
+            count=1,
+            compress='lzw',
+            dtype=empty_grid.dtype,
+            driver="GTiff",
+            crs="epsg:4326",
+            transform=transform) as src:
+        # write single-band raster
+        src.write(empty_grid, 1)
+    
+    return output_fpath

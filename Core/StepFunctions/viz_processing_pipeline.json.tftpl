@@ -78,8 +78,8 @@
                   "RequiredTableNotUpdated"
                 ],
                 "BackoffRate": 1,
-                "IntervalSeconds": 30,
-                "MaxAttempts": 20,
+                "IntervalSeconds": 60,
+                "MaxAttempts": 45,
                 "Comment": "Required table(s) not yet updated as expected"
               },
               {
@@ -485,12 +485,44 @@
                       ],
                       "BackoffRate": 1,
                       "IntervalSeconds": 120,
-                      "MaxAttempts": 35,
+                      "MaxAttempts": 15,
                       "Comment": "Missing S3 File"
                     }
                   ],
                   "Next": "FIM Data Preparation",
-                  "OutputPath": "$.Payload"
+                  "OutputPath": "$.Payload",
+                  "Catch": [
+                    {
+                      "ErrorEquals": [
+                        "MissingS3FileException"
+                      ],
+                      "Next": "Check if optional",
+                      "Comment": "MissingS3FileException",
+                      "ResultPath": null
+                    }
+                  ]
+                },
+                "Check if optional": {
+                  "Type": "Choice",
+                  "Choices": [
+                    {
+                      "And": [
+                        {
+                          "Variable": "$.fim_config.preprocess.optional",
+                          "IsPresent": true
+                        },
+                        {
+                          "Variable": "$.fim_config.preprocess.optional",
+                          "BooleanEquals": true
+                        }
+                      ],
+                      "Next": "FIM Data Preparation"
+                    }
+                  ],
+                  "Default": "Fail"
+                },
+                "Fail": {
+                  "Type": "Fail"
                 },
                 "FIM Data Preparation": {
                   "Type": "Task",
