@@ -6,7 +6,7 @@ variable "environment" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -27,11 +27,7 @@ variable "ec2_instance_subnet" {
   type = string
 }
 
-variable "dataservices_ip" {
-  type = string
-}
-
-variable "license_server_ip" {
+variable "license_server_host" {
   type = string
 }
 
@@ -75,11 +71,6 @@ variable "ec2_instance_profile_name" {
   type        = string
 }
 
-variable "fim_version" {
-  description = "FIM version to run"
-  type        = string
-}
-
 variable "windows_service_status" {
   description = "Argument for if windows services for pipelines should stop or start on machine spinup"
   type        = string
@@ -105,14 +96,6 @@ variable "pipeline_user_secret_string" {
 }
 
 variable "hydrovis_egis_pass" {
-  type = string
-}
-
-variable "vlab_repo_prefix" {
-  type = string
-}
-
-variable "vlab_host" {
   type = string
 }
 
@@ -148,11 +131,21 @@ variable "egis_db_secret_string" {
   type = string
 }
 
+variable "private_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
+variable "nwm_dataflow_version" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 
 locals {
-  egis_host          = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
-  deploy_file_prefix = "viz/"
+  egis_host = var.environment == "prod" ? "maps.water.noaa.gov" : var.environment == "uat" ? "maps-staging.water.noaa.gov" : var.environment == "ti" ? "maps-testing.water.noaa.gov" : "hydrovis-dev.nwc.nws.noaa.gov"
 }
 
 
@@ -164,13 +157,13 @@ data "aws_ami" "windows" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-win2019-STIG*"]
+    values = ["windows-server-2019-awscli-git-pgadmin-arcgis-stig*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 ################
@@ -179,7 +172,7 @@ data "aws_ami" "windows" {
 
 resource "aws_s3_object" "setup_upload" {
   bucket      = var.deployment_data_bucket
-  key         = "viz/viz_ec2_setup.ps1"
+  key         = "terraform_artifacts/${path.module}/scripts/viz_ec2_setup.ps1"
   source      = "${path.module}/scripts/viz_ec2_setup.ps1"
   source_hash = filemd5("${path.module}/scripts/viz_ec2_setup.ps1")
 }
@@ -187,6 +180,10 @@ resource "aws_s3_object" "setup_upload" {
 #################
 ## Data Blocks ##
 #################
+
+data "external" "github_repo_commit" {
+  program = ["git", "log", "-1", "--pretty={%x22output%x22:%x22%H%x22}"]
+}
 
 data "cloudinit_config" "pipeline_setup" {
   gzip          = false
@@ -197,18 +194,15 @@ data "cloudinit_config" "pipeline_setup" {
     filename     = "prc_setup.ps1"
     content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
       VIZ_DATA_HASH                  = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
-      Fileshare_IP                   = "\\\\${aws_instance.viz_fileshare.private_ip}"
+      Fileshare_IP                   = "\\\\${aws_route53_record.viz_fileshare.name}"
       EGIS_HOST                      = local.egis_host
       VIZ_ENVIRONMENT                = var.environment
-      FIM_VERSION                    = var.fim_version
-      VLAB_SSH_KEY_CONTENT           = file("${path.root}/sensitive/viz/vlab")
       GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
       LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
-        LICENSE_SERVER = var.license_server_ip
+        LICENSE_SERVER = var.license_server_host
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
       FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
-      WRDS_HOST                      = var.dataservices_ip
       NWM_DATA_BUCKET                = var.nwm_data_bucket
       FIM_DATA_BUCKET                = var.fim_data_bucket
       FIM_OUTPUT_BUCKET              = var.fim_output_bucket
@@ -216,16 +210,14 @@ data "cloudinit_config" "pipeline_setup" {
       RNR_DATA_BUCKET                = var.rnr_data_bucket
       DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
       DEPLOYMENT_DATA_OBJECT         = aws_s3_object.setup_upload.key
-      DEPLOY_FILES_PREFIX            = local.deploy_file_prefix
       WINDOWS_SERVICE_STATUS         = var.windows_service_status
       WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
       PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
       PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
       HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
-      VLAB_REPO_PREFIX               = var.vlab_repo_prefix
-      VLAB_HOST                      = var.vlab_host
       GITHUB_REPO_PREFIX             = var.github_repo_prefix
       GITHUB_HOST                    = var.github_host
+      GITHUB_REPO_COMMIT             = data.external.github_repo_commit.result.output
       VIZ_DB_HOST                    = var.viz_db_host
       VIZ_DB_DATABASE                = var.viz_db_name
       VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
@@ -235,6 +227,7 @@ data "cloudinit_config" "pipeline_setup" {
       EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
       EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
       AWS_REGION                     = var.region
+      NWM_DATAFLOW_VERSION           = var.nwm_dataflow_version
     })
   }
 }
@@ -248,7 +241,7 @@ data "archive_file" "viz_pipeline_zip" {
 
   source_dir = "${path.module}/../../../Source/Visualizations"
 
-  output_path = "${path.module}/viz_pipeline_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_pipeline_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_instance" "viz_pipeline" {
@@ -258,14 +251,14 @@ resource "aws_instance" "viz_pipeline" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami, tags]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-viz-prc-1"
+    "Name" = "hv-vpp-${var.environment}-viz-pipeline"
     "OS"   = "Windows"
   }
 
@@ -281,7 +274,7 @@ resource "aws_instance" "viz_pipeline" {
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     tags = {
-      "Name" = "hv-${var.environment}-viz-prc-drive"
+      "Name" = "hv-vpp-${var.environment}-viz-prc-drive"
     }
   }
 
@@ -314,14 +307,14 @@ resource "aws_instance" "viz_fileshare" {
   availability_zone      = var.ec2_instance_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami, tags]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-viz-fileshare"
+    "Name" = "hv-vpp-${var.environment}-viz-fileshare"
     "OS"   = "Windows"
   }
 
@@ -337,9 +330,17 @@ resource "aws_instance" "viz_fileshare" {
     encrypted   = true
     kms_key_id  = var.kms_key_arn
     tags = {
-      "Name" = "hv-${var.environment}-viz-fs-drive"
+      "Name" = "hv-vpp-${var.environment}-viz-fs-drive"
     }
   }
 
   user_data = data.cloudinit_config.fileshare_setup.rendered
+}
+
+resource "aws_route53_record" "viz_fileshare" {
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "viz-fileshare.${var.private_route_53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.viz_fileshare.private_ip]
 }

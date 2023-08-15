@@ -411,7 +411,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685539754e654a687039394f4b2b6558636a576942766931394a576f794c346d464f6e6d6c6b38596c5154303d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_1",
           "datasetType" : "esriDTFeatureClass",
@@ -1804,7 +1804,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1",
           "datasetType" : "esriDTFeatureClass",
@@ -2917,7 +2917,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2",
           "datasetType" : "esriDTFeatureClass",
@@ -3992,7 +3992,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3",
           "datasetType" : "esriDTFeatureClass",
@@ -4952,7 +4952,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4",
           "datasetType" : "esriDTFeatureClass",
@@ -6062,7 +6062,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683677616c617a42535a737066635a58314c333071743651376775752b4a437648394d745058674653514e6f3d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_3",
           "datasetType" : "esriDTFeatureClass",
@@ -6681,7 +6681,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685539754e654a687039394f4b2b6558636a576942766931394a576f794c346d464f6e6d6c6b38596c5154303d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_2",
           "datasetType" : "esriDTFeatureClass",
@@ -8074,7 +8074,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1_5",
           "datasetType" : "esriDTFeatureClass",
@@ -9187,7 +9187,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_6",
           "datasetType" : "esriDTFeatureClass",
@@ -10262,7 +10262,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3_7",
           "datasetType" : "esriDTFeatureClass",
@@ -11222,7 +11222,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4_8",
           "datasetType" : "esriDTFeatureClass",
@@ -12332,7 +12332,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683677616c617a42535a737066635a58314c333071743651376775752b4a437648394d745058674653514e6f3d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_8_2",
           "datasetType" : "esriDTFeatureClass",
@@ -12951,7 +12951,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685539754e654a687039394f4b2b6558636a576942766931394a576f794c346d464f6e6d6c6b38596c5154303d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.publish.%ana_src_skill_1_1_3",
           "datasetType" : "esriDTFeatureClass",
@@ -14344,7 +14344,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.hydrovis.%fimpact_centroids_3_1_1_5_9",
           "datasetType" : "esriDTFeatureClass",
@@ -15457,7 +15457,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_6_10",
           "datasetType" : "esriDTFeatureClass",
@@ -16532,7 +16532,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3_7_11",
           "datasetType" : "esriDTFeatureClass",
@@ -17492,7 +17492,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686374344c50445830416476414b62622f412f67394f74524a622b4c4968706f7966656c56366f6f554d3745314e4c6f712f5769756a655945782b4d594f2b41762a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4_8_12",
           "datasetType" : "esriDTFeatureClass",
@@ -18603,7 +18603,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683677616c617a42535a737066635a58314c333071743651376775752b4a437648394d745058674653514e6f3d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_9_1",
           "datasetType" : "esriDTFeatureClass",

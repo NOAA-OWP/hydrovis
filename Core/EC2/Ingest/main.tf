@@ -7,7 +7,11 @@ variable "environment" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "region" {
+  type        = string
+}
+
+variable "account_id" {
   type        = string
 }
 
@@ -41,7 +45,7 @@ variable "ec2_instance_profile_name" {
   type        = string
 }
 
-variable "deployment_data_bucket" {
+variable "deployment_bucket" {
   description = "S3 bucket where the deployment files reside"
   type        = string
 }
@@ -64,17 +68,14 @@ variable "db_ingest_secret_string" {
 
 
 locals {
-  hvl_environment = var.environment == "ti" ? "TI" : var.environment == "uat" ? "UAT" : var.environment
   user_data = templatefile("${path.module}/templates/prc_install.sh.tftpl", {
-    DEPLOYMENT_DATA_BUCKET = var.deployment_data_bucket
-    HVLEnvironment         = local.hvl_environment
-    RSCHEME                = split(":", var.mq_ingest_endpoint)[0]
-    RPORT                  = split(":", var.mq_ingest_endpoint)[2]
-    RHOST                  = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
-    MQINGESTPASSWORD       = jsondecode(var.mq_ingest_secret_string)["password"]
-    DBHOST                 = var.db_host
-    DBPASSWORD             = jsondecode(var.db_ingest_secret_string)["password"]
-    HVLEnvironment         = var.environment
+    deployment_bucket   = var.deployment_bucket
+    hml_ingester_s3_key = aws_s3_object.hml_ingester.key
+    environment         = var.environment
+    r_host              = split(":", split("/", var.mq_ingest_endpoint)[2])[0]
+    r_password          = jsondecode(var.mq_ingest_secret_string)["password"]
+    db_host             = var.db_host
+    db_password         = jsondecode(var.db_ingest_secret_string)["password"]
   })
 }
 
@@ -82,10 +83,10 @@ locals {
 ## ARTIFACTS ##
 ###############
 
-resource "aws_s3_object" "owp_hml_ingester" {
-  bucket = var.deployment_data_bucket
-  key    = "ingest/owp-hml-ingester.tar.gz"
-  source = "${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz"
+resource "aws_s3_object" "hml_ingester" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/owp-hml-ingester.tar.gz"
+  source      = "${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz"
   source_hash = filemd5("${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz")
 }
 
@@ -97,13 +98,13 @@ data "aws_ami" "linux" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-amznlinux2-STIGD*"]
+    values = ["amazon-linux-2-git-docker-psql-stig*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 ##################
@@ -117,13 +118,15 @@ resource "aws_instance" "ingest_prc1" {
   availability_zone      = var.prc1_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.prc1_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]
+    replace_triggered_by = [aws_s3_object.hml_ingester]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-ing-l-prc-1"
+    "Name" = "hv-vpp-${var.environment}-data-ingest-1"
     "OS"   = "Linux"
   }
 
@@ -133,10 +136,6 @@ resource "aws_instance" "ingest_prc1" {
     kms_key_id  = var.ec2_kms_key
     volume_type = "gp2"
   }
-
-  depends_on = [
-    aws_s3_object.owp_hml_ingester
-  ]
 
   user_data                   = local.user_data
   user_data_replace_on_change = true
@@ -149,13 +148,15 @@ resource "aws_instance" "ingest_prc2" {
   availability_zone      = var.prc2_availability_zone
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.prc2_subnet
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   lifecycle {
     ignore_changes = [ami]
+    replace_triggered_by = [aws_s3_object.hml_ingester]
   }
 
   tags = {
-    "Name" = "hv-${var.environment}-ing-l-prc-2"
+    "Name" = "hv-vpp-${var.environment}-data-ingest-2"
     "OS"   = "Linux"
   }
 
@@ -165,10 +166,6 @@ resource "aws_instance" "ingest_prc2" {
     kms_key_id  = var.ec2_kms_key
     volume_type = "gp2"
   }
-
-  depends_on = [
-    aws_s3_object.owp_hml_ingester
-  ]
 
   user_data                   = local.user_data
   user_data_replace_on_change = true

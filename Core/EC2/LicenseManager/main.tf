@@ -7,7 +7,7 @@ variable "environment" {
   type        = string
 }
 
-variable "ami_owner_account_id" {
+variable "account_id" {
   type        = string
 }
 
@@ -38,6 +38,14 @@ variable "ec2_kms_key" {
   type        = string
 }
 
+variable "private_route_53_zone" {
+  type = object({
+    name     = string
+    zone_id  = string
+  })
+}
+
+
 ##################
 ## EC2 Instance ##
 ##################
@@ -48,7 +56,7 @@ resource "aws_instance" "license_manager" {
   vpc_security_group_ids = var.ec2_instance_sgs
   subnet_id              = var.ec2_instance_subnet
   iam_instance_profile   = var.ec2_instance_profile_name
-  key_name               = "hv-${var.environment}-ec2-key-pair"
+  key_name               = "hv-${var.environment}-ec2-key-pair-${var.region}"
 
   #root disk
   root_block_device {
@@ -67,9 +75,17 @@ resource "aws_instance" "license_manager" {
   }
 
   tags = {
-    Name = "hv-${var.environment}-egis-ArcGIS-LicenseManager"
+    Name = "hv-vpp-${var.environment}-egis-license-manager"
     OS   = "Windows"
   }
+}
+
+resource "aws_route53_record" "hydrovis" {
+  zone_id = var.private_route_53_zone.zone_id
+  name    = "egis-license-manager.${var.private_route_53_zone.name}"
+  type    = "A"
+  ttl     = 300
+  records = [aws_instance.license_manager.private_ip]
 }
 
 #################
@@ -80,13 +96,13 @@ data "aws_ami" "windows" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["hydrovis-win2019-STIG*"]
+    values = ["windows-server-2019-awscli-git-pgadmin-arcgis-stig*"]
   }
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-  owners = [var.ami_owner_account_id]
+  owners = [var.account_id]
 }
 
 data "cloudinit_config" "licensemanager" {
@@ -112,6 +128,6 @@ data "cloudinit_config" "licensemanager" {
 ## Outputs ##
 #############
 
-output "license_manager_ip" {
-  value = aws_instance.license_manager.private_ip
+output "dns_name" {
+  value = aws_route53_record.hydrovis.name
 }

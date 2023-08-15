@@ -515,7 +515,7 @@ class Watch(object):
         for dataset, info in list(self._datasets_info.items()):
             transfer_resource = dataset.get_single_transfer_path(resource, self.date)
             if transfer_resource and self.watcher._has_connected_processes:
-                lock_file = f"{transfer_resource}_{dataset.name}.LOCK"
+                lock_file = f"{transfer_resource}_{''.join([x[0] for x in dataset.name.split('_')])}.LOCK"
                 if not os.path.exists(lock_file):
                     open(lock_file, 'w+').close()
 
@@ -642,7 +642,7 @@ class Watch(object):
             if os.path.exists(uri):
                 # A {uri}_{a_dataset.name}.LOCK file will be created which indicates to other processes that the uri
                 # file is being used and cant be deleted.
-                lock_file = f"{uri}_{a_dataset.name}.LOCK"
+                lock_file = f"{uri}_{''.join([x[0] for x in a_dataset.name.split('_')])}.LOCK"
                 file_in_use = False
                 if not os.path.exists(lock_file):
                     open(lock_file, 'w+').close()
@@ -687,7 +687,7 @@ class Watch(object):
         transfer_paths = a_dataset.get_all_transfer_paths(dataset[self.URIS_KEY], self.date)
 
         for uri in transfer_paths:
-            lock_file = f"{uri}_{a_dataset.name}.LOCK"
+            lock_file = f"{uri}_{''.join([x[0] for x in a_dataset.name.split('_')])}.LOCK"
             # Only delete the lock file if it exists and a window is not set for the dataset. This will make sure that
             # files are not deleted for a service that uses a window.
             if os.path.exists(lock_file) and not a_dataset.window:

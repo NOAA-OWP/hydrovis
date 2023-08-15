@@ -38,21 +38,49 @@ def lambda_handler(event, context):
     # (lots of false starts, but it only amounts to about $1 a month)
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
-        pipeline_iniitializing_files = ["analysis_assim.channel_rt.tm00.conus.nc",
+        pipeline_iniitializing_files = [
+                                        ## ANA ##
+                                        "analysis_assim.channel_rt.tm00.conus.nc",
                                         "analysis_assim.forcing.tm00.conus.nc",
                                         "analysis_assim.channel_rt.tm0000.hawaii.nc",
                                         "analysis_assim.forcing.tm00.hawaii.nc",
                                         "analysis_assim.channel_rt.tm00.puertorico.nc",
                                         "analysis_assim.forcing.tm00.puertorico.nc",
+                                        "analysis_assim.channel_rt.tm00.alaska.nc",
+                                        "analysis_assim.forcing.tm00.alaska.nc",
+                                        
+                                        ## SRF ##
                                         "short_range.channel_rt.f018.conus.nc",
                                         "short_range.forcing.f018.conus.nc",
                                         "short_range.channel_rt.f04800.hawaii.nc",
                                         "short_range.forcing.f048.hawaii.nc",
                                         "short_range.channel_rt.f048.puertorico.nc",
                                         "short_range.forcing.f048.puertorico.nc",
+                                        "short_range.forcing.f015.alaska.nc",
+                                        "short_range.channel_rt.f015.alaska.nc",
+                                        
+                                        ## MRF GFS ##
                                         "medium_range.channel_rt_1.f240.conus.nc",
                                         "medium_range.forcing.f240.conus.nc",
-                                        "medium_range.channel_rt.f119.conus.nc"]
+                                        "medium_range.channel_rt.f119.conus.nc",
+                                        "medium_range.channel_rt_1.f240.alaska.nc",
+                                        "medium_range.forcing.f240.alaska.nc",
+                                        
+                                        ## MRF NBM ##
+                                        "medium_range_blend.channel_rt.f240.conus.nc",
+                                        "medium_range_blend.forcing.f240.conus.nc",
+                                        "medium_range_blend.channel_rt.f240.alaska.nc",
+                                        "medium_range_blend.forcing.f240.alaska.nc",
+
+                                        ## Coastal ##
+                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        "short_range_coastal.total_water.f018.atlgulf.nc",
+                                        "short_range_coastal.total_water.f048.puertorico.nc",
+                                        "short_range_coastal.total_water.f048.hawaii.nc"
+                                        ]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
@@ -169,6 +197,36 @@ class viz_lambda_pipeline:
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         if self.job_type == "past_event":
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
+            for word, replacement in self.sql_rename_dict.items():
+                self.configuration.configuration_data_flow = json.loads(json.dumps(self.configuration.configuration_data_flow).replace(word, replacement))
+                self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
+            self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time.strftime("%Y-%m-%d %H:%M:%S")}) #Add a reference time for placeholders in sql files
+        
+        # This allows for filtering FIM runs to a select list of States (this is passed through to FIM Data Prep labmda, where filter is applied)
+        if self.start_event.get("states_to_run_fim"):
+            for product in self.pipeline_products:
+                product['states_to_run'] = self.start_event.get("states_to_run_fim") # only works for fimpact right now
+                if product['fim_configs']:
+                    for fim_config in product['fim_configs']:
+                        fim_config['states_to_run'] = self.start_event.get("states_to_run_fim")
+        
+        # This allows for skipping ingest step all together - useful if you're testing or re-running and are OK using the ingest data already in the database
+        if self.start_event.get("skip_ingest"):
+            if self.start_event.get("skip_ingest") is True:
+                self.configuration.configuration_data_flow['db_ingest_groups'] = []
+        
+        # This allows for skipping max flows step alltogether - useful if you're testing or re-running and are OK using the ingest data already in the database
+        if self.start_event.get("skip_max_flows"):
+            if self.start_event.get("skip_max_flows") is True:
+                self.configuration.configuration_data_flow['db_max_flows'] = []
+                self.configuration.configuration_data_flow['lambda_max_flows'] = []
+                
+        # This skips running FIM all-together
+        if self.start_event.get("skip_fim"):
+            if self.start_event.get("skip_fim") is True:
+                for product in self.pipeline_products:
+                     if product['fim_configs']:
+                         product['fim_configs'] = []
         
         # Print a nice tidy summary of the initialized pipeline for logging.
         if print_init:
@@ -253,15 +311,20 @@ class viz_lambda_pipeline:
         ref_prefix = f"ref_{self.configuration.reference_time.strftime('%Y%m%d_%H%M_')}" # replace invalid characters as underscores in ref time.
         
         for target_table in list(gen_dict_extract("target_table", self.configuration.configuration_data_flow)):
+            target_table_schema = target_table.split(".")[0]
             target_table_name = target_table.split(".")[1]
-            new_table_name = f"{ref_prefix}{target_table_name}"
+            new_table_name = f"{ref_prefix}{target_table_schema}_{target_table_name}"
             sql_rename_dict[target_table] = f"archive.{new_table_name}"
         
         for product in self.pipeline_products:
             for target_table in list(gen_dict_extract("target_table", product)):
-                target_table_name = target_table.split(".")[1]
-                new_table_name = f"{ref_prefix}{target_table_name}"
-                sql_rename_dict[target_table] = f"archive.{new_table_name}"
+                if type(target_table) != list:
+                    target_table = [target_table]
+                for table in target_table:
+                    target_table_schema = table.split(".")[0]
+                    target_table_name = table.split(".")[1]
+                    new_table_name = f"{ref_prefix}{target_table_schema}_{target_table_name}"
+                    sql_rename_dict[table] = f"archive.{new_table_name}"
             
         self.sql_rename_dict = sql_rename_dict
     
@@ -340,7 +403,7 @@ class configuration:
             else:
                 raise Exception(f"Configuration not set for {filename}")
             date = matches[1]
-            configuration_name = matches[2]
+            configuration_name = matches[2].replace('_atlgulf', '')
             hour = matches[3]
             reference_time = datetime.datetime.strptime(f"{date[:4]}-{date[-4:][:2]}-{date[-2:]} {hour[-2:]}:00:00", '%Y-%m-%d %H:%M:%S')
             
@@ -361,6 +424,7 @@ class configuration:
             target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
             target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
             target_keys = target_keys[1:-1].replace(" ","").split(",")
+            dependent_on = file_group['dependent_on'] if file_group.get('dependent_on') else ""
             
             if target_table not in target_table_input_files:
                 target_table_input_files[target_table] = {}
@@ -369,9 +433,6 @@ class configuration:
                 
             new_keys = [key for key in target_keys if key not in target_table_input_files[target_table]['target_keys'] and key]
             target_table_input_files[target_table]['target_keys'].extend(new_keys)
-            
-            if 'common/data/model/com/nwm/prod' in file_pattern and (datetime.datetime.today() - datetime.timedelta(29)) > self.reference_time:
-                file_pattern = file_pattern.replace('common/data/model/com/nwm/prod', 'https://storage.googleapis.com/national-water-model')
 
             if file_window:
                 if not file_window_step:
@@ -408,7 +469,8 @@ class configuration:
                 "index_name": index_name,
                 "bucket": bucket,
                 "keep_flows_at_or_above": float(os.environ['INGEST_FLOW_THRESHOLD']),
-                "data_origin": data_origin
+                "data_origin": data_origin,
+                "dependent_on": dependent_on
             })
             
         return ingest_sets
@@ -490,6 +552,9 @@ class configuration:
                     fim_config_name = fim_config['name']
                     if not fim_config.get('sql_file'):
                         fim_config['sql_file'] = fim_config_name
+                    
+                    if hasattr(self, "states_to_run_fim"):
+                        fim_config['states_to_run'] = self.states_to_run_fim
 
                     if fim_config.get('preprocess'):
                         fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
@@ -531,7 +596,7 @@ class configuration:
                 self.lambda_max_flows.extend([max_flow for max_flow in product['lambda_max_flows'] if max_flow not in self.lambda_max_flows])
                 
             if product.get('ingest_files'):
-                self.ingest_groups.extend([max_flow for max_flow in product['ingest_files'] if max_flow not in self.ingest_groups])
+                self.ingest_groups.extend([ingest_group for ingest_group in product['ingest_files'] if ingest_group not in self.ingest_groups])
                 
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
         

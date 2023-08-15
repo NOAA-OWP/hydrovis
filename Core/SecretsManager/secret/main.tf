@@ -15,8 +15,8 @@ variable "password" {
 }
 
 resource "aws_secretsmanager_secret" "hydrovis" {
-  description             = "hydrovis-${var.environment}-${var.name}"
-  name                    = "hydrovis-${var.environment}-${var.name}"
+  description             = "hv-vpp-${var.environment}-${var.name}"
+  name                    = "hv-vpp-${var.environment}-${var.name}"
   recovery_window_in_days = 0
 }
 

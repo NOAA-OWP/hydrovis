@@ -40,7 +40,6 @@ $DynamicDir = "D:\dynamic"
 $AUTHORITATIVE_ROOT = "$StaticDir\authoritative"
 $CACHE_ROOT = "$DynamicDir\cache"
 $FLAGS_ROOT = "s3://$FIM_OUTPUT_BUCKET/published_flags"
-$PRISTINE_ROOT = "$StaticDir\pristine"
 $PRO_PROJECT_ROOT = "$StaticDir\pro_project"
 $PUBLISHED_ROOT = "$Fileshare\viz\published"
 $WORKSPACE_ROOT = "$DynamicDir\workspace"
@@ -74,22 +73,19 @@ reg import $UD_LICENSE
 reg unload "HKU\$PIPELINE_USER"
 
 New-Item -ItemType Directory -Force -Path $HV_SSH_DIR | Out-Null
-CreateUTF8File $VLAB_SSH_KEY_CONTENT $HV_SSH_DIR id_rsa
 CreateUTF8File $GITHUB_SSH_KEY_CONTENT $HV_SSH_DIR id_ed25519
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
+"call ssh-keyscan -t rsa $GITHUB_HOST >> C:\Users\$PIPELINE_USER\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\hv_keyscan.bat"
 
 New-Item -ItemType Directory -Force -Path $UD_SSH_DIR | Out-Null
-CreateUTF8File $VLAB_SSH_KEY_CONTENT $UD_SSH_DIR id_rsa
 CreateUTF8File $GITHUB_SSH_KEY_CONTENT $UD_SSH_DIR id_ed25519
-"call ssh-keyscan -p 29418 -H $VLAB_HOST >> $HOME\.ssh\known_hosts `ncall ssh-keyscan -t rsa $GITHUB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
+"call ssh-keyscan -t rsa $GITHUB_HOST >> $HOME\.ssh\known_hosts" | Out-File -Encoding ascii -FilePath "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 & "C:\Users\$PIPELINE_USER\Desktop\ud_keyscan.bat"
 
 LogWrite "Setting up file structure of static and dynamic data"
 $env:AUTHORITATIVE_ROOT = $AUTHORITATIVE_ROOT
 $env:CACHE_ROOT = $CACHE_ROOT
 $env:FLAGS_ROOT = $FLAGS_ROOT
-$env:PRISTINE_ROOT = $PRISTINE_ROOT
 $env:PRO_PROJECT_ROOT = $PRO_PROJECT_ROOT
 $env:PUBLISHED_ROOT = $PUBLISHED_ROOT
 $env:WORKSPACE_ROOT = $WORKSPACE_ROOT
@@ -102,9 +98,6 @@ New-Item -ItemType Directory -Force -Path $env:CACHE_ROOT | Out-Null
 [Environment]::SetEnvironmentVariable("CACHE_ROOT", $env:CACHE_ROOT, "2")
 
 [Environment]::SetEnvironmentVariable("FLAGS_ROOT", $env:FLAGS_ROOT, "2")
-
-New-Item -ItemType Directory -Force -Path $env:PRISTINE_ROOT | Out-Null
-[Environment]::SetEnvironmentVariable("PRISTINE_ROOT", $env:PRISTINE_ROOT, "2")
 
 New-Item -ItemType Directory -Force -Path $env:PRO_PROJECT_ROOT | Out-Null
 [Environment]::SetEnvironmentVariable("PRO_PROJECT_ROOT", $env:PRO_PROJECT_ROOT, "2")
@@ -123,16 +116,15 @@ $env:CACHE_DAYS = "14"
 $env:EGIS_HOST = $EGIS_HOST
 $env:EGIS_USERNAME = $HYDROVIS_EGIS_USER
 $env:EGIS_PASSWORD = $HYDROVIS_EGIS_PASS
-$env:FIM_VERSION = $FIM_VERSION
 $env:IMAGE_SERVER = "image"
 $env:PRIMARY_SERVER = "server"
 $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
-$env:WRDS_HOST = $WRDS_HOST
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
 $env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
 $env:RNR_DATA_BUCKET = $RNR_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
+$env:NWM_DATAFLOW_VERSION = $NWM_DATAFLOW_VERSION
 $env:FIM_DATA_BUCKET = $FIM_DATA_BUCKET
 $env:FIM_OUTPUT_BUCKET = $FIM_OUTPUT_BUCKET
 $env:VIZ_DB_HOST = $VIZ_DB_HOST
@@ -149,16 +141,15 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("EGIS_HOST", $env:EGIS_HOST, "2")
 [Environment]::SetEnvironmentVariable("EGIS_USERNAME", $env:EGIS_USERNAME, "2")
 [Environment]::SetEnvironmentVariable("EGIS_PASSWORD", $env:EGIS_PASSWORD, "2")
-[Environment]::SetEnvironmentVariable("FIM_VERSION", $env:FIM_VERSION, "2")
 [Environment]::SetEnvironmentVariable("IMAGE_SERVER", $env:IMAGE_SERVER, "2")
 [Environment]::SetEnvironmentVariable("PRIMARY_SERVER", $env:PRIMARY_SERVER, "2")
 [Environment]::SetEnvironmentVariable("VIZ_ENVIRONMENT", $env:VIZ_ENVIRONMENT, "2")
-[Environment]::SetEnvironmentVariable("WRDS_HOST", $env:WRDS_HOST, "2")
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("RNR_DATA_BUCKET", $env:RNR_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("NWM_DATAFLOW_VERSION", $env:NWM_DATAFLOW_VERSION, "2")
 [Environment]::SetEnvironmentVariable("FIM_DATA_BUCKET", $env:FIM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("FIM_OUTPUT_BUCKET", $env:FIM_OUTPUT_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("VIZ_DB_HOST", $env:VIZ_DB_HOST, "2")
@@ -172,15 +163,20 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 
 function GetRepo
 {
-   Param ([string]$branch, [string]$prefix, [string]$repo)
+   Param ([string]$commit, [string]$prefix, [string]$repo)
 
    if (Test-Path -Path $repo) {
        Remove-Item $repo -Recurse
        Get-ChildItem $repo -Hidden -Recurse | Remove-Item -Force -Recurse
    }
-   git clone -b $branch $prefix/$repo
-
+   
+   git clone $prefix/$repo
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
+
+   Set-Location $repo.replace(".git", "")
+
+   git checkout $commit
+   if ($LASTEXITCODE -gt 0) { throw "Error occurred checking out " + $commit }
 }
 
 function Retry([Action]$action)
@@ -221,13 +217,10 @@ New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 Set-Location -Path $VIZ_DIR
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
+Retry({GetRepo $GITHUB_REPO_COMMIT $GITHUB_REPO_PREFIX hydrovis.git})
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
-
-LogWrite "ACTIVATING viz VIRTUAL ENVIRONMENT"
-& "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\activate.bat" viz
 
 $window_python_exe = "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe"
 $user_python_exe = "C:\Users\$PIPELINE_USER\AppData\Local\ESRI\conda\envs\viz\python.exe"
@@ -237,22 +230,29 @@ if (Test-Path -Path $window_python_exe -PathType Leaf) {
     $python_exe = $user_python_exe
 }
 
+$window_pip_exe = "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\Scripts\pip.exe"
+$user_pip_exe = "C:\Users\$PIPELINE_USER\AppData\Local\ESRI\conda\envs\viz\Scripts\pip.exe"
+if (Test-Path -Path $window_pip_exe -PathType Leaf) {
+    $pip_exe = $window_pip_exe
+} else {
+    $pip_exe = $user_pip_exe
+}
+
 LogWrite "INSTALLING AWS SERVICE REPO"
 $AWS_SERVICE_REPO = $VIZ_DIR + "\hydrovis\Source\Visualizations"
 Set-Location -Path $AWS_SERVICE_REPO
 & $python_exe setup.py develop
+& $pip_exe install -r requirements.txt
+& $pip_exe install --ignore-installed pyyaml==5.4
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz -c esri arcgis=2.0.0
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" install -y -n viz typing_extensions=4.1.1 dask=2021.10.0
 & $python_exe -m pip install geopandas==0.10.2 psycopg2-binary==2.9.5 SQLAlchemy==1.4.42 shapely==1.8.5.post1 fiona==1.8.22
 
 LogWrite "-->TRANFERRING AUTHORITATIVE DATA"
-$s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "authoritative_data/"
+$s3_authoritative = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/viz_authoritative_data/"
 aws s3 cp $s3_authoritative $AUTHORITATIVE_ROOT --recursive
 
-LogWrite "-->TRANFERRING PRISTINE DATA"
-$s3_pristine = "s3://" + $DEPLOYMENT_DATA_BUCKET + "/" + $DEPLOY_FILES_PREFIX + "pristine_data/"
-aws s3 cp $s3_pristine $PRISTINE_ROOT --recursive
-
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5 -Force
 Install-Module -Name Invoke-CommandAs -force
 $ec2host = hostname
 $strScriptUser = "$ec2host\$PIPELINE_USER"

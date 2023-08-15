@@ -1,0 +1,47 @@
+-- ROLES
+
+CREATE ROLE ${nwm_viz_ro_username};
+ALTER ROLE ${nwm_viz_ro_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 45 ENCRYPTED PASSWORD '${nwm_viz_ro_password}';
+COMMENT ON ROLE ${nwm_viz_ro_username} IS 'Read-write user role for the Viz databases';
+
+CREATE ROLE ${rfc_fcst_ro_user_username};
+ALTER ROLE ${rfc_fcst_ro_user_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 45 ENCRYPTED PASSWORD '${rfc_fcst_ro_user_password}';
+COMMENT ON ROLE ${rfc_fcst_ro_user_username} IS 'Read-only user role for the RFC Forecast databases';
+
+CREATE ROLE ${rfc_fcst_user_username};
+ALTER ROLE ${rfc_fcst_user_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS ENCRYPTED PASSWORD '${rfc_fcst_user_password}';
+COMMENT ON ROLE ${rfc_fcst_user_username} IS 'Read-write user role for the RFC Forecast databases';
+
+CREATE ROLE ${location_ro_user_username};
+ALTER ROLE ${location_ro_user_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 45 ENCRYPTED PASSWORD '${location_ro_user_password}';
+COMMENT ON ROLE ${location_ro_user_username} IS 'Read-only user role for the Location databases';
+
+CREATE ROLE wrds_svc_rw_user;
+ALTER ROLE wrds_svc_rw_user WITH INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOBYPASSRLS;
+COMMENT ON ROLE wrds_svc_rw_user IS 'Read-write user role for the Location databases';
+
+-- GROUPS
+
+CREATE ROLE rfc_fcst_ro;
+ALTER ROLE rfc_fcst_ro WITH INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOBYPASSRLS;
+COMMENT ON ROLE rfc_fcst_ro IS 'Read-only group role for the RFC Forecast databases';
+
+CREATE ROLE ${rfc_fcst_username};
+ALTER ROLE ${rfc_fcst_username} WITH INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOBYPASSRLS ENCRYPTED PASSWORD '${rfc_fcst_password}';
+COMMENT ON ROLE ${rfc_fcst_username} IS 'Read-write group role for the RFC Forecast databases';
+
+CREATE ROLE nwm_ro_user_grp;
+ALTER ROLE nwm_ro_user_grp WITH INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOBYPASSRLS;
+COMMENT ON ROLE nwm_ro_user_grp IS 'Read-only group role for the Location databases';
+
+CREATE ROLE location_ro_user_grp;
+ALTER ROLE location_ro_user_grp WITH INHERIT NOCREATEROLE NOCREATEDB NOLOGIN NOBYPASSRLS;
+COMMENT ON ROLE location_ro_user_grp IS 'Read-only group role for the Location databases';
+
+-- GROUP ASSIGNMENT
+
+GRANT rfc_fcst_ro TO ${rfc_fcst_ro_user_username} ;
+GRANT rfc_fcst_ro TO ${nwm_viz_ro_username} ;
+GRANT ${rfc_fcst_username} TO ${rfc_fcst_user_username} ;
+GRANT location_ro_user_grp TO ${location_ro_user_username} ;
+

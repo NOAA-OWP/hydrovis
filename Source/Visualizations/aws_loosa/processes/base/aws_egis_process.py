@@ -43,7 +43,6 @@ class AWSEgisPublishingProcess(PipelineProcess):
         service_name (str): Name of the service as published on ArcGIS service.
 
         published_data_location (str): Path to the directory that contains the published data.
-        pristine_data_location (str, optional): Path to the directory that contains the pristine data.
         workspace_location (str): Path to directory in which processing will occur.
         cache_location (str): Path to directory that will maintain cached data
 
@@ -58,7 +57,6 @@ class AWSEgisPublishingProcess(PipelineProcess):
     # Data locations and names
     published_data_location = ''
     published_referenced_data_location = ''
-    pristine_data_location = ''
     authoritative_location = ''
     workspace_location = ''
     cache_location = ''
@@ -112,7 +110,7 @@ class AWSEgisPublishingProcess(PipelineProcess):
         elif self.service_name.startswith("srf"):
             self.configuration = "short_range"
         elif self.service_name.startswith("mrf"):
-            self.configuration = "medium_range"
+            self.configuration = "medium_range_mem1"
 
         self.server_name = service_data["egis_server"]
         self.folder_name = service_data["egis_folder"]
@@ -143,11 +141,6 @@ class AWSEgisPublishingProcess(PipelineProcess):
         if not self.published_referenced_data_location:
             self.published_referenced_data_location = os.path.join(
                 consts.PUBLISHED_ROOT, consts.PRIMARY_SERVER, consts.REFERENCE_FOLDER)
-
-        if not self.pristine_data_location:
-            self.pristine_data_location = os.path.join(
-                consts.PRISTINE_ROOT, self.server_name, self.folder_name,
-                self.service_name)
 
         if not self.proproject_location:
             self.proproject_location = os.path.join(MAPX_DIR, self.configuration, f"{self.service_name}.mapx")
@@ -509,17 +502,7 @@ class AWSEgisPublishingProcess(PipelineProcess):
             if not remove_success:
                 raise Exception(f"Unable to remove existing workspace at {working_location}.")
 
-        # If pristine location is defined, then create workspace by copying it
-        if self.pristine_data_location:
-            # Copy pristine to working location name if pristine exists
-            # Otherwise create the working directory as an empty directory
-            if os.path.isdir(self.pristine_data_location):
-                self._copy_dir(self.pristine_data_location, working_location)
-            else:
-                os.makedirs(working_location)
-        # Otherwise, just create the working location as an empty directory
-        else:
-            os.makedirs(working_location)
+        os.makedirs(working_location)
 
         # If the new working location doesn't validate, remove it so that a fresh workspace is created next time
         try:
@@ -563,12 +546,6 @@ class AWSEgisPublishingProcess(PipelineProcess):
         # VALIDATION: Working location must exist or cannot proceed
         if not os.path.isdir(a_working_location):
             raise Exception("Provided working location path does not exist or is not a directory.")
-
-        if deep_check:
-            if self.pristine_data_location:
-                if os.path.isdir(self.pristine_data_location):
-                    if not self._compare_dir(self.pristine_data_location, a_working_location):
-                        raise Exception("The working location data does not match that of the pristine data location.")
 
     def _get_directory_cache_list(self):
         directories = []

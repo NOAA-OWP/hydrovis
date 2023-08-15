@@ -4,6 +4,9 @@ import json
 import subprocess
 import inspect
 
+# Region to import from 
+region = ""
+
 # The type of AWS resource that you're wanting to import into Terraform
 resource_type = ""
 
@@ -189,7 +192,7 @@ if __name__ == '__main__':
 
     # Writing AWS provider to config file
     with open('empty-resources.tf', 'w') as outfile:
-        outfile.write(f'provider "aws" {{\nprofile = "{aws_profile}"\nregion = "us-east-1"\nshared_credentials_file = "/cloud/aws/credentials"\n}}\n')
+        outfile.write(f'provider "aws" {{\nprofile = "{aws_profile}"\nregion = "{region}"\nshared_credentials_file = "/cloud/aws/credentials"\n}}\n')
 
     # Initialize terraform after specifying the aws plugin
     print('Initializing Terraform')
@@ -242,7 +245,7 @@ if __name__ == '__main__':
         outfile.write(inspect.cleandoc(f"""
         provider "aws" {{
             profile = "{aws_profile}"
-            region = "us-east-1"
+            region = "{region}"
             shared_credentials_file = "/cloud/aws/credentials"
         }}
         """))

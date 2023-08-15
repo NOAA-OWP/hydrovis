@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-# See ./sensitive/env.yaml for list of available variables
 locals {
   env = yamldecode(file(".env.yaml"))
 }
@@ -28,7 +27,7 @@ provider "aws" {
 # Example Data Source Block
 data "aws_vpc" "example_data_source" {
   tags = {
-    Name = "hydrovis-${local.env.environment}-vpc"
+    Name = "hv-vpp-${local.env.environment}-vpc"
   }
 }
 

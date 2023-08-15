@@ -1,0 +1,94 @@
+{
+  "Version" : "2012-10-17",
+  "Statement" : [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel",
+        "ssm:DescribeSessions",
+        "ssm:UpdateInstanceInformation",
+        "ec2:describeInstances",
+        "ssm:DescribeInstanceProperties",
+        "ssm:TerminateSession",
+        "ssm:GetConnectionStatus",
+        "ssm:StartSession"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt",
+        "kms:Encrypt",
+        "kms:GenerateDataKey"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "aws:CalledVia": "imagebuilder.amazonaws.com",
+          "kms:EncryptionContextKeys": "aws:imagebuilder:arn"
+        }
+      }
+    },
+    {
+      "Sid": "VisualEditor1",
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::aws-ssm-${region}/*",
+        "arn:aws:s3:::aws-windows-downloads-${region}/*",
+        "arn:aws:s3:::amazon-ssm-${region}/*",
+        "arn:aws:s3:::amazon-ssm-packages-${region}/*",
+        "arn:aws:s3:::${region}-birdwatcher-prod/*",
+        "arn:aws:s3:::aws-ssm-distributor-file-${region}/*",
+        "arn:aws:s3:::aws-ssm-document-attachments-${region}/*",
+        "arn:aws:s3:::patch-baseline-snapshot-${region}/*"
+      ]
+    },
+    {
+      "Sid": "VisualEditor2",
+      "Effect": "Allow",
+      "Action": "s3:GetEncryptionConfiguration",
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:Decrypt",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey",
+        "kms:GenerateDataKeyWithoutPlaintext",
+        "kms:List*",
+        "kms:Get*",
+        "kms:Describe*"
+      ],
+      "Resource": [
+        "${session_manager_logs_kms_arn}",
+        "${rnr_kms_arn}"
+      ]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketPolicy",
+        "s3:GetBucketAcl",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "${session_manager_logs_bucket_arn}",
+        "${session_manager_logs_bucket_arn}/*",
+        "${rnr_bucket_arn}",
+        "${rnr_bucket_arn}/*"
+      ]
+    }
+  ]
+}

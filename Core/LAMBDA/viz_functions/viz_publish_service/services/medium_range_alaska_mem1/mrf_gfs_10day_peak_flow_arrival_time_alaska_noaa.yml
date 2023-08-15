@@ -1,0 +1,11 @@
+service: mrf_gfs_10day_peak_flow_arrival_time_alaska_noaa
+summary: Medium-Range GFS 10 Day Peak Flow Arrival Time Forecast for Alaska
+description: Depicts expected peak flow arrival times derived from the operational National Water 
+  Model (NWM) medium-range GFS forecast for Alaska. Reaches are colored by the time at which 
+  they are expected to be at their maximum flow within the forecast period. Updated every 6 hours.
+tags: arrival time, national water model, nwm, mrf, medium, range, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

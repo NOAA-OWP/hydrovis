@@ -18,8 +18,10 @@ def lambda_handler(event, context):
         return
     
     ################### Unstage EGIS Tables ###################
-    if "unstage" in step and job_type != "past_event":
-        if step == "unstage_db_tables":
+    if "unstage" in step:
+        if job_type == "past_event":
+            return
+        elif step == "unstage_db_tables":
             print(f"Unstaging tables for {event['args']['product']['product']}")
             target_tables = list(gen_dict_extract("target_table", event['args']))
             all_single_tables = [table for table in target_tables if type(table) is not list]
@@ -59,6 +61,7 @@ def lambda_handler(event, context):
             for s3_key in workspace_rasters:
                 s3_object = {"Bucket": s3_bucket, "Key": s3_key}
                 s3_filename = os.path.basename(s3_key)
+                s3_extension = os.path.splitext(s3_filename)[1]
                 cache_key = f"{cache_path}/{s3_filename}"
     
                 print(f"Caching {s3_key} at {cache_key}")
@@ -67,11 +70,16 @@ def lambda_handler(event, context):
                 print("Deleting tif workspace raster")
                 s3.Object(s3_bucket, s3_key).delete()
     
-                raster_name = s3_filename.replace(".tif", "")
-                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(".tif", "")
+                raster_name = s3_filename.replace(s3_extension, "")
+                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(s3_extension, "")
                 published_prefix = f"{processing_prefix}/published/{raster_name}"
                 
-                for extension in mrf_extensions:
+                if s3_extension == '.tif':
+                    process_extensions = mrf_extensions
+                else:
+                    process_extensions = [s3_extension[1:]]
+
+                for extension in process_extensions:
                     mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
                     mrf_published_raster = f"{published_prefix}.{extension}"
                     
@@ -85,7 +93,7 @@ def lambda_handler(event, context):
         return True
     
     ################### Stage EGIS Tables ###################
-    if step == "update_summary_data":
+    elif step == "update_summary_data":
         tables =  event['args']['postprocess_summary']['target_table']
     elif step == "update_fim_config_data":
         if not event['args']['fim_config'].get('postprocess'):
@@ -94,31 +102,35 @@ def lambda_handler(event, context):
         tables = [event['args']['fim_config']['postprocess']['target_table']]
     else:
         tables = [event['args']['postprocess_sql']['target_table']]
+    
+    # Set the viz schema to work with based on the job type    
+    if job_type == 'auto':
+        viz_schema = 'publish'
+    elif job_type == 'past_event':
+        viz_schema = 'archive'
         
-    tables = [table.split(".")[1] for table in tables if table.split(".")[0]=="publish"]
+    # Get the table names without the schemas
+    tables = [table.split(".")[1] for table in tables if table.split(".")[0]==viz_schema]
     
     ## For Staging and Caching - Loop through all the tables relevant to the current step
     for table in tables:
         staged_table = f"{table}_stage"
         viz_db = database(db_type="viz")
         egis_db = database(db_type="egis")
+        
+        # Get columns of the table
+        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+                cur.execute(f"SELECT * FROM {viz_schema}.{table} LIMIT 1")
+                column_names = [desc[0] for desc in cur.description]
+                columns = ', '.join(column_names)
             
         if job_type == 'auto':
-            viz_schema = 'publish'
-            
-            # Get columns of the table
-            with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-                    cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-                    column_names = [desc[0] for desc in cur.description]
-                    columns = ', '.join(column_names)
-            
             # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
             try: # Try copying the data
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
             except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
 
         elif job_type == 'past_event':
@@ -133,9 +145,10 @@ def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, columns, r
     ref_day = f"{reference_time.strftime('%Y%m%d')}"
     ref_hour = f"{reference_time.strftime('%H%M')}"
     s3_key = f"viz_cache/{ref_day}/{ref_hour}/{table}.csv"
+    aws_region = os.environ['AWS_REGION']
     with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
             columns = columns.replace('geom', 'ST_AsText(geom) AS geom')
-            cur.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','us-east-1'), options :='format csv , HEADER true');")
+            cur.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','{aws_region}'), options :='format csv , HEADER true');")
     print(f"---> Wrote csv cache data from {schema}.{table} to {cache_bucket}/{s3_key}")
     return s3_key
 

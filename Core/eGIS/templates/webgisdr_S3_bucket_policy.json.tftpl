@@ -2,33 +2,6 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "DenyAnythingNotKMSIfExistsOtherwiseEnforceDefaultEncryption",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:PutObject",
-            "Resource": "${bucket_arn}/*",
-            "Condition": {
-                "StringNotEqualsIfExists": {
-                    "s3:x-amz-server-side-encryption": "aws:kms"
-               },
-                "Null": {
-                    "s3:x-amz-server-side-encryption": "false"
-                }
-            }
-        },
-        {
-            "Sid": "DenyIfPassedAnythingNotMatchingThisKMSKey",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:PutObject",
-            "Resource": "${bucket_arn}/*",
-            "Condition": {
-                "StringNotEqualsIfExists": {
-                    "s3:x-amz-server-side-encryption-aws-kms-key-id": "${kms_key_arn}"
-                }
-            }
-        },
-        {
             "Effect": "Allow",
             "Principal": {
                 "AWS": ${access_principal_arns}

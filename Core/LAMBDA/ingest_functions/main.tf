@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns ]
+    }
+  }
+}
+
 variable "environment" {
   description = "Hydrovis environment"
   type        = string
@@ -96,7 +105,7 @@ locals {
 ###########################
 
 resource "aws_lambda_function" "hml_reciever" {
-  function_name = "HML_Receiver__${var.environment}"
+  function_name = "hv-vpp-${var.environment}-hml-receiver"
   description   = "HML receiver function that updates PostgreSQL and RabbitMQ about incoming file"
   memory_size   = 128
   timeout       = 300
@@ -144,7 +153,7 @@ resource "aws_lambda_function" "hml_reciever" {
   }
 
   tags = {
-    "Name" = "HML_Receiver__${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-hml-receiver"
   }
 }
 
@@ -153,6 +162,7 @@ resource "aws_lambda_function" "hml_reciever" {
 ################################
 
 resource "aws_sns_topic_subscription" "shared_account_hml_sns_trigger" {
+  provider  = aws.sns
   topic_arn = var.nws_shared_account_hml_sns
   protocol  = "lambda"
   endpoint  = resource.aws_lambda_function.hml_reciever.arn
