@@ -77,6 +77,7 @@ def lambda_handler(event, context):
                                         "analysis_assim_coastal.total_water.tm00.hawaii.nc",
                                         "analysis_assim_coastal.total_water.tm00.puertorico.nc",
                                         "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
                                         "short_range_coastal.total_water.f018.atlgulf.nc",
                                         "short_range_coastal.total_water.f048.puertorico.nc",
                                         "short_range_coastal.total_water.f048.hawaii.nc"
