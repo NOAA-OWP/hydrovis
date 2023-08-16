@@ -95,8 +95,8 @@ module "pipelines" {
   builder_sg_id                      = module.builder-security-group.id
   builder_subnet_id                  = var.builder_subnet_id
   ami_sharing_account_ids            = [
-    # var.uat_account_id,
-    # var.prod_account_id
+    var.uat_account_id,
+    var.prod_account_id
   ]
 
   egis_service_account_password = var.egis_service_account_password
