@@ -163,7 +163,6 @@ def setup_huc_inundation(event):
     
 def get_branch_iteration(event):
     s3 = boto3.client("s3")
-    print(event)
     local_data_file = os.path.join("/tmp", os.path.basename(event['args']['huc_branches_to_process']))
     s3.download_file(event['args']['data_bucket'], event['args']['huc_branches_to_process'], local_data_file)
     df = pd.read_csv(local_data_file)
@@ -261,51 +260,12 @@ def write_data_csv_file(product, fim_config, huc, reference_date, huc_data):
     
 def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service):
 
-    ras_insertion_sql = f"""
-        WITH feature_streamflows as (
-            {streamflow_sql}
-        ), ras2fim_boundaries as (
-            SELECT 
-                geom,
-                discharge_cms,
-                feature_id,
-                lag(discharge_cms) OVER (PARTITION BY feature_id ORDER BY discharge_cms) as previous_discharge_cms,
-                stage_ft,
-                version
-            FROM ras2fim.geocurves
-            WHERE discharge_cms IS NOT NULL
-            ORDER BY discharge_cms
-        ), max_ras2fim_boundaries as (
-            SELECT 
-                max(discharge_cfs) as max_rc_discharge_cfs,
-                max(stage_ft) as max_rc_stage_ft,
-                feature_id
-            FROM ras2fim.geocurves
-            WHERE discharge_cms IS NOT NULL
-            GROUP BY feature_id
-        )
-    
-        INSERT INTO {db_fim_table}
-        SELECT
-            rb.feature_id as fim_model_hydro_id,
-            rb.feature_id::TEXT as fim_model_hydro_id_str,
-            ST_Transform(rb.geom, 3857) as geom,
-            rb.feature_id as nwm_feature_id,
-            rb.feature_id::TEXT as nwm_feature_id_str,
-            ROUND((fs.streamflow_cms * 35.315)::numeric, 2) as streamflow_cfs,
-            rb.stage_ft as fim_stage_ft,
-            mrb.max_rc_stage_ft,
-            mrb.max_rc_discharge_cfs,
-            CONCAT ('ras2fim_', rb.version) as fim_version,
-            '{reference_time}' as reference_time,
-            fhc.huc8,
-            NULL as branch
-        FROM ras2fim_boundaries rb
-        JOIN feature_streamflows fs ON fs.feature_id = rb.feature_id
-        JOIN derived.featureid_huc_crosswalk fhc ON fs.feature_id = fhc.feature_id
-        JOIN max_ras2fim_boundaries mrb ON rb.feature_id = mrb.feature_id
-        WHERE rb.discharge_cms >= fs.streamflow_cms AND rb.previous_discharge_cms < fs.streamflow_cms
-    """
+    ras_insertion_template = f'templates_sql/ras2fim_insertion.sql'
+    ras_insertion_sql = open(ras_insertion_template, 'r').read()
+    ras_insertion_sql = ras_insertion_sql \
+        .replace("{streamflow_sql}", streamflow_sql) \
+        .replace("{db_fim_table}", db_fim_table) \
+        .replace("{reference_time}", reference_time)
     
     publish_table = db_fim_table
     if reference_service:
@@ -335,25 +295,12 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
     return publish_table
 
 def get_features_for_HAND_processing(streamflow_sql, db_fim_table, viz_db):
-    hand_sql = f"""
-        WITH feature_streamflows as (
-            {streamflow_sql}
-        )
-        
-        SELECT
-            crosswalk.feature_id,
-            CONCAT(LPAD(crosswalk.huc8::text, 8, '0'), '-', crosswalk.branch_id) as huc8_branch,
-            LEFT(LPAD(crosswalk.huc8::text, 8, '0'), 6) as huc,
-            crosswalk.hydro_id,
-            fs.streamflow_cms
-        FROM derived.fim4_featureid_crosswalk AS crosswalk
-        JOIN feature_streamflows fs ON fs.feature_id = crosswalk.feature_id
-        LEFT JOIN {db_fim_table} r2f ON r2f.nwm_feature_id = crosswalk.feature_id
-        WHERE
-            crosswalk.huc8 IS NOT NULL AND 
-            crosswalk.lake_id = -999 AND
-            r2f.nwm_feature_id IS NULL
-    """
+
+    hand_features_template = f'templates_sql/hand_features.sql'
+    hand_sql = open(hand_features_template, 'r').read()
+    hand_sql = hand_sql \
+        .replace("{streamflow_sql}", streamflow_sql) \
+        .replace("{db_fim_table}", db_fim_table)
     
     print("Determing features to be processed by HAND")
     df_hand = viz_db.run_sql_in_db(hand_sql)

@@ -4,4 +4,5 @@ SELECT
 FROM cache.max_flows_ana_14day max_forecast
 JOIN derived.recurrence_flows_conus rf ON rf.feature_id=max_forecast.feature_id
 WHERE 
-    max_forecast.max_flow_14day_cfs >= rf.high_water_threshold
+    max_forecast.max_flow_14day_cfs >= rf.high_water_threshold AND 
+    rf.high_water_threshold > 0::double precision
