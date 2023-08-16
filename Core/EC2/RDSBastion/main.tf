@@ -381,7 +381,7 @@ data "cloudinit_config" "startup" {
       db_port             = local.dbs["viz"]["db_port"]
       db_username         = local.dbs["viz"]["db_username"]
       db_password         = local.dbs["viz"]["db_password"]
-      db_schema           = "rfcfcst"
+      db_schema           = "wrds_rfcfcst"
       foreign_db_name     = local.dbs["forecast"]["db_name"]
       foreign_db_host     = local.dbs["forecast"]["db_host"]
       foreign_db_port     = local.dbs["forecast"]["db_port"]

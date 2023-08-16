@@ -1,15 +1,4 @@
--- CREATE FOREIGN SERVER MAPPING FOR WRDS/INGEST rfcfcst DB
-DROP SCHEMA IF EXISTS rfcfcst;
-CREATE schema rfcfcst;
-DROP SERVER IF EXISTS wrds_rfcfcst CASCADE;
-CREATE SERVER wrds_rfcfcst FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'hydrovis-ti-ingest.c4vzypepnkx3.us-east-1.rds.amazonaws.com', dbname 'rfcfcst', port '5432');
-CREATE USER MAPPING FOR viz_proc_dev_rw_user SERVER wrds_rfcfcst OPTIONS (user 'rfc_fcst_user', password 'urkZ6DiRqC4jRPjX6sbAnx8Nq');
-CREATE USER MAPPING FOR viz_proc_admin_rw_user SERVER wrds_rfcfcst OPTIONS (user 'rfc_fcst_user', password 'urkZ6DiRqC4jRPjX6sbAnx8Nq');
-CREATE USER MAPPING FOR postgres SERVER wrds_rfcfcst OPTIONS (user 'rfc_fcst_user', password 'urkZ6DiRqC4jRPjX6sbAnx8Nq');
-IMPORT FOREIGN SCHEMA public EXCEPT (django_migrations, forecast_values_latest, forecast_values_load, hml, hml_log, hml_xml, hml_xml_log) FROM SERVER wrds_rfcfcst INTO rfcfcst;
-ALTER SERVER wrds_rfcfcst OPTIONS (fetch_size '150000');
-
--- OPTIMIZE ROUTELINK TABLE
+-- OPTIMIZE ROUTELINK TABLE (AFTER RAW FILE INGESTED)
 alter table rnr.nwm_routelink add order_index serial;
 alter table rnr.nwm_routelink add primary key (link);
 
@@ -25,7 +14,7 @@ alter table rnr.nwm_routelink RENAME COLUMN to_ to "to";
 
 alter table rnr.nwm_routelink add constraint fk_self foreign key ("to") references rnr.nwm_routelink;
 
--- OPTIMIZE LAKEPARM TABLE
+-- OPTIMIZE LAKEPARM TABLE (AFTER RAW FILE INGESTED)
 alter table rnr.nwm_lakeparm add order_index serial;
 alter table rnr.nwm_lakeparm add primary key (lake_id);
 
