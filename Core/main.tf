@@ -57,7 +57,9 @@ module "iam-roles" {
 
   environment                  = local.env.environment
   account_id                   = local.env.account_id
-  ami_owner_account_id         = local.env.ami_owner_account_id
+  ti_account_id                = local.env.ti_account_id
+  uat_account_id               = local.env.uat_account_id
+  prod_account_id              = local.env.prod_account_id
   region                       = local.env.region
   nws_shared_account_s3_bucket = local.env.nws_shared_account_s3_bucket
 }
@@ -267,7 +269,7 @@ module "image-builder" {
   egis_service_account_password   = local.env.egis-service-account_password
 }
 
-# ###################### STAGE 3 ######################
+###################### STAGE 3 ######################
 
 # Simple Service Notifications
 module "sns" {
