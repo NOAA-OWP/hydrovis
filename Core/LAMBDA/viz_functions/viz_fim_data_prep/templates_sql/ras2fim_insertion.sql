@@ -4,11 +4,11 @@ WITH feature_streamflows as (
 
 INSERT INTO {db_fim_table}
 SELECT
-    gc.feature_id as fim_model_hydro_id,
-    gc.feature_id::TEXT as fim_model_hydro_id_str,
+    gc.feature_id as hydro_id,
+    gc.feature_id::TEXT as hydro_id_str,
     ST_Transform(gc.geom, 3857) as geom,
-    gc.feature_id as nwm_feature_id,
-    gc.feature_id::TEXT as nwm_feature_id_str,
+    gc.feature_id as feature_id,
+    gc.feature_id::TEXT as feature_id_str,
     ROUND((fs.streamflow_cms * 35.315)::numeric, 2) as streamflow_cfs,
     gc.stage_ft as fim_stage_ft,
     mgc.max_rc_stage_ft,

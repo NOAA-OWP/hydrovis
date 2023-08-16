@@ -2710,8 +2710,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2725,8 +2725,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2921,7 +2921,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_hucs",
+          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2967,14 +2967,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -3785,8 +3785,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -3800,8 +3800,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -3996,7 +3996,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4049,14 +4049,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -4929,8 +4929,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -4956,7 +4956,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,fim_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_3day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5056,9 +5056,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "geom",
@@ -5896,7 +5896,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "nwm_feature_id",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5910,7 +5910,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Hydro ID",
-            "fieldName" : "fim_model_hydro_id",
+            "fieldName" : "hydro_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5966,7 +5966,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "FIM Stage (ft)",
+            "alias" : "Stage (ft)",
             "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -6066,7 +6066,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select fim_model_hydro_id_str AS fim_model_hydro_id,streamflow_cfs,fim_stage_ft,nwm_feature_id_str AS nwm_feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_3day",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_3day",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6086,9 +6086,9 @@
           },
           "queryFields" : [
             {
-              "name" : "fim_model_hydro_id",
+              "name" : "hydro_id",
               "type" : "esriFieldTypeString",
-              "alias" : "fim_model_hydro_id",
+              "alias" : "hydro_id",
               "length" : 10
             },
             {
@@ -6102,16 +6102,16 @@
               "alias" : "fim_stage_ft"
             },
             {
-              "name" : "nwm_feature_id",
+              "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "nwm_feature_id",
+              "alias" : "feature_id",
               "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 20
+              "length" : 10
             },
             {
               "name" : "reference_time",
@@ -8980,8 +8980,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -8995,8 +8995,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -9191,7 +9191,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_6",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_hucs",
+          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -9237,14 +9237,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -10055,8 +10055,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -10070,8 +10070,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -10266,7 +10266,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3_7",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10319,14 +10319,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -11199,8 +11199,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -11226,7 +11226,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4_8",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,fim_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_5day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -11326,9 +11326,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "geom",
@@ -12166,7 +12166,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "nwm_feature_id",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -12180,7 +12180,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Hydro ID",
-            "fieldName" : "fim_model_hydro_id",
+            "fieldName" : "hydro_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -12236,7 +12236,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "FIM Stage (ft)",
+            "alias" : "Stage (ft)",
             "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -12336,7 +12336,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_8_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select fim_model_hydro_id_str AS fim_model_hydro_id,streamflow_cfs,fim_stage_ft,nwm_feature_id_str AS nwm_feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_5day",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_5day",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -12356,9 +12356,9 @@
           },
           "queryFields" : [
             {
-              "name" : "fim_model_hydro_id",
+              "name" : "hydro_id",
               "type" : "esriFieldTypeString",
-              "alias" : "fim_model_hydro_id",
+              "alias" : "hydro_id",
               "length" : 10
             },
             {
@@ -12372,16 +12372,16 @@
               "alias" : "fim_stage_ft"
             },
             {
-              "name" : "nwm_feature_id",
+              "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "nwm_feature_id",
+              "alias" : "feature_id",
               "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 20
+              "length" : 10
             },
             {
               "name" : "reference_time",
@@ -15250,8 +15250,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -15265,8 +15265,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -15461,7 +15461,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_hucs_1_1_1_2_2_6_10",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_hucs",
+          "sqlQuery" : "select oid,huc8,huc8_str,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer, building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -15507,14 +15507,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -16325,8 +16325,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "max_hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "max_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -16340,8 +16340,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average HAND Stage (ft)",
-            "fieldName" : "avg_hand_stage_ft",
+            "alias" : "Average FIM Stage (ft)",
+            "fieldName" : "avg_fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -16536,7 +16536,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_2_2_3_3_7_11",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_hand_stage_ft,avg_hand_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_counties",
+          "sqlQuery" : "select oid,geoid::text,county,state,max_flow_cfs,avg_flow_cfs,max_fim_stage_ft,avg_fim_stage_ft,buildings_impacted::integer,building_sqft_impacted,bldgs_agriculture::integer, bldgs_assembly::integer, bldgs_commercial::integer, bldgs_education::integer, bldgs_government::integer, bldgs_industrial::integer, bldgs_residential::integer, bldgs_utility_msc::integer, bldgs_other::integer,reference_time,update_time,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_counties",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -16589,14 +16589,14 @@
               "alias" : "avg_flow_cfs"
             },
             {
-              "name" : "max_hand_stage_ft",
+              "name" : "max_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_hand_stage_ft"
+              "alias" : "max_fim_stage_ft"
             },
             {
-              "name" : "avg_hand_stage_ft",
+              "name" : "avg_fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_hand_stage_ft"
+              "alias" : "avg_fim_stage_ft"
             },
             {
               "name" : "buildings_impacted",
@@ -17469,8 +17469,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max HAND Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "Max FIM Stage (ft)",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -17496,7 +17496,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.dev.%srf_max_inundation_counties_1_4_4_8_12",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,hand_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_building_footprints",
+          "sqlQuery" : "select oid,build_id::text,occ_cls,prim_occ,prop_st,sqfeet,height,censuscode,prod_date,source,val_method,hydro_id_str AS hydro_id,feature_id_str AS feature_id,streamflow_cfs,fim_stage_ft,geom from vizprocessing.publish.mrf_nbm_max_inundation_10day_building_footprints",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -17596,9 +17596,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "geom",
@@ -18437,7 +18437,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "nwm_feature_id",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -18451,7 +18451,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Hydro ID",
-            "fieldName" : "fim_model_hydro_id",
+            "fieldName" : "hydro_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -18607,7 +18607,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_9_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select fim_model_hydro_id_str AS fim_model_hydro_id,streamflow_cfs,fim_stage_ft,nwm_feature_id_str AS nwm_feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_10day",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,config,state,oid from hydrovis.services.mrf_nbm_max_inundation_10day",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -18627,9 +18627,9 @@
           },
           "queryFields" : [
             {
-              "name" : "fim_model_hydro_id",
+              "name" : "hydro_id",
               "type" : "esriFieldTypeString",
-              "alias" : "fim_model_hydro_id",
+              "alias" : "hydro_id",
               "length" : 10
             },
             {
@@ -18643,16 +18643,16 @@
               "alias" : "fim_stage_ft"
             },
             {
-              "name" : "nwm_feature_id",
+              "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "nwm_feature_id",
+              "alias" : "feature_id",
               "length" : 12
             },
             {
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 20
+              "length" : 10
             },
             {
               "name" : "reference_time",

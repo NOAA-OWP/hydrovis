@@ -411,7 +411,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     df_final['reference_time'] = reference_time
     df_final['huc8'] = huc8
     df_final['branch'] = branch
-    df_final['hand_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
+    df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
     df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
     df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)

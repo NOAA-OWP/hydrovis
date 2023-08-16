@@ -283,7 +283,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "nwm_feature_id",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -345,7 +345,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_8_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select streamflow_cfs,nwm_feature_id_str AS nwm_feature_id,reference_time,update_time,geom,oid from hydrovis.services.mrf_gfs_max_inundation_5day_public",
+          "sqlQuery" : "select streamflow_cfs,feature_id_str AS feature_id,reference_time,update_time,geom,oid from hydrovis.services.mrf_gfs_max_inundation_5day_public",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -370,9 +370,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "nwm_feature_id",
+              "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "nwm_feature_id",
+              "alias" : "feature_id",
               "length" : 12
             },
             {
