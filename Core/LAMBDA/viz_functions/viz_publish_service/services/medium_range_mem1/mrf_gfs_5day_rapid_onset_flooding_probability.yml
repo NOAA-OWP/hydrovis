@@ -4,10 +4,10 @@ description: Depicts the probability of forecast rapid onset flooding over the n
   10 days using ensembles from the medium-range GFS configuration of the National Water 
   Model (NWM) over the contiguous U.S. Shown are reaches that are expected to have 
   flow at or above high water thresholds on Day 1, Day 2, Day 3, Days 4-5, and Days 
-  1-5 using the 7 ensemble members of the medium-range forecast. Reaches are colored 
+  1-5 using the 6 time-lagged ensemble members of the medium-range forecast. Reaches are colored 
   by the probability that they will meet or exceed rapid onset conditions on Day 1, 
   Day 2, Day 3, Days 4-5, and Days 1-5. Probabilities are computed as the % agreement 
-  across the 7 ensemble members, equally weighted. Hotspots show average 1-5 day rapid 
+  across the 6 time-lagged ensemble members, equally weighted. Hotspots show average 1-5 day rapid 
   onset flooding probability, weighted by reach length, for USGS HUC8 basins with 
   greater than 10% of NWM feature length meeting rapid onset criteria in the next 5 
   days. High water thresholds (regionally varied) were derived using the 40-year NWM 
