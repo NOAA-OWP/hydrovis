@@ -46,6 +46,14 @@ variable "publish_service_arn" {
   type        = string
 }
 
+variable "initialize_pipeline_arn" {
+  type        = string
+}
+
+variable "replace_route_arn" {
+  type        = string
+}
+
 variable "email_sns_topics" {
   description = "SnS topics"
   type        = map(any)
@@ -53,6 +61,21 @@ variable "email_sns_topics" {
 
 variable "aws_instances_to_reboot" {
   type        = list(string)
+}
+
+#########################################
+##     Replace Route Step Function     ##
+#########################################
+
+resource "aws_sfn_state_machine" "replace_route_step_function" {
+    name     = "hv-vpp-${var.environment}-execute-replace-route"
+    role_arn = var.lambda_role
+
+    definition = templatefile("${path.module}/execute_replace_route.json.tftpl", {
+        initialize_pipeline_arn = var.initialize_pipeline_arn
+        replace_route_arn = var.replace_route_arn
+        rnr_ec2_instance = var.aws_instances_to_reboot[0]
+    })
 }
 
 ################################################
