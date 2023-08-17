@@ -651,23 +651,23 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 #############################
 ##   Stage-Based CatFIM    ##
 #############################
-data "archive_file" "stage_based_catfim_zip" {
+data "archive_file" "viz_stage_based_catfim_zip" {
   type = "zip"
 
-  source_dir = "${path.module}/stage_based_catfim"
+  source_dir = "${path.module}/viz_stage_based_catfim"
 
-  output_path = "${path.module}/stage_based_catfim_${var.environment}.zip"
+  output_path = "${path.module}/temp/viz_stage_based_catfim_${var.environment}_${var.region}.zip"
 }
 
-resource "aws_s3_object" "stage_based_catfim_zip_upload" {
+resource "aws_s3_object" "viz_stage_based_catfim_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "viz/stage_based_catfim.zip"
-  source      = data.archive_file.stage_based_catfim_zip.output_path
-  source_hash = filemd5(data.archive_file.stage_based_catfim_zip.output_path)
+  key         = "terraform_artifacts/${path.module}/viz_stage_based_catfim.zip"
+  source      = data.archive_file.viz_stage_based_catfim_zip.output_path
+  source_hash = filemd5(data.archive_file.viz_stage_based_catfim_zip.output_path)
 }
 
-resource "aws_lambda_function" "stage_based_catfim" {
-  function_name = "stage_based_catfim_${var.environment}"
+resource "aws_lambda_function" "viz_stage_based_catfim" {
+  function_name = "hv-vpp-${var.environment}-viz-stage-based-catfim"
   description   = "Lambda function to ingest individual files into the viz processing postgresql database."
   memory_size   = 1280
   timeout       = 900
@@ -685,9 +685,9 @@ resource "aws_lambda_function" "stage_based_catfim" {
       PYTHONWARNINGS = "ignore:Unverified HTTPS request"
     }
   }
-  s3_bucket        = aws_s3_object.stage_based_catfim_zip_upload.bucket
-  s3_key           = aws_s3_object.stage_based_catfim_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.stage_based_catfim_zip.output_path)
+  s3_bucket        = aws_s3_object.viz_stage_based_catfim_zip_upload.bucket
+  s3_key           = aws_s3_object.viz_stage_based_catfim_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.viz_stage_based_catfim_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -698,7 +698,7 @@ resource "aws_lambda_function" "stage_based_catfim" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "stage_based_catfim_${var.environment}"
+    "Name" = "hv-vpp-${var.environment}-viz-stage-based-catfim"
   }
 }
 
@@ -949,8 +949,8 @@ output "db_ingest" {
   value = aws_lambda_function.viz_db_ingest
 }
 
-output "stage_based_catfim" {
-  value = aws_lambda_function.stage_based_catfim
+output "viz_stage_based_catfim" {
+  value = aws_lambda_function.viz_stage_based_catfim
 }
 
 output "fim_data_prep" {
