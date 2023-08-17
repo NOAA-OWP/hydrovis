@@ -12,6 +12,11 @@ variable "environment" {
   type        = string
 }
 
+variable "region" {
+  description = "Hydrovis environment"
+  type        = string
+}
+
 variable "deployment_bucket" {
   type = string
 }

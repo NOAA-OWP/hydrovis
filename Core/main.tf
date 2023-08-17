@@ -516,6 +516,7 @@ module "rnr-lambda-functions" {
   }
 
   environment                    = local.env.environment
+  region                         = local.env.region
   rnr_data_bucket                = module.s3.buckets["rnr"].bucket
   deployment_bucket              = module.s3.buckets["deployment"].bucket
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
