@@ -1,4 +1,8 @@
-variable "lambda_role" {
+variable "viz_lambda_role" {
+  type        = string
+}
+
+variable "rnr_lambda_role" {
   type        = string
 }
 
@@ -73,7 +77,7 @@ variable "fifteen_minute_trigger" {
 
 resource "aws_sfn_state_machine" "replace_route_step_function" {
     name     = "hv-vpp-${var.environment}-execute-replace-route"
-    role_arn = var.lambda_role
+    role_arn = var.rnr_lambda_role
 
     definition = templatefile("${path.module}/execute_replace_route.json.tftpl", {
         initialize_pipeline_arn = var.initialize_pipeline_arn
@@ -95,7 +99,7 @@ resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
 
 resource "aws_sfn_state_machine" "reboot_ec2_instances_step_function" {
     name     = "hv-vpp-${var.environment}-reboot-ec2-instances"
-    role_arn = var.lambda_role
+    role_arn = var.rnr_lambda_role
 
     definition = templatefile("${path.module}/reboot_ec2_instances.json.tftpl", {
         aws_instances_to_reboot = var.aws_instances_to_reboot
@@ -111,7 +115,7 @@ resource "aws_cloudwatch_event_rule" "daily_at_2330" {
 resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
   rule      = aws_cloudwatch_event_rule.daily_at_2330.name
   arn       = aws_sfn_state_machine.reboot_ec2_instances_step_function.arn
-  role_arn  = var.lambda_role
+  role_arn  = var.rnr_lambda_role
 }
 
 ##################################################
@@ -120,7 +124,7 @@ resource "aws_cloudwatch_event_target" "trigger_reboot_rnr_ec2" {
 
 resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
     name     = "hv-vpp-${var.environment}-process-schism-fim"
-    role_arn = var.lambda_role
+    role_arn = var.viz_lambda_role
 
     definition = templatefile("${path.module}/schism_fim_processing.json.tftpl", {
         schism_fim_processing_arn = var.schism_fim_processing_arn
@@ -135,7 +139,7 @@ resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
 
 resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     name     = "hv-vpp-${var.environment}-viz-pipeline"
-    role_arn = var.lambda_role
+    role_arn = var.viz_lambda_role
 
     definition = templatefile("${path.module}/viz_processing_pipeline.json.tftpl", {
         max_values_arn = var.max_values_arn
@@ -157,7 +161,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
 
 resource "aws_sfn_state_machine" "hand_fim_processing_step_function" {
     name     = "hv-vpp-${var.environment}-hand-fim-processing"
-    role_arn = var.lambda_role
+    role_arn = var.viz_lambda_role
 
     definition = templatefile("${path.module}/hand_fim_processing.json.tftpl", {
         fim_data_prep_arn  = var.fim_data_prep_arn
