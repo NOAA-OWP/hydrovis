@@ -25,7 +25,7 @@ ordered_links AS (
 		row_number() OVER (ORDER BY rl.order_index) as row_num,
 		COALESCE(channel.streamflow, -999900.0) as qlink
 	FROM rnr.domain_routelink rl
-	LEFT JOIN ingest.nwm_channel_rt_ana_rnr channel
+	LEFT JOIN ingest.nwm_channel_rt_ana channel
 		ON channel.feature_id = rl.link
 	ORDER BY rl.order_index
 )
