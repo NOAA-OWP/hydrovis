@@ -66,7 +66,7 @@ variable "viz_lambda_shared_funcs_layer" {
 #############################
 ##    REPLACE AND ROUTE    ##
 #############################
-data "archive_file" "replace_route_zip" {
+data "archive_file" "rnr_domain_generator_zip" {
   type = "zip"
 
   source_dir = "${path.module}/rnr_domain_generator"
@@ -74,14 +74,14 @@ data "archive_file" "replace_route_zip" {
   output_path = "${path.module}/temp/rnr_domain_generator_${var.environment}_${var.region}.zip"
 }
 
-resource "aws_s3_object" "replace_route_zip_upload" {
+resource "aws_s3_object" "rnr_domain_generator_zip_upload" {
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/rnr_domain_generator.zip"
-  source      = data.archive_file.replace_route_zip.output_path
-  source_hash = data.archive_file.replace_route_zip.output_md5
+  source      = data.archive_file.rnr_domain_generator_zip.output_path
+  source_hash = data.archive_file.rnr_domain_generator_zip.output_md5
 }
 
-resource "aws_lambda_function" "replace_route" {
+resource "aws_lambda_function" "rnr_domain_generator" {
   function_name = "hv-vpp-${var.environment}-rnr-domain-generator"
   description   = "Lambda function to run Replace and Route model."
   memory_size   = 128
@@ -100,9 +100,9 @@ resource "aws_lambda_function" "replace_route" {
       OUTPUT_PREFIX   = "rnr_runs"
     }
   }
-  s3_bucket        = aws_s3_object.replace_route_zip_upload.bucket
-  s3_key           = aws_s3_object.replace_route_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.replace_route_zip.output_path)
+  s3_bucket        = aws_s3_object.rnr_domain_generator_zip_upload.bucket
+  s3_key           = aws_s3_object.rnr_domain_generator_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.rnr_domain_generator_zip.output_path)
   runtime          = "python3.9"
   handler          = "lambda_function.lambda_handler"
   role             = var.lambda_role
@@ -116,6 +116,6 @@ resource "aws_lambda_function" "replace_route" {
   }
 }
 
-output "replace_route_lambda" {
-  value = aws_lambda_function.replace_route
+output "rnr_domain_generator" {
+  value = aws_lambda_function.rnr_domain_generator
 }

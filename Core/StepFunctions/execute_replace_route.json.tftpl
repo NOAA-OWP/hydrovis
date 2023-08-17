@@ -7,7 +7,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
-        "FunctionName": "${replace_route_arn}",
+        "FunctionName": "${rnr_domain_generator_arn}",
         "Payload": {
           "run_time.$": "$.time",
           "step": "domain"
@@ -41,7 +41,7 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${replace_route_arn}",
+              "FunctionName": "${rnr_domain_generator_arn}",
               "Payload.$": "$"
             },
             "Retry": [

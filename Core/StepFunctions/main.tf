@@ -50,7 +50,7 @@ variable "initialize_pipeline_arn" {
   type        = string
 }
 
-variable "replace_route_arn" {
+variable "rnr_domain_generator_arn" {
   type        = string
 }
 
@@ -77,7 +77,7 @@ resource "aws_sfn_state_machine" "replace_route_step_function" {
 
     definition = templatefile("${path.module}/execute_replace_route.json.tftpl", {
         initialize_pipeline_arn = var.initialize_pipeline_arn
-        replace_route_arn = var.replace_route_arn
+        rnr_domain_generator_arn = var.rnr_domain_generator_arn
         rnr_ec2_instance = var.aws_instances_to_reboot[0]
     })
 }

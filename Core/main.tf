@@ -508,8 +508,8 @@ module "rnr" {
 }
 
 # RnR Lambda Functions
-module "replace-route" {
-  source = "./LAMBDA/replace_route"
+module "rnr-lambda-functions" {
+  source = "./LAMBDA/rnr_functions"
   providers = {
     aws = aws
     aws.sns = aws.sns
@@ -629,7 +629,7 @@ module "step-functions" {
   hand_fim_processing_arn   = module.viz-lambda-functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz-lambda-functions.schism_fim_processing.arn
   initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
-  replace_route_arn         = module.replace-route.replace_route_lambda.arn
+  rnr_domain_generator_arn  = module.rnr-lambda-functions.rnr_domain_generator.arn
   email_sns_topics          = module.sns.email_sns_topics
   aws_instances_to_reboot   = [module.rnr.ec2.id]
   fifteen_minute_trigger    = module.eventbridge.fifteen_minute_eventbridge
