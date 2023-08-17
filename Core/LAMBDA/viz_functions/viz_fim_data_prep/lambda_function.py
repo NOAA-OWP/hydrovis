@@ -47,14 +47,17 @@ def setup_huc_inundation(event):
         states_to_run = fim_config.get("states_to_run")
     else:
         states_to_run = []
+        
+    reference_service = True if configuration == "reference" else False
     
     if sql_replace.get(target_table):
         target_table = sql_replace.get(target_table)
     
     print(f"Running FIM for {configuration} for {reference_time}")
     viz_db = database(db_type="viz")
-    if configuration == "reference":
-        process_db = database(db_type="egis")
+    egis_db = database(db_type="egis")
+    if reference_service:
+        process_db = egis_db
     else:
         process_db = viz_db
 
@@ -64,7 +67,7 @@ def setup_huc_inundation(event):
     # Checks if all tables references in sql file exist and are updated (if applicable)
     # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
     # and invoke a retry
-    process_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
+    viz_db.check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
     sql = open(sql_path, 'r').read()
     # replace portions of SQL with any items in the dictionary (at least has reference_time)
@@ -85,12 +88,15 @@ def setup_huc_inundation(event):
             else:
                 additional_where_clauses += "')"
         sql += additional_where_clauses
+
     if "rfc" in fim_config_name:
         alias = 'max_forecast' if 'max_forecast' in sql else 'rnr'
         if sql.strip().endswith(';'):
-            sql = sql.replace(';', f' group by {alias}.feature_id, streamflow_cms, huc8, branch_id, hydro_id;')
+            sql = sql.replace(';', f' group by {alias}.feature_id, streamflow_cms')
         else:
-            sql += " group by max_forecast.feature_id, streamflow_cms, huc8, branch_id, hydro_id"
+            sql += " group by max_forecast.feature_id, streamflow_cms"
+
+    sql = sql.replace(";", "")
     
     fim_type = fim_config['fim_type']
     if fim_type == "coastal":
@@ -110,7 +116,8 @@ def setup_huc_inundation(event):
         date = reference_date.strftime("%Y%m%d")
         hour = reference_date.strftime("%H")
         
-        df_streamflows = viz_db.run_sql_in_db(sql)
+        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
+        df_streamflows = get_features_for_HAND_processing(sql, ras_publish_table, viz_db)
         processing_groups = df_streamflows.groupby(process_by)
 
         print(f"Kicking off {len(processing_groups)} processing groups for {product} for {reference_time}")
@@ -153,7 +160,6 @@ def setup_huc_inundation(event):
     
     
 def get_branch_iteration(event):
-    print(event)
     local_data_file = os.path.join("/tmp", os.path.basename(event['args']['huc_branches_to_process']))
     S3.download_file(event['args']['data_bucket'], event['args']['huc_branches_to_process'], local_data_file)
     df = pd.read_csv(local_data_file)
@@ -244,3 +250,81 @@ def write_data_csv_file(product, fim_config_name, date, hour, identifiers, huc_d
     os.remove(tmp_csv)
 
     return csv_key
+    
+def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service):
+
+    ras_insertion_template = f'templates_sql/ras2fim_insertion.sql'
+    ras_insertion_sql = open(ras_insertion_template, 'r').read()
+    ras_insertion_sql = ras_insertion_sql \
+        .replace("{streamflow_sql}", streamflow_sql) \
+        .replace("{db_fim_table}", db_fim_table) \
+        .replace("{reference_time}", reference_time)
+    
+    publish_table = db_fim_table
+    if reference_service:
+        table = db_fim_table.split('.')[-1]
+        publish_table = f"publish.{table}"
+        ras_insertion_sql = ras_insertion_sql.replace(db_fim_table, publish_table)
+
+    print(f"Adding ras2fim models to {db_fim_table}")
+        
+    with viz_db.get_db_connection() as connection:
+        cur = connection.cursor()
+        cur.execute(ras_insertion_sql)
+
+    if reference_service:
+        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+            cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+            column_names = [desc[0] for desc in cur.description]
+            columns = ', '.join(column_names)
+        
+        print(f"Copying {publish_table} to {db_fim_table}")
+        try: # Try copying the data
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+        except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
+            refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=db_fim_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+    
+    return publish_table
+
+def get_features_for_HAND_processing(streamflow_sql, db_fim_table, viz_db):
+
+    hand_features_template = f'templates_sql/hand_features.sql'
+    hand_sql = open(hand_features_template, 'r').read()
+    hand_sql = hand_sql \
+        .replace("{streamflow_sql}", streamflow_sql) \
+        .replace("{db_fim_table}", db_fim_table)
+    
+    print("Determing features to be processed by HAND")
+    df_hand = viz_db.run_sql_in_db(hand_sql)
+    
+    return df_hand
+    
+
+def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True, update_srid=None):
+    
+    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+        cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
+        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+    
+        if add_oid:
+            print(f"---> Adding an OID to the {dest_table}")
+            cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
+        if add_geom_index and "geom" in columns:
+            print(f"---> Adding an spatial index to the {dest_table}")
+            cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+            if 'geom_xy' in columns:
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
+        if update_srid and "geom" in columns:
+            print(f"---> Updating SRID to {update_srid}")
+            cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+            
+def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
+    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+        sql = f"""
+        DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
+        CREATE SCHEMA {local_schema};
+        IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
+        """
+        cur.execute(sql)
+    print(f"---> Refreshed {local_schema} foreign schema.")

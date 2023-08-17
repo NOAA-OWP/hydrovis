@@ -6,7 +6,15 @@ variable "account_id" {
   type = string
 }
 
-variable "ami_owner_account_id" {
+variable "ti_account_id" {
+  type = string
+}
+
+variable "uat_account_id" {
+  type = string
+}
+
+variable "prod_account_id" {
   type = string
 }
 
@@ -42,7 +50,14 @@ resource "aws_iam_role" "EC2ImageBuilderDistributionCrossAccountRole" {
         Sid    = ""
         Principal = {
           Service = "ec2.amazonaws.com"
-          AWS     = "arn:aws:iam::${var.ami_owner_account_id}:root"
+          AWS     = var.ti_account_id != "" ? [
+            "arn:aws:iam::${var.ti_account_id}:root",
+            "arn:aws:iam::${var.uat_account_id}:root",
+            "arn:aws:iam::${var.prod_account_id}:root"
+          ] : [
+            "arn:aws:iam::${var.uat_account_id}:root",
+            "arn:aws:iam::${var.prod_account_id}:root"
+          ]
         }
       },
     ]

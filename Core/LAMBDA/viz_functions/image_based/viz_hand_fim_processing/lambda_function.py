@@ -419,7 +419,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final['reference_time'] = reference_time
     df_final['huc8'] = huc8
     df_final['branch'] = branch
-    df_final['hand_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
+    df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
     df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
     df_final['feature_id_str'] = df_final['feature_id'].astype(str)
     

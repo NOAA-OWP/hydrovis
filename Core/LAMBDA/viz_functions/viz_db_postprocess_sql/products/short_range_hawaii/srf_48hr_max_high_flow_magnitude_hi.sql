@@ -46,4 +46,9 @@ SELECT channels.feature_id,
     channels.geom
 INTO publish.srf_48hr_max_high_flow_magnitude_hi
 FROM derived.channels_hi channels
-JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id
+JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;
+
+--Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features
+INSERT INTO publish.srf_48hr_max_high_flow_magnitude_hi(
+	feature_id, feature_id_str, strm_order, name, huc6, state, nwm_vers, reference_time, max_flow, recur_cat, high_water_threshold, flow_2yr, flow_5yr, flow_10yr, flow_25yr, flow_50yr, flow_100yr, update_time, geom)
+	VALUES (NULL, NULL, NULL, NULL, NULL, 'HI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UtC'), NULL);

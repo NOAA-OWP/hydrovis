@@ -1,0 +1,118 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Create Domain Tables",
+  "States": {
+    "Create Domain Tables": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${rnr_domain_generator_arn}",
+        "Payload": {
+          "run_time.$": "$.time",
+          "step": "domain"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Multi-Process Domain Files"
+    },
+    "Multi-Process Domain Files": {
+      "Type": "Map",
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "Create Domain-Specifc WRF-Hydro Input File",
+        "States": {
+          "Create Domain-Specifc WRF-Hydro Input File": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "FunctionName": "${rnr_domain_generator_arn}",
+              "Payload.$": "$"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "End": true
+          }
+        }
+      },
+      "ItemsPath": "$.domain_file_types",
+      "ItemSelector": {
+        "reference_time.$": "$.reference_time",
+        "run_time.$": "$.run_time",
+        "step.$": "$$.Map.Item.Value"
+      },
+      "Next": "Kick off WRF-Hydro",
+      "ResultPath": null
+    },
+    "Kick off WRF-Hydro": {
+      "Type": "Task",
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": ["${rnr_ec2_instance}"],
+        "Parameters": {
+          "commands.$": "States.Array(States.Format('cd /rnr/owp-viz-replace-route && sudo ./run_from_s3.sh rnr_runs {} {} {}', $.reference_time, $.run_time, $$.Task.Token))"
+        },
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/sendcommand",
+          "CloudWatchOutputEnabled": true
+        }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+      "TimeoutSeconds": 600,
+      "Next": "Initialize Pipeline"
+    },
+    "Initialize Pipeline": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${initialize_pipeline_arn}",
+        "Payload": {
+          "data_bucket.$": "$.data_bucket",
+          "data_key.$": "$.data_key",
+          "configuration": "replace_route"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    }
+  }
+}
