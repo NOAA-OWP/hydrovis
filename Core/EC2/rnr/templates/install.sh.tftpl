@@ -76,7 +76,9 @@ sudo tar -zxvf rnr_static.tgz
 sudo chown root static
 sudo chgrp root static
 sudo mkdir /rnr/owp-viz-replace-route/RESOURCES
+sudo mkdir /rnr/owp-viz-replace-route/RESOURCES_FROM_S3
 sudo cp -r static /rnr/owp-viz-replace-route/RESOURCES/
+sudo ln -s /rnr/owp-viz-replace-route/RESOURCES/static /rnr/owp-viz-replace-route/RESOURCES_FROM_S3/static
 sudo rm rnr_static.tgz
 
 echo "Updating Libnetcdf Link"
@@ -90,15 +92,15 @@ sudo mkdir /rnr/share
 sudo mkdir /rnr/share/log
 sudo mkdir /rnr/share/.archive
 sudo mkdir /rnr/share/Run
+sudo mkdir /rnr/share_from_s3
+sudo mkdir /rnr/share_from_s3/log
+sudo mkdir /rnr/share_from_s3/.archive
+sudo mkdir /rnr/share_from_s3/Run
+sudo ln -s /rn
 
 echo "Copying Rendered Template File to Replace and Route"
 sudo cp /deploy_files/conus.ini /rnr/owp-viz-replace-route/configs/conus.ini
 sudo cp /deploy_files/.env.devel /rnr/owp-viz-replace-route/.env.devel
 sudo dos2unix /rnr/owp-viz-replace-route/.env.devel
-
-echo "Setting up RNR Crontab"
-sudo crontab -l -u ec2-user > /tmp/mycrontab
-echo '10 * * * * cd /rnr/owp-viz-replace-route && sudo ./run.sh' >> /tmp/mycrontab
-sudo crontab -u ec2-user /tmp/mycrontab
 
 echo "Finished Setup"

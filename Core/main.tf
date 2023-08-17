@@ -509,6 +509,29 @@ module "rnr" {
   rnr_versions                   = local.env.rnr_versions 
 }
 
+# RnR Lambda Functions
+module "rnr-lambda-functions" {
+  source = "./LAMBDA/rnr_functions"
+  providers = {
+    aws = aws
+    aws.sns = aws.sns
+  }
+
+  environment                    = local.env.environment
+  region                         = local.env.region
+  rnr_data_bucket                = module.s3.buckets["rnr"].bucket
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
+  lambda_role                    = module.iam-roles.role_viz_pipeline.arn
+  xarray_layer                   = module.lambda-layers.xarray.arn
+  psycopg2_sqlalchemy_layer      = module.lambda-layers.psycopg2_sqlalchemy.arn
+  viz_lambda_shared_funcs_layer  = module.lambda-layers.viz_lambda_shared_funcs.arn
+  db_lambda_security_groups      = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
+  db_lambda_subnets              = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
+  viz_db_host                    = module.rds-viz.dns_name
+  viz_db_name                    = local.env.viz_db_name
+  viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+}
+
 module "egis-license-manager" {
   source = "./EC2/LicenseManager"
 
@@ -590,6 +613,7 @@ module "viz-lambda-functions" {
   viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
+  five_minute_trigger            = module.eventbridge.five_minute_eventbridge
 }
 
 module "step-functions" {
@@ -607,15 +631,16 @@ module "step-functions" {
   max_values_arn            = module.viz-lambda-functions.max_values.arn
   hand_fim_processing_arn   = module.viz-lambda-functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz-lambda-functions.schism_fim_processing.arn
+  initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
+  rnr_domain_generator_arn  = module.rnr-lambda-functions.rnr_domain_generator.arn
   email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr.ec2.id] 
+  aws_instances_to_reboot   = [module.rnr.ec2.id]
+  fifteen_minute_trigger    = module.eventbridge.fifteen_minute_eventbridge
 }
 
 # Event Bridge
 module "eventbridge" {
   source = "./EventBridge"
-
-  scheduled_rules = local.env.nwm_3_0_event_bridge_targets
 }
 
 module "viz-ec2" {

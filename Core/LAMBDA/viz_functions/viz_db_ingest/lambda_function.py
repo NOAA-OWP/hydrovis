@@ -21,6 +21,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from io import StringIO
+from psycopg2.errors import UndefinedTable
 from viz_classes import database
 from viz_lambda_shared_funcs import check_if_file_exists
 
@@ -33,6 +34,7 @@ class MissingS3FileException(Exception):
 def lambda_handler(event, context):
 
     target_table = event['target_table']
+    target_cols = event['target_cols']
     file = event['file']
     bucket = event['bucket']
     reference_time = event['reference_time']
@@ -56,45 +58,28 @@ def lambda_handler(event, context):
         cursor = connection.cursor()
         try:
             nwm_version = 0
-            if file[-12:] == 'max_flows.nc':
-                # Load the NetCDF file into a dataframe
+
+            if file.endswith('.nc'):
                 ds = xr.open_dataset(download_path)
-                df = ds.to_dataframe().reset_index()
-                df['nwm_vers'] = df['NWM_version_number'].str.replace("v","").astype("float")
-                df = df.drop(columns=['NWM_version_number'])
-                ds.close()
-                df_toLoad = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
-    
-            elif file[-3:] == '.nc':
-                # Load the NetCDF file into a dataframe
-                drop_vars = ['crs', 'nudge', 'velocity', 'qSfcLatRunoff', 'qBucket', 'qBtmVertRunoff']
-                ds = xr.open_dataset(download_path, drop_variables=drop_vars)
-                
-                if 'wrf_hydro' in file:
-                    df = ds.to_dataframe().reset_index()
-                    ds.close()
-                    df_toLoad = df[['station_id', 'time', 'streamflow']]
-                    cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (station_id integer, time timestamp without time zone, "
-                                    "streamflow double precision)")
-                else:
-                    try:
+                ds_vars = [var for var in ds.variables]
+
+                if not target_cols:
+                    target_cols = ds_vars
+
+                for col in target_cols:
+                    if col == 'time_step' and 'time_step' not in ds_vars and all(v in ds for v in ['time', 'reference_time']):
+                        ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
+                    elif col == 'nwm_vers' and 'nwm_vers' not in ds_vars and 'NWM_version_number' in ds_vars:
                         ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
-                    except: # retrospective files don't have a nwm_version, so set to 0 instead - also set the reference time manually for timestep calculation, as those are diferent in the retrospective files.
-                        ds['nwm_vers'] = 0
-                        ds['reference_time'] = reference_time_dt
-                    ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                    df = ds.to_dataframe().reset_index()
-                    ds.close()
-        
-                    # Only include reference time in the insert if specified
-                    df_toLoad = df[['feature_id', 'time_step', 'streamflow', 'nwm_vers']]
-                    cursor.execute(f"CREATE TABLE IF NOT EXISTS {target_table} (feature_id integer, forecast_hour integer, "
-                                    "streamflow double precision, nwm_vers double precision)")
-        
-                    # Filter out any streamflow data below the specificed threshold
-                    df_toLoad = df_toLoad.loc[df_toLoad['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
-    
-            elif file[-4:] == '.csv':
+
+                ds = ds.drop_vars(list(set(ds_vars) - set(target_cols)))
+                df = ds.to_dataframe().reset_index()
+                ds.close()
+                df_toLoad = df[target_cols]  # Due to drop_vars above, this may be unnecessary, but will leave for explicitness
+                if 'streamflow' in ds_vars:
+                    df_toLoad = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
+
+            elif file.endswith('.csv'):
                 df = pd.read_csv(download_path)
                 for column in df:  # Replace any 'None' strings with nulls
                     df[column].replace('None', np.nan, inplace=True)
@@ -102,15 +87,27 @@ def lambda_handler(event, context):
             else:
                 print("File format not supported.")
                 exit()
-    
+
             print(f"--> Preparing and Importing {file}")
             f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
             df_toLoad.to_csv(f, sep='\t', index=False, header=False)
             f.seek(0)
             #cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
-            cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-            connection.commit()
-    
+            try:
+                with viz_db.get_db_connection() as connection:
+                    cursor = connection.cursor()
+                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                    connection.commit()
+            except UndefinedTable:
+                print("Table does not exist, creating it now and retrying import...")
+                create_table_df = df_toLoad.head(0)
+                schema, table = target_table.split('.')
+                create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
+                with viz_db.get_db_connection() as connection:
+                    cursor = connection.cursor()
+                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                    connection.commit()
+
             print(f"--> Import of {len(df_toLoad)} rows Complete. Removing {download_path} and closing db connection.")
             os.remove(download_path)
     

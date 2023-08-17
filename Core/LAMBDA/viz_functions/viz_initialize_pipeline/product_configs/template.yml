@@ -18,6 +18,7 @@ ingest_files:  # (OPTIONAL) Dictionary dictating what filesets to ingest into th
     file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
     file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
     target_table: db_table_name  # (REQUIRED) Name of the DB table where the fileset will be imported
+    target_cols: ['feature_id', 'streamflow', 'velocity', 'qBucket']  # (OPTIONAL) Name of columns that will exist on the table once the file has been ingested.
     target_keys: (feature_id, streamflow)  # (REQUIRED) Name of fields that will be used for creating indices
 
 db_max_flows: # (OPTIONAL) List of max_flows to run in the database directly

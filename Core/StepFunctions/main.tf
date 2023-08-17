@@ -46,6 +46,14 @@ variable "publish_service_arn" {
   type        = string
 }
 
+variable "initialize_pipeline_arn" {
+  type        = string
+}
+
+variable "rnr_domain_generator_arn" {
+  type        = string
+}
+
 variable "email_sns_topics" {
   description = "SnS topics"
   type        = map(any)
@@ -53,6 +61,32 @@ variable "email_sns_topics" {
 
 variable "aws_instances_to_reboot" {
   type        = list(string)
+}
+
+variable "fifteen_minute_trigger" {
+  type = object
+}
+
+#########################################
+##     Replace Route Step Function     ##
+#########################################
+
+resource "aws_sfn_state_machine" "replace_route_step_function" {
+    name     = "hv-vpp-${var.environment}-execute-replace-route"
+    role_arn = var.lambda_role
+
+    definition = templatefile("${path.module}/execute_replace_route.json.tftpl", {
+        initialize_pipeline_arn = var.initialize_pipeline_arn
+        rnr_domain_generator_arn = var.rnr_domain_generator_arn
+        rnr_ec2_instance = var.aws_instances_to_reboot[0]
+    })
+}
+
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+  rule      = var.fifteen_minute_trigger.name
+  target_id = aws_sfn_state_machine.replace_route_step_function.name
+  arn       = aws_sfn_state_machine.replace_route_step_function.arn
+  role_arn  = aws_sfn_state_machine.replace_route_step_function.role_arn
 }
 
 ################################################
