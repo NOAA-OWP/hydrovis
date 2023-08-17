@@ -63,6 +63,10 @@ variable "aws_instances_to_reboot" {
   type        = list(string)
 }
 
+variable "fifteen_minute_trigger" {
+  type = object
+}
+
 #########################################
 ##     Replace Route Step Function     ##
 #########################################
@@ -76,6 +80,13 @@ resource "aws_sfn_state_machine" "replace_route_step_function" {
         replace_route_arn = var.replace_route_arn
         rnr_ec2_instance = var.aws_instances_to_reboot[0]
     })
+}
+
+resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+  rule      = var.fifteen_minute_trigger.name
+  target_id = aws_sfn_state_machine.replace_route_step_function.name
+  arn       = aws_sfn_state_machine.replace_route_step_function.arn
+  role_arn  = aws_sfn_state_machine.replace_route_step_function.role_arn
 }
 
 ################################################

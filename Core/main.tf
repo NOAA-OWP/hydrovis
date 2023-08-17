@@ -610,6 +610,7 @@ module "viz-lambda-functions" {
   viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
+  five_minute_trigger            = module.eventbridge.five_minute_eventbridge
 }
 
 module "step-functions" {
@@ -630,14 +631,13 @@ module "step-functions" {
   initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
   replace_route_arn         = module.replace-route.replace_route_lambda.arn
   email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr.ec2.id] 
+  aws_instances_to_reboot   = [module.rnr.ec2.id]
+  fifteen_minute_trigger    = module.eventbridge.fifteen_minute_eventbridge
 }
 
 # Event Bridge
 module "eventbridge" {
   source = "./EventBridge"
-
-  scheduled_rules = local.env.nwm_3_0_event_bridge_targets
 }
 
 module "viz-ec2" {
