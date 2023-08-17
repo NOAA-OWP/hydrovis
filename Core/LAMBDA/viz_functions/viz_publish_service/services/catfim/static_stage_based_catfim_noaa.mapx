@@ -1455,7 +1455,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -1558,7 +1558,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%stage_based_catfim_action",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,hand_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_action",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,fim_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_action",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1606,9 +1606,9 @@
               "length" : 60000
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "fim_version",
@@ -2154,7 +2154,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2257,7 +2257,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%stage_based_catfim_minor",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,nws_station_id,hand_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_minor",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,nws_station_id,fim_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_minor",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2311,9 +2311,9 @@
               "length" : 60000
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "fim_version",
@@ -2853,7 +2853,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2956,7 +2956,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%stage_based_catfim_moderate",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,hand_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_moderate",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,fim_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_moderate",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3004,9 +3004,9 @@
               "length" : 60000
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "fim_version",
@@ -3552,7 +3552,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -3655,7 +3655,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%stage_based_catfim_major",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,hand_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_major",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,fim_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_major",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3703,9 +3703,9 @@
               "length" : 60000
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "fim_version",
@@ -4251,7 +4251,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Stage (ft)",
-            "fieldName" : "hand_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -4354,7 +4354,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%stage_based_catfim_record",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,hand_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_record",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,fim_stage_ft,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,stage_category,oid from hydrovis.services.stage_based_catfim_record",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4402,9 +4402,9 @@
               "length" : 60000
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "fim_version",

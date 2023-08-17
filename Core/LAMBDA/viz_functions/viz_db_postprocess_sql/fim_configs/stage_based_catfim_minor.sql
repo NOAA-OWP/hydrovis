@@ -6,7 +6,7 @@ SELECT DISTINCT
 	inun.branch,
 	inun.feature_id,
 	inun.feature_id_str::TEXT AS feature_id_str,
-	inun.hand_stage_ft,
+	inun.fim_stage_ft,
 	inun.fim_version,
 	inun.huc8,
 	inun.geom,

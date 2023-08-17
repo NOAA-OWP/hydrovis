@@ -1168,8 +1168,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hand_stage_ft",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "fim_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -1237,7 +1237,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_action",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,hand_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_action",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_action",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1290,9 +1290,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "max_rc_stage_ft",
@@ -1937,8 +1937,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hand_stage_ft",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "fim_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2006,7 +2006,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_minor",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,nws_station_id,streamflow_cfs,hand_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_minor",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,nws_station_id,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_minor",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2065,9 +2065,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "max_rc_stage_ft",
@@ -2706,8 +2706,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hand_stage_ft",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "fim_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2775,7 +2775,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_moderate",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,hand_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_moderate",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_moderate",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2828,9 +2828,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "max_rc_stage_ft",
@@ -3475,8 +3475,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hand_stage_ft",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "fim_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -3544,7 +3544,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_major",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,hand_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_major",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_major",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3597,9 +3597,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "max_rc_stage_ft",
@@ -4244,8 +4244,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hand_stage_ft",
-            "fieldName" : "hand_stage_ft",
+            "alias" : "fim_stage_ft",
+            "fieldName" : "fim_stage_ft",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -4313,7 +4313,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_record",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,hand_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_record",
+          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_record",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4366,9 +4366,9 @@
               "alias" : "streamflow_cfs"
             },
             {
-              "name" : "hand_stage_ft",
+              "name" : "fim_stage_ft",
               "type" : "esriFieldTypeDouble",
-              "alias" : "hand_stage_ft"
+              "alias" : "fim_stage_ft"
             },
             {
               "name" : "max_rc_stage_ft",
