@@ -69,20 +69,20 @@ variable "viz_lambda_shared_funcs_layer" {
 data "archive_file" "replace_route_zip" {
   type = "zip"
 
-  source_dir = "${path.module}/lambda_content"
+  source_dir = "${path.module}/rnr_domain_generator"
 
-  output_path = "${path.module}/replace_route_${var.environment}.zip"
+  output_path = "${path.module}/temp/rnr_domain_generator_${var.environment}_${var.region}.zip"
 }
 
 resource "aws_s3_object" "replace_route_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "rnr/replace_route_lambda.zip"
+  key         = "terraform_artifacts/${path.module}/rnr_domain_generator.zip"
   source      = data.archive_file.replace_route_zip.output_path
   source_hash = data.archive_file.replace_route_zip.output_md5
 }
 
 resource "aws_lambda_function" "replace_route" {
-  function_name = "replace_route_${var.environment}"
+  function_name = "hv-vpp-${var.environment}-rnr-domain-generator"
   description   = "Lambda function to run Replace and Route model."
   memory_size   = 128
   timeout       = 900
@@ -112,7 +112,7 @@ resource "aws_lambda_function" "replace_route" {
     var.viz_lambda_shared_funcs_layer
   ]
   tags = {
-    "Name" = "viz_db_postprocess_sql_${var.environment}"
+    "Name" = "rnr_domain_generator_${var.environment}"
   }
 }
 
