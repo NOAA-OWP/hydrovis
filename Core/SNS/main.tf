@@ -21,9 +21,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
 
-  sns_topics = {
-    rnr_wrf_hydro_output = tomap({ "sns_type" = "s3", "bucket" = var.rnr_data_bucket })
-  }
+  sns_topics = {}
 
   email_list = flatten([
     for email_group_name, email_list in var.error_email_list : [

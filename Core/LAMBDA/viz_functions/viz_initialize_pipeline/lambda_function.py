@@ -424,7 +424,7 @@ class configuration:
             file_window_step = file_group['file_step'] if file_group['file_step'] != 'None' else ""
             target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
             target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
-            target_cols = file_group['target_cols'] if file_group['target_cols'] != 'None' else self.get_default_target_cols(file_pattern)
+            target_cols = file_group.get('target_cols', self.get_default_target_cols(file_pattern))
             target_keys = target_keys[1:-1].replace(" ","").split(",")
             dependent_on = file_group['dependent_on'] if file_group.get('dependent_on') else ""
             
@@ -486,7 +486,7 @@ class configuration:
     def get_default_target_cols(file_pattern):
         default_target_cols = []
         if 'channel_rt' in file_pattern:
-            default_target_cols = ['feature_id', 'time_step', 'streamflow', 'nwm_vers']
+            default_target_cols = ['feature_id', 'forecast_hour', 'streamflow']
         
         return default_target_cols
         
@@ -585,6 +585,9 @@ class configuration:
             
             if not product_metadata.get("product_summaries"):
                 product_metadata['product_summaries'] = []
+            
+            if not product_metadata.get("services"):
+                product_metadata['services'] = []
             
             all_product_metadata.append(product_metadata)
             

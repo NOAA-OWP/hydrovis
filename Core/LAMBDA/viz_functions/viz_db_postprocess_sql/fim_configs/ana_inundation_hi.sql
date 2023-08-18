@@ -26,4 +26,4 @@ SELECT
 	'HI' as state
 INTO publish.ana_inundation_hi
 FROM ingest.ana_inundation_hi as inun 
-left join derived.channels_hi AS channels ON channels.feature_id = inun.feature_id_str
+left join derived.channels_hi AS channels ON channels.feature_id = inun.feature_id

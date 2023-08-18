@@ -83,6 +83,7 @@ locals {
         owner       = "ec2-user:ec2-user"
         content     = templatefile("${path.module}/templates/.env.devel.tftpl", {
           output_bucket = var.output_bucket
+          region        = var.region
         })
       }
     ]

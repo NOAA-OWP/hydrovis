@@ -619,7 +619,8 @@ module "viz-lambda-functions" {
 module "step-functions" {
   source = "./StepFunctions"
 
-  lambda_role               = module.iam-roles.role_viz_pipeline.arn
+  viz_lambda_role           = module.iam-roles.role_viz_pipeline.arn
+  rnr_lambda_role           = module.iam-roles.role_sync_wrds_location_db.arn
   environment               = local.env.environment
   optimize_rasters_arn      = module.viz-lambda-functions.optimize_rasters.arn
   update_egis_data_arn      = module.viz-lambda-functions.update_egis_data.arn

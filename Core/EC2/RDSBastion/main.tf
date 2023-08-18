@@ -367,6 +367,7 @@ data "cloudinit_config" "startup" {
       foreign_db_port     = local.dbs["location"]["db_port"]
       foreign_db_username = local.dbs["location"]["db_username"]
       foreign_db_password = local.dbs["location"]["db_password"]
+      foreign_schema      = "public"
       foreign_server      = "wrds_location"
       user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
     })
@@ -387,6 +388,7 @@ data "cloudinit_config" "startup" {
       foreign_db_port     = local.dbs["forecast"]["db_port"]
       foreign_db_username = local.dbs["forecast"]["db_username"]
       foreign_db_password = local.dbs["forecast"]["db_password"]
+      foreign_schema      = "public EXCEPT (hml, hml_status, hml_log, hml_xml, hml_xml_log)"
       foreign_server      = "wrds_rfcfcst"
       user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
     })
