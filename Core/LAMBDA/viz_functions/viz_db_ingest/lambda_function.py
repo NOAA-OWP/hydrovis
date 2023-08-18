@@ -67,8 +67,8 @@ def lambda_handler(event, context):
                     target_cols = ds_vars
 
                 for col in target_cols:
-                    if col == 'time_step' and 'time_step' not in ds_vars and all(v in ds for v in ['time', 'reference_time']):
-                        ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
+                    if col == 'forecast_hour' and 'forecast_hour' not in ds_vars and all(v in ds for v in ['time', 'reference_time']):
+                        ds['forecast_hour'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
                         
                 ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
                 drop_vars = [var for var in ds_vars if var not in target_cols]
@@ -91,11 +91,11 @@ def lambda_handler(event, context):
             f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
             df.to_csv(f, sep='\t', index=False, header=False)
             f.seek(0)
-            #cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
             try:
                 with viz_db.get_db_connection() as connection:
                     cursor = connection.cursor()
-                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                    cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
+                    #cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
                     connection.commit()
             except (UndefinedTable, BadCopyFileFormat):
                 print("Table does not exist, creating it now and retrying import...")
