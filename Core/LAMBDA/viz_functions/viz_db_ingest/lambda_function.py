@@ -69,9 +69,8 @@ def lambda_handler(event, context):
                 for col in target_cols:
                     if col == 'time_step' and 'time_step' not in ds_vars and all(v in ds for v in ['time', 'reference_time']):
                         ds['time_step'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                    elif col == 'nwm_vers' and 'nwm_vers' not in ds_vars and 'NWM_version_number' in ds_vars:
-                        ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
-
+                        
+                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
                 ds = ds.drop_vars(list(set(ds_vars) - set(target_cols)))
                 df = ds.to_dataframe().reset_index()
                 ds.close()

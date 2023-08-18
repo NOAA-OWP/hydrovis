@@ -486,7 +486,7 @@ class configuration:
     def get_default_target_cols(file_pattern):
         default_target_cols = []
         if 'channel_rt' in file_pattern:
-            default_target_cols = ['feature_id', 'time_step', 'streamflow', 'nwm_vers']
+            default_target_cols = ['feature_id', 'time_step', 'streamflow']
         
         return default_target_cols
         
