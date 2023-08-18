@@ -21,7 +21,7 @@ import numpy as np
 import xarray as xr
 import pandas as pd
 from io import StringIO
-from psycopg2.errors import UndefinedTable, BadCopyFileFormat
+import re
 from viz_classes import database
 from viz_lambda_shared_funcs import check_if_file_exists
 
@@ -66,11 +66,13 @@ def lambda_handler(event, context):
                 if not target_cols:
                     target_cols = ds_vars
 
-                for col in target_cols:
-                    if col == 'forecast_hour' and 'forecast_hour' not in ds_vars and all(v in ds for v in ['time', 'reference_time']):
-                        ds['forecast_hour'] = (((ds['time'] - ds['reference_time'])) / np.timedelta64(1, 'h')).astype(int)
-                        
-                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                ds['forecast_hour'] = int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])
+                
+                try:
+                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                except:
+                    print("NWM_version_number property is not available in the netcdf file")
+
                 drop_vars = [var for var in ds_vars if var not in target_cols]
                 df = ds.to_dataframe().reset_index()
                 df = df.drop(columns=drop_vars)
@@ -91,21 +93,11 @@ def lambda_handler(event, context):
             f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
             df.to_csv(f, sep='\t', index=False, header=False)
             f.seek(0)
-            try:
-                with viz_db.get_db_connection() as connection:
-                    cursor = connection.cursor()
-                    cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
-                    #cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-                    connection.commit()
-            except (UndefinedTable, BadCopyFileFormat):
-                print("Table does not exist, creating it now and retrying import...")
-                create_table_df = df.head(0)
-                schema, table = target_table.split('.')
-                create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
-                with viz_db.get_db_connection() as connection:
-                    cursor = connection.cursor()
-                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-                    connection.commit()
+            with viz_db.get_db_connection() as connection:
+                cursor = connection.cursor()
+                #cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
+                cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                connection.commit()
 
             print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")
             os.remove(download_path)
