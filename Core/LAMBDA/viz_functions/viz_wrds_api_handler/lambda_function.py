@@ -136,7 +136,9 @@ def get_location_metadata(nws_lid_list):
         "name": "usgs_name",
         "nwm_feature_id": "feature_id",
         "wfo": "issuer",
-        "rfc": "producer"
+        "rfc": "producer",
+        "issuedTime": "issued_time",
+        "generationTime": "generation_time"
     }
     df_locations = df_locations.drop(columns=drop_columns)
     df_locations = df_locations.rename(columns=rename_columns)
