@@ -158,6 +158,7 @@ def extract_and_flatten_rfc_forecasts(df_forecasts):
     df_forecasts = df_forecasts.drop(columns=[0, 'identifier', 'forecast_status'])
 
     df_forecasts = pd.concat([df_forecasts.drop(['value'], axis=1), df_forecasts['value'].apply(pd.Series)], axis=1)
+    df_forecasts = df_forecasts.rename(columns={"value": "stage"})
     
     return df_forecasts
 
