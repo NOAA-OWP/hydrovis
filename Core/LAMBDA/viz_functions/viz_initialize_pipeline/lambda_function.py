@@ -424,7 +424,7 @@ class configuration:
             file_window_step = file_group['file_step'] if file_group['file_step'] != 'None' else ""
             target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
             target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
-            target_cols = file_group['target_cols'] if file_group['target_cols'] != 'None' else self.get_default_target_cols(file_pattern)
+            target_cols = file_group.get('target_cols', self.get_default_target_cols(file_pattern))
             target_keys = target_keys[1:-1].replace(" ","").split(",")
             dependent_on = file_group['dependent_on'] if file_group.get('dependent_on') else ""
             
