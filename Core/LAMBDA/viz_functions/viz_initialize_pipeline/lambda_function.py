@@ -586,6 +586,9 @@ class configuration:
             if not product_metadata.get("product_summaries"):
                 product_metadata['product_summaries'] = []
             
+            if not product_metadata.get("services"):
+                product_metadata['services'] = []
+            
             all_product_metadata.append(product_metadata)
             
         if run_only:
