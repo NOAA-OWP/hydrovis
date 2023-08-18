@@ -2,7 +2,11 @@ WITH feature_streamflows as (
     {streamflow_sql}
 )
 
-INSERT INTO {db_fim_table}
+INSERT INTO {db_fim_table}(
+    hydro_id, hydro_id_str, geom, feature_id, feature_id_str, 
+    streamflow_cfs, fim_stage_ft, max_rc_stage_ft, max_rc_discharge_cfs,
+    fim_version, reference_time, huc8, branch
+)
 SELECT
     gc.feature_id as hydro_id,
     gc.feature_id::TEXT as hydro_id_str,
