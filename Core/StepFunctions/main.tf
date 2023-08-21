@@ -68,7 +68,9 @@ variable "aws_instances_to_reboot" {
 }
 
 variable "fifteen_minute_trigger" {
-  type = object
+  type = object({
+    name = string
+  })
 }
 
 #########################################

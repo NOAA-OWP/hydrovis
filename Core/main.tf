@@ -588,7 +588,7 @@ module "viz-lambda-functions" {
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
-  sns_topics                     = module.sns.sns_topics
+  # sns_topics                     = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda-layers.es_logging.arn
