@@ -36,9 +36,9 @@
     "mapType" : "Map",
     "defaultExtent" : {
       "xmin" : -11959393.9154314119,
-      "ymin" : 3151610.43825945724,
+      "ymin" : 2484610.39218431292,
       "xmax" : -7267491.07926858775,
-      "ymax" : 5555622.19244054239,
+      "ymax" : 6222622.23851568624,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -127,8 +127,10 @@
       "name" : "Stage-Based CatFIM Sites",
       "uRI" : "CIMPATH=map/hydrovis_reference_stage_based_catfim_sites_public.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant"
+        "type" : "TimeInstant",
+        "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/23d50948522c400e0d55895135f6b88d.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.reference.stage_based_catfim_sites_public",
       "layerElevation" : {
@@ -151,13 +153,968 @@
         "type" : "CIMFeatureTable",
         "displayField" : "name",
         "editable" : true,
+        "fieldDescriptions" : [
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "oid",
+            "fieldName" : "oid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "readOnly" : true,
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_timestamp",
+            "fieldName" : "wrds_timestamp",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_timestamp",
+            "fieldName" : "nrldb_timestamp",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_timestamp",
+            "fieldName" : "nwis_timestamp",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "metadata_sources",
+            "fieldName" : "metadata_sources",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "ahps_lid",
+            "fieldName" : "ahps_lid",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_gage",
+            "fieldName" : "usgs_gage",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_seg",
+            "fieldName" : "nwm_seg",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "identifiers_goes_id",
+            "fieldName" : "identifiers_goes_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "identifiers_env_can_gage_id",
+            "fieldName" : "identifiers_env_can_gage_id",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_name",
+            "fieldName" : "nws_data_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_wfo",
+            "fieldName" : "nws_data_wfo",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_rfc",
+            "fieldName" : "nws_data_rfc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_geo_rfc",
+            "fieldName" : "nws_data_geo_rfc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_latitude",
+            "fieldName" : "nws_data_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_longitude",
+            "fieldName" : "nws_data_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_map_link",
+            "fieldName" : "nws_data_map_link",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_horizontal_datum_name",
+            "fieldName" : "nws_data_horizontal_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_state",
+            "fieldName" : "nws_data_state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_county",
+            "fieldName" : "nws_data_county",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_county_code",
+            "fieldName" : "nws_data_county_code",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_huc",
+            "fieldName" : "nws_data_huc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_hsa",
+            "fieldName" : "nws_data_hsa",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_zero_datum",
+            "fieldName" : "nws_data_zero_datum",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_vertical_datum_name",
+            "fieldName" : "nws_data_vertical_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_rfc_forecast_point",
+            "fieldName" : "nws_data_rfc_forecast_point",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_rfc_defined_fcst_point",
+            "fieldName" : "nws_data_rfc_defined_fcst_point",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_data_riverpoint",
+            "fieldName" : "nws_data_riverpoint",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_name",
+            "fieldName" : "usgs_data_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_geo_rfc",
+            "fieldName" : "usgs_data_geo_rfc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_latitude",
+            "fieldName" : "usgs_data_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_longitude",
+            "fieldName" : "usgs_data_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_map_link",
+            "fieldName" : "usgs_data_map_link",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_coord_accuracy_code",
+            "fieldName" : "usgs_data_coord_accuracy_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_latlon_datum_name",
+            "fieldName" : "usgs_data_latlon_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_coord_method_code",
+            "fieldName" : "usgs_data_coord_method_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_state",
+            "fieldName" : "usgs_data_state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_huc",
+            "fieldName" : "usgs_data_huc",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_site_type",
+            "fieldName" : "usgs_data_site_type",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_altitude",
+            "fieldName" : "usgs_data_altitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_alt_accuracy_code",
+            "fieldName" : "usgs_data_alt_accuracy_code",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_alt_datum_code",
+            "fieldName" : "usgs_data_alt_datum_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_alt_method_code",
+            "fieldName" : "usgs_data_alt_method_code",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_drainage_area",
+            "fieldName" : "usgs_data_drainage_area",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_drainage_area_units",
+            "fieldName" : "usgs_data_drainage_area_units",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_contrib_drainage_area",
+            "fieldName" : "usgs_data_contrib_drainage_area",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_active",
+            "fieldName" : "usgs_data_active",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_data_gages_ii_reference",
+            "fieldName" : "usgs_data_gages_ii_reference",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_downstream_feature_id",
+            "fieldName" : "nwm_feature_data_downstream_feature_id",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_latitude",
+            "fieldName" : "nwm_feature_data_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_longitude",
+            "fieldName" : "nwm_feature_data_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_altitude",
+            "fieldName" : "nwm_feature_data_altitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_stream_length",
+            "fieldName" : "nwm_feature_data_stream_length",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_stream_order",
+            "fieldName" : "nwm_feature_data_stream_order",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_mannings_roughness",
+            "fieldName" : "nwm_feature_data_mannings_roughness",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_slope",
+            "fieldName" : "nwm_feature_data_slope",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_channel_side_slope",
+            "fieldName" : "nwm_feature_data_channel_side_slope",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwm_feature_data_nhd_waterbody_comid",
+            "fieldName" : "nwm_feature_data_nhd_waterbody_comid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_name",
+            "fieldName" : "env_can_gage_data_name",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_latitude",
+            "fieldName" : "env_can_gage_data_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_longitude",
+            "fieldName" : "env_can_gage_data_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_map_link",
+            "fieldName" : "env_can_gage_data_map_link",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_drainage_area",
+            "fieldName" : "env_can_gage_data_drainage_area",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_contrib_drainage_area",
+            "fieldName" : "env_can_gage_data_contrib_drainage_area",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "env_can_gage_data_water_course",
+            "fieldName" : "env_can_gage_data_water_course",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_name",
+            "fieldName" : "nws_preferred_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_latitude",
+            "fieldName" : "nws_preferred_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_longitude",
+            "fieldName" : "nws_preferred_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_latlon_datum_name",
+            "fieldName" : "nws_preferred_latlon_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_state",
+            "fieldName" : "nws_preferred_state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nws_preferred_huc",
+            "fieldName" : "nws_preferred_huc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_name",
+            "fieldName" : "usgs_preferred_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_latitude",
+            "fieldName" : "usgs_preferred_latitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_longitude",
+            "fieldName" : "usgs_preferred_longitude",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_latlon_datum_name",
+            "fieldName" : "usgs_preferred_latlon_datum_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_state",
+            "fieldName" : "usgs_preferred_state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "usgs_preferred_huc",
+            "fieldName" : "usgs_preferred_huc",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_",
+            "fieldName" : "crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_location_nwm_crosswalk_dataset_name",
+            "fieldName" : "crosswalk_datasets_location_nwm_crosswalk_dataset_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_location_nwm_crosswalk_dataset_description",
+            "fieldName" : "crosswalk_datasets_location_nwm_crosswalk_dataset_description",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal",
+            "fieldName" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_name",
+            "fieldName" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_description",
+            "fieldName" : "crosswalk_datasets_nws_usgs_crosswalk_dataset_description",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "assigned_crs",
+            "fieldName" : "assigned_crs",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "huc8",
+            "fieldName" : "huc8",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "name",
+            "fieldName" : "name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "states",
+            "fieldName" : "states",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "mapped",
+            "fieldName" : "mapped",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "status",
+            "fieldName" : "status",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "acceptable_coord_acc_code_list",
+            "fieldName" : "acceptable_coord_acc_code_list",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "acceptable_coord_method_code_list",
+            "fieldName" : "acceptable_coord_method_code_list",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "acceptable_alt_acc_thresh",
+            "fieldName" : "acceptable_alt_acc_thresh",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "acceptable_alt_meth_code_list",
+            "fieldName" : "acceptable_alt_meth_code_list",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "acceptable_site_type_list",
+            "fieldName" : "acceptable_site_type_list",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "office_approved",
+            "fieldName" : "office_approved",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          }
+        ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68387641586e4253473676386b387a6b4f3451786b66597877322f593942616a6a456f56567a4b676d44764d2f696a2b745a373937354a654a69576d42736937502a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68335068485845524a4742737657463337632f53594577617645387a4256705a6a334362362f514e7a2f4e614f674f4b5355694949676655427338434533614e302a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_sites_public",
+          "dataset" : "hydrovis.reference.%stage_based_catfim_sites_public_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_latitude,usgs_data_longitude,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_downstream_feature_id,nwm_feature_data_latitude,nwm_feature_data_longitude,nwm_feature_data_altitude,nwm_feature_data_stream_length,nwm_feature_data_stream_order,nwm_feature_data_mannings_roughness,nwm_feature_data_slope,nwm_feature_data_channel_side_slope,nwm_feature_data_nhd_waterbody_comid,env_can_gage_data_name,env_can_gage_data_latitude,env_can_gage_data_longitude,env_can_gage_data_map_link,env_can_gage_data_drainage_area,env_can_gage_data_contrib_drainage_area,env_can_gage_data_water_course,nws_preferred_name,nws_preferred_latitude,nws_preferred_longitude,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latitude,usgs_preferred_longitude,usgs_preferred_latlon_datum_name,usgs_preferred_state,usgs_preferred_huc,crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_,crosswalk_datasets_location_nwm_crosswalk_dataset_name,crosswalk_datasets_location_nwm_crosswalk_dataset_description,crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal,crosswalk_datasets_nws_usgs_crosswalk_dataset_name,crosswalk_datasets_nws_usgs_crosswalk_dataset_description,assigned_crs,huc8,name,states,mapped,status,acceptable_coord_acc_code_list,acceptable_coord_method_code_list,acceptable_alt_acc_thresh,acceptable_alt_meth_code_list,acceptable_site_type_list,geom,office_approved from hydrovis.reference.stage_based_catfim_sites_public",
+          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_latitude,usgs_data_longitude,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_downstream_feature_id,nwm_feature_data_latitude,nwm_feature_data_longitude,nwm_feature_data_altitude,nwm_feature_data_stream_length,nwm_feature_data_stream_order,nwm_feature_data_mannings_roughness,nwm_feature_data_slope,nwm_feature_data_channel_side_slope,nwm_feature_data_nhd_waterbody_comid,env_can_gage_data_name,env_can_gage_data_latitude,env_can_gage_data_longitude,env_can_gage_data_map_link,env_can_gage_data_drainage_area,env_can_gage_data_contrib_drainage_area,env_can_gage_data_water_course,nws_preferred_name,nws_preferred_latitude,nws_preferred_longitude,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latitude,usgs_preferred_longitude,usgs_preferred_latlon_datum_name,usgs_preferred_state,usgs_preferred_huc,crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_,crosswalk_datasets_location_nwm_crosswalk_dataset_name,crosswalk_datasets_location_nwm_crosswalk_dataset_description,crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal,crosswalk_datasets_nws_usgs_crosswalk_dataset_name,crosswalk_datasets_nws_usgs_crosswalk_dataset_description,assigned_crs,huc8,name,states,mapped,status,acceptable_coord_acc_code_list,acceptable_coord_method_code_list,acceptable_alt_acc_thresh,acceptable_alt_meth_code_list,acceptable_site_type_list,geom,office_approved from hydrovis.reference.stage_based_catfim_sites_public WHERE office_approved IS TRUE",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1039,7 +1996,7 @@
                                 2
                               ],
                               [
-                                1.9639843619522576e-15,
+                                2.0069607399103551e-15,
                                 0
                               ],
                               0,
@@ -1142,7 +2099,7 @@
                                         2
                                       ],
                                       [
-                                        2.4367244922566943e-15,
+                                        2.6802572847990424e-15,
                                         0
                                       ],
                                       0,
@@ -1247,7 +2204,7 @@
                                         2
                                       ],
                                       [
-                                        2.4367244922566943e-15,
+                                        2.6802572847990424e-15,
                                         0
                                       ],
                                       0,
@@ -1339,6 +2296,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 82590,
       "showLegends" : true,
       "transparency" : 50,
       "visibility" : true,
@@ -2242,6 +3200,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 750000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -3177,6 +4136,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 82590,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -4079,6 +5039,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 750000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -5014,6 +5975,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 82590,
       "showLegends" : true,
       "transparency" : 50,
       "visibility" : true,
@@ -5917,6 +6879,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 750000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -6852,6 +7815,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 82590,
       "showLegends" : true,
       "transparency" : 50,
       "visibility" : true,
@@ -7755,6 +8719,7 @@
       },
       "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 750000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -8688,7 +9653,9 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{B136FFA5-42DF-425B-9057-FC6F94FAE676}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
+      "minScale" : 750000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -9580,6 +10547,11 @@
     }
   ],
   "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/23d50948522c400e0d55895135f6b88d.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230822</CreaDate><CreaTime>22260700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/7c635a5f3203621dc231c56f92f1b2ac.xml",
