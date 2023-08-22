@@ -164,7 +164,8 @@
               "target_cols.$": "$.db_ingest_group.target_cols",
               "bucket.$": "$.db_ingest_group.bucket",
               "reference_time.$": "$.reference_time",
-              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above"
+              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above",
+              "iteration_index.$": "$$.Map.Item.Index"
             },
             "ItemsPath": "$.db_ingest_group.ingest_datasets"
           },
