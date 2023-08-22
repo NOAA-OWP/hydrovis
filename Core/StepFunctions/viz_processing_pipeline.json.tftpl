@@ -95,7 +95,17 @@
               }
             ],
             "Next": "Input Data Files",
-            "ResultPath": null
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "UndefinedTable"
+                ],
+                "Comment": "Table Does Not Exist",
+                "Next": "Input Data Files",
+                "ResultPath": null
+              }
+            ]
           },
           "Input Data Files": {
             "Type": "Map",
@@ -131,6 +141,16 @@
                       "MaxAttempts": 6,
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
+                    },
+                    {
+                      "ErrorEquals": [
+                        "UndefinedTable",
+                        "BadCopyFileFormat"
+                      ],
+                      "BackoffRate": 2,
+                      "IntervalSeconds": 5,
+                      "MaxAttempts": 2,
+                      "Comment": "Recreate Table Errors"
                     }
                   ]
                 }

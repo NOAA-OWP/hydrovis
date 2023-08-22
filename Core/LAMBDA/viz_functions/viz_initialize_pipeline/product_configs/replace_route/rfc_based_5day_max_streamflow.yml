@@ -8,13 +8,8 @@ ingest_files:
       file_step: None
       file_window: None
       target_table: ingest.rnr_wrf_hydro_outputs
+      target_cols: ['station_id', 'time', 'streamflow', 'forecast_hour']
       target_keys: (station_id)
-    
-    - file_format: replace_route/{{datetime:%Y%m%d}}/forecasts/{{datetime:%H}}Z_run_issue_times.csv
-      file_step: None
-      file_window: None
-      target_table: ingest.rnr_forecasts
-      target_keys: (lid)
 
 db_max_flows:
   - name: rnr_max_flows

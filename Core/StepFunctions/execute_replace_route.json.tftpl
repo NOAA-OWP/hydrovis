@@ -1,8 +1,8 @@
 {
   "Comment": "A description of my state machine",
-  "StartAt": "Create Domain Tables",
+  "StartAt": "Create RnR Domain Tables",
   "States": {
-    "Create Domain Tables": {
+    "Create RnR Domain Tables": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
@@ -34,9 +34,9 @@
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Create Domain-Specifc WRF-Hydro Input File",
+        "StartAt": "Create WRF-Hydro Domain File",
         "States": {
-          "Create Domain-Specifc WRF-Hydro Input File": {
+          "Create WRF-Hydro Domain File": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
@@ -67,10 +67,10 @@
         "run_time.$": "$.run_time",
         "step.$": "$$.Map.Item.Value"
       },
-      "Next": "Kick off WRF-Hydro",
+      "Next": "Run WRF-Hydro",
       "ResultPath": null
     },
-    "Kick off WRF-Hydro": {
+    "Run WRF-Hydro": {
       "Type": "Task",
       "Parameters": {
         "DocumentName": "AWS-RunShellScript",
@@ -85,9 +85,9 @@
       },
       "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
       "TimeoutSeconds": 600,
-      "Next": "Initialize Pipeline"
+      "Next": "Initialize RnR Viz Pipeline"
     },
-    "Initialize Pipeline": {
+    "Initialize RnR Viz Pipeline": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",

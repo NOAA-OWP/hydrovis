@@ -4,16 +4,16 @@ product_type: "vector" # Needed to not fail, but obviously there's nothing more 
 run: true
 
 ingest_files:
-    - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+    - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
       file_step: None
       file_window: None
       target_table: ingest.nwm_channel_rt_ana
       target_keys: (feature_id, streamflow)
       target_cols: ['feature_id', 'streamflow', 'velocity', 'qBucket']
 
-    - file_format: common/data/model/com/nwm/prod/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.reservoir.tm00.conus.nc
+    - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.reservoir.tm00.conus.nc
       file_step: None
       file_window: None
-      target_table: ingest.nwm_reservoir_ana_full
+      target_table: ingest.nwm_reservoir_ana
       target_cols: ['feature_id', 'water_sfc_elev', 'outflow']
       target_keys: (feature_id)
