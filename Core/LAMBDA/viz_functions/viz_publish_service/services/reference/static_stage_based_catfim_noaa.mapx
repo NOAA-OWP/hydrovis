@@ -25,7 +25,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=map/hydrovis_reference_stage_based_catfim_sites_public.xml",
+      "CIMPATH=map/stage_based_catfim_sites.xml",
       "CIMPATH=map/stage_based_catfim__action.xml",
       "CIMPATH=map/new_group_layer.xml",
       "CIMPATH=map/stage_based_catfim__action2.xml",
@@ -125,7 +125,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Stage-Based CatFIM Sites",
-      "uRI" : "CIMPATH=map/hydrovis_reference_stage_based_catfim_sites_public.xml",
+      "uRI" : "CIMPATH=map/stage_based_catfim_sites.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -137,6 +137,7 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{B136FFA5-42DF-425B-9057-FC6F94FAE676}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -1112,9 +1113,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68335068485845524a4742737657463337632f53594577617645387a4256705a6a334362362f514e7a2f4e614f674f4b5355694949676655427338434533614e302a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_sites_public_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim_sites_public_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_latitude,usgs_data_longitude,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_downstream_feature_id,nwm_feature_data_latitude,nwm_feature_data_longitude,nwm_feature_data_altitude,nwm_feature_data_stream_length,nwm_feature_data_stream_order,nwm_feature_data_mannings_roughness,nwm_feature_data_slope,nwm_feature_data_channel_side_slope,nwm_feature_data_nhd_waterbody_comid,env_can_gage_data_name,env_can_gage_data_latitude,env_can_gage_data_longitude,env_can_gage_data_map_link,env_can_gage_data_drainage_area,env_can_gage_data_contrib_drainage_area,env_can_gage_data_water_course,nws_preferred_name,nws_preferred_latitude,nws_preferred_longitude,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latitude,usgs_preferred_longitude,usgs_preferred_latlon_datum_name,usgs_preferred_state,usgs_preferred_huc,crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_,crosswalk_datasets_location_nwm_crosswalk_dataset_name,crosswalk_datasets_location_nwm_crosswalk_dataset_description,crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal,crosswalk_datasets_nws_usgs_crosswalk_dataset_name,crosswalk_datasets_nws_usgs_crosswalk_dataset_description,assigned_crs,huc8,name,states,mapped,status,acceptable_coord_acc_code_list,acceptable_coord_method_code_list,acceptable_alt_acc_thresh,acceptable_alt_meth_code_list,acceptable_site_type_list,geom,office_approved from hydrovis.reference.stage_based_catfim_sites_public WHERE office_approved IS TRUE",
+          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_latitude,usgs_data_longitude,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_downstream_feature_id,nwm_feature_data_latitude,nwm_feature_data_longitude,nwm_feature_data_altitude,nwm_feature_data_stream_length,nwm_feature_data_stream_order,nwm_feature_data_mannings_roughness,nwm_feature_data_slope,nwm_feature_data_channel_side_slope,nwm_feature_data_nhd_waterbody_comid,env_can_gage_data_name,env_can_gage_data_latitude,env_can_gage_data_longitude,env_can_gage_data_map_link,env_can_gage_data_drainage_area,env_can_gage_data_contrib_drainage_area,env_can_gage_data_water_course,nws_preferred_name,nws_preferred_latitude,nws_preferred_longitude,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latitude,usgs_preferred_longitude,usgs_preferred_latlon_datum_name,usgs_preferred_state,usgs_preferred_huc,crosswalk_datasets_location_nwm_crosswalk_dataset_location_nwm_,crosswalk_datasets_location_nwm_crosswalk_dataset_name,crosswalk_datasets_location_nwm_crosswalk_dataset_description,crosswalk_datasets_nws_usgs_crosswalk_dataset_nws_usgs_crosswal,crosswalk_datasets_nws_usgs_crosswalk_dataset_name,crosswalk_datasets_nws_usgs_crosswalk_dataset_description,assigned_crs,huc8,name,states,mapped,status,acceptable_coord_acc_code_list,acceptable_coord_method_code_list,acceptable_alt_acc_thresh,acceptable_alt_meth_code_list,acceptable_site_type_list,geom,office_approved from hydrovis.reference.stage_based_catfim_sites_public",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1996,7 +1997,7 @@
                                 2
                               ],
                               [
-                                2.0069607399103551e-15,
+                                2.8808137021634957e-15,
                                 0
                               ],
                               0,
@@ -2054,7 +2055,7 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "mapped"
+          "office_approved"
         ],
         "groups" : [
           {
@@ -2062,7 +2063,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Not Mapped",
+                "label" : "Not Available",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -2099,7 +2100,7 @@
                                         2
                                       ],
                                       [
-                                        2.6802572847990424e-15,
+                                        6.6030623875207053e-16,
                                         0
                                       ],
                                       0,
@@ -2119,7 +2120,7 @@
                                   "joinStyle" : "Round",
                                   "lineStyle3D" : "Strip",
                                   "miterLimit" : 10,
-                                  "width" : 0.87499999999999989,
+                                  "width" : 0.875,
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
@@ -2159,7 +2160,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "no"
+                      "0"
                     ]
                   }
                 ],
@@ -2167,7 +2168,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Mapped",
+                "label" : "Available",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -2204,7 +2205,7 @@
                                         2
                                       ],
                                       [
-                                        2.6802572847990424e-15,
+                                        1.1044549435724839e-15,
                                         0
                                       ],
                                       0,
@@ -2224,7 +2225,7 @@
                                   "joinStyle" : "Round",
                                   "lineStyle3D" : "Strip",
                                   "miterLimit" : 10,
-                                  "width" : 0.87499999999999989,
+                                  "width" : 0.875,
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
@@ -2239,11 +2240,11 @@
                                   "type" : "CIMSolidFill",
                                   "enable" : true,
                                   "color" : {
-                                    "type" : "CIMRGBColor",
+                                    "type" : "CIMHSVColor",
                                     "values" : [
-                                      85,
-                                      255,
-                                      0,
+                                      100,
+                                      100,
+                                      100,
                                       100
                                     ]
                                   }
@@ -2264,14 +2265,14 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "yes"
+                      "1"
                     ]
                   }
                 ],
                 "visible" : true
               }
             ],
-            "heading" : "Mapping Status"
+            "heading" : "Publicly Available"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"
