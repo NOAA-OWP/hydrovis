@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from io import StringIO
-from psycopg2.errors import UndefinedTable, BadCopyFileFormat
+from psycopg2.errors import UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation
 from viz_classes import database
 from viz_lambda_shared_funcs import check_if_file_exists
 
@@ -108,11 +108,11 @@ def lambda_handler(event, context):
                     cursor = connection.cursor()
                     cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
                     connection.commit()
-            except (UndefinedTable, BadCopyFileFormat):
+            except (UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation):
                 if not create_table:
                     raise
 
-                print("Table does not exist, creating it now and retrying import...")
+                print("Error encountered. Recreating table now and retrying import...")
                 create_table_df = df.head(0)
                 schema, table = target_table.split('.')
                 create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
