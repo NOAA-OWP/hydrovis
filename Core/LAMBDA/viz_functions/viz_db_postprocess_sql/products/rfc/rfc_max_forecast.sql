@@ -99,8 +99,8 @@ SELECT
 	END AS record_forecast,
 	metadata.producer, 
 	metadata.issuer,
-	to_char(metadata.issued_time::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
-	to_char(metadata.generation_time::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
+	to_char(metadata."issuedTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
+	to_char(metadata."generationTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
 	metadata.usgs_sitecode, 
 	metadata.feature_id, 
 	metadata.nws_name, 
@@ -120,4 +120,4 @@ FROM ingest.ahps_metadata as metadata
 JOIN max_stage ON max_stage.nws_lid = metadata.nws_lid
 JOIN min_stage ON min_stage.nws_lid = metadata.nws_lid
 JOIN initial_stage ON initial_stage.nws_lid = metadata.nws_lid
-WHERE metadata.issued_time::timestamp without time zone > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);
+WHERE metadata."issuedTime"::timestamp without time zone > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);

@@ -16,12 +16,13 @@ Returns:
 import os
 import boto3
 import json
+import re
 from datetime import datetime
 import numpy as np
-import xarray as xr
 import pandas as pd
+import xarray as xr
 from io import StringIO
-import re
+from psycopg2.errors import UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation
 from viz_classes import database
 from viz_lambda_shared_funcs import check_if_file_exists
 
@@ -40,6 +41,7 @@ def lambda_handler(event, context):
     reference_time = event['reference_time']
     keep_flows_at_or_above = event['keep_flows_at_or_above']
     reference_time_dt = datetime.strptime(reference_time, '%Y-%m-%d %H:%M:%S')
+    create_table = event.get('iteration_index') == 0
     
     print(f"Checking existance of {file} on S3/Google Cloud/Para Nomads.")
     download_path = check_if_file_exists(bucket, file, download=True)
@@ -66,10 +68,17 @@ def lambda_handler(event, context):
                 if not target_cols:
                     target_cols = ds_vars
 
-                ds['forecast_hour'] = int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])
+                try:
+                    ds['forecast_hour'] = int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])
+                    if 'forecast_hour' not in target_cols:
+                        target_cols.append('forecast_hour')
+                except:
+                    print("Regex pattern for the forecast hour didn't match the netcdf file")
                 
                 try:
                     ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    if 'nwm_vers' not in target_cols:
+                        target_cols.append('nwm_vers')
                 except:
                     print("NWM_version_number property is not available in the netcdf file")
 
@@ -77,8 +86,9 @@ def lambda_handler(event, context):
                 df = ds.to_dataframe().reset_index()
                 df = df.drop(columns=drop_vars)
                 ds.close()
-                if 'streamflow' in ds_vars:
+                if 'streamflow' in target_cols:
                     df = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
+                df = df[target_cols]
 
             elif file.endswith('.csv'):
                 df = pd.read_csv(download_path)
@@ -93,11 +103,23 @@ def lambda_handler(event, context):
             f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
             df.to_csv(f, sep='\t', index=False, header=False)
             f.seek(0)
-            with viz_db.get_db_connection() as connection:
-                cursor = connection.cursor()
-                #cursor.copy_from(f, target_table, sep='\t', null='')  # This is the command that actual copies the data to db
-                cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-                connection.commit()
+            try:
+                with viz_db.get_db_connection() as connection:
+                    cursor = connection.cursor()
+                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                    connection.commit()
+            except (UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation):
+                if not create_table:
+                    raise
+
+                print("Error encountered. Recreating table now and retrying import...")
+                create_table_df = df.head(0)
+                schema, table = target_table.split('.')
+                create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
+                with viz_db.get_db_connection() as connection:
+                    cursor = connection.cursor()
+                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+                    connection.commit()
 
             print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")
             os.remove(download_path)

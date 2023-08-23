@@ -92,7 +92,7 @@ def setup_huc_inundation(event):
         if sql.strip().endswith(';'):
             sql = sql.replace(';', f' group by {alias}.feature_id, streamflow_cms')
         else:
-            sql += " group by max_forecast.feature_id, streamflow_cms"
+            sql += f" group by {alias}.feature_id, streamflow_cms"
 
     sql = sql.replace(";", "")
     
