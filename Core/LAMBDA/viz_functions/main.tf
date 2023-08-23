@@ -81,10 +81,10 @@ variable "db_lambda_subnets" {
   type        = list(any)
 }
 
-variable "sns_topics" {
-  description = "SnS topics"
-  type        = map(any)
-}
+# variable "sns_topics" {
+#   description = "SnS topics"
+#   type        = map(any)
+# }
 
 variable "nws_shared_account_nwm_sns" {
   type = string
@@ -178,7 +178,10 @@ variable "nwm_dataflow_version" {
 }
 
 variable "five_minute_trigger" {
-  type = object
+  type = object({
+    name = string,
+    arn = string
+  })
 }
 
 ########################################################################################################################################
@@ -483,20 +486,20 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
 }
 
-resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
-  for_each  = local.initialize_pipeline_subscriptions
-  topic_arn = var.sns_topics["${each.value}"].arn
-  protocol  = "lambda"
-  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
-}
+# resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
+#   for_each  = local.initialize_pipeline_subscriptions
+#   topic_arn = var.sns_topics["${each.value}"].arn
+#   protocol  = "lambda"
+#   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+# }
 
-resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
-  for_each      = local.initialize_pipeline_subscriptions
-  action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = var.sns_topics["${each.value}"].arn
-}
+# resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
+#   for_each      = local.initialize_pipeline_subscriptions
+#   action        = "lambda:InvokeFunction"
+#   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+#   principal     = "sns.amazonaws.com"
+#   source_arn    = var.sns_topics["${each.value}"].arn
+# }
 
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
   provider = aws.sns

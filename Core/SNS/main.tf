@@ -21,7 +21,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
 
-  sns_topics = {}
+  # sns_topics = {}
 
   email_list = flatten([
     for email_group_name, email_list in var.error_email_list : [
@@ -37,177 +37,177 @@ locals {
 ## All SNS Topics ##
 ####################
 
-resource "aws_sns_topic" "sns_topics" {
-  for_each     = local.sns_topics
-  name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
-  display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
-  tags = {
-    Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
-  }
-}
+# resource "aws_sns_topic" "sns_topics" {
+#   for_each     = local.sns_topics
+#   name         = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+#   display_name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+#   tags = {
+#     Name = "hv-vpp-${lower(var.environment)}-${lower(var.region)}-${each.key}"
+#   }
+# }
 
 
 ###########################
 ## S3 SNS Topic Policies ##
 ###########################
 
-resource "aws_sns_topic_policy" "s3_sns_topics" {
-  for_each = {
-    for topic_name, metadata in local.sns_topics : topic_name => metadata
-    if metadata.sns_type == "s3"
-  }
-  arn = resource.aws_sns_topic.sns_topics[each.key].arn
+# resource "aws_sns_topic_policy" "s3_sns_topics" {
+#   for_each = {
+#     for topic_name, metadata in local.sns_topics : topic_name => metadata
+#     if metadata.sns_type == "s3"
+#   }
+#   arn = resource.aws_sns_topic.sns_topics[each.key].arn
 
-  policy = data.aws_iam_policy_document.s3_sns_topic_policies[each.key].json
-}
+#   policy = data.aws_iam_policy_document.s3_sns_topic_policies[each.key].json
+# }
 
-data "aws_iam_policy_document" "s3_sns_topic_policies" {
-  for_each = {
-    for topic_name, metadata in local.sns_topics : topic_name => metadata
-    if metadata.sns_type == "s3"
-  }
+# data "aws_iam_policy_document" "s3_sns_topic_policies" {
+#   for_each = {
+#     for topic_name, metadata in local.sns_topics : topic_name => metadata
+#     if metadata.sns_type == "s3"
+#   }
 
-  policy_id = "__default_policy_ID"
+#   policy_id = "__default_policy_ID"
 
-  version = "2008-10-17"
+#   version = "2008-10-17"
 
-  statement {
-    sid = "__default_statement_ID"
+#   statement {
+#     sid = "__default_statement_ID"
 
-    effect = "Allow"
+#     effect = "Allow"
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
 
-    actions = [
-      "SNS:Publish",
-      "SNS:RemovePermission",
-      "SNS:SetTopicAttributes",
-      "SNS:DeleteTopic",
-      "SNS:ListSubscriptionsByTopic",
-      "SNS:GetTopicAttributes",
-      "SNS:Receive",
-      "SNS:AddPermission",
-      "SNS:Subscribe"
-    ]
+#     actions = [
+#       "SNS:Publish",
+#       "SNS:RemovePermission",
+#       "SNS:SetTopicAttributes",
+#       "SNS:DeleteTopic",
+#       "SNS:ListSubscriptionsByTopic",
+#       "SNS:GetTopicAttributes",
+#       "SNS:Receive",
+#       "SNS:AddPermission",
+#       "SNS:Subscribe"
+#     ]
 
-    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+#     resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
 
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceAccount"
+#     condition {
+#       test     = "StringEquals"
+#       variable = "AWS:SourceAccount"
 
-      values = [
-        data.aws_caller_identity.current.account_id,
-      ]
-    }
+#       values = [
+#         data.aws_caller_identity.current.account_id,
+#       ]
+#     }
 
-    condition {
-      test     = "ArnLike"
-      variable = "aws:SourceArn"
+#     condition {
+#       test     = "ArnLike"
+#       variable = "aws:SourceArn"
 
-      values = [
-        "arn:aws:s3:::${each.value.bucket}"
-      ]
-    }
-  }
+#       values = [
+#         "arn:aws:s3:::${each.value.bucket}"
+#       ]
+#     }
+#   }
 
-  statement {
-    sid    = "__console_pub_0"
-    effect = "Allow"
+#   statement {
+#     sid    = "__console_pub_0"
+#     effect = "Allow"
 
 
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+#     }
 
-    actions = [
-      "SNS:Subscribe",
-      "SNS:Receive",
-      "SNS:Publish"
-    ]
+#     actions = [
+#       "SNS:Subscribe",
+#       "SNS:Receive",
+#       "SNS:Publish"
+#     ]
 
-    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
-  }
-}
+#     resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+#   }
+# }
 
 #######################################
 ## Lambda Trigger SNS Topic Policies ##
 #######################################
 
-resource "aws_sns_topic_policy" "lambda_trigger_sns_topics" {
-  for_each = {
-    for topic_name, metadata in local.sns_topics : topic_name => metadata
-    if metadata.sns_type == "lambda_trigger"
-  }
-  arn = resource.aws_sns_topic.sns_topics[each.key].arn
+# resource "aws_sns_topic_policy" "lambda_trigger_sns_topics" {
+#   for_each = {
+#     for topic_name, metadata in local.sns_topics : topic_name => metadata
+#     if metadata.sns_type == "lambda_trigger"
+#   }
+#   arn = resource.aws_sns_topic.sns_topics[each.key].arn
 
-  policy = data.aws_iam_policy_document.lambda_trigger_sns_topic_policies[each.key].json
-}
+#   policy = data.aws_iam_policy_document.lambda_trigger_sns_topic_policies[each.key].json
+# }
 
-data "aws_iam_policy_document" "lambda_trigger_sns_topic_policies" {
-  for_each = {
-    for topic_name, metadata in local.sns_topics : topic_name => metadata
-    if metadata.sns_type == "lambda_trigger"
-  }
+# data "aws_iam_policy_document" "lambda_trigger_sns_topic_policies" {
+#   for_each = {
+#     for topic_name, metadata in local.sns_topics : topic_name => metadata
+#     if metadata.sns_type == "lambda_trigger"
+#   }
 
-  policy_id = "__default_policy_ID"
+#   policy_id = "__default_policy_ID"
 
-  version = "2008-10-17"
+#   version = "2008-10-17"
 
-  statement {
-    sid = "__default_statement_ID"
+#   statement {
+#     sid = "__default_statement_ID"
 
-    effect = "Allow"
+#     effect = "Allow"
 
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["*"]
+#     }
 
-    actions = [
-      "SNS:Publish",
-      "SNS:RemovePermission",
-      "SNS:SetTopicAttributes",
-      "SNS:DeleteTopic",
-      "SNS:ListSubscriptionsByTopic",
-      "SNS:GetTopicAttributes",
-      "SNS:AddPermission",
-      "SNS:Subscribe"
-    ]
+#     actions = [
+#       "SNS:Publish",
+#       "SNS:RemovePermission",
+#       "SNS:SetTopicAttributes",
+#       "SNS:DeleteTopic",
+#       "SNS:ListSubscriptionsByTopic",
+#       "SNS:GetTopicAttributes",
+#       "SNS:AddPermission",
+#       "SNS:Subscribe"
+#     ]
 
-    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+#     resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
 
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceAccount"
+#     condition {
+#       test     = "StringEquals"
+#       variable = "AWS:SourceAccount"
 
-      values = [
-        data.aws_caller_identity.current.account_id,
-      ]
-    }
-  }
+#       values = [
+#         data.aws_caller_identity.current.account_id,
+#       ]
+#     }
+#   }
 
-  statement {
-    sid    = "__console_sub_0"
-    effect = "Allow"
+#   statement {
+#     sid    = "__console_sub_0"
+#     effect = "Allow"
 
 
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
-    }
+#     principals {
+#       type        = "AWS"
+#       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+#     }
 
-    actions = [
-      "SNS:Subscribe"
-    ]
+#     actions = [
+#       "SNS:Subscribe"
+#     ]
 
-    resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
-  }
-}
+#     resources = [resource.aws_sns_topic.sns_topics[each.key].arn]
+#   }
+# }
 
 ##############################
 ## Email SNS Topic Policies ##
@@ -284,24 +284,24 @@ resource "aws_sns_topic_subscription" "email-targets" {
 ## Event Notifications ##
 #########################
 
-resource "aws_s3_bucket_notification" "rnr_bucket_notification" {
-  bucket = var.rnr_data_bucket
+# resource "aws_s3_bucket_notification" "rnr_bucket_notification" {
+#   bucket = var.rnr_data_bucket
 
-  topic {
-    topic_arn     = resource.aws_sns_topic.sns_topics["rnr_wrf_hydro_output"].arn
-    events        = ["s3:ObjectCreated:*"]
-    filter_prefix = "replace_route/"
-    filter_suffix = ".medium_range.channel_rt.f119.conus.nc"
-  }
-}
+#   topic {
+#     topic_arn     = resource.aws_sns_topic.sns_topics["rnr_wrf_hydro_output"].arn
+#     events        = ["s3:ObjectCreated:*"]
+#     filter_prefix = "replace_route/"
+#     filter_suffix = ".medium_range.channel_rt.f119.conus.nc"
+#   }
+# }
 
 #############
 ## Outputs ##
 #############
 
-output "sns_topics" {
-  value = { for k, v in resource.aws_sns_topic.sns_topics : k => v }
-}
+# output "sns_topics" {
+#   value = { for k, v in resource.aws_sns_topic.sns_topics : k => v }
+# }
 
 output "email_sns_topics" {
   value = { for k, v in resource.aws_sns_topic.email_sns_topics : k => v }
