@@ -32,10 +32,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -10630556.9812317993,
-      "ymin" : 3734022.29229468107,
-      "xmax" : -10620049.1966687422,
-      "ymax" : 3743447.307488244,
+      "xmin" : -10706704.2035078239,
+      "ymin" : 3698077.63161661709,
+      "xmax" : -10596697.26881103,
+      "ymax" : 3770801.51428299816,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -3540,7 +3540,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
