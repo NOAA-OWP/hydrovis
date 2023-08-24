@@ -30,15 +30,15 @@
       "CIMPATH=map/new_group_layer2.xml",
       "CIMPATH=map/new_group_layer3.xml",
       "CIMPATH=map/new_group_layer4.xml",
-      "CIMPATH=map/hydrovis_reference_nws_flood_categorical_hand_fim.xml"
+      "CIMPATH=map/stage_based_catfim__major_threshold.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -10044905.7620104756,
-      "ymin" : 3793163.34965173015,
-      "xmax" : -10035058.9697989989,
-      "ymax" : 3799672.91164799267,
+      "xmin" : -10001464.8847289458,
+      "ymin" : 3758380.462857753,
+      "xmax" : -9750273.603329502,
+      "ymax" : 3869711.1845027674,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -684,7 +684,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_sites_1_2_1_2",
           "datasetType" : "esriDTFeatureClass",
@@ -716,49 +716,49 @@
               "name" : "wrds_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "wrds_timestamp",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nrldb_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "nrldb_timestamp",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nwis_timestamp",
               "type" : "esriFieldTypeString",
               "alias" : "nwis_timestamp",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "metadata_sources",
               "type" : "esriFieldTypeString",
               "alias" : "metadata_sources",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "ahps_lid",
               "type" : "esriFieldTypeString",
               "alias" : "ahps_lid",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_gage",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_gage",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nwm_seg",
               "type" : "esriFieldTypeString",
               "alias" : "nwm_seg",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "identifiers_goes_id",
               "type" : "esriFieldTypeString",
               "alias" : "identifiers_goes_id",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "identifiers_env_can_gage_id",
@@ -769,25 +769,25 @@
               "name" : "nws_data_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_wfo",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_wfo",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_geo_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_geo_rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_latitude",
@@ -803,25 +803,25 @@
               "name" : "nws_data_map_link",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_map_link",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_horizontal_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_horizontal_datum_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_state",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_state",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_county",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_county",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_county_code",
@@ -832,13 +832,13 @@
               "name" : "nws_data_huc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_huc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_hsa",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_hsa",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_zero_datum",
@@ -849,67 +849,67 @@
               "name" : "nws_data_vertical_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_vertical_datum_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_rfc_forecast_point",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc_forecast_point",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_rfc_defined_fcst_point",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_rfc_defined_fcst_point",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_data_riverpoint",
               "type" : "esriFieldTypeString",
               "alias" : "nws_data_riverpoint",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_geo_rfc",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_geo_rfc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_map_link",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_map_link",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_coord_accuracy_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_coord_accuracy_code",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_latlon_datum_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_coord_method_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_coord_method_code",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_state",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_state",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_huc",
@@ -920,7 +920,7 @@
               "name" : "usgs_data_site_type",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_site_type",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_altitude",
@@ -936,13 +936,13 @@
               "name" : "usgs_data_alt_datum_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_alt_datum_code",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_alt_method_code",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_alt_method_code",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_drainage_area",
@@ -953,7 +953,7 @@
               "name" : "usgs_data_drainage_area_units",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_data_drainage_area_units",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_data_contrib_drainage_area",
@@ -979,79 +979,79 @@
               "name" : "nws_preferred_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_preferred_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_latlon_datum_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_preferred_state",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_state",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "nws_preferred_huc",
               "type" : "esriFieldTypeString",
               "alias" : "nws_preferred_huc",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_preferred_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_preferred_latlon_datum_name",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_latlon_datum_name",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "usgs_preferred_state",
               "type" : "esriFieldTypeString",
               "alias" : "usgs_preferred_state",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "assigned_crs",
               "type" : "esriFieldTypeString",
               "alias" : "assigned_crs",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "huc8",
               "type" : "esriFieldTypeString",
               "alias" : "huc8",
-              "length" : 8
+              "length" : 60000
             },
             {
               "name" : "name",
               "type" : "esriFieldTypeString",
               "alias" : "name",
-              "length" : 60
+              "length" : 60000
             },
             {
               "name" : "states",
               "type" : "esriFieldTypeString",
               "alias" : "states",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "mapped",
               "type" : "esriFieldTypeString",
               "alias" : "mapped",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "status",
               "type" : "esriFieldTypeString",
               "alias" : "status",
-              "length" : 255
+              "length" : 60000
             },
             {
               "name" : "geom",
@@ -1386,7 +1386,7 @@
                                 2
                               ],
                               [
-                                1.9639843619522576e-15,
+                                6.6030623875207053e-16,
                                 0
                               ],
                               0,
@@ -1462,15 +1462,20 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "anchorPoint" : {
+                          "x" : 0,
+                          "y" : 0,
+                          "z" : 0
+                        },
                         "anchorPointUnits" : "Relative",
-                        "dominantSizeAxis3D" : "Z",
-                        "size" : 5,
+                        "dominantSizeAxis3D" : "Y",
+                        "size" : 6,
                         "billboardMode3D" : "FaceNearPlane",
                         "frame" : {
-                          "xmin" : -2,
-                          "ymin" : -2,
-                          "xmax" : 2,
-                          "ymax" : 2
+                          "xmin" : -5,
+                          "ymin" : -5,
+                          "xmax" : 5,
+                          "ymax" : 5
                         },
                         "markerGraphics" : [
                           {
@@ -1479,17 +1484,17 @@
                               "curveRings" : [
                                 [
                                   [
-                                    1.2246467991473532e-16,
-                                    2
+                                    0,
+                                    5
                                   ],
                                   {
                                     "a" : [
                                       [
-                                        1.2246467991473532e-16,
-                                        2
+                                        0,
+                                        5
                                       ],
                                       [
-                                        2.4367244922566943e-15,
+                                        2.4907917040907614e-15,
                                         0
                                       ],
                                       0,
@@ -1509,7 +1514,7 @@
                                   "joinStyle" : "Round",
                                   "lineStyle3D" : "Strip",
                                   "miterLimit" : 10,
-                                  "width" : 0.87499999999999989,
+                                  "width" : 0,
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
@@ -1537,6 +1542,7 @@
                             }
                           }
                         ],
+                        "scaleSymbolsProportionally" : true,
                         "respectFrame" : true
                       }
                     ],
@@ -1567,15 +1573,20 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "anchorPoint" : {
+                          "x" : 0,
+                          "y" : 0,
+                          "z" : 0
+                        },
                         "anchorPointUnits" : "Relative",
-                        "dominantSizeAxis3D" : "Z",
-                        "size" : 5,
+                        "dominantSizeAxis3D" : "Y",
+                        "size" : 6,
                         "billboardMode3D" : "FaceNearPlane",
                         "frame" : {
-                          "xmin" : -2,
-                          "ymin" : -2,
-                          "xmax" : 2,
-                          "ymax" : 2
+                          "xmin" : -5,
+                          "ymin" : -5,
+                          "xmax" : 5,
+                          "ymax" : 5
                         },
                         "markerGraphics" : [
                           {
@@ -1584,17 +1595,17 @@
                               "curveRings" : [
                                 [
                                   [
-                                    1.2246467991473532e-16,
-                                    2
+                                    0,
+                                    5
                                   ],
                                   {
                                     "a" : [
                                       [
-                                        1.2246467991473532e-16,
-                                        2
+                                        0,
+                                        5
                                       ],
                                       [
-                                        2.4367244922566943e-15,
+                                        8.4213810586273917e-16,
                                         0
                                       ],
                                       0,
@@ -1614,7 +1625,7 @@
                                   "joinStyle" : "Round",
                                   "lineStyle3D" : "Strip",
                                   "miterLimit" : 10,
-                                  "width" : 0.87499999999999989,
+                                  "width" : 1,
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
@@ -1642,6 +1653,7 @@
                             }
                           }
                         ],
+                        "scaleSymbolsProportionally" : true,
                         "respectFrame" : true
                       }
                     ],
@@ -1661,13 +1673,16 @@
                 "visible" : true
               }
             ],
-            "heading" : "Mapping Status"
+            "heading" : "Mapped"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing"
+      }
     },
     {
       "type" : "CIMFeatureLayer",
@@ -1848,10 +1863,9 @@
             "searchMode" : "Exact"
           }
         ],
-        "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e685936573231703631566e482b6331712b3361682f41644738636b474539657a38672b6948554f5731613251577365346834543571774453754859513747485a332a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
@@ -2199,23 +2213,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -2227,13 +2227,13 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 1,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    110,
-                    110,
-                    110,
+                    255,
+                    255,
+                    0,
                     100
                   ]
                 }
@@ -2247,79 +2247,13 @@
                     130,
                     130,
                     130,
-                    100
+                    0
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Action 1ft Intervals",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            255,
-                            255,
-                            0,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            255,
-                            255,
-                            0,
-                            0
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "action"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Magnitude"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
       "snappable" : true,
@@ -2330,21 +2264,21 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Stage-Based CatFIM: Action Threshold",
-      "uRI" : "CIMPATH=map/stage_based_catfim4.xml",
+      "uRI" : "CIMPATH=map/hydrovis_reference_stage_based_catfim.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
+      "metadataURI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.reference.nws_flood_categorical_hand_fim",
+      "description" : "hydrovis.reference.stage_based_catfim",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
       "expanded" : true,
       "layerType" : "Operational",
-      "minScale" : 750000,
+      "minScale" : 815000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -2358,13 +2292,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage =   0 AND magnitude = 'action'",
+        "definitionExpression" : "interval_stage = 0 And magnitude = 'action'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0 AND magnitude = 'action'"
+            "definitionExpression" : "interval_stage = 0 And magnitude = 'action'"
           }
         ],
         "displayField" : "name",
@@ -2456,8 +2390,8 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -2478,15 +2412,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Viz",
-            "fieldName" : "viz",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
+            "alias" : "version",
+            "fieldName" : "version",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -2498,20 +2425,181 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q",
+            "fieldName" : "q",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_uni",
+            "fieldName" : "q_uni",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_src",
+            "fieldName" : "q_src",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_time",
+            "fieldName" : "wrds_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_time",
+            "fieldName" : "nrldb_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_time",
+            "fieldName" : "nwis_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lat",
+            "fieldName" : "lat",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lon",
+            "fieldName" : "lon",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dtm_adj_ft",
+            "fieldName" : "dtm_adj_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_ft",
+            "fieldName" : "dadj_w_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_m",
+            "fieldName" : "dadj_w_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_ft",
+            "fieldName" : "lid_alt_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "viz",
+            "fieldName" : "viz",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2545,6 +2633,12 @@
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
+              "length" : 60000
+            },
+            {
+              "name" : "version",
+              "type" : "esriFieldTypeString",
+              "alias" : "version",
               "length" : 60000
             },
             {
@@ -2589,6 +2683,23 @@
               "length" : 60000
             },
             {
+              "name" : "q",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "q"
+            },
+            {
+              "name" : "q_uni",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_uni",
+              "length" : 60000
+            },
+            {
+              "name" : "q_src",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_src",
+              "length" : 60000
+            },
+            {
               "name" : "stage",
               "type" : "esriFieldTypeDouble",
               "alias" : "stage"
@@ -2604,6 +2715,59 @@
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
               "length" : 60000
+            },
+            {
+              "name" : "wrds_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "wrds_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nrldb_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nrldb_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nwis_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwis_time",
+              "length" : 60000
+            },
+            {
+              "name" : "lat",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lat"
+            },
+            {
+              "name" : "lon",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lon"
+            },
+            {
+              "name" : "dtm_adj_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dtm_adj_ft"
+            },
+            {
+              "name" : "dadj_w_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_ft"
+            },
+            {
+              "name" : "dadj_w_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_m"
+            },
+            {
+              "name" : "lid_alt_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_ft"
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
@@ -2646,6 +2810,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
+          "expressionTitle" : "Custom",
           "expression" : "$feature.name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
@@ -2855,23 +3020,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -2879,7 +3030,6 @@
               {
                 "type" : "CIMSolidStroke",
                 "enable" : true,
-                "name" : "Group 11",
                 "capStyle" : "Round",
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
@@ -2898,105 +3048,22 @@
               {
                 "type" : "CIMSolidFill",
                 "enable" : true,
-                "name" : "Group 12",
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    255,
+                    255,
+                    0,
                     100
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Action",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "name" : "Group 1",
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "name" : "Group 2",
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            60,
-                            100,
-                            100,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "action"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Flood Category"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 1"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 2"
-          }
-        ],
-        "useSymbolLayerDrawing" : true
-      }
+      "snappable" : true
     },
     {
       "type" : "CIMGroupLayer",
@@ -3025,7 +3092,7 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=map/stage_based_catfim__1ft_intervals.xml",
-        "CIMPATH=map/stage_based_catfim4.xml"
+        "CIMPATH=map/hydrovis_reference_stage_based_catfim.xml"
       ]
     },
     {
@@ -3208,7 +3275,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
@@ -3556,23 +3623,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -3588,9 +3641,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    110,
-                    110,
-                    110,
+                    255,
+                    170,
+                    0,
                     100
                   ]
                 }
@@ -3601,82 +3654,16 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
-                    100
+                    186.05000000000001,
+                    186.05000000000001,
+                    244.80000000000001,
+                    0
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Minor 1ft Intervals",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            255,
-                            170,
-                            0,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            255,
-                            170,
-                            0,
-                            0
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "minor"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Magnitude"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
       "snappable" : true,
@@ -3687,21 +3674,21 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Stage-Based CatFIM: Minor Threshold",
-      "uRI" : "CIMPATH=map/stage_based_catfim3.xml",
+      "uRI" : "CIMPATH=map/stage_based_catfim__action_threshold3.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
+      "metadataURI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.reference.nws_flood_categorical_hand_fim",
+      "description" : "hydrovis.reference.stage_based_catfim",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
       "expanded" : true,
       "layerType" : "Operational",
-      "minScale" : 750000,
+      "minScale" : 815000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -3715,13 +3702,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage =  0 AND magnitude = 'minor'",
+        "definitionExpression" : "interval_stage = 0 And magnitude = 'minor'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0 AND magnitude = 'minor'"
+            "definitionExpression" : "interval_stage = 0 And magnitude = 'minor'"
           }
         ],
         "displayField" : "name",
@@ -3813,8 +3800,8 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -3835,15 +3822,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Viz",
-            "fieldName" : "viz",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
+            "alias" : "version",
+            "fieldName" : "version",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -3855,20 +3835,181 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q",
+            "fieldName" : "q",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_uni",
+            "fieldName" : "q_uni",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_src",
+            "fieldName" : "q_src",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_time",
+            "fieldName" : "wrds_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_time",
+            "fieldName" : "nrldb_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_time",
+            "fieldName" : "nwis_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lat",
+            "fieldName" : "lat",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lon",
+            "fieldName" : "lon",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dtm_adj_ft",
+            "fieldName" : "dtm_adj_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_ft",
+            "fieldName" : "dadj_w_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_m",
+            "fieldName" : "dadj_w_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_ft",
+            "fieldName" : "lid_alt_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "viz",
+            "fieldName" : "viz",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3902,6 +4043,12 @@
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
+              "length" : 60000
+            },
+            {
+              "name" : "version",
+              "type" : "esriFieldTypeString",
+              "alias" : "version",
               "length" : 60000
             },
             {
@@ -3946,6 +4093,23 @@
               "length" : 60000
             },
             {
+              "name" : "q",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "q"
+            },
+            {
+              "name" : "q_uni",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_uni",
+              "length" : 60000
+            },
+            {
+              "name" : "q_src",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_src",
+              "length" : 60000
+            },
+            {
               "name" : "stage",
               "type" : "esriFieldTypeDouble",
               "alias" : "stage"
@@ -3961,6 +4125,59 @@
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
               "length" : 60000
+            },
+            {
+              "name" : "wrds_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "wrds_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nrldb_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nrldb_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nwis_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwis_time",
+              "length" : 60000
+            },
+            {
+              "name" : "lat",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lat"
+            },
+            {
+              "name" : "lon",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lon"
+            },
+            {
+              "name" : "dtm_adj_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dtm_adj_ft"
+            },
+            {
+              "name" : "dadj_w_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_ft"
+            },
+            {
+              "name" : "dadj_w_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_m"
+            },
+            {
+              "name" : "lid_alt_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_ft"
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
@@ -4003,6 +4220,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
+          "expressionTitle" : "Custom",
           "expression" : "$feature.name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
@@ -4212,23 +4430,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -4236,7 +4440,6 @@
               {
                 "type" : "CIMSolidStroke",
                 "enable" : true,
-                "name" : "Group 11",
                 "capStyle" : "Round",
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
@@ -4255,105 +4458,22 @@
               {
                 "type" : "CIMSolidFill",
                 "enable" : true,
-                "name" : "Group 12",
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    255,
+                    170,
+                    0,
                     100
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Minor",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "name" : "Group 5",
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "name" : "Group 6",
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            36,
-                            100,
-                            100,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "minor"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Flood Category"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 5"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 6"
-          }
-        ],
-        "useSymbolLayerDrawing" : true
-      }
+      "snappable" : true
     },
     {
       "type" : "CIMGroupLayer",
@@ -4382,7 +4502,7 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=map/stage_based_catfim__action.xml",
-        "CIMPATH=map/stage_based_catfim3.xml"
+        "CIMPATH=map/stage_based_catfim__action_threshold3.xml"
       ]
     },
     {
@@ -4563,10 +4683,9 @@
             "searchMode" : "Exact"
           }
         ],
-        "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
@@ -4914,23 +5033,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -4946,9 +5051,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    110,
-                    110,
-                    110,
+                    255,
+                    0,
+                    0,
                     100
                   ]
                 }
@@ -4959,82 +5064,16 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
-                    100
+                    244.63,
+                    247.34999999999999,
+                    192.93000000000001,
+                    0
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "moderate",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            255,
-                            0,
-                            0,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            212.75,
-                            27.329999999999998,
-                            99.930000000000007,
-                            0
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "moderate"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Magnitude"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
       "snappable" : true,
@@ -5045,21 +5084,21 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Stage-Based CatFIM: Moderate Threshold",
-      "uRI" : "CIMPATH=map/stage_based_catfim2.xml",
+      "uRI" : "CIMPATH=map/stage_based_catfim__minor_threshold.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
+      "metadataURI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.reference.nws_flood_categorical_hand_fim",
+      "description" : "hydrovis.reference.stage_based_catfim",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
       "expanded" : true,
       "layerType" : "Operational",
-      "minScale" : 750000,
+      "minScale" : 815000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -5073,13 +5112,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage =  0 AND magnitude = 'moderate'",
+        "definitionExpression" : "interval_stage = 0 And magnitude = 'moderate'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0 AND magnitude = 'moderate'"
+            "definitionExpression" : "interval_stage = 0 And magnitude = 'moderate'"
           }
         ],
         "displayField" : "name",
@@ -5171,8 +5210,8 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -5193,15 +5232,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Viz",
-            "fieldName" : "viz",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
+            "alias" : "version",
+            "fieldName" : "version",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -5213,20 +5245,181 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q",
+            "fieldName" : "q",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_uni",
+            "fieldName" : "q_uni",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_src",
+            "fieldName" : "q_src",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_time",
+            "fieldName" : "wrds_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_time",
+            "fieldName" : "nrldb_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_time",
+            "fieldName" : "nwis_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lat",
+            "fieldName" : "lat",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lon",
+            "fieldName" : "lon",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dtm_adj_ft",
+            "fieldName" : "dtm_adj_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_ft",
+            "fieldName" : "dadj_w_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_m",
+            "fieldName" : "dadj_w_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_ft",
+            "fieldName" : "lid_alt_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "viz",
+            "fieldName" : "viz",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5260,6 +5453,12 @@
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
+              "length" : 60000
+            },
+            {
+              "name" : "version",
+              "type" : "esriFieldTypeString",
+              "alias" : "version",
               "length" : 60000
             },
             {
@@ -5304,6 +5503,23 @@
               "length" : 60000
             },
             {
+              "name" : "q",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "q"
+            },
+            {
+              "name" : "q_uni",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_uni",
+              "length" : 60000
+            },
+            {
+              "name" : "q_src",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_src",
+              "length" : 60000
+            },
+            {
               "name" : "stage",
               "type" : "esriFieldTypeDouble",
               "alias" : "stage"
@@ -5319,6 +5535,59 @@
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
               "length" : 60000
+            },
+            {
+              "name" : "wrds_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "wrds_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nrldb_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nrldb_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nwis_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwis_time",
+              "length" : 60000
+            },
+            {
+              "name" : "lat",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lat"
+            },
+            {
+              "name" : "lon",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lon"
+            },
+            {
+              "name" : "dtm_adj_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dtm_adj_ft"
+            },
+            {
+              "name" : "dadj_w_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_ft"
+            },
+            {
+              "name" : "dadj_w_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_m"
+            },
+            {
+              "name" : "lid_alt_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_ft"
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
@@ -5361,6 +5630,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
+          "expressionTitle" : "Custom",
           "expression" : "$feature.name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
@@ -5570,23 +5840,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -5594,7 +5850,6 @@
               {
                 "type" : "CIMSolidStroke",
                 "enable" : true,
-                "name" : "Group 11",
                 "capStyle" : "Round",
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
@@ -5613,105 +5868,22 @@
               {
                 "type" : "CIMSolidFill",
                 "enable" : true,
-                "name" : "Group 12",
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    255,
+                    0,
+                    0,
                     100
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Moderate",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "name" : "Group 7",
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "name" : "Group 8",
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            0,
-                            100,
-                            100,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "moderate"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Flood Category"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 7"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 8"
-          }
-        ],
-        "useSymbolLayerDrawing" : true
-      }
+      "snappable" : true
     },
     {
       "type" : "CIMGroupLayer",
@@ -5740,7 +5912,7 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=map/stage_based_catfim__1ft_intervals4.xml",
-        "CIMPATH=map/stage_based_catfim2.xml"
+        "CIMPATH=map/stage_based_catfim__minor_threshold.xml"
       ]
     },
     {
@@ -5774,15 +5946,6 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage <> 0 And magnitude = 'major'",
-        "definitionExpressionName" : "Query 1",
-        "definitionFilterChoices" : [
-          {
-            "type" : "CIMDefinitionFilter",
-            "name" : "Query 1",
-            "definitionExpression" : "interval_stage <> 0 And magnitude = 'major'"
-          }
-        ],
         "displayField" : "name",
         "editable" : true,
         "fieldDescriptions" : [
@@ -5921,10 +6084,9 @@
             "searchMode" : "Exact"
           }
         ],
-        "selectionSetURI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
@@ -6272,23 +6434,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -6304,9 +6452,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    110,
-                    110,
-                    110,
+                    197,
+                    0,
+                    255,
                     100
                   ]
                 }
@@ -6317,82 +6465,16 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
-                    100
+                    189.91999999999999,
+                    249.90000000000001,
+                    221.91,
+                    0
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Major 1ft Intervals",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            169,
-                            0,
-                            230,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            299.64999999999998,
-                            29.27,
-                            99.709999999999994,
-                            0
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "major"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Magnitude"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
       "snappable" : true,
@@ -6403,21 +6485,21 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Stage-Based CatFIM: Major Threshold",
-      "uRI" : "CIMPATH=map/stage_based_catfim.xml",
+      "uRI" : "CIMPATH=map/stage_based_catfim__moderate_threshold.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
+      "metadataURI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.reference.nws_flood_categorical_hand_fim",
+      "description" : "hydrovis.reference.stage_based_catfim",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
       "expanded" : true,
       "layerType" : "Operational",
-      "minScale" : 750000,
+      "minScale" : 815000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -6431,13 +6513,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage =  0 AND magnitude = 'major'",
+        "definitionExpression" : "interval_stage = 0 And magnitude = 'major'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0 AND magnitude = 'major'"
+            "definitionExpression" : "interval_stage = 0 And magnitude = 'major'"
           }
         ],
         "displayField" : "name",
@@ -6529,8 +6611,8 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -6551,15 +6633,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Viz",
-            "fieldName" : "viz",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
+            "alias" : "version",
+            "fieldName" : "version",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -6571,20 +6646,181 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q",
+            "fieldName" : "q",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_uni",
+            "fieldName" : "q_uni",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_src",
+            "fieldName" : "q_src",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_time",
+            "fieldName" : "wrds_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_time",
+            "fieldName" : "nrldb_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_time",
+            "fieldName" : "nwis_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lat",
+            "fieldName" : "lat",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lon",
+            "fieldName" : "lon",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dtm_adj_ft",
+            "fieldName" : "dtm_adj_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_ft",
+            "fieldName" : "dadj_w_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_m",
+            "fieldName" : "dadj_w_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_ft",
+            "fieldName" : "lid_alt_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "viz",
+            "fieldName" : "viz",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6618,6 +6854,12 @@
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
+              "length" : 60000
+            },
+            {
+              "name" : "version",
+              "type" : "esriFieldTypeString",
+              "alias" : "version",
               "length" : 60000
             },
             {
@@ -6662,6 +6904,23 @@
               "length" : 60000
             },
             {
+              "name" : "q",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "q"
+            },
+            {
+              "name" : "q_uni",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_uni",
+              "length" : 60000
+            },
+            {
+              "name" : "q_src",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_src",
+              "length" : 60000
+            },
+            {
               "name" : "stage",
               "type" : "esriFieldTypeDouble",
               "alias" : "stage"
@@ -6677,6 +6936,59 @@
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
               "length" : 60000
+            },
+            {
+              "name" : "wrds_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "wrds_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nrldb_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nrldb_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nwis_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwis_time",
+              "length" : 60000
+            },
+            {
+              "name" : "lat",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lat"
+            },
+            {
+              "name" : "lon",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lon"
+            },
+            {
+              "name" : "dtm_adj_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dtm_adj_ft"
+            },
+            {
+              "name" : "dadj_w_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_ft"
+            },
+            {
+              "name" : "dadj_w_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_m"
+            },
+            {
+              "name" : "lid_alt_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_ft"
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
@@ -6719,6 +7031,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
+          "expressionTitle" : "Custom",
           "expression" : "$feature.name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
@@ -6928,23 +7241,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -6952,7 +7251,6 @@
               {
                 "type" : "CIMSolidStroke",
                 "enable" : true,
-                "name" : "Group 11",
                 "capStyle" : "Round",
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
@@ -6971,105 +7269,22 @@
               {
                 "type" : "CIMSolidFill",
                 "enable" : true,
-                "name" : "Group 12",
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    197,
+                    0,
+                    255,
                     100
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Major",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "name" : "Group 3",
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "name" : "Group 4",
-                        "color" : {
-                          "type" : "CIMHSVColor",
-                          "values" : [
-                            285,
-                            80,
-                            100,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "major"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Flood Category"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 3"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 4"
-          }
-        ],
-        "useSymbolLayerDrawing" : true
-      }
+      "snappable" : true
     },
     {
       "type" : "CIMGroupLayer",
@@ -7098,27 +7313,27 @@
       "blendingMode" : "Alpha",
       "layers" : [
         "CIMPATH=map/stage_based_catfim__1ft_intervals2.xml",
-        "CIMPATH=map/stage_based_catfim.xml"
+        "CIMPATH=map/stage_based_catfim__moderate_threshold.xml"
       ]
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: Record",
-      "uRI" : "CIMPATH=map/hydrovis_reference_nws_flood_categorical_hand_fim.xml",
+      "name" : "Stage-Based CatFIM: Major Threshold",
+      "uRI" : "CIMPATH=map/stage_based_catfim__major_threshold.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
+      "metadataURI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.reference.nws_flood_categorical_hand_fim",
+      "description" : "hydrovis.reference.stage_based_catfim",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{019DF820-BDA4-4783-84EF-8DA6118FA665}"
+        "mapElevationID" : "{2040A0DA-3625-405D-8B32-E14FA806A248}"
       },
       "expanded" : true,
       "layerType" : "Operational",
-      "minScale" : 750000,
+      "minScale" : 815000,
       "showLegends" : true,
       "visibility" : true,
       "displayCacheType" : "Permanent",
@@ -7132,13 +7347,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "interval_stage =  0 AND magnitude = 'record'",
+        "definitionExpression" : "interval_stage = 0 And magnitude = 'record'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "interval_stage = 0 AND magnitude = 'record'"
+            "definitionExpression" : "interval_stage = 0 And magnitude = 'record'"
           }
         ],
         "displayField" : "name",
@@ -7230,8 +7445,8 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -7252,15 +7467,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Viz",
-            "fieldName" : "viz",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "geom",
-            "fieldName" : "geom",
+            "alias" : "version",
+            "fieldName" : "version",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -7272,20 +7480,181 @@
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfSignificantDigits",
-              "roundingValue" : 2
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
             },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q",
+            "fieldName" : "q",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_uni",
+            "fieldName" : "q_uni",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "q_src",
+            "fieldName" : "q_src",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "wrds_time",
+            "fieldName" : "wrds_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nrldb_time",
+            "fieldName" : "nrldb_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "nwis_time",
+            "fieldName" : "nwis_time",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lat",
+            "fieldName" : "lat",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lon",
+            "fieldName" : "lon",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dtm_adj_ft",
+            "fieldName" : "dtm_adj_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_ft",
+            "fieldName" : "dadj_w_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "dadj_w_m",
+            "fieldName" : "dadj_w_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_ft",
+            "fieldName" : "lid_alt_ft",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "lid_alt_m",
+            "fieldName" : "lid_alt_m",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "viz",
+            "fieldName" : "viz",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686878455a613571757330706a6a516f76306a542b5a75794557563168622b7a4c3441647561456e377742773d2a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e684e37643661485765355154746452443754697151565849456e6d776655644b505565365a4d366b67767341725a6846336e6e614b796d3252414c5071644e4c742a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "hydrovis.reference.%stage_based_catfim_1",
+          "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version from hydrovis.reference.stage_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -7319,6 +7688,12 @@
               "name" : "magnitude",
               "type" : "esriFieldTypeString",
               "alias" : "magnitude",
+              "length" : 60000
+            },
+            {
+              "name" : "version",
+              "type" : "esriFieldTypeString",
+              "alias" : "version",
               "length" : 60000
             },
             {
@@ -7363,6 +7738,23 @@
               "length" : 60000
             },
             {
+              "name" : "q",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "q"
+            },
+            {
+              "name" : "q_uni",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_uni",
+              "length" : 60000
+            },
+            {
+              "name" : "q_src",
+              "type" : "esriFieldTypeString",
+              "alias" : "q_src",
+              "length" : 60000
+            },
+            {
               "name" : "stage",
               "type" : "esriFieldTypeDouble",
               "alias" : "stage"
@@ -7378,6 +7770,59 @@
               "type" : "esriFieldTypeString",
               "alias" : "s_src",
               "length" : 60000
+            },
+            {
+              "name" : "wrds_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "wrds_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nrldb_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nrldb_time",
+              "length" : 60000
+            },
+            {
+              "name" : "nwis_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "nwis_time",
+              "length" : 60000
+            },
+            {
+              "name" : "lat",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lat"
+            },
+            {
+              "name" : "lon",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lon"
+            },
+            {
+              "name" : "dtm_adj_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dtm_adj_ft"
+            },
+            {
+              "name" : "dadj_w_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_ft"
+            },
+            {
+              "name" : "dadj_w_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "dadj_w_m"
+            },
+            {
+              "name" : "lid_alt_ft",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_ft"
+            },
+            {
+              "name" : "lid_alt_m",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "lid_alt_m"
             },
             {
               "name" : "viz",
@@ -7420,6 +7865,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
+          "expressionTitle" : "Custom",
           "expression" : "$feature.name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
@@ -7541,7 +7987,7 @@
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "Low",
+            "featureWeight" : "None",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
@@ -7629,23 +8075,9 @@
         }
       ],
       "renderer" : {
-        "type" : "CIMUniqueValueRenderer",
-        "colorRamp" : {
-          "type" : "CIMRandomHSVColorRamp",
-          "colorSpace" : {
-            "type" : "CIMICCColorSpace",
-            "url" : "Default RGB"
-          },
-          "maxH" : 360,
-          "minS" : 15,
-          "maxS" : 30,
-          "minV" : 99,
-          "maxV" : 100,
-          "minAlpha" : 100,
-          "maxAlpha" : 100
-        },
-        "defaultLabel" : "<all other values>",
-        "defaultSymbol" : {
+        "type" : "CIMSimpleRenderer",
+        "patch" : "Default",
+        "symbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
             "type" : "CIMPolygonSymbol",
@@ -7653,7 +8085,6 @@
               {
                 "type" : "CIMSolidStroke",
                 "enable" : true,
-                "name" : "Group 11",
                 "capStyle" : "Round",
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
@@ -7672,105 +8103,22 @@
               {
                 "type" : "CIMSolidFill",
                 "enable" : true,
-                "name" : "Group 12",
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    0,
+                    197,
+                    255,
                     100
                   ]
                 }
               }
             ]
           }
-        },
-        "defaultSymbolPatch" : "Default",
-        "fields" : [
-          "magnitude"
-        ],
-        "groups" : [
-          {
-            "type" : "CIMUniqueValueGroup",
-            "classes" : [
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Record",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "name" : "Group 9",
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "name" : "Group 10",
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            0,
-                            197,
-                            255,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "record"
-                    ]
-                  }
-                ],
-                "visible" : true
-              }
-            ],
-            "heading" : "Flood Category"
-          }
-        ],
-        "polygonSymbolColorTarget" : "Fill"
+        }
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 9"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolLayerName" : "Group 10"
-          }
-        ],
-        "useSymbolLayerDrawing" : true
-      }
+      "snappable" : true
     }
   ],
   "binaryReferences" : [
@@ -7783,6 +8131,11 @@
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/2daef7e5de38aaa23c7db4cfd117aca3.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220725</CreaDate><CreaTime>20210700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/4d2067b93eeed6f6f62958c3fc181a9f.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230824</CreaDate><CreaTime>19323500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
@@ -7808,11 +8161,6 @@
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/b22945b8486342a73c9cc385edb3ef2c.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230403</CreaDate><CreaTime>19215600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>New Group Layer</resTitle></idCitation><idAbs>New Group Layer</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=SelectionSet/56a46e6e95c1a603351043391bb018b6.dat",
-      "data" : "CgMxLjAQARoHCgUxMTI1Mw=="
     }
   ]
 }
