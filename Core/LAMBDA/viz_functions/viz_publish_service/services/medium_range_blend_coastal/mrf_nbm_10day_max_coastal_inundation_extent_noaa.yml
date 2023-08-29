@@ -1,4 +1,4 @@
-service: mrf_gfs_10day_max_coastal_inundation_extent_noaa
+service: mrf_nbm_10day_max_coastal_inundation_extent_noaa
 summary: Medium-Range GFS 10 Day Maximum Coastal Inundation Extent Forecast
 description: Depicts the inundation extent of the peak National Water Model (NWM) total water level forecast 
   over the next 3, 5, and 10 days. This service is derived from the medium-range GFS configuration of the NWM 
