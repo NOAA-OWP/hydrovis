@@ -1439,7 +1439,7 @@
     },
     {
       "type" : "CIMRasterLayer",
-      "name" : "Atlantic and Gulf Coastal Inundation Depth",
+      "name" : "PSURGE Coastal Inundation Depth",
       "uRI" : "CIMPATH=map/_dataset_vrt6b.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
