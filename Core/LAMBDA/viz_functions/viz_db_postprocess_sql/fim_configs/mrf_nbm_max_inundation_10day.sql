@@ -7,7 +7,7 @@ SELECT
 	inun.feature_id,
 	inun.feature_id_str::TEXT AS feature_id_str,
 	inun.streamflow_cfs,
-	inun.hand_stage_ft,
+	inun.fim_stage_ft,
 	inun.max_rc_stage_ft,
 	inun.max_rc_discharge_cfs,
 	inun.fim_version,

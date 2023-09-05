@@ -22,12 +22,10 @@ max_flows_station_xwalk AS (
 	FROM cache.max_flows_rnr mf
 	LEFT JOIN external.nwm_routelink rl
 		ON rl.nwm_feature_id = mf.feature_id
-	LEFT JOIN external.full_crosswalk_view xwalk
+	LEFT JOIN rnr.nwm_crosswalk xwalk
 		ON xwalk.nwm_feature_id = mf.feature_id
-			AND nws_usgs_crosswalk_dataset_id = '2.0'
-			AND location_nwm_crosswalk_dataset_id = '1.2'
-			AND nws_station_id IS NOT NULL
-			AND nws_station_id NOT LIKE '%TEST%'
+		AND nws_station_id IS NOT NULL
+		AND nws_station_id NOT LIKE '%TEST%'
 	LEFT JOIN external.nws_station station
 		ON station.nws_station_id = xwalk.nws_station_id
 ),
@@ -51,7 +49,7 @@ usgs_threshold AS (
 		moderate_flow_calc as moderate_flow,
 		major_flow_calc as major_flow
 	FROM external.threshold
-	WHERE rating_source = 'NRLDB' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT location_id FROM usgs_threshold)
+	WHERE rating_source = 'NRLDB' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM usgs_threshold)
 ), native_threshold AS (
 	SELECT DISTINCT ON (location_id)
 		location_id as nws_station_id,
@@ -61,13 +59,20 @@ usgs_threshold AS (
 		moderate_flow,
 		major_flow
 	FROM external.threshold
-	WHERE rating_source = 'NONE' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT location_id FROM usgs_threshold UNION SELECT location_id FROM nrldb_threshold)
+	WHERE rating_source = 'NONE' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM usgs_threshold UNION SELECT nws_station_id FROM nrldb_threshold)
 ), threshold AS (
 	SELECT * FROM usgs_threshold
 	UNION
 	SELECT * FROM nrldb_threshold
 	UNION
 	SELECT * FROM native_threshold
+),
+
+fcst AS (
+	SELECT DISTINCT ON (lid, product_time) 
+		lid, 
+		product_time as issue_time
+	FROM rnr.domain_forecasts
 ),
 
 root_status_trace_reaches AS (
@@ -99,7 +104,7 @@ root_status_trace_reaches AS (
 			ELSE ''
 		END as max_status
 	FROM max_flows_station_xwalk mf
-	LEFT JOIN ingest.rnr_forecasts fcst
+	LEFT JOIN fcst
 		ON fcst.lid = mf.nws_station_id
 	LEFT JOIN threshold
 		ON threshold.nws_station_id = mf.nws_station_id

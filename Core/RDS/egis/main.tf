@@ -18,9 +18,11 @@ locals {
     us-east-1 = {
       ti = "hv-ti-egis-rds-pg-egdb"
       uat = "hv-uat-egis-db-pg-egdb"
+      prod = "hv-prd-egis-rds-pg-egdb"
     }
     us-east-2 = {
       uat = "hv-uat-egis-data-pg-egdb"
+      prod = "hv-prd-egis-data-pg-egdb"
     }
   }
 }

@@ -95,7 +95,17 @@
               }
             ],
             "Next": "Input Data Files",
-            "ResultPath": null
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "UndefinedTable"
+                ],
+                "Comment": "Table Does Not Exist",
+                "Next": "Input Data Files",
+                "ResultPath": null
+              }
+            ]
           },
           "Input Data Files": {
             "Type": "Map",
@@ -131,6 +141,17 @@
                       "MaxAttempts": 6,
                       "BackoffRate": 2,
                       "Comment": "Lambda Service Errors"
+                    },
+                    {
+                      "ErrorEquals": [
+                        "UndefinedTable",
+                        "BadCopyFileFormat",
+                        "InvalidTextRepresentation"
+                      ],
+                      "BackoffRate": 2,
+                      "IntervalSeconds": 5,
+                      "MaxAttempts": 2,
+                      "Comment": "Recreate Table Errors"
                     }
                   ]
                 }
@@ -141,9 +162,11 @@
             "Parameters": {
               "file.$": "$$.Map.Item.Value",
               "target_table.$": "$.db_ingest_group.target_table",
+              "target_cols.$": "$.db_ingest_group.target_cols",
               "bucket.$": "$.db_ingest_group.bucket",
               "reference_time.$": "$.reference_time",
-              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above"
+              "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above",
+              "iteration_index.$": "$$.Map.Item.Index"
             },
             "ItemsPath": "$.db_ingest_group.ingest_datasets"
           },

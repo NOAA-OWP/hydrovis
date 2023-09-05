@@ -1,0 +1,11 @@
+service: mrf_nbm_10day_max_coastal_inundation_depth_noaa
+summary: Medium-Range NBM 10 Day Maximum Coastal Inundation Depth Forecast
+description: Depicts the inundation depth of the peak National Water Model (NWM) total water level forecast 
+  over the next 3, 5, and 10 days. This service is derived from the medium-range NBM configuration of the NWM 
+  over the contiguous U.S. Updated every 6 hours.
+tags: national water model, nwm, mrf, medium, range, conus, schism, coastal, fim, inundation, depth
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

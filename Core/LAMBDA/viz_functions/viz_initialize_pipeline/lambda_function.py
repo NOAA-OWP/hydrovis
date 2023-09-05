@@ -77,6 +77,7 @@ def lambda_handler(event, context):
                                         "analysis_assim_coastal.total_water.tm00.hawaii.nc",
                                         "analysis_assim_coastal.total_water.tm00.puertorico.nc",
                                         "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
                                         "short_range_coastal.total_water.f018.atlgulf.nc",
                                         "short_range_coastal.total_water.f048.puertorico.nc",
                                         "short_range_coastal.total_water.f048.hawaii.nc"
@@ -423,16 +424,21 @@ class configuration:
             file_window_step = file_group['file_step'] if file_group['file_step'] != 'None' else ""
             target_table = file_group['target_table'] if file_group['target_table'] != 'None' else ""
             target_keys = file_group['target_keys'] if file_group['target_keys'] != 'None' else ""
+            target_cols = file_group.get('target_cols', self.get_default_target_cols(file_pattern))
             target_keys = target_keys[1:-1].replace(" ","").split(",")
             dependent_on = file_group['dependent_on'] if file_group.get('dependent_on') else ""
             
             if target_table not in target_table_input_files:
-                target_table_input_files[target_table] = {}
-                target_table_input_files[target_table]['s3_keys'] = []
-                target_table_input_files[target_table]['target_keys'] = []
+                target_table_input_files[target_table] = {
+                    's3_keys': [],
+                    'target_keys': [],
+                    'target_cols': []
+                }
                 
             new_keys = [key for key in target_keys if key not in target_table_input_files[target_table]['target_keys'] and key]
             target_table_input_files[target_table]['target_keys'].extend(new_keys)
+            nws_cols = [var for var in target_cols if var not in target_table_input_files[target_table]['target_cols'] and var]
+            target_table_input_files[target_table]['target_cols'].extend(nws_cols)
 
             if file_window:
                 if not file_window_step:
@@ -464,6 +470,7 @@ class configuration:
             
             ingest_sets.append({
                 "target_table": target_table, 
+                "target_cols": target_table_metadata["target_cols"],
                 "ingest_datasets": target_table_metadata["s3_keys"], 
                 "index_columns": target_keys,
                 "index_name": index_name,
@@ -474,6 +481,14 @@ class configuration:
             })
             
         return ingest_sets
+    
+    @staticmethod
+    def get_default_target_cols(file_pattern):
+        default_target_cols = []
+        if 'channel_rt' in file_pattern:
+            default_target_cols = ['feature_id', 'forecast_hour', 'streamflow']
+        
+        return default_target_cols
         
     ###################################
     def generate_lambda_max_flows_file_list(self, file_groups):
@@ -570,6 +585,9 @@ class configuration:
             
             if not product_metadata.get("product_summaries"):
                 product_metadata['product_summaries'] = []
+            
+            if not product_metadata.get("services"):
+                product_metadata['services'] = []
             
             all_product_metadata.append(product_metadata)
             

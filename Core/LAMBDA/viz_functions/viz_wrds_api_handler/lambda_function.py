@@ -136,7 +136,9 @@ def get_location_metadata(nws_lid_list):
         "name": "usgs_name",
         "nwm_feature_id": "feature_id",
         "wfo": "issuer",
-        "rfc": "producer"
+        "rfc": "producer",
+        "issuedTime": "issued_time",
+        "generationTime": "generation_time"
     }
     df_locations = df_locations.drop(columns=drop_columns)
     df_locations = df_locations.rename(columns=rename_columns)
@@ -158,6 +160,7 @@ def extract_and_flatten_rfc_forecasts(df_forecasts):
     df_forecasts = df_forecasts.drop(columns=[0, 'identifier', 'forecast_status'])
 
     df_forecasts = pd.concat([df_forecasts.drop(['value'], axis=1), df_forecasts['value'].apply(pd.Series)], axis=1)
+    df_forecasts = df_forecasts.rename(columns={"value": "stage"})
     
     return df_forecasts
 

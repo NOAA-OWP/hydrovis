@@ -1,3 +1,5 @@
+-- We'll temporarily increase work_mem to 512MB, to help with performance on PostGIS spatial joins (default is 4MB)
+SET work_mem TO '512MB';
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.mrf_gfs_max_inundation_3day_building_footprints;
 SELECT
@@ -16,7 +18,7 @@ SELECT
 	fim.feature_id,
 	fim.feature_id_str::TEXT AS feature_id_str,
 	fim.streamflow_cfs,
-	fim.hand_stage_ft,
+	fim.fim_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.mrf_gfs_max_inundation_3day_building_footprints
@@ -31,8 +33,8 @@ SELECT
 	buildings.prop_st as state,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
-	max(fim.hand_stage_ft) AS max_hand_stage_ft,
-	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
+	max(fim.fim_stage_ft) AS max_fim_stage_ft,
+	avg(fim.fim_stage_ft) AS avg_fim_stage_ft,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
 	sum(CASE WHEN buildings.occ_cls = 'Agriculture' THEN 1 ELSE 0 END) AS bldgs_agriculture,
@@ -61,8 +63,8 @@ SELECT
 	TO_CHAR(hucs.huc8, 'fm0000000000') AS huc8_str,
 	max(fim.streamflow_cfs) AS max_flow_cfs,
 	avg(fim.streamflow_cfs) AS avg_flow_cfs,
-	max(fim.hand_stage_ft) AS max_hand_stage_ft,
-	avg(fim.hand_stage_ft) AS avg_hand_stage_ft,
+	max(fim.fim_stage_ft) AS max_fim_stage_ft,
+	avg(fim.fim_stage_ft) AS avg_fim_stage_ft,
 	count(buildings.build_id) AS buildings_impacted,
 	sum(buildings.sqfeet) AS building_sqft_impacted,
 	sum(CASE WHEN buildings.occ_cls = 'Agriculture' THEN 1 ELSE 0 END) AS bldgs_agriculture,

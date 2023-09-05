@@ -47,14 +47,14 @@ locals {
     "hml" = {
       access_principal_arns = [
         var.user_data-ingest-service-user_arn,
-        "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE"
+        # "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-hml-incoming-s3st-HMLReplicationRole-1INFV8WNQTTHE"
       ]
     }
     "nwm" = {
       access_principal_arns = [
         var.role_viz_pipeline_arn,
         var.role_rnr_arn,
-        "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
+        # "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-nwm-incoming-s3st-NWMReplicationRole-P9EAA8EI6VNC"
       ]
     }
     "pcpanl" = {

@@ -7,7 +7,7 @@ WITH
 			af.nws_lid, 
 			af.stage, 
 			af.status,
-		 	MIN(af.timestep) AS timestep,
+		 	MIN(af.time) AS timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
@@ -31,7 +31,7 @@ WITH
 			af.nws_lid,  
 			af.stage, 
 			af.status,
-		 	MIN(af.timestep) AS timestep,
+		 	MIN(af.time) AS timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
@@ -55,7 +55,7 @@ WITH
 			af.nws_lid,
 			af.stage,
 			af.status,
-		 	af.timestep,
+		 	af.time AS timestep,
 		 	CASE			
 				WHEN af.status = 'action' THEN 1::integer
 				WHEN af.status = 'minor' THEN 2::integer
@@ -67,10 +67,10 @@ WITH
 		INNER JOIN (
 			SELECT
 				nws_lid,
-				MIN(timestep) AS min_timestep
+				MIN(time) AS min_timestep
 			FROM ingest.ahps_forecasts
 			GROUP BY nws_lid
-		) AS b ON af.nws_lid = b.nws_lid AND af.timestep = b.min_timestep
+		) AS b ON af.nws_lid = b.nws_lid AND af.time = b.min_timestep
 		LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid)
 
 -------- Main Query (Put it all together) -------
@@ -99,10 +99,10 @@ SELECT
 	END AS record_forecast,
 	metadata.producer, 
 	metadata.issuer,
-	to_char(metadata.issued_time::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
-	to_char(metadata.generation_time::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
+	to_char(metadata."issuedTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
+	to_char(metadata."generationTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
 	metadata.usgs_sitecode, 
-	metadata.nwm_feature_id, 
+	metadata.feature_id, 
 	metadata.nws_name, 
 	metadata.usgs_name,
 	ST_TRANSFORM(ST_SetSRID(ST_MakePoint(metadata.longitude, metadata.latitude),4326),3857) as geom, 
@@ -111,7 +111,7 @@ SELECT
 	metadata.moderate_threshold, 
 	metadata.major_threshold, 
 	metadata.record_threshold, 
-	metadata.unit,
+	metadata.units,
 	CONCAT('https://water.weather.gov/resources/hydrographs/', LOWER(metadata.nws_lid), '_hg.png') AS hydrograph_link,
 	CONCAT('https://water.weather.gov/ahps2/rfc/', metadata.nws_lid, '.shortrange.hefs.png') AS hefs_link,
 	to_char(NOW()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS UPDATE_TIME
@@ -120,4 +120,4 @@ FROM ingest.ahps_metadata as metadata
 JOIN max_stage ON max_stage.nws_lid = metadata.nws_lid
 JOIN min_stage ON min_stage.nws_lid = metadata.nws_lid
 JOIN initial_stage ON initial_stage.nws_lid = metadata.nws_lid
-WHERE metadata.issued_time > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);
+WHERE metadata."issuedTime"::timestamp without time zone > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);

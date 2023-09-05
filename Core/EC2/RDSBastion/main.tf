@@ -354,7 +354,7 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "4_viz_setup_foreign_tables.sh"
+    filename     = "4a_viz_setup_foreign_tables_external.sh"
     content      = templatefile("${path.module}/scripts/utils/setup_foreign_tables.tftpl", {
       db_name             = local.dbs["viz"]["db_name"]
       db_host             = local.dbs["viz"]["db_host"]
@@ -367,7 +367,29 @@ data "cloudinit_config" "startup" {
       foreign_db_port     = local.dbs["location"]["db_port"]
       foreign_db_username = local.dbs["location"]["db_username"]
       foreign_db_password = local.dbs["location"]["db_password"]
+      foreign_schema      = "public"
       foreign_server      = "wrds_location"
+      user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
+    })
+  }
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "4b_viz_setup_foreign_tables_rfcfcst.sh"
+    content      = templatefile("${path.module}/scripts/utils/setup_foreign_tables.tftpl", {
+      db_name             = local.dbs["viz"]["db_name"]
+      db_host             = local.dbs["viz"]["db_host"]
+      db_port             = local.dbs["viz"]["db_port"]
+      db_username         = local.dbs["viz"]["db_username"]
+      db_password         = local.dbs["viz"]["db_password"]
+      db_schema           = "wrds_rfcfcst"
+      foreign_db_name     = local.dbs["forecast"]["db_name"]
+      foreign_db_host     = local.dbs["forecast"]["db_host"]
+      foreign_db_port     = local.dbs["forecast"]["db_port"]
+      foreign_db_username = local.dbs["forecast"]["db_username"]
+      foreign_db_password = local.dbs["forecast"]["db_password"]
+      foreign_schema      = "public EXCEPT (hml, hml_status, hml_log, hml_xml, hml_xml_log)"
+      foreign_server      = "wrds_rfcfcst"
       user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
     })
   }

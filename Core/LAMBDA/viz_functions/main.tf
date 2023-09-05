@@ -81,10 +81,10 @@ variable "db_lambda_subnets" {
   type        = list(any)
 }
 
-variable "sns_topics" {
-  description = "SnS topics"
-  type        = map(any)
-}
+# variable "sns_topics" {
+#   description = "SnS topics"
+#   type        = map(any)
+# }
 
 variable "nws_shared_account_nwm_sns" {
   type = string
@@ -177,6 +177,13 @@ variable "nwm_dataflow_version" {
   type = string
 }
 
+variable "five_minute_trigger" {
+  type = object({
+    name = string,
+    arn = string
+  })
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 
@@ -246,14 +253,8 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   }
 }
 
-resource "aws_cloudwatch_event_rule" "every_five_minutes" {
-  name                = "every_five_minutes"
-  description         = "Fires every five minutes"
-  schedule_expression = "cron(0/5 * * * ? *)"
-}
-
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
-  rule      = aws_cloudwatch_event_rule.every_five_minutes.name
+  rule      = var.five_minute_trigger.name
   target_id = aws_lambda_function.viz_wrds_api_handler.function_name
   arn       = aws_lambda_function.viz_wrds_api_handler.arn
 }
@@ -263,7 +264,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.viz_wrds_api_handler.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn
+  source_arn    = var.five_minute_trigger.arn
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
@@ -325,7 +326,7 @@ resource "aws_lambda_function" "egis_health_checker" {
 }
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes_egis_health_checker" {
-  rule      = aws_cloudwatch_event_rule.every_five_minutes.name
+  rule      = var.five_minute_trigger.name
   target_id = aws_lambda_function.egis_health_checker.function_name
   arn       = aws_lambda_function.egis_health_checker.arn
 }
@@ -335,7 +336,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda_egis_hea
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.egis_health_checker.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.every_five_minutes.arn
+  source_arn    = var.five_minute_trigger.arn
 }
 
 resource "aws_lambda_function_event_invoke_config" "egis_health_checker" {
@@ -485,20 +486,20 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
 }
 
-resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
-  for_each  = local.initialize_pipeline_subscriptions
-  topic_arn = var.sns_topics["${each.value}"].arn
-  protocol  = "lambda"
-  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
-}
+# resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
+#   for_each  = local.initialize_pipeline_subscriptions
+#   topic_arn = var.sns_topics["${each.value}"].arn
+#   protocol  = "lambda"
+#   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+# }
 
-resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
-  for_each      = local.initialize_pipeline_subscriptions
-  action        = "lambda:InvokeFunction"
-  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
-  principal     = "sns.amazonaws.com"
-  source_arn    = var.sns_topics["${each.value}"].arn
-}
+# resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
+#   for_each      = local.initialize_pipeline_subscriptions
+#   action        = "lambda:InvokeFunction"
+#   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+#   principal     = "sns.amazonaws.com"
+#   source_arn    = var.sns_topics["${each.value}"].arn
+# }
 
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
   provider = aws.sns

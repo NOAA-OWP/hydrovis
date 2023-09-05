@@ -45,3 +45,8 @@ SELECT channels.feature_id,
 INTO publish.srf_48hr_high_water_arrival_time_prvi
 FROM derived.channels_prvi channels
 JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;
+
+--Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features
+INSERT INTO publish.srf_48hr_high_water_arrival_time_prvi(
+	feature_id, feature_id_str, name, strm_order, huc6, state, nwm_vers, reference_time, t_high_water_threshold, t_normal, duration, high_water_threshold, max_flow, update_time, geom)
+	VALUES (NULL, NULL, NULL, NULL, NULL, 'PRVI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UtC'), NULL);

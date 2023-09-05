@@ -47,6 +47,7 @@ def lambda_handler(event, context):
         raise Exception(f"Could not find appropriate GIS server for {server}")
 
     # Check to see if the service already exists and a publish flag is present or not.
+    time.sleep(30)
     matching_services = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish]  # noqa: E501
     publish_flag = s3_file(publish_flag_bucket, publish_flag_key).check_existence()
     if len(matching_services) > 0 and publish_flag is True:
@@ -75,32 +76,31 @@ def lambda_handler(event, context):
             publish_server.services.publish_sd(sd_file=local_sd_file, folder=folder)
             print(f"---> Published {sd_s3_path}")
 
-            # Find the new service and update its item properties and sharing to match what's in the db
-            # (yes, the ArcGIS Python API uses another class to do this for some reason)
-            try:
-                portal_contents = gis.content.search(service_name, item_type='Map Service')
-                new_item = [item for item in portal_contents if item.title == service_name_publish][0]
-            except IndexError as e:
-                print(f"Error: Didn't find the just published {service_name} on portal: {portal_contents}")
-                raise e
-            new_item.update(item_properties={'snippet': summary, 'description': description,
-                            'tags': tags, 'accessInformation': credits})
-            
-            print(f"---> Updated {service_name} descriptions, tags, and credits in Portal.")
-            if public_service:
-                new_item.share(org=True, everyone=True)
-                print(f"---> Updated {service_name} sharing to org and public in Portal.")
-            else:    
-                new_item.share(org=True)
-                print(f"---> Updated {service_name} sharing to org in Portal.")
-
             # Ensuring that the description for the service matches the iteminfo
             matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
             if not matching_service.properties['description']:
                 print("Updating service property description to match iteminfo")
                 service_properties = matching_service.properties
                 service_properties['description'] = matching_service.iteminformation.properties['description']
-                matching_service.edit(dict(service_properties))
+                try:
+                    matching_service.edit(dict(service_properties))
+                except:
+                    matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
+                    if not matching_service.properties['description']:
+                        raise Exception("Failed to update the map service description")
+                        
+            portalItems = matching_service.properties["portalProperties"]['portalItems']
+            for portalItem in portalItems:
+                new_item = gis.content.get(portalItem['itemID'])
+                new_item.update(item_properties={'snippet': summary, 'description': description, 'tags': tags, 'accessInformation': credits})
+            
+                print(f"---> Updated {portalItem} descriptions, tags, and credits in Portal.")
+                if public_service:
+                    new_item.share(org=True, everyone=True)
+                    print(f"---> Updated {portalItem} sharing to org and public in Portal.")
+                else:    
+                    new_item.share(org=True)
+                    print(f"---> Updated {portalItem} sharing to org in Portal.")
             
             # Create publish flag file
             tmp_published_file = f"/tmp/{service_name}"

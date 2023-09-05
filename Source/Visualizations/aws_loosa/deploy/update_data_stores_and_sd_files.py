@@ -115,7 +115,7 @@ def update_db_sd_files():
         
         service_data = [item for item in services_data if item['service'] == service_name]
         if not service_data:
-            print(f"Metadata not found for {service_name}")
+            print(f"*************\nMetadata not found for {service_name}\n*************")
             continue
 
         service_data = service_data[0]
