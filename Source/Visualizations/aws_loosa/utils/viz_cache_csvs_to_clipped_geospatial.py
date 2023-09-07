@@ -82,7 +82,8 @@ def convert_csv_to_geospatial(csv_file, parts=1, output_format = 'gpkg', clip_to
             return
 
     print("... Converting to geodataframe...")
-    gdf = gpd.GeoDataFrame(df_all, geometry=df['geom'].apply(wkt.loads), crs='EPSG:3857')
+    df_all.drop(df_all[df_all['geom'].isna()].index, inplace=True) #Remove any null geoms
+    gdf = gpd.GeoDataFrame(df_all, geometry=df_all['geom'].apply(wkt.loads), crs='EPSG:3857')
     gdf = gdf.drop(columns=['geom'])
     output_filename = csv_file.replace(".csv",f".{output_format}").replace("_publish_", "_") # change file extension and remove publish schema reference from filename.
 
@@ -136,14 +137,14 @@ if __name__ == '__main__':
     ########## Specify your Args Here #############
     sso_profile = None # The name of the AWS SSO profile you created, or set to None if you want to pull from the current environment of an EC2 machine (see notes above)
     bucket_name = 'hydrovis-ti-fim-us-east-1' # Set this based on the hydrovis environment you are pulling from, e.g. 'hydrovis-ti-fim-us-east-1', 'hydrovis-uat-fim-us-east-1', 'hydrovis-prod-fim-us-east-1'
-    start_date = date(2017, 8, 25)
-    end_date = date(2017, 9, 4)
-    reference_times = ["0000","0100","0200","0300","0400","0500"]
-    include_files_with = ["ana_inundation"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
+    start_date = date(2022, 9, 17)
+    end_date = date(2022, 9, 20)
+    reference_times = ["1200"]
+    include_files_with = ["ref", "prvi"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
     skip_files_with = [] # Anything you want to be skipped when filtering S3 files e.g. ["ana_streamflow", "rapid_onset_flooding"]
     clip_to_states = [] # Provide a list of state abbreviations to clip to set states, e.g. ["AL", "GA", "MS"]
     output_format = "gpkg" # Set to gpkg or shp - Can add any OGR formats, with some tweaks to the file_format logic in the functions above. BEWARE - large FIM files can be too large for shapefiles, and results may be truncated.
-    output_dir = r"C:\dev\VPP Data Requests" # Directory where you want output files saved.
+    output_dir = r"C:\Users\arcgis\Desktop\Dev\VPP Data Requests" # Directory where you want output files saved.
     overwrite = False # This will automatically skip files that have already been downloaded and/or converted when running the script when set to False (default).
     delete_csv = True # This will delete the csv files after conversion
     ###############################################
