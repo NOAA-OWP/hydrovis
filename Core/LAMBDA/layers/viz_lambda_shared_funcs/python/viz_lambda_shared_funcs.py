@@ -615,7 +615,7 @@ def check_if_file_exists(bucket, file, download=False):
     
     return file
     
-def parse_range_token_value(reference_date_file, range_token):
+def parse_range_token_value(reference_date_file, range_token, existing_list = []):
     range_min = 0
     range_step = 1
     number_format = '%01d'
@@ -642,10 +642,14 @@ def parse_range_token_value(reference_date_file, range_token):
         raise ValueError("Ranges must be integers")
 
     new_input_files = []
-    for i in range(range_min, range_max, range_step):
-        range_value = number_format % i
-        new_input_file = reference_date_file.replace(f"{{{{range:{range_token}}}}}", range_value)
-        new_input_files.append(new_input_file)
+    if existing_list == []:
+        existing_list = [reference_date_file]
+    
+    for item in existing_list:
+        for i in range(range_min, range_max, range_step):
+            range_value = number_format % i
+            new_input_file = item.replace(f"{{{{range:{range_token}}}}}", range_value)
+            new_input_files.append(new_input_file)
 
     return new_input_files
 
@@ -708,7 +712,7 @@ def get_formatted_files(file_pattern, token_dict, reference_date):
 
     if token_dict['range']:
         for range_token in token_dict['range']:
-            reference_date_files = parse_range_token_value(reference_date_file, range_token)
+            reference_date_files = parse_range_token_value(reference_date_file, range_token, existing_list=reference_date_files)
     else:
         reference_date_files = [reference_date_file]
         
