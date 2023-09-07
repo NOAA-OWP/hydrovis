@@ -10,9 +10,7 @@ WITH
 
 ref_time AS (
 	SELECT reference_time
-	FROM admin.ingest_status 
-	WHERE target = 'ingest.nwm_channel_rt_ana'
-	AND status = 'Import Complete'
+	FROM ingest.nwm_channel_rt_ana
 	ORDER BY reference_time DESC LIMIT 1
 ),
 
@@ -119,9 +117,7 @@ WITH RECURSIVE
 
 ref_time AS (
 	SELECT reference_time
-	FROM admin.ingest_status 
-	WHERE target = 'ingest.nwm_channel_rt_ana'
-	AND status = 'Import Complete'
+	FROM ingest.nwm_channel_rt_ana
 	ORDER BY reference_time DESC LIMIT 1	
 ),
 
@@ -386,7 +382,5 @@ ORDER BY base.nws_station_id;
 -------------------------------------------------------------
 -------------------------------------------------------------
 SELECT reference_time
-FROM admin.ingest_status 
-WHERE target = 'ingest.nwm_channel_rt_ana'
-AND status = 'Import Complete'
-ORDER BY reference_time DESC LIMIT 1;
+FROM ingest.nwm_channel_rt_ana
+ORDER BY reference_time DESC LIMIT 1
