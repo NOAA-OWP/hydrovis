@@ -1,4 +1,3 @@
-import json
 import boto3
 import rasterio
 import numpy as np
@@ -33,46 +32,55 @@ def lambda_handler(event, context):
                              and runtime environment
     """
     # Parse the event argument to get the necessary arguments for the function
-    huc8_branch = event['huc8_branch']
-    db_fim_table = event['db_fim_table']
+    run_values = event['run_values']
     reference_time = event['reference_time']
     product = event['product']
     fim_config = event['fim_config']
     data_bucket = event['data_bucket']
     data_prefix = event['data_prefix']
-    huc = event['huc']
+    fim_config_name = fim_config['name']
+    db_fim_table = fim_config['target_table']
+    process_by = fim_config.get('process_by', ['huc'])
+    input_variable = fim_config.get('input_variable', 'flow')
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
+    huc8_branch = run_values['huc8_branch']
     huc8 = huc8_branch.split("-")[0]
     branch = huc8_branch.split("-")[1]
+    s3_path_piece = ''
     
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        subsetted_streams = f"{data_prefix}/{product}/{fim_config}/workspace/{date}/{hour}/data/{huc}_data.csv"
+        s3_path_piece = '/'.join([run_values[by] for by in process_by])
+        subsetted_data = f"{data_prefix}/{product}/{fim_config_name}/workspace/{date}/{hour}/data/{s3_path_piece}_data.csv"
 
-        print(f"Processing HUC {huc8} for {fim_config} for {date}T{hour}:00:00Z")
+        print(f"Processing HUC {huc8} for {fim_config_name} for {date}T{hour}:00:00Z")
 
-        # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-        catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-        catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
-
-        hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
-        hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
-
-        rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
-        rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
-
-        stage_lookup = pd.DataFrame()
-        if catch_exists and hand_exists and rating_curve_exists:
-            print("->Calculating flood depth")
-            stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_streams, huc8_branch)  # get stages
+        if input_variable == 'stage':
+            stage_lookup = s3_csv_to_df(data_bucket, subsetted_data)
+            stage_lookup = stage_lookup.set_index('hydro_id')
         else:
-            print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}")
+            # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
+            catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+            catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
+
+            hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+            hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
+
+            rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
+            rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
+
+            stage_lookup = pd.DataFrame()
+            if catch_exists and hand_exists and rating_curve_exists:
+                print("->Calculating flood depth")
+                stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_data, huc8_branch)  # get stages
+            else:
+                print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
 
         # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
         if stage_lookup.empty:
@@ -80,14 +88,14 @@ def lambda_handler(event, context):
             return
 
         # Run the desired configuration
-        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time)
+        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable)
 
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     db_schema = db_fim_table.split(".")[0]
     db_table = db_fim_table.split(".")[-1]
 
     try:
-        if "aep" in db_schema or "fim_catchments" in db_schema:
+        if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
             process_db = database(db_type="egis")
         else:
             process_db = database(db_type="viz")
@@ -221,7 +229,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     return df_final
     
 
-def create_inundation_output(huc8, branch, stage_lookup, reference_time):
+def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
@@ -412,16 +420,32 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time):
     df_final['huc8'] = huc8
     df_final['branch'] = branch
     df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
-    df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
-    df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
-    df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
-    df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
     df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
     df_final['feature_id_str'] = df_final['feature_id'].astype(str)
+    
+    if input_variable == 'stage':
+        drop_columns = ['hand_stage_m', 'huc8_branch', 'huc']
+    else:
+        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
+        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
+        df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
+        df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
+        drop_columns = ["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"]
 
-    df_final = df_final.drop(columns=["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"])
+    df_final = df_final.drop(columns=drop_columns)
                 
     return df_final
+
+def s3_csv_to_df(bucket, key):
+    basename = os.path.basename(key)
+    local_file = f"/tmp/{basename}"
+
+    print(f"Downloading {key} from {bucket}")
+    s3.download_file(bucket, key, local_file)
+    df = pd.read_csv(local_file)
+    os.remove(local_file)
+    
+    return df
 
 def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_streams, huc8_branch):
     """
@@ -434,25 +458,14 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
         Returns:
             stage_dict (dict): A dictionary with the hydroid as the key and interpolated stage as the value
     """
-    local_hydrotable = "/tmp/hydrotable.csv"
-    local_data = "/tmp/data.csv"
-    
-    print(f"Downloading {hydrotable_key} from {FIM_BUCKET}")
-    s3.download_file(FIM_BUCKET, hydrotable_key, local_hydrotable)
-
-    print(f"Downloading {subsetted_streams} from {subsetted_streams_bucket}")
-    s3.download_file(subsetted_streams_bucket, subsetted_streams, local_data)
-    
-    df_hydro = pd.read_csv(local_hydrotable)
+    df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key)
     df_hydro = df_hydro[['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']]
-    os.remove(local_hydrotable)
     
     df_hydro_max = df_hydro.sort_values('stage').groupby('HydroID').tail(1)
     df_hydro_max = df_hydro_max.set_index('HydroID')
     df_hydro_max = df_hydro_max[['stage', 'discharge_cms']].rename(columns={'stage': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
 
-    df_forecast = pd.read_csv(local_data)
-    os.remove(local_data)
+    df_forecast = s3_csv_to_df(subsetted_streams_bucket, subsetted_streams)
     df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
     df_forecast['hand_stage_m'] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1)
     
@@ -462,7 +475,8 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     print(f"Removing {len(df_forecast[df_forecast['hand_stage_m']==0])} reaches with a 0 interpolated stage")
     df_forecast = df_forecast[df_forecast['hand_stage_m']!=0]
 
-    df_forecast = df_forecast[['hydro_id','hand_stage_m', 'streamflow_cms', 'feature_id']].set_index('hydro_id')
+    df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
+    df_forecast = df_forecast.set_index('hydro_id')
     df_forecast = df_forecast.join(df_hydro_max)
     print(f"{len(df_forecast)} reaches will be processed")
      
