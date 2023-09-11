@@ -388,7 +388,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -1149,7 +1149,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -1910,7 +1910,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -2671,7 +2671,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -3422,7 +3422,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -4157,7 +4157,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {

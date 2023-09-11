@@ -7,5 +7,5 @@ tags: national water model, nwm, rfc, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: rfc
-feature_service: false
-public_service: false
+feature_service: true
+public_service: true

@@ -8,5 +8,5 @@ tags: national water model, nwm, ana, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
-feature_service: false
-public_service: false
+feature_service: true
+public_service: true
