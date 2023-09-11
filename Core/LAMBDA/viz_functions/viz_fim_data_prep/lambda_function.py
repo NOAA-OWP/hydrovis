@@ -36,6 +36,7 @@ def setup_huc_inundation(event):
     fim_config_name = fim_config['name']
     fim_config_sql = fim_config['sql_file']
     target_table = fim_config['target_table']
+    input_variable = fim_config.get('input_variable', 'flow')
     product = event['args']['product']['product']
     configuration = event['args']['product']['configuration']
     reference_time = event['args']['reference_time']
@@ -116,7 +117,7 @@ def setup_huc_inundation(event):
         date = reference_date.strftime("%Y%m%d")
         hour = reference_date.strftime("%H")
         
-        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
+        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service, input_variable)
         df_streamflows = get_features_for_HAND_processing(sql, ras_publish_table, viz_db)
         processing_groups = df_streamflows.groupby(process_by)
 
@@ -134,7 +135,7 @@ def setup_huc_inundation(event):
         
         s3_keys = []
         df_streamflows = df_streamflows.drop_duplicates(process_by + ["huc8_branch"])
-        df_streamflows_split = [df_split for df_split in np.array_split(df_streamflows[process_by + ["huc8_branch", "data_key"]], 20) if not df_split.empty]
+        df_streamflows_split = [df_split for df_split in np.array_split(df_streamflows[process_by + ["huc8_branch"]], 20) if not df_split.empty]
 
         for index, df in enumerate(df_streamflows_split):
             # Key for the csv file that will be stored in S3
@@ -251,9 +252,15 @@ def write_data_csv_file(product, fim_config_name, date, hour, identifiers, huc_d
 
     return csv_key
     
-def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service):
-
-    ras_insertion_template = f'templates_sql/ras2fim_insertion.sql'
+def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service, input_variable):
+    
+    if "flow_based_catfim" in db_fim_table:
+        ras_insertion_template = f'templates_sql/ras2fim_insertion_for_flow_based_catfim.sql'
+    elif "stage_based_catfim" in db_fim_table:
+        ras_insertion_template = f'templates_sql/ras2fim_insertion_for_stage_based_catfim.sql'
+    else:
+        ras_insertion_template = f'templates_sql/ras2fim_insertion.sql'
+        
     ras_insertion_sql = open(ras_insertion_template, 'r').read()
     ras_insertion_sql = ras_insertion_sql \
         .replace("{streamflow_sql}", streamflow_sql) \
@@ -288,8 +295,14 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
     return publish_table
 
 def get_features_for_HAND_processing(streamflow_sql, db_fim_table, viz_db):
-
-    hand_features_template = f'templates_sql/hand_features.sql'
+    
+    if "flow_based_catfim" in db_fim_table:
+        hand_features_template = f'templates_sql/hand_features_for_flow_based_catfim.sql'
+    elif "stage_based_catfim" in db_fim_table:
+        hand_features_template = f'templates_sql/hand_features_for_stage_based_catfim.sql'
+    else:
+        hand_features_template = f'templates_sql/hand_features.sql'
+        
     hand_sql = open(hand_features_template, 'r').read()
     hand_sql = hand_sql \
         .replace("{streamflow_sql}", streamflow_sql) \
