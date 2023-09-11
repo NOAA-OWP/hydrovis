@@ -1,7 +1,7 @@
 {
   "type" : "CIMMapDocument",
-  "version" : "2.7.0",
-  "build" : 26828,
+  "version" : "3.0.0",
+  "build" : 36056,
   "mapDefinition" : {
     "type" : "CIMMap",
     "name" : "NWM FIM Extent Analysis",
@@ -30,6 +30,8 @@
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
+    "groundElevationSurfaceLayer" : "CIMPATH=97f1c81bd1784b909267ea02efe4da60.json",
+    "defaultColorVisionDeficiencyMode" : "None",
     "customFullExtent" : {
       "rings" : [
         [
@@ -57,7 +59,17 @@
       ],
       "spatialReference" : {
         "wkid" : 102100,
-        "latestWkid" : 3857
+        "latestWkid" : 3857,
+        "xyTolerance" : 0.001,
+        "zTolerance" : 0.001,
+        "mTolerance" : 0.001,
+        "falseX" : -20037700,
+        "falseY" : -30241100,
+        "xyUnits" : 10000,
+        "falseZ" : -100000,
+        "zUnits" : 10000,
+        "falseM" : -100000,
+        "mUnits" : 10000
       }
     },
     "datumTransforms" : [
@@ -92,35 +104,24 @@
     ],
     "defaultExtent" : {
       "xmin" : -16791651.2146173716,
-      "ymin" : 1474107.38979748264,
+      "ymin" : 430606.152465584688,
       "xmax" : -4310232.918508362,
-      "ymax" : 8534243.619137926,
+      "ymax" : 9577744.85646982491,
       "spatialReference" : {
         "wkid" : 102100,
-        "latestWkid" : 3857
+        "latestWkid" : 3857,
+        "xyTolerance" : 0.001,
+        "zTolerance" : 0.001,
+        "mTolerance" : 0.001,
+        "falseX" : -20037700,
+        "falseY" : -30241100,
+        "xyUnits" : 10000,
+        "falseZ" : -100000,
+        "zUnits" : 10000,
+        "falseM" : -100000,
+        "mUnits" : 10000
       }
     },
-    "elevationSurfaces" : [
-      {
-        "type" : "CIMMapElevationSurface",
-        "elevationMode" : "BaseGlobeSurface",
-        "name" : "Ground",
-        "verticalExaggeration" : 1,
-        "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}",
-        "color" : {
-          "type" : "CIMRGBColor",
-          "values" : [
-            255,
-            255,
-            255,
-            100
-          ]
-        },
-        "surfaceTINShadingMode" : "Smooth",
-        "visibility" : true,
-        "expanded" : true
-      }
-    ],
     "generalPlacementProperties" : {
       "type" : "CIMMaplexGeneralPlacementProperties",
       "invertedLabelTolerance" : 2,
@@ -153,11 +154,22 @@
       "xYToleranceUnit" : "SnapXYToleranceUnitPixel",
       "snapToSketchEnabled" : true,
       "snapRequestType" : "SnapRequestType_GeometricAndVisualSnapping",
-      "isZSnappingEnabled" : true
+      "isZSnappingEnabled" : true,
+      "snapTipDisplayParts" : 3
     },
     "spatialReference" : {
       "wkid" : 102100,
-      "latestWkid" : 3857
+      "latestWkid" : 3857,
+      "xyTolerance" : 0.001,
+      "zTolerance" : 0.001,
+      "mTolerance" : 0.001,
+      "falseX" : -20037700,
+      "falseY" : -30241100,
+      "xyUnits" : 10000,
+      "falseZ" : -100000,
+      "zUnits" : 10000,
+      "falseM" : -100000,
+      "mUnits" : 10000
     },
     "timeDisplay" : {
       "type" : "CIMMapTimeDisplay",
@@ -243,12 +255,13 @@
     "clippingMode" : "None",
     "nearPlaneClipDistanceMode" : "Automatic",
     "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
-    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+    "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2",
+    "autoFillFeatureCache" : true
   },
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Inundation Extent",
+      "name" : "Inundation Extent (EXPERIMENTAL)",
       "uRI" : "CIMPATH=nwm_analysis_and_assimilation_fim/hydrovis_services_ana_inundation.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -259,7 +272,7 @@
       "description" : "hydrovis.services.ana_inundation",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{84F61CAA-CD53-4C26-BBF2-C7F7CA71C354}"
+        "elevationSurfaceLayerURI" : "CIMPATH=97f1c81bd1784b909267ea02efe4da60.json"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -273,6 +286,7 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -349,7 +363,17 @@
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
-            "latestWkid" : 3857
+            "latestWkid" : 3857,
+            "xyTolerance" : 0.001,
+            "zTolerance" : 0.001,
+            "mTolerance" : 0.001,
+            "falseX" : -20037700,
+            "falseY" : -30241100,
+            "xyUnits" : 10000,
+            "falseZ" : -100000,
+            "zUnits" : 10000,
+            "falseM" : -100000,
+            "mUnits" : 10000
           },
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
@@ -360,37 +384,59 @@
             "ymax" : 3115075,
             "spatialReference" : {
               "wkid" : 102039,
-              "latestWkid" : 102039
+              "latestWkid" : 102039,
+              "xyTolerance" : 0.001,
+              "zTolerance" : 0.001,
+              "mTolerance" : 0.001,
+              "falseX" : -16901100,
+              "falseY" : -6972200,
+              "xyUnits" : 10000,
+              "falseZ" : -100000,
+              "zUnits" : 10000,
+              "falseM" : -100000,
+              "mUnits" : 10000
             }
           },
           "queryFields" : [
             {
               "name" : "streamflow_cfs",
               "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
+              "isNullable" : true,
+              "length" : 0,
+              "precision" : 0,
+              "scale" : 0
             },
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id",
-              "length" : 12
+              "isNullable" : true,
+              "length" : 12,
+              "precision" : 0,
+              "scale" : 0
             },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
-              "alias" : "reference_time",
-              "length" : 25
+              "isNullable" : true,
+              "length" : 25,
+              "precision" : 0,
+              "scale" : 0
             },
             {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 25
+              "isNullable" : true,
+              "length" : 25,
+              "precision" : 0,
+              "scale" : 0
             },
             {
               "name" : "geom",
               "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
+              "isNullable" : true,
+              "length" : 0,
+              "precision" : 0,
+              "scale" : 0,
               "geometryDef" : {
                 "avgNumPoints" : 0,
                 "geometryType" : "esriGeometryPolygon",
@@ -398,14 +444,27 @@
                 "hasZ" : false,
                 "spatialReference" : {
                   "wkid" : 102100,
-                  "latestWkid" : 3857
+                  "latestWkid" : 3857,
+                  "xyTolerance" : 0.001,
+                  "zTolerance" : 0.001,
+                  "mTolerance" : 0.001,
+                  "falseX" : -20037700,
+                  "falseY" : -30241100,
+                  "xyUnits" : 10000,
+                  "falseZ" : -100000,
+                  "zUnits" : 10000,
+                  "falseM" : -100000,
+                  "mUnits" : 10000
                 }
               }
             },
             {
               "name" : "oid",
               "type" : "esriFieldTypeInteger",
-              "alias" : "oid"
+              "isNullable" : true,
+              "length" : 0,
+              "precision" : 0,
+              "scale" : 0
             }
           ],
           "spatialStorageType" : 8
@@ -416,7 +475,6 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
-      "displayFilters" : [],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
@@ -468,7 +526,8 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ]
+              ],
+              "trimStackingSeparators" : true
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -688,6 +747,39 @@
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/4075db63627214f834d442a7b40b14ff.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20221014</CreaDate><CreaTime>18283400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    }
+  ],
+  "elevationSurfaceLayerDefinitions" : [
+    {
+      "type" : "CIMElevationSurfaceLayer",
+      "name" : "Ground",
+      "uRI" : "CIMPATH=97f1c81bd1784b909267ea02efe4da60.json",
+      "useSourceMetadata" : true,
+      "description" : "Ground",
+      "expanded" : true,
+      "layerType" : "Operational",
+      "showLegends" : false,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
+      "elevationMode" : "BaseGlobeSurface",
+      "verticalExaggeration" : 1,
+      "color" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          255,
+          255,
+          100
+        ]
+      },
+      "surfaceTINShadingMode" : "Smooth"
     }
   ]
 }
