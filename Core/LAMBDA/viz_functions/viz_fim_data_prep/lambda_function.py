@@ -36,7 +36,6 @@ def setup_huc_inundation(event):
     fim_config_name = fim_config['name']
     fim_config_sql = fim_config['sql_file']
     target_table = fim_config['target_table']
-    input_variable = fim_config.get('input_variable', 'flow')
     product = event['args']['product']['product']
     configuration = event['args']['product']['configuration']
     reference_time = event['args']['reference_time']
@@ -117,7 +116,7 @@ def setup_huc_inundation(event):
         date = reference_date.strftime("%Y%m%d")
         hour = reference_date.strftime("%H")
         
-        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service, input_variable)
+        ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
         df_streamflows = get_features_for_HAND_processing(sql, ras_publish_table, viz_db)
         processing_groups = df_streamflows.groupby(process_by)
 
@@ -252,7 +251,7 @@ def write_data_csv_file(product, fim_config_name, date, hour, identifiers, huc_d
 
     return csv_key
     
-def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service, input_variable):
+def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_db, egis_db, reference_service):
     
     if "flow_based_catfim" in db_fim_table:
         ras_insertion_template = f'templates_sql/ras2fim_insertion_for_flow_based_catfim.sql'
