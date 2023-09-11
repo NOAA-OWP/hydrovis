@@ -265,7 +265,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         catchment_nodata = int(catchment_dataset.nodata)  # get no_data value for catchment raster
         valid_catchments = stage_lookup.index.tolist() # parse lookup to get features with >0 stages  # noqa
         hydroids = stage_lookup.index.tolist()  # parse lookup to get all features
-        stages = stage_lookup['hand_stage_m'].tolist()  # parse lookup to get all stages
+        stages = stage_lookup['stage_m'].tolist()  # parse lookup to get all stages
 
         k = np.array(hydroids)  # Create a feature numpy array from the list
         v = np.array(stages)  # Create a stage numpy array from the list
@@ -419,18 +419,18 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final['reference_time'] = reference_time
     df_final['huc8'] = huc8
     df_final['branch'] = branch
-    df_final['fim_stage_ft'] = round(df_final['hand_stage_m'] * 3.28084, 2)
+    df_final['fim_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
     df_final['feature_id_str'] = df_final['feature_id'].astype(str)
     
     if input_variable == 'stage':
-        drop_columns = ['hand_stage_m', 'huc8_branch', 'huc']
+        drop_columns = ['stage_m', 'huc8_branch', 'huc']
     else:
         df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
         df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
         df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
         df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-        drop_columns = ["hand_stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"]
+        drop_columns = ["stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"]
 
     df_final = df_final.drop(columns=drop_columns)
                 
@@ -467,13 +467,13 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
 
     df_forecast = s3_csv_to_df(subsetted_streams_bucket, subsetted_streams)
     df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
-    df_forecast['hand_stage_m'] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1)
+    df_forecast['stage_m'] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1)
     
-    print(f"Removing {len(df_forecast[df_forecast['hand_stage_m'].isna()])} reaches with a NaN interpolated stage")
-    df_forecast = df_forecast[~df_forecast['hand_stage_m'].isna()]
+    print(f"Removing {len(df_forecast[df_forecast['stage_m'].isna()])} reaches with a NaN interpolated stage")
+    df_forecast = df_forecast[~df_forecast['stage_m'].isna()]
 
-    print(f"Removing {len(df_forecast[df_forecast['hand_stage_m']==0])} reaches with a 0 interpolated stage")
-    df_forecast = df_forecast[df_forecast['hand_stage_m']!=0]
+    print(f"Removing {len(df_forecast[df_forecast['stage_m']==0])} reaches with a 0 interpolated stage")
+    df_forecast = df_forecast[df_forecast['stage_m']!=0]
 
     df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
     df_forecast = df_forecast.set_index('hydro_id')
