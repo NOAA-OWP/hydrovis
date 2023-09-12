@@ -122,6 +122,7 @@ def lambda_handler(event, context):
                 short_config = short_config.replace("analysis_assim", "ana").replace("short_range", "srf").replace("medium_range", "mrf").replace("replace_route", "rnr")
                 short_invoke = pipeline.invocation_type.replace("manual", "man").replace("eventbridge", "bdg")
                 pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
+                pipeline_run['logging_info'] = {'Timestamp': int(time.time())*1000}
             
                 client.start_execution(
                     stateMachineArn = step_function_arn,

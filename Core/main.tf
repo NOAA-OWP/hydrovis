@@ -566,6 +566,14 @@ module "egis-monitor" {
   ec2_kms_key               = module.kms.key_arns["egis"]
 }
 
+module "cloudwatch" {
+  source = "./CloudWatch"
+
+  environment                    = local.env.environment
+  account_id                     = local.env.account_id
+  region                         = local.env.region
+}
+
 ###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
 
 # Viz Lambda Functions
@@ -637,6 +645,7 @@ module "step-functions" {
   email_sns_topics          = module.sns.email_sns_topics
   aws_instances_to_reboot   = [module.rnr.ec2.id]
   fifteen_minute_trigger    = module.eventbridge.fifteen_minute_eventbridge
+  viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
 }
 
 # Event Bridge
