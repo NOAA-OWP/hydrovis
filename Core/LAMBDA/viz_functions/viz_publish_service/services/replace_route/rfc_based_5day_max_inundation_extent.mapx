@@ -248,7 +248,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Inundation Extent",
+      "name" : "5 Days -Inundation Extent (EXPERIMENTAL)",
       "uRI" : "CIMPATH=nwm_analysis_and_assimilation_fim/hydrovis_services_ana_inundation.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
