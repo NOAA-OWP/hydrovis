@@ -50,47 +50,116 @@ provider "aws" {
 
 # Region-specific Providers
 provider "aws" {
-  alias                    = "us-east-1"
+  alias                    = "uat_us-east-1"
   region                   = "us-east-1"
-  profile                  = local.env.environment
+  profile                  = "uat"
   shared_credentials_files = ["/cloud/aws/credentials"]
 }
 provider "aws" {
-  alias                    = "us-east-2"
+  alias                    = "uat_us-east-2"
   region                   = "us-east-2"
-  profile                  = local.env.environment
+  profile                  = "uat"
+  shared_credentials_files = ["/cloud/aws/credentials"]
+}
+provider "aws" {
+  alias                    = "prod_us-east-1"
+  region                   = "us-east-1"
+  profile                  = "prod"
+  shared_credentials_files = ["/cloud/aws/credentials"]
+}
+provider "aws" {
+  alias                    = "prod_us-east-2"
+  region                   = "us-east-2"
+  profile                  = "prod"
   shared_credentials_files = ["/cloud/aws/credentials"]
 }
 
 
-# EGIS ALB for each region
-data "aws_lb" "egis_alb_us-east-1" {
-  provider = aws.us-east-1
-  name     = local.wacky_egis_alb_names["us-east-1"][local.env.environment]
+# EGIS ALBs
+data "aws_lb" "egis_alb_uat_us-east-1" {
+  provider = aws.uat_us-east-1
+  name     = local.wacky_egis_alb_names["us-east-1"]["uat"]
 }
-data "aws_lb" "egis_alb_us-east-2" {
-  provider = aws.us-east-2
-  name     = local.wacky_egis_alb_names["us-east-2"][local.env.environment]
+data "aws_lb" "egis_alb_uat_us-east-2" {
+  provider = aws.uat_us-east-2
+  name     = local.wacky_egis_alb_names["us-east-2"]["uat"]
+}
+data "aws_lb" "egis_alb_prod_us-east-1" {
+  provider = aws.prod_us-east-1
+  name     = local.wacky_egis_alb_names["us-east-1"]["prod"]
+}
+data "aws_lb" "egis_alb_prod_us-east-2" {
+  provider = aws.prod_us-east-2
+  name     = local.wacky_egis_alb_names["us-east-2"]["prod"]
+}
+
+# NWPS ALBs
+data "aws_lb" "nwps_alb_uat_us-east-1" {
+  provider = aws.uat_us-east-1
+  name     = "hv-uat-nwps-alb"
 }
 
 
 # Route53 DNS
 module "public-route53" {
   source = "./Route53/public"
-  environment   = local.env.environment
   account_id    = local.env.account_id
-  active_region = local.env.active_region
 
-  egis_health_checks = {
-    us-east-1 = {
-      alarm_name  = "uat_egis_healthcheck"
-      alb_host    = data.aws_lb.egis_alb_us-east-1.dns_name
-      alb_zone_id = data.aws_lb.egis_alb_us-east-1.zone_id
+  dns_records = {
+    domain = "water.noaa.gov"
+    weighted_alias = {
+      maps_staging = {
+        active_region = local.env.vpp_uat_active_region
+        url = "maps-staging.water.noaa.gov"
+        records = {
+          us-east-1 = {
+            alarm_name  = "uat_egis_healthcheck"
+            alb_host    = "dualstack.${data.aws_lb.egis_alb_uat_us-east-1.dns_name}"
+            alb_zone_id = data.aws_lb.egis_alb_uat_us-east-1.zone_id
+          }
+          us-east-2 = {
+            alarm_name  = "uat_egis_healthcheck"
+            alb_host    = "dualstack.${data.aws_lb.egis_alb_uat_us-east-2.dns_name}"
+            alb_zone_id = data.aws_lb.egis_alb_uat_us-east-2.zone_id
+          }
+        }
+      }
+      maps = {
+        active_region = local.env.vpp_prod_active_region
+        url = "maps.water.noaa.gov"
+        records = {
+          us-east-1 = {
+            alarm_name  = "prod_egis_healthcheck"
+            alb_host    = "dualstack.${data.aws_lb.egis_alb_prod_us-east-1.dns_name}"
+            alb_zone_id = data.aws_lb.egis_alb_prod_us-east-1.zone_id
+          }
+          us-east-2 = {
+            alarm_name  = "prod_egis_healthcheck"
+            alb_host    = "dualstack.${data.aws_lb.egis_alb_prod_us-east-2.dns_name}"
+            alb_zone_id = data.aws_lb.egis_alb_prod_us-east-2.zone_id
+          }
+        }
+      }
     }
-    us-east-2 = {
-      alarm_name  = "uat_egis_healthcheck"
-      alb_host    = data.aws_lb.egis_alb_us-east-2.dns_name
-      alb_zone_id = data.aws_lb.egis_alb_us-east-2.zone_id
+    alias = {
+      "preview.water.noaa.gov" = {
+        alb_host    = data.aws_lb.nwps_alb_uat_us-east-1.dns_name
+        alb_zone_id = data.aws_lb.nwps_alb_uat_us-east-1.zone_id
+      }
+      "preview-api.water.noaa.gov" = {
+        alb_host    = data.aws_lb.nwps_alb_uat_us-east-1.dns_name
+        alb_zone_id = data.aws_lb.nwps_alb_uat_us-east-1.zone_id
+      }
+      "preview-cms.water.noaa.gov" = {
+        alb_host    = data.aws_lb.nwps_alb_uat_us-east-1.dns_name
+        alb_zone_id = data.aws_lb.nwps_alb_uat_us-east-1.zone_id
+      }
+    }
+    a = {
+      "water.noaa.gov" = local.env.nwps_a_redirect_ip
+    }
+    cname = {
+      www = "water.noaa.gov"
     }
   }
 }
