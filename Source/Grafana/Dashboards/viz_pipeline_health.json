@@ -159,9 +159,9 @@
           "label": "",
           "logGroups": [
             {
-              "accountId": "799732994462",
-              "arn": "arn:aws:logs:us-east-2:799732994462:log-group:pipeline_monitoring_test:*",
-              "name": "pipeline_monitoring_test"
+              "accountId": "${account_id}",
+              "arn": "${viz_processing_pipeline_log_group_arn}:*",
+              "name": "${viz_processing_pipeline_log_group_name}"
             }
           ],
           "matchExact": true,
@@ -1010,9 +1010,9 @@
           "label": "",
           "logGroups": [
             {
-              "accountId": "799732994462",
-              "arn": "arn:aws:logs:us-east-2:799732994462:log-group:pipeline_monitoring_test:*",
-              "name": "pipeline_monitoring_test"
+              "accountId": "${account_id}",
+              "arn": "${viz_processing_pipeline_log_group_arn}:*",
+              "name": "${viz_processing_pipeline_log_group_name}"
             }
           ],
           "matchExact": true,
@@ -4162,9 +4162,9 @@
           "label": "",
           "logGroups": [
             {
-              "accountId": "799732994462",
-              "arn": "arn:aws:logs:us-east-2:799732994462:log-group:pipeline_monitoring_test:*",
-              "name": "pipeline_monitoring_test"
+              "accountId": "${account_id}",
+              "arn": "${viz_processing_pipeline_log_group_arn}:*",
+              "name": "${viz_processing_pipeline_log_group_name}"
             }
           ],
           "matchExact": true,
@@ -4864,9 +4864,9 @@
           "label": "",
           "logGroups": [
             {
-              "accountId": "799732994462",
-              "arn": "arn:aws:logs:us-east-2:799732994462:log-group:pipeline_monitoring_test:*",
-              "name": "pipeline_monitoring_test"
+              "accountId": "${account_id}",
+              "arn": "${viz_processing_pipeline_log_group_arn}:*",
+              "name": "${viz_processing_pipeline_log_group_name}"
             }
           ],
           "matchExact": true,
@@ -15287,8 +15287,8 @@
       {
         "current": {
           "selected": false,
-          "text": "arn:aws:states:us-east-2:799732994462:stateMachine:hv-vpp-uat-execute-replace-route",
-          "value": "arn:aws:states:us-east-2:799732994462:stateMachine:hv-vpp-uat-execute-replace-route"
+          "text": [],
+          "value": []
         },
         "datasource": {
           "uid": "$datasource"
@@ -15297,7 +15297,7 @@
         "hide": 0,
         "includeAll": false,
         "label": "StateMachineArn",
-        "multi": false,
+        "multi": true,
         "name": "stateMachineArn",
         "options": [],
         "query": "dimension_values($region,AWS/States,ExecutionsFailed,StateMachineArn)",
