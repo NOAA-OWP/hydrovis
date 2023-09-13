@@ -123,7 +123,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 20,
+        "w": 24,
         "x": 0,
         "y": 3
       },
@@ -647,31 +647,6 @@
         "uid": "grafana"
       },
       "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 3
-      },
-      "id": 17,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "1 - Step Function Initialized\n<br>\n2 - Python Based Max Flows Finished\n<br>\n3 - Model Data Ingest Finished\n<br>\n4 - Database Based Max Flows Finished",
-        "mode": "markdown"
-      },
-      "pluginVersion": "9.4.7",
-      "title": "Configuration Data Prep Legend",
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
         "h": 2,
         "w": 24,
         "x": 0,
@@ -1003,7 +978,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 20,
+        "w": 17,
         "x": 0,
         "y": 11
       },
@@ -1803,8 +1778,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 4,
-        "x": 20,
+        "w": 3,
+        "x": 17,
         "y": 11
       },
       "id": 20,
@@ -2300,6 +2275,31 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 11
+      },
+      "id": 17,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "1 - Step Function Initialized\n<br>\n2 - Python Based Max Flows Finished\n<br>\n3 - Model Data Ingest Finished\n<br>\n4 - Database Based Max Flows Finished",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.4.7",
+      "title": "Configuration Data Prep Legend",
+      "type": "text"
     },
     {
       "datasource": {
@@ -4102,7 +4102,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 1145
+                "value": 1441
               },
               {
                 "id": "thresholds",
@@ -4126,7 +4126,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 20,
+        "w": 24,
         "x": 0,
         "y": 30
       },
@@ -4665,31 +4665,6 @@
         "uid": "grafana"
       },
       "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 30
-      },
-      "id": 25,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "1 - Product Processing Finished\n<br>\n2 - Product Postprocessing Finished\n<br>\n3 - Product Summaries Finished\n<br>\n4 - Updating EGIS/Final Finished\n<br>\n5 - Publishing Service Finished",
-        "mode": "markdown"
-      },
-      "pluginVersion": "9.4.7",
-      "title": "Configuration Data Prep Legend",
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
         "h": 2,
         "w": 24,
         "x": 0,
@@ -4840,12 +4815,24 @@
                 "value": 51
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "logging_status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 227
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 6,
-        "w": 24,
+        "w": 20,
         "x": 0,
         "y": 38
       },
@@ -4861,12 +4848,7 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Reference Time"
-          }
-        ]
+        "sortBy": []
       },
       "pluginVersion": "9.4.7",
       "targets": [
@@ -5543,6 +5525,31 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 20,
+        "y": 38
+      },
+      "id": 25,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "1 - Product Processing Finished\n<br>\n2 - Product Postprocessing Finished\n<br>\n3 - Product Summaries Finished\n<br>\n4 - Updating EGIS/Final Finished\n<br>\n5 - Publishing Service Finished",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.4.7",
+      "title": "Configuration Data Prep Legend",
+      "type": "text"
     },
     {
       "datasource": {
@@ -15337,6 +15344,6 @@
   "timezone": "browser",
   "title": "HydroVIS Pipeline Health",
   "uid": "AWSStepFn",
-  "version": 64,
+  "version": 67,
   "weekStart": ""
 }

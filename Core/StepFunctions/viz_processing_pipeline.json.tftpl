@@ -1032,9 +1032,20 @@
               }
             ]
           },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Pass"
+              }
+            ],
+            "Default": "Parallel"
+          },
           "Product Summaries Finished Log": {
             "Type": "Task",
-            "Next": "Parallel",
+            "Next": "Auto vs. Past Event Run",
             "Parameters": {
               "LogEvents": [
                 {
@@ -1167,7 +1178,7 @@
           },
           "Updating EGIS Data Finished Log": {
             "Type": "Task",
-            "Next": "Auto vs. Past Event Run",
+            "Next": "Service Publishing",
             "Parameters": {
               "LogEvents": [
                 {
@@ -1180,17 +1191,6 @@
             },
             "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
-          },
-          "Auto vs. Past Event Run": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.job_type",
-                "StringEquals": "past_event",
-                "Next": "Pass"
-              }
-            ],
-            "Default": "Service Publishing"
           },
           "Service Publishing": {
             "Type": "Map",
@@ -1245,7 +1245,8 @@
                 "Next": "Product Processing Failure Log",
                 "ResultPath": "$.error"
               }
-            ]
+            ],
+            "ResultPath": null
           },
           "Services Publishing Finished Log": {
             "Type": "Task",
