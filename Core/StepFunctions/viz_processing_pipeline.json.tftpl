@@ -816,7 +816,6 @@
                           "Name.$": "$.state_machine_name",
                           "Input": {
                             "huc_branches_to_process.$": "$.huc_branches_to_process",
-                            "db_fim_table.$": "$.db_fim_table",
                             "data_bucket.$": "$.data_bucket",
                             "data_prefix.$": "$.data_prefix",
                             "reference_time.$": "$.reference_time",
@@ -833,11 +832,10 @@
                   "Next": "Postprocess SQL - FIM Config",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
-                    "db_fim_table.$": "$.fim_config.target_table",
                     "data_bucket.$": "$.huc_processing_payload.data_bucket",
                     "data_prefix.$": "$.huc_processing_payload.data_prefix",
                     "reference_time.$": "$.reference_time",
-                    "fim_config.$": "$.fim_config.name",
+                    "fim_config.$": "$.fim_config",
                     "product.$": "$.product",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config.name, $$.Map.Item.Index)"
                   },
@@ -1058,6 +1056,17 @@
             },
             "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
+          },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Pass"
+              }
+            ],
+            "Default": "Parallel"
           },
           "Parallel": {
             "Type": "Parallel",
