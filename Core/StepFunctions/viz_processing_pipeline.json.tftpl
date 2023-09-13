@@ -385,9 +385,9 @@
       },
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
       "ResultPath": null,
-      "Next": "Fail (1)"
+      "Next": "Data Prep Failure"
     },
-    "Fail (1)": {
+    "Data Prep Failure": {
       "Type": "Fail"
     },
     "Product Processing": {
@@ -623,8 +623,11 @@
               "LogStreamName.$": "$$.Execution.Name"
             },
             "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
-            "ResultPath": null,
-            "End": true
+            "End": true,
+            "ResultSelector": {
+              "success": false
+            },
+            "OutputPath": "$.success"
           },
           "Product Postprocessing Finished Log": {
             "Type": "Task",
@@ -1267,10 +1270,10 @@
           "Pass": {
             "Type": "Pass",
             "End": true,
-            "ResultPath": null,
             "Result": {
-              "ValueEnteredInForm": ""
-            }
+              "success": true
+            },
+            "OutputPath": "$.success"
           }
         }
       },
@@ -1284,9 +1287,26 @@
       "ItemsPath": "$.pipeline_products",
       "MaxConcurrency": 15,
       "ResultSelector": {
-        "error.$": "$[?(@.error)]"
+        "contains_error.$": "States.ArrayContains($, false)"
       },
-      "End": true
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.contains_error",
+          "BooleanEquals": true,
+          "Next": "Product Processing Failure"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Product Processing Failure": {
+      "Type": "Fail"
+    },
+    "Success": {
+      "Type": "Succeed"
     }
   },
   "TimeoutSeconds": 4500
