@@ -31,9 +31,9 @@
     "mapType" : "Map",
     "defaultExtent" : {
       "xmin" : -14318510.4297513459,
-      "ymin" : 2126179.32156338822,
+      "ymin" : 1814849.5848357724,
       "xmax" : -7356779.8396234978,
-      "ymax" : 7049890.33478852455,
+      "ymax" : 7361220.07151614036,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -119,7 +119,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "WFO Boundaries",
+      "name" : "Public FIM Domain",
       "uRI" : "CIMPATH=map/waterbodies.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
@@ -146,16 +146,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "gnis_name",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "WFO",
-            "fieldName" : "wfo",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "geom",
@@ -185,7 +178,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%Waterbodies",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select wfo, geom, oid from hydrovis.reference.public_fim_domain",
+          "sqlQuery" : "select geom,oid from hydrovis.reference.public_fim_domain",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -194,12 +187,6 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
           "queryFields" : [
-            {
-              "name" : "wfo",
-              "type" : "esriFieldTypeString",
-              "alias" : "wfo",
-              "length" : 6
-            },
             {
               "name" : "geom",
               "type" : "esriFieldTypeGeometry",
