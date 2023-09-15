@@ -393,8 +393,24 @@
     "Product Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "FIM vs Non-FIM Services",
+        "StartAt": "Product Processing Initiated Log",
         "States": {
+          "Product Processing Initiated Log": {
+            "Type": "Task",
+            "Next": "FIM vs Non-FIM Services",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 1, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+            "ResultPath": null
+          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
@@ -635,7 +651,7 @@
             "Parameters": {
               "LogEvents": [
                 {
-                  "Message.$": "States.Format('\\{\"{}\": 2, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Message.$": "States.Format('\\{\"{}\": 3, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
                   "Timestamp.$": "$.logging_info.Timestamp"
                 }
               ],
@@ -934,7 +950,7 @@
             "Parameters": {
               "LogEvents": [
                 {
-                  "Message.$": "States.Format('\\{\"{}\": 1, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Message.$": "States.Format('\\{\"{}\": 2, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
                   "Timestamp.$": "$.logging_info.Timestamp"
                 }
               ],
@@ -1050,7 +1066,7 @@
             "Parameters": {
               "LogEvents": [
                 {
-                  "Message.$": "States.Format('\\{\"{}\": 3, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Message.$": "States.Format('\\{\"{}\": 4, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
                   "Timestamp.$": "$.logging_info.Timestamp"
                 }
               ],
@@ -1059,17 +1075,6 @@
             },
             "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
-          },
-          "Auto vs. Past Event Run": {
-            "Type": "Choice",
-            "Choices": [
-              {
-                "Variable": "$.job_type",
-                "StringEquals": "past_event",
-                "Next": "Pass"
-              }
-            ],
-            "Default": "Parallel"
           },
           "Parallel": {
             "Type": "Parallel",
@@ -1194,7 +1199,7 @@
             "Parameters": {
               "LogEvents": [
                 {
-                  "Message.$": "States.Format('\\{\"{}\": 4, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Message.$": "States.Format('\\{\"{}\": 5, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
                   "Timestamp.$": "$.logging_info.Timestamp"
                 }
               ],
@@ -1266,7 +1271,7 @@
             "Parameters": {
               "LogEvents": [
                 {
-                  "Message.$": "States.Format('\\{\"{}\": 5, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Message.$": "States.Format('\\{\"{}\": 6, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
                   "Timestamp.$": "$.logging_info.Timestamp"
                 }
               ],
