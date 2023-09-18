@@ -172,7 +172,7 @@
           "period": "",
           "queryMode": "Logs",
           "refId": "A",
-          "region": "default",
+          "region": "$region",
           "sql": {
             "select": {
               "name": "AVG",
@@ -667,6 +667,30 @@
     },
     {
       "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 17,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<pre><h3>Configuration Data Prep Legend:</h3>     1 - Step Function Initialized     2 - Python Based Max Flows Finished     3 - Model Data Ingest Finished     4 - Database Based Max Flows Finished</pre>\n",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "cloudwatch",
         "uid": "kWlGwSB4k"
       },
@@ -978,9 +1002,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 17,
+        "w": 20,
         "x": 0,
-        "y": 11
+        "y": 14
       },
       "id": 15,
       "options": {
@@ -994,7 +1018,12 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Reference Time"
+          }
+        ]
       },
       "pluginVersion": "9.4.7",
       "targets": [
@@ -1004,7 +1033,7 @@
             "uid": "kWlGwSB4k"
           },
           "dimensions": {},
-          "expression": "parse @message '{*, \"reference_time\": *, \"step_finish\": *, \"pipeline_step\": *}' as logging_status, reference_time, step_finish, pipeline_step\n| filter pipeline_step = '\"data_prep\"'",
+          "expression": "parse @message '{*, \"reference_time\": *, \"step_finish\": *, \"pipeline_step\": *}' as logging_status, reference_time, step_finish, pipeline_step\n| filter pipeline_step = '\"data_prep\"'\n| limit $QueryLimit",
           "hide": false,
           "id": "",
           "label": "",
@@ -1232,14 +1261,12 @@
               "medium_range_blend_coastal": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_coastal_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_mem1": {
                 "aggregations": [
@@ -1778,9 +1805,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 3,
-        "x": 17,
-        "y": 11
+        "w": 4,
+        "x": 20,
+        "y": 14
       },
       "id": 20,
       "options": {
@@ -2279,31 +2306,6 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 20,
-        "y": 11
-      },
-      "id": 17,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "1 - Step Function Initialized\n<br>\n2 - Python Based Max Flows Finished\n<br>\n3 - Model Data Ingest Finished\n<br>\n4 - Database Based Max Flows Finished",
-        "mode": "markdown"
-      },
-      "pluginVersion": "9.4.7",
-      "title": "Configuration Data Prep Legend",
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
         "uid": "-- Dashboard --"
       },
       "fieldConfig": {
@@ -2604,7 +2606,7 @@
         "h": 8,
         "w": 14,
         "x": 0,
-        "y": 19
+        "y": 22
       },
       "id": 18,
       "options": {
@@ -2828,38 +2830,32 @@
               "medium_range_alaska_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend_alaska": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend_coastal": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_coastal_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "reference_time": {
                 "aggregations": [],
@@ -3511,7 +3507,7 @@
         "h": 8,
         "w": 10,
         "x": 14,
-        "y": 19
+        "y": 22
       },
       "id": 23,
       "options": {
@@ -3686,26 +3682,22 @@
               "forcing_medium_range": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "forcing_medium_range_alaska": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "forcing_medium_range_blend": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "forcing_medium_range_blend_alaska": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "forcing_short_range": {
                 "aggregations": [
@@ -3731,20 +3723,17 @@
               "medium_range_alaska_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend_alaska": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "medium_range_blend_coastal": {
                 "aggregations": [
@@ -3761,8 +3750,7 @@
               "medium_range_mem1": {
                 "aggregations": [
                   "max"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "reference_time": {
                 "aggregations": [],
@@ -4011,7 +3999,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 30
       },
       "id": 33,
       "panels": [],
@@ -4027,7 +4015,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 31
       },
       "id": 47,
       "options": {
@@ -4102,7 +4090,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 1441
+                "value": 1105
               },
               {
                 "id": "thresholds",
@@ -4128,7 +4116,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 33
       },
       "id": 27,
       "options": {
@@ -4175,7 +4163,7 @@
           "period": "",
           "queryMode": "Logs",
           "refId": "A",
-          "region": "default",
+          "region": "$region",
           "sql": {
             "select": {
               "name": "AVG",
@@ -4668,7 +4656,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 39
       },
       "id": 42,
       "options": {
@@ -4679,6 +4667,30 @@
         },
         "content": "<center style=\"color:black;background-color:white\"><h1>AnA Product Processing Health</h1></center>",
         "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 58,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<pre><h3>Column Acronyms:</h3>     HFM - High Flow Magnitude     SM - Soil Moisture     SWE - Snow Water Equivalent     SD - Snow Depth     SMIC - Soil Moisture Ice Content</pre>\r\n<pre><h3>Configuration Data Prep Legend:</h3>1: Product Processing Initialized    2: Product Processing Finished    3: Product Postprocessing Finished    4: Product Summaries Finished    5: Updating EGIS/Final Finished    6: Publishing Service Finished</pre>\r\n",
+        "mode": "markdown"
       },
       "pluginVersion": "9.4.7",
       "type": "text"
@@ -4705,8 +4717,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -4725,8 +4736,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -4748,8 +4763,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -4812,7 +4826,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 51
+                "value": 10
               }
             ]
           },
@@ -4827,14 +4841,50 @@
                 "value": 227
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "24HR Snow Melt"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 131
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "72HR SWE"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 92
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "14Day HFM"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 98
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 6,
-        "w": 20,
+        "w": 24,
         "x": 0,
-        "y": 38
+        "y": 47
       },
       "id": 39,
       "options": {
@@ -4848,7 +4898,12 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": []
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Reference Time"
+          }
+        ]
       },
       "pluginVersion": "9.4.7",
       "targets": [
@@ -4858,7 +4913,7 @@
             "uid": "kWlGwSB4k"
           },
           "dimensions": {},
-          "expression": "parse @message '{*, \"reference_time\": *, \"step_finish\": *, \"pipeline_step\": *}' as logging_status, reference_time, step_finish, pipeline_step\n| filter pipeline_step = '\"product_processing\"'",
+          "expression": "parse @message '{*, \"reference_time\": *, \"step_finish\": *, \"pipeline_step\": *}' as logging_status, reference_time, step_finish, pipeline_step\n| filter pipeline_step = '\"product_processing\"'\n| limit $QueryLimit\n",
           "hide": false,
           "id": "",
           "label": "",
@@ -5041,6 +5096,12 @@
                 ],
                 "operation": "aggregate"
               },
+              "ana_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
               "ana_inundation_hi": {
                 "aggregations": [
                   "max"
@@ -5053,6 +5114,24 @@
                 ],
                 "operation": "aggregate"
               },
+              "ana_past_14day_max_high_flow_magnitude": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_14day_max_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_24hr_snow_melt": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
               "ana_past_72hr_accum_precip": {
                 "aggregations": [
                   "max"
@@ -5060,6 +5139,36 @@
                 "operation": "aggregate"
               },
               "ana_past_72hr_accum_precip_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_72hr_snow_water_equivalent_change": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_snow_depth": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_snow_water_equivalent": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_soil_moisture": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_soil_moisture_ice_content": {
                 "aggregations": [
                   "max"
                 ],
@@ -5420,10 +5529,19 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
-              "ana_coastal_inundation (max)": 1,
-              "ana_high_flow_magnitude (max)": 3,
-              "ana_past_72hr_accum_precip (max)": 4,
-              "ana_streamflow (max)": 2,
+              "ana_coastal_inundation (max)": 3,
+              "ana_high_flow_magnitude (max)": 4,
+              "ana_inundation (max)": 1,
+              "ana_past_14day_max_high_flow_magnitude (max)": 5,
+              "ana_past_14day_max_inundation (max)": 2,
+              "ana_past_24hr_snow_melt (max)": 9,
+              "ana_past_72hr_accum_precip (max)": 13,
+              "ana_past_72hr_snow_water_equivalent_change (max)": 10,
+              "ana_snow_depth (max)": 7,
+              "ana_snow_water_equivalent (max)": 11,
+              "ana_soil_moisture (max)": 12,
+              "ana_soil_moisture_ice_content (max)": 8,
+              "ana_streamflow (max)": 6,
               "reference_time": 0
             },
             "renameByName": {
@@ -5433,9 +5551,18 @@
               "ana_coastal_inundation_prvi (max)": "AnA Coastal Inundation PRVI",
               "ana_high_flow_magnitude (max)": "HFM",
               "ana_high_flow_magnitude_hi (max)": "HFM",
+              "ana_inundation (max)": "FIM",
               "ana_inundation_hi (max)": "FIM",
+              "ana_past_14day_max_high_flow_magnitude (max)": "14Day HFM",
+              "ana_past_14day_max_inundation (max)": "14Day FIM",
+              "ana_past_24hr_snow_melt (max)": "24HR Snow Melt",
               "ana_past_72hr_accum_precip (max)": "Accum Precip",
               "ana_past_72hr_accum_precip_hi (max)": "Accum Precip",
+              "ana_past_72hr_snow_water_equivalent_change (max)": "72HR SWE",
+              "ana_snow_depth (max)": "SD",
+              "ana_snow_water_equivalent (max)": "SWE",
+              "ana_soil_moisture (max)": "SM",
+              "ana_soil_moisture_ice_content (max)": "SMIC",
               "ana_streamflow (max)": "Streamflow",
               "ana_streamflow_hi (max)": "Streamflow",
               "analysis_assim (last)": "AnA",
@@ -5529,31 +5656,6 @@
     {
       "datasource": {
         "type": "datasource",
-        "uid": "grafana"
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 20,
-        "y": 38
-      },
-      "id": 25,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "1 - Product Processing Finished\n<br>\n2 - Product Postprocessing Finished\n<br>\n3 - Product Summaries Finished\n<br>\n4 - Updating EGIS/Final Finished\n<br>\n5 - Publishing Service Finished",
-        "mode": "markdown"
-      },
-      "pluginVersion": "9.4.7",
-      "title": "Configuration Data Prep Legend",
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
         "uid": "-- Dashboard --"
       },
       "fieldConfig": {
@@ -5573,8 +5675,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -5593,8 +5694,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -5608,7 +5713,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 165
+                "value": 130
               },
               {
                 "id": "thresholds",
@@ -5616,8 +5721,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -5688,9 +5792,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
+        "w": 6,
         "x": 0,
-        "y": 44
+        "y": 53
       },
       "id": 38,
       "options": {
@@ -6375,8 +6479,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -6395,8 +6498,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -6410,7 +6517,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 165
+                "value": 130
               },
               {
                 "id": "thresholds",
@@ -6418,8 +6525,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -6485,14 +6591,26 @@
                 "value": 51
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coastl FIM"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 89
+              }
+            ]
           }
         ]
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 44
+        "w": 9,
+        "x": 6,
+        "y": 53
       },
       "id": 21,
       "options": {
@@ -6633,7 +6751,8 @@
               "ana_coastal_inundation_prvi": {
                 "aggregations": [
                   "max"
-                ]
+                ],
+                "operation": "aggregate"
               },
               "ana_for_rnr_ingest": {
                 "aggregations": [
@@ -6671,6 +6790,12 @@
                 "operation": "aggregate"
               },
               "ana_past_72hr_accum_precip_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_72hr_accum_precip_prvi": {
                 "aggregations": [
                   "max"
                 ],
@@ -6984,7 +7109,7 @@
               "@timestamp": false,
               "Time": true,
               "ana_coastal_inundation_hi (max)": false,
-              "ana_coastal_inundation_prvi (max)": true,
+              "ana_coastal_inundation_prvi (max)": false,
               "analysis_assim_coastal (last)": true,
               "analysis_assim_coastal (max)": true,
               "analysis_assim_coastal_hawaii (last)": true,
@@ -7031,21 +7156,24 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
+              "ana_coastal_inundation_prvi (max)": 2,
               "ana_high_flow_magnitude_prvi (max)": 3,
               "ana_inundation_prvi (max)": 1,
-              "ana_streamflow_prvi (max)": 2,
+              "ana_past_72hr_accum_precip_prvi (max)": 5,
+              "ana_streamflow_prvi (max)": 4,
               "reference_time": 0
             },
             "renameByName": {
               "@timestamp": "Log Time",
               "ana_coastal_inundation_hi (max)": "Coastal FIM",
-              "ana_coastal_inundation_prvi (max)": "AnA Coastal Inundation PRVI",
+              "ana_coastal_inundation_prvi (max)": "Coastl FIM",
               "ana_high_flow_magnitude (max)": "AnA High Flow Magnitude",
               "ana_high_flow_magnitude_hi (max)": "HFM",
               "ana_high_flow_magnitude_prvi (max)": "HFM",
               "ana_inundation_hi (max)": "FIM",
               "ana_inundation_prvi (max)": "FIM",
               "ana_past_72hr_accum_precip_hi (max)": "Accum Precip",
+              "ana_past_72hr_accum_precip_prvi (max)": "Accum Precip",
               "ana_streamflow (max)": "AnA Streamflow",
               "ana_streamflow_hi (max)": "Streamflow",
               "ana_streamflow_prvi (max)": "Streamflow",
@@ -7159,8 +7287,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -7179,8 +7306,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -7194,7 +7325,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 165
+                "value": 130
               },
               {
                 "id": "thresholds",
@@ -7202,8 +7333,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -7274,9 +7404,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 44
+        "w": 9,
+        "x": 15,
+        "y": 53
       },
       "id": 40,
       "options": {
@@ -7816,10 +7946,10 @@
             },
             "indexByName": {
               "ana_coastal_inundation_hi (max)": 2,
-              "ana_high_flow_magnitude_hi (max)": 4,
+              "ana_high_flow_magnitude_hi (max)": 3,
               "ana_inundation_hi (max)": 1,
               "ana_past_72hr_accum_precip_hi (max)": 5,
-              "ana_streamflow_hi (max)": 3,
+              "ana_streamflow_hi (max)": 4,
               "reference_time": 0
             },
             "renameByName": {
@@ -7929,7 +8059,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 50
+        "y": 59
       },
       "id": 43,
       "options": {
@@ -7940,6 +8070,30 @@
         },
         "content": "<center style=\"color:black;background-color:white\"><h1>SRF Product Processing Health</h1></center>",
         "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 61
+      },
+      "id": 59,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<pre><h3>Column Acronyms:</h3>     HFM - High Flow Magnitude     PFAT - Peak Flow Arrival Time     HWAT - High Water Arrival Time     ROC - Rate of Change     ROF - Rapid Onset Flooding</pre>",
+        "mode": "markdown"
       },
       "pluginVersion": "9.4.7",
       "type": "text"
@@ -7966,8 +8120,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -7986,8 +8139,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -8009,8 +8166,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -8081,9 +8237,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 24,
+        "w": 17,
         "x": 0,
-        "y": 52
+        "y": 64
       },
       "id": 49,
       "options": {
@@ -8664,11 +8820,15 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
-              "ana_coastal_inundation (max)": 1,
-              "ana_high_flow_magnitude (max)": 3,
-              "ana_past_72hr_accum_precip (max)": 4,
-              "ana_streamflow (max)": 2,
-              "reference_time": 0
+              "reference_time": 0,
+              "srf_18hr_accum_precip (max)": 8,
+              "srf_18hr_high_water_arrival_time (max)": 5,
+              "srf_18hr_max_coastal_inundation (max)": 2,
+              "srf_18hr_max_high_flow_magnitude (max)": 6,
+              "srf_18hr_max_inundation (max)": 1,
+              "srf_18hr_peak_flow_arrival_time (max)": 7,
+              "srf_18hr_rapid_onset_flooding (max)": 4,
+              "srf_18hr_rate_of_change (max)": 3
             },
             "renameByName": {
               "@timestamp": "Log Time",
@@ -8795,8 +8955,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -8815,8 +8974,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -8838,8 +9001,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -8910,9 +9072,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 0,
-        "y": 58
+        "w": 7,
+        "x": 17,
+        "y": 64
       },
       "id": 50,
       "options": {
@@ -9601,8 +9763,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -9621,8 +9782,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -9644,8 +9809,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -9716,9 +9880,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 58
+        "w": 12,
+        "x": 0,
+        "y": 70
       },
       "id": 54,
       "options": {
@@ -10218,6 +10382,42 @@
                   "max"
                 ],
                 "operation": "aggregate"
+              },
+              "srf_48hr_accum_precip_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_high_water_arrival_time_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_coastal_inundation_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_high_flow_magnitude_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_inundation_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_peak_flow_arrival_time_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
               }
             }
           }
@@ -10277,8 +10477,12 @@
             },
             "indexByName": {
               "reference_time": 0,
-              "srf_15hr_accum_precip_ak (max)": 2,
-              "srf_15hr_peak_flow_arrival_time_ak (max)": 1
+              "srf_48hr_accum_precip_prvi (max)": 6,
+              "srf_48hr_high_water_arrival_time_prvi (max)": 5,
+              "srf_48hr_max_coastal_inundation_prvi (max)": 2,
+              "srf_48hr_max_high_flow_magnitude_prvi (max)": 3,
+              "srf_48hr_max_inundation_prvi (max)": 1,
+              "srf_48hr_peak_flow_arrival_time_prvi (max)": 4
             },
             "renameByName": {
               "@timestamp": "Log Time",
@@ -10378,6 +10582,12 @@
               "srf_18hr_peak_flow_arrival_time (max)": "SRF 18 HR Peak Flow Arrival Time",
               "srf_18hr_rapid_onset_flooding (max)": "SRF 18 HR Rapid Onset Flooding",
               "srf_18hr_rate_of_change (max)": "SRF 18 HR Rate of Change",
+              "srf_48hr_accum_precip_prvi (max)": "Accum Precip",
+              "srf_48hr_high_water_arrival_time_prvi (max)": "HWAT",
+              "srf_48hr_max_coastal_inundation_prvi (max)": "Coastal FIM",
+              "srf_48hr_max_high_flow_magnitude_prvi (max)": "HFM",
+              "srf_48hr_max_inundation_prvi (max)": "FIM",
+              "srf_48hr_peak_flow_arrival_time_prvi (max)": "PFAT",
               "step_finish": "Step Finish Time"
             }
           }
@@ -10407,8 +10617,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -10427,8 +10636,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -10450,8 +10663,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -10522,9 +10734,9 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 58
+        "w": 12,
+        "x": 12,
+        "y": 70
       },
       "id": 52,
       "options": {
@@ -11005,6 +11217,42 @@
                   "max"
                 ],
                 "operation": "aggregate"
+              },
+              "srf_48hr_accum_precip_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_high_water_arrival_time_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_coastal_inundation_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_high_flow_magnitude_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_max_inundation_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_48hr_peak_flow_arrival_time_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
               }
             }
           }
@@ -11063,12 +11311,13 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
-              "ana_coastal_inundation_hi (max)": 2,
-              "ana_high_flow_magnitude_hi (max)": 4,
-              "ana_inundation_hi (max)": 1,
-              "ana_past_72hr_accum_precip_hi (max)": 5,
-              "ana_streamflow_hi (max)": 3,
-              "reference_time": 0
+              "reference_time": 0,
+              "srf_48hr_accum_precip_hi (max)": 6,
+              "srf_48hr_high_water_arrival_time_hi (max)": 5,
+              "srf_48hr_max_coastal_inundation_hi (max)": 2,
+              "srf_48hr_max_high_flow_magnitude_hi (max)": 3,
+              "srf_48hr_max_inundation_hi (max)": 1,
+              "srf_48hr_peak_flow_arrival_time_hi (max)": 4
             },
             "renameByName": {
               "@timestamp": "Log Time",
@@ -11161,6 +11410,12 @@
               "srf_18hr_peak_flow_arrival_time (max)": "SRF 18 HR Peak Flow Arrival Time",
               "srf_18hr_rapid_onset_flooding (max)": "SRF 18 HR Rapid Onset Flooding",
               "srf_18hr_rate_of_change (max)": "SRF 18 HR Rate of Change",
+              "srf_48hr_accum_precip_hi (max)": "Accum Precip",
+              "srf_48hr_high_water_arrival_time_hi (max)": "HWAT",
+              "srf_48hr_max_coastal_inundation_hi (max)": "Coastal FIM",
+              "srf_48hr_max_high_flow_magnitude_hi (max)": "HFM",
+              "srf_48hr_max_inundation_hi (max)": "FIM",
+              "srf_48hr_peak_flow_arrival_time_hi (max)": "PFAT",
               "step_finish": "Step Finish Time"
             }
           }
@@ -11177,7 +11432,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 76
       },
       "id": 45,
       "options": {
@@ -11188,6 +11443,30 @@
         },
         "content": "<center style=\"color:black;background-color:white\"><h1>MRF GFS Product Processing Health</h1></center>",
         "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 78
+      },
+      "id": 60,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<pre><h3>Column Acronyms:</h3>     HFM - High Flow Magnitude     PFAT - Peak Flow Arrival Time     HWAT - High Water Arrival Time     ROF - Rapid Onset Flooding</pre>",
+        "mode": "markdown"
       },
       "pluginVersion": "9.4.7",
       "type": "text"
@@ -11214,8 +11493,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -11234,8 +11512,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -11257,8 +11539,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -11331,7 +11612,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 81
       },
       "id": 53,
       "options": {
@@ -11731,6 +12012,12 @@
                 ],
                 "operation": "aggregate"
               },
+              "mrf_gfs_10day_max_coastal_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
               "mrf_gfs_10day_max_high_flow_magnitude": {
                 "aggregations": [
                   "max"
@@ -11948,12 +12235,13 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
-              "mrf_gfs_10day_accum_precip (max)": 6,
-              "mrf_gfs_10day_high_water_arrival_time (max)": 5,
-              "mrf_gfs_10day_max_high_flow_magnitude (max)": 2,
+              "mrf_gfs_10day_accum_precip (max)": 7,
+              "mrf_gfs_10day_high_water_arrival_time (max)": 6,
+              "mrf_gfs_10day_max_coastal_inundation (max)": 2,
+              "mrf_gfs_10day_max_high_flow_magnitude (max)": 3,
               "mrf_gfs_10day_max_inundation (max)": 1,
-              "mrf_gfs_10day_peak_flow_arrival_time (max)": 4,
-              "mrf_gfs_10day_rapid_onset_flooding (max)": 3,
+              "mrf_gfs_10day_peak_flow_arrival_time (max)": 5,
+              "mrf_gfs_10day_rapid_onset_flooding (max)": 4,
               "reference_time": 0
             },
             "renameByName": {
@@ -12023,6 +12311,7 @@
               "medium_range_mem1 (max)": "MRF GFS",
               "mrf_gfs_10day_accum_precip (max)": "Accum Precip",
               "mrf_gfs_10day_high_water_arrival_time (max)": "HWAT",
+              "mrf_gfs_10day_max_coastal_inundation (max)": "Coastal FIM",
               "mrf_gfs_10day_max_high_flow_magnitude (max)": "HFM",
               "mrf_gfs_10day_max_inundation (max)": "FIM",
               "mrf_gfs_10day_peak_flow_arrival_time (max)": "PFAT",
@@ -12087,8 +12376,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -12107,8 +12395,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -12130,8 +12422,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -12204,7 +12495,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 86
       },
       "id": 55,
       "options": {
@@ -12888,7 +13179,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 91
       },
       "id": 44,
       "options": {
@@ -12899,6 +13190,30 @@
         },
         "content": "<center style=\"color:black;background-color:white\"><h1>MRF NBM Product Processing Health</h1></center>",
         "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 93
+      },
+      "id": 61,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<pre><h3>Column Acronyms:</h3>     HFM - High Flow Magnitude     PFAT - Peak Flow Arrival Time     HWAT - High Water Arrival Time     ROF - Rapid Onset Flooding</pre>",
+        "mode": "markdown"
       },
       "pluginVersion": "9.4.7",
       "type": "text"
@@ -12925,8 +13240,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -12945,8 +13259,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -12968,8 +13286,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -13042,7 +13359,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 96
       },
       "id": 56,
       "options": {
@@ -13484,6 +13801,12 @@
                 ],
                 "operation": "aggregate"
               },
+              "mrf_nbm_10day_max_coastal_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
               "mrf_nbm_10day_max_high_flow_magnitude": {
                 "aggregations": [
                   "max"
@@ -13695,12 +14018,13 @@
               "short_range_puertorico (max)": false
             },
             "indexByName": {
-              "mrf_nbm_10day_accum_precip (max)": 6,
-              "mrf_nbm_10day_high_water_arrival_time (max)": 5,
-              "mrf_nbm_10day_max_high_flow_magnitude (max)": 1,
-              "mrf_nbm_10day_max_inundation (max)": 4,
-              "mrf_nbm_10day_peak_flow_arrival_time (max)": 2,
-              "mrf_nbm_10day_rapid_onset_flooding (max)": 3,
+              "mrf_nbm_10day_accum_precip (max)": 7,
+              "mrf_nbm_10day_high_water_arrival_time (max)": 6,
+              "mrf_nbm_10day_max_coastal_inundation (max)": 2,
+              "mrf_nbm_10day_max_high_flow_magnitude (max)": 3,
+              "mrf_nbm_10day_max_inundation (max)": 1,
+              "mrf_nbm_10day_peak_flow_arrival_time (max)": 4,
+              "mrf_nbm_10day_rapid_onset_flooding (max)": 5,
               "reference_time": 0
             },
             "renameByName": {
@@ -13776,6 +14100,7 @@
               "mrf_gfs_10day_rapid_onset_flooding (max)": "ROF",
               "mrf_nbm_10day_accum_precip (max)": "Accum Precip",
               "mrf_nbm_10day_high_water_arrival_time (max)": "HWAT",
+              "mrf_nbm_10day_max_coastal_inundation (max)": "Coastal FIM",
               "mrf_nbm_10day_max_high_flow_magnitude (max)": "HFM",
               "mrf_nbm_10day_max_inundation (max)": "FIM",
               "mrf_nbm_10day_peak_flow_arrival_time (max)": "PFAT",
@@ -13840,8 +14165,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "#dcdcdc",
-                "value": null
+                "color": "#dcdcdc"
               },
               {
                 "color": "#d0e1f2",
@@ -13860,8 +14184,12 @@
                 "value": 4
               },
               {
-                "color": "dark-green",
+                "color": "#0a3a84",
                 "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
               }
             ]
           }
@@ -13883,8 +14211,7 @@
                   "mode": "absolute",
                   "steps": [
                     {
-                      "color": "transparent",
-                      "value": null
+                      "color": "transparent"
                     }
                   ]
                 }
@@ -13957,7 +14284,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 83
+        "y": 101
       },
       "id": 57,
       "options": {
@@ -14641,506 +14968,1428 @@
       "type": "table"
     },
     {
-      "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 106
+      },
+      "id": 62,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<center style=\"color:black;background-color:white\"><h1>RFC Product Processing Health</h1></center>",
+        "mode": "html"
+      },
+      "pluginVersion": "9.4.7",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "-- Dashboard --"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "mode": "basic",
+              "type": "color-background"
+            },
+            "filterable": false,
+            "inspect": false,
+            "width": 75
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#dcdcdc",
+                "value": null
+              },
+              {
+                "color": "#d0e1f2",
+                "value": 1
+              },
+              {
+                "color": "#94c4df",
+                "value": 2
+              },
+              {
+                "color": "#4a98c9",
+                "value": 3
+              },
+              {
+                "color": "#1764ab",
+                "value": 4
+              },
+              {
+                "color": "#0a3a84",
+                "value": 5
+              },
+              {
+                "color": "dark-green",
+                "value": 6
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reference Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 172
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "transparent",
+                      "value": null
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Coastal FIM"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 96
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Accum Precip"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Streamflow"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 93
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FIM"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 52
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HFM"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 51
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 108
+      },
+      "id": 63,
+      "options": {
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Reference Time"
+          }
+        ]
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "-- Dashboard --"
+          },
+          "panelId": 39,
+          "refId": "A"
+        }
+      ],
+      "title": "MRF NBM CONUS Product Processing",
+      "transformations": [
+        {
+          "id": "filterByValue",
+          "options": {
+            "filters": [
+              {
+                "config": {
+                  "id": "regex",
+                  "options": {
+                    "value": "\"rfc_*"
+                  }
+                },
+                "fieldName": "logging_status"
+              }
+            ],
+            "match": "any",
+            "type": "include"
+          }
+        },
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "auto",
+            "jsonPaths": [
+              {
+                "path": ""
+              }
+            ],
+            "keepTime": false,
+            "replace": false,
+            "source": "logging_status"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "time",
+                "targetField": "reference_time"
+              },
+              {
+                "destinationType": "time",
+                "targetField": "step_finish"
+              }
+            ],
+            "fields": {}
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "AnA Coastal": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "MRF NBM Coastal": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "RFC": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "Reference Time": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "RnR": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_coastal_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_coastal_inundation_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_coastal_inundation_prvi": {
+                "aggregations": [
+                  "max"
+                ]
+              },
+              "ana_for_rnr_ingest": {
+                "aggregations": [
+                  "max"
+                ]
+              },
+              "ana_high_flow_magnitude": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_high_flow_magnitude_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_high_flow_magnitude_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_inundation_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_inundation_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_72hr_accum_precip": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_past_72hr_accum_precip_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_streamflow": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_streamflow_ak": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_streamflow_hi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "ana_streamflow_prvi": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_coastal": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_coastal_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_coastal_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "analysis_assim_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_analysis_assim": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_analysis_assim_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_analysis_assim_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_analysis_assim_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_medium_range": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_medium_range_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_medium_range_blend": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_medium_range_blend_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_short_range": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_short_range_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_short_range_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "forcing_short_range_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_alaska_mem1": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_blend": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_blend_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_blend_coastal": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_coastal_mem1": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "medium_range_mem1": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_accum_precip": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_high_water_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_max_high_flow_magnitude": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_max_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_peak_flow_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_peak_flow_arrival_time_ak": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_gfs_10day_rapid_onset_flooding": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_accum_precip": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_high_water_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_max_coastal_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_max_high_flow_magnitude": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_max_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_peak_flow_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_peak_flow_arrival_time_ak": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "mrf_nbm_10day_rapid_onset_flooding": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "reference_time": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "replace_route": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "rfc": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "rfc_based_5day_max_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "rfc_based_5day_max_streamflow": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "rfc_max_forecast": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_alaska": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_coastal": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_coastal_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_coastal_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_hawaii": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "short_range_puertorico": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_15hr_peak_flow_arrival_time_ak": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_accum_precip": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_high_water_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_max_coastal_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_max_high_flow_magnitude": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_max_inundation": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_peak_flow_arrival_time": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_rapid_onset_flooding": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              },
+              "srf_18hr_rate_of_change": {
+                "aggregations": [
+                  "max"
+                ],
+                "operation": "aggregate"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "@timestamp": false,
+              "Time": true,
+              "ana_coastal_inundation_hi (max)": false,
+              "ana_coastal_inundation_prvi (max)": true,
+              "analysis_assim_coastal (last)": true,
+              "analysis_assim_coastal (max)": true,
+              "analysis_assim_coastal_hawaii (last)": true,
+              "analysis_assim_coastal_hawaii (max)": true,
+              "analysis_assim_coastal_puertorico (last)": true,
+              "analysis_assim_coastal_puertorico (max)": true,
+              "forcing_analysis_assim (last)": true,
+              "forcing_analysis_assim (max)": true,
+              "forcing_analysis_assim_alaska (last)": true,
+              "forcing_analysis_assim_alaska (max)": true,
+              "forcing_analysis_assim_hawaii (last)": true,
+              "forcing_analysis_assim_hawaii (max)": true,
+              "forcing_analysis_assim_puertorico (last)": true,
+              "forcing_analysis_assim_puertorico (max)": true,
+              "forcing_medium_range (last)": true,
+              "forcing_medium_range (max)": true,
+              "forcing_medium_range_alaska (last)": true,
+              "forcing_medium_range_alaska (max)": true,
+              "forcing_medium_range_blend (last)": true,
+              "forcing_medium_range_blend (max)": true,
+              "forcing_medium_range_blend_alaska (last)": true,
+              "forcing_medium_range_blend_alaska (max)": true,
+              "forcing_short_range (last)": true,
+              "forcing_short_range (max)": true,
+              "forcing_short_range_alaska (last)": true,
+              "forcing_short_range_alaska (max)": true,
+              "forcing_short_range_hawaii (last)": true,
+              "forcing_short_range_hawaii (max)": true,
+              "forcing_short_range_puertorico (last)": true,
+              "forcing_short_range_puertorico (max)": true,
+              "logging_status": true,
+              "medium_range_blend_coastal (last)": true,
+              "medium_range_blend_coastal (max)": true,
+              "medium_range_coastal_mem1 (last)": true,
+              "medium_range_coastal_mem1 (max)": true,
+              "message": true,
+              "pipeline_name": true,
+              "short_range_coastal (last)": true,
+              "short_range_coastal (max)": true,
+              "short_range_coastal_hawaii (last)": true,
+              "short_range_coastal_hawaii (max)": true,
+              "short_range_coastal_puertorico (last)": true,
+              "short_range_coastal_puertorico (max)": true,
+              "short_range_puertorico (max)": false
+            },
+            "indexByName": {
+              "mrf_nbm_10day_accum_precip (max)": 6,
+              "mrf_nbm_10day_high_water_arrival_time (max)": 5,
+              "mrf_nbm_10day_max_high_flow_magnitude (max)": 1,
+              "mrf_nbm_10day_max_inundation (max)": 4,
+              "mrf_nbm_10day_peak_flow_arrival_time (max)": 2,
+              "mrf_nbm_10day_rapid_onset_flooding (max)": 3,
+              "reference_time": 0
+            },
+            "renameByName": {
+              "@timestamp": "Log Time",
+              "ana_coastal_inundation (max)": "Coastal FIM",
+              "ana_coastal_inundation_hi (max)": "Coastal FIM",
+              "ana_coastal_inundation_prvi (max)": "AnA Coastal Inundation PRVI",
+              "ana_high_flow_magnitude (max)": "HFM",
+              "ana_high_flow_magnitude_hi (max)": "HFM",
+              "ana_inundation_hi (max)": "FIM",
+              "ana_past_72hr_accum_precip (max)": "Accum Precip",
+              "ana_past_72hr_accum_precip_hi (max)": "Accum Precip",
+              "ana_streamflow (max)": "Streamflow",
+              "ana_streamflow_hi (max)": "Streamflow",
+              "analysis_assim (last)": "AnA",
+              "analysis_assim (max)": "AnA",
+              "analysis_assim_alaska (last)": "AnA AK",
+              "analysis_assim_alaska (max)": "AnA AK",
+              "analysis_assim_coastal": "AnA Coastal",
+              "analysis_assim_coastal (last)": "C AnA",
+              "analysis_assim_coastal (max)": "C AnA",
+              "analysis_assim_coastal_hawaii (last)": "C AnA HI",
+              "analysis_assim_coastal_hawaii (max)": "C AnA HI",
+              "analysis_assim_coastal_puertorico (last)": "C AnA PRVI",
+              "analysis_assim_coastal_puertorico (max)": "C AnA PRVI",
+              "analysis_assim_hawaii (last)": "AnA HI",
+              "analysis_assim_hawaii (max)": "AnA HI",
+              "analysis_assim_puertorico (last)": "AnA PRVI",
+              "analysis_assim_puertorico (max)": "AnA PRVI",
+              "forcing_analysis_assim (last)": "F AnA",
+              "forcing_analysis_assim (max)": "F AnA",
+              "forcing_analysis_assim_alaska (last)": "F AnA AK",
+              "forcing_analysis_assim_alaska (max)": "F AnA AK",
+              "forcing_analysis_assim_hawaii (last)": "F AnA HI",
+              "forcing_analysis_assim_hawaii (max)": "F AnA HI",
+              "forcing_analysis_assim_puertorico (last)": "F AnA PRVI",
+              "forcing_analysis_assim_puertorico (max)": "F AnA PRVI",
+              "forcing_medium_range (last)": "F MRF GFS",
+              "forcing_medium_range (max)": "F MRF GFS",
+              "forcing_medium_range_alaska (last)": "F MRF GFS AK",
+              "forcing_medium_range_alaska (max)": "F MRF GFS AK",
+              "forcing_medium_range_blend (last)": "F MRF NBM",
+              "forcing_medium_range_blend (max)": "F MRF NBM",
+              "forcing_medium_range_blend_alaska (last)": "F MRF NBM AK",
+              "forcing_medium_range_blend_alaska (max)": "F MRF NBM AK",
+              "forcing_short_range (last)": "F SRF",
+              "forcing_short_range (max)": "F SRF",
+              "forcing_short_range_alaska (last)": "F SRF AK",
+              "forcing_short_range_alaska (max)": "F SRF AK",
+              "forcing_short_range_hawaii (last)": "F SRF HI",
+              "forcing_short_range_hawaii (max)": "F SRF HI",
+              "forcing_short_range_puertorico (last)": "F SRF PRVI",
+              "forcing_short_range_puertorico (max)": "F SRF PRVI",
+              "logging_status": "",
+              "medium_range_alaska_mem1 (last)": "MRF GFS AK",
+              "medium_range_alaska_mem1 (max)": "MRF GFS AK",
+              "medium_range_blend (last)": "MRF NBM",
+              "medium_range_blend (max)": "MRF NBM",
+              "medium_range_blend_alaska (last)": "MRF NBM AK",
+              "medium_range_blend_alaska (max)": "MRF NBM AK",
+              "medium_range_blend_coastal": "MRF NBM Coastal",
+              "medium_range_blend_coastal (last)": "C MRF NBM",
+              "medium_range_blend_coastal (max)": "C MRF NBM",
+              "medium_range_coastal_mem1 (last)": "C MRF GFS",
+              "medium_range_coastal_mem1 (max)": "C MRF GFS",
+              "medium_range_mem1 (last)": "MRF GFS",
+              "medium_range_mem1 (max)": "MRF GFS",
+              "mrf_gfs_10day_accum_precip (max)": "Accum Precip",
+              "mrf_gfs_10day_high_water_arrival_time (max)": "HWAT",
+              "mrf_gfs_10day_max_high_flow_magnitude (max)": "HFM",
+              "mrf_gfs_10day_max_inundation (max)": "FIM",
+              "mrf_gfs_10day_peak_flow_arrival_time (max)": "PFAT",
+              "mrf_gfs_10day_rapid_onset_flooding (max)": "ROF",
+              "mrf_nbm_10day_accum_precip (max)": "Accum Precip",
+              "mrf_nbm_10day_high_water_arrival_time (max)": "HWAT",
+              "mrf_nbm_10day_max_coastal_inundation (max)": "Coastal FIM",
+              "mrf_nbm_10day_max_high_flow_magnitude (max)": "HFM",
+              "mrf_nbm_10day_max_inundation (max)": "FIM",
+              "mrf_nbm_10day_peak_flow_arrival_time (max)": "PFAT",
+              "mrf_nbm_10day_rapid_onset_flooding (max)": "ROF",
+              "reference_time": "Reference Time",
+              "replace_route": "RnR",
+              "replace_route (last)": "RnR",
+              "replace_route (max)": "RnR",
+              "rfc": "RFC",
+              "rfc (last)": "RFC",
+              "rfc (max)": "RFC",
+              "rfc_based_5day_max_inundation (max)": "FIM",
+              "rfc_based_5day_max_streamflow (max)": "Streamflow",
+              "rfc_max_forecast (max)": "RFC Max Forecast",
+              "short_range (last)": "SRF",
+              "short_range (max)": "SRF",
+              "short_range_alaska (last)": "SRF AK",
+              "short_range_alaska (max)": "SRF AK",
+              "short_range_coastal (last)": "C SRF",
+              "short_range_coastal (max)": "C SRF",
+              "short_range_coastal_hawaii (last)": "C SRF HI",
+              "short_range_coastal_hawaii (max)": "C SRF HI",
+              "short_range_coastal_puertorico (last)": "C SRF PRVI",
+              "short_range_coastal_puertorico (max)": "C SRF PRVI",
+              "short_range_hawaii (last)": "SRF HI",
+              "short_range_hawaii (max)": "SRF HI",
+              "short_range_puertorico (last)": "SRF PRVI",
+              "short_range_puertorico (max)": "SRF PRVI",
+              "srf_15hr_peak_flow_arrival_time_ak (max)": "SRF 15 HR Peak Flow Arrival Time AK",
+              "srf_18hr_accum_precip (max)": "Accum Precip",
+              "srf_18hr_high_water_arrival_time (max)": "HWAT",
+              "srf_18hr_max_coastal_inundation (max)": "Coastal FIM",
+              "srf_18hr_max_high_flow_magnitude (max)": "HFM",
+              "srf_18hr_max_inundation (max)": "FIM",
+              "srf_18hr_peak_flow_arrival_time (max)": "PFAT",
+              "srf_18hr_rapid_onset_flooding (max)": "ROF",
+              "srf_18hr_rate_of_change (max)": "ROC",
+              "step_finish": "Step Finish Time"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 113
       },
       "id": 35,
-      "panels": [
-        {
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "$datasource"
+      "panels": [],
+      "title": "Lambdas",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
           },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "bars",
-                "fillOpacity": 100,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 2,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "decimals": 0,
-              "links": [],
-              "mappings": [],
-              "min": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "none"
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "overrides": [
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "ExecutionsFailed Sum"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "red",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
+                "color": "green",
+                "value": null
               },
               {
-                "matcher": {
-                  "id": "byName",
-                  "options": "ExecutionsSucceeded Sum"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "green",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
+                "color": "red",
+                "value": 80
               }
             ]
           },
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 0,
-            "y": 63
-          },
-          "id": 10,
-          "links": [],
-          "options": {
-            "legend": {
-              "calcs": [
-                "mean",
-                "lastNotNull",
-                "max",
-                "min",
-                "sum"
-              ],
-              "displayMode": "table",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "9.4.7",
-          "targets": [
-            {
-              "alias": "{{metric}} {{stat}}",
-              "application": {
-                "filter": ""
-              },
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "dimensions": {
-                "StateMachineArn": "$stateMachineArn"
-              },
-              "expression": "",
-              "functions": [],
-              "group": {
-                "filter": ""
-              },
-              "highResolution": false,
-              "host": {
-                "filter": ""
-              },
-              "id": "",
-              "item": {
-                "filter": ""
-              },
-              "label": "${PROP('MetricName')} ${PROP('Stat')}",
-              "metricEditorMode": 0,
-              "metricName": "ExecutionsSucceeded",
-              "metricQueryType": 0,
-              "mode": 0,
-              "namespace": "AWS/States",
-              "options": {
-                "showDisabledItems": false
-              },
-              "period": "$agg",
-              "refId": "Succeeded",
-              "region": "$region",
-              "returnData": false,
-              "statistic": "Sum"
-            },
-            {
-              "alias": "{{metric}} {{stat}}",
-              "application": {
-                "filter": ""
-              },
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "dimensions": {
-                "StateMachineArn": "$stateMachineArn"
-              },
-              "expression": "",
-              "functions": [],
-              "group": {
-                "filter": ""
-              },
-              "hide": false,
-              "highResolution": false,
-              "host": {
-                "filter": ""
-              },
-              "id": "",
-              "item": {
-                "filter": ""
-              },
-              "label": "${PROP('MetricName')} ${PROP('Stat')}",
-              "metricEditorMode": 0,
-              "metricName": "ExecutionsFailed",
-              "metricQueryType": 0,
-              "mode": 0,
-              "namespace": "AWS/States",
-              "options": {
-                "showDisabledItems": false
-              },
-              "period": "$agg",
-              "refId": "Failed",
-              "region": "$region",
-              "returnData": false,
-              "statistic": "Sum"
-            }
-          ],
-          "title": "Executions Succeeded/Failed",
-          "type": "timeseries"
+          "unit": "none"
         },
-        {
-          "aliasColors": {},
-          "bars": false,
-          "dashLength": 10,
-          "dashes": false,
-          "datasource": {
-            "type": "cloudwatch",
-            "uid": "$datasource"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "links": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ExecutionsFailed Sum"
             },
-            "overrides": []
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
           },
-          "fill": 0,
-          "fillGradient": 0,
-          "gridPos": {
-            "h": 7,
-            "w": 12,
-            "x": 12,
-            "y": 63
-          },
-          "hiddenSeries": false,
-          "id": 12,
-          "legend": {
-            "alignAsTable": true,
-            "avg": false,
-            "current": false,
-            "max": true,
-            "min": false,
-            "rightSide": false,
-            "show": true,
-            "sort": "max",
-            "sortDesc": true,
-            "total": false,
-            "values": true
-          },
-          "lines": true,
-          "linewidth": 1,
-          "nullPointMode": "null",
-          "options": {
-            "alertThreshold": true
-          },
-          "percentage": false,
-          "pluginVersion": "9.4.7",
-          "pointradius": 2,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "",
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "dimensions": {
-                "FunctionName": "$LambdaName"
-              },
-              "expression": "REMOVE_EMPTY(SEARCH('{AWS/Lambda,FunctionName} MetricName=\"Errors\"', 'Sum', $period))/$period",
-              "id": "",
-              "label": "",
-              "matchExact": true,
-              "metricEditorMode": 0,
-              "metricName": "Errors",
-              "metricQueryType": 0,
-              "namespace": "AWS/Lambda",
-              "period": "$agg",
-              "refId": "A",
-              "region": "$region",
-              "statistic": "Sum"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Errors per function [count/sec]",
-          "tooltip": {
-            "shared": true,
-            "sort": 2,
-            "value_type": "individual"
-          },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
-          },
-          "yaxes": [
-            {
-              "format": "short",
-              "logBase": 1,
-              "min": "0",
-              "show": true
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ExecutionsSucceeded Sum"
             },
-            {
-              "format": "short",
-              "logBase": 1,
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 114
+      },
+      "id": 10,
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
         },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.4.7",
+      "targets": [
         {
-          "aliasColors": {
-            "ExecutionTime Average": "orange",
-            "Maximum": "#e24d42"
+          "alias": "{{metric}} {{stat}}",
+          "application": {
+            "filter": ""
           },
-          "bars": true,
-          "dashLength": 10,
-          "dashes": false,
           "datasource": {
             "uid": "$datasource"
           },
-          "decimals": 3,
-          "editable": true,
-          "error": false,
-          "fieldConfig": {
-            "defaults": {
-              "links": []
-            },
-            "overrides": []
+          "dimensions": {
+            "StateMachineArn": "$stateMachineArn"
           },
-          "fill": 1,
-          "fillGradient": 0,
-          "grid": {},
-          "gridPos": {
-            "h": 7,
-            "w": 24,
-            "x": 0,
-            "y": 70
+          "expression": "",
+          "functions": [],
+          "group": {
+            "filter": ""
           },
-          "hiddenSeries": false,
-          "id": 1,
-          "legend": {
-            "alignAsTable": true,
-            "avg": true,
-            "current": true,
-            "max": true,
-            "min": true,
-            "show": true,
-            "sort": "current",
-            "sortDesc": true,
-            "total": true,
-            "values": true
+          "highResolution": false,
+          "host": {
+            "filter": ""
           },
-          "lines": false,
-          "linewidth": 2,
-          "links": [],
-          "nullPointMode": "null",
+          "id": "",
+          "item": {
+            "filter": ""
+          },
+          "label": "${PROP('MetricName')} ${PROP('Stat')}",
+          "metricEditorMode": 0,
+          "metricName": "ExecutionsSucceeded",
+          "metricQueryType": 0,
+          "mode": 0,
+          "namespace": "AWS/States",
           "options": {
-            "alertThreshold": true
+            "showDisabledItems": false
           },
-          "percentage": false,
-          "pluginVersion": "9.4.7",
-          "pointradius": 5,
-          "points": false,
-          "renderer": "flot",
-          "seriesOverrides": [
-            {
-              "alias": "ExecutionTime Maximum",
-              "bars": false,
-              "fill": 0,
-              "lines": true,
-              "yaxis": 2
-            }
-          ],
-          "spaceLength": 10,
-          "stack": false,
-          "steppedLine": false,
-          "targets": [
-            {
-              "alias": "{{metric}} {{stat}}",
-              "application": {
-                "filter": ""
-              },
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "dimensions": {
-                "StateMachineArn": "$stateMachineArn"
-              },
-              "expression": "",
-              "functions": [],
-              "group": {
-                "filter": ""
-              },
-              "highResolution": false,
-              "host": {
-                "filter": ""
-              },
-              "id": "",
-              "item": {
-                "filter": ""
-              },
-              "metricEditorMode": 0,
-              "metricName": "ExecutionTime",
-              "metricQueryType": 0,
-              "mode": 0,
-              "namespace": "AWS/States",
-              "options": {
-                "showDisabledItems": false
-              },
-              "period": "$agg",
-              "refId": "A",
-              "region": "$region",
-              "returnData": false,
-              "statistic": "Average"
-            },
-            {
-              "alias": "{{metric}} {{stat}}",
-              "application": {
-                "filter": ""
-              },
-              "datasource": {
-                "uid": "$datasource"
-              },
-              "dimensions": {
-                "StateMachineArn": "$stateMachineArn"
-              },
-              "expression": "",
-              "functions": [],
-              "group": {
-                "filter": ""
-              },
-              "hide": false,
-              "highResolution": false,
-              "host": {
-                "filter": ""
-              },
-              "id": "",
-              "item": {
-                "filter": ""
-              },
-              "metricEditorMode": 0,
-              "metricName": "ExecutionTime",
-              "metricQueryType": 0,
-              "mode": 0,
-              "namespace": "AWS/States",
-              "options": {
-                "showDisabledItems": false
-              },
-              "period": "$agg",
-              "refId": "B",
-              "region": "$region",
-              "returnData": false,
-              "statistic": "Maximum"
-            }
-          ],
-          "thresholds": [],
-          "timeRegions": [],
-          "title": "Execution Time",
-          "tooltip": {
-            "msResolution": false,
-            "shared": true,
-            "sort": 0,
-            "value_type": "cumulative"
+          "period": "$agg",
+          "refId": "Succeeded",
+          "region": "$region",
+          "returnData": false,
+          "statistic": "Sum"
+        },
+        {
+          "alias": "{{metric}} {{stat}}",
+          "application": {
+            "filter": ""
           },
-          "type": "graph",
-          "xaxis": {
-            "mode": "time",
-            "show": true,
-            "values": []
+          "datasource": {
+            "uid": "$datasource"
           },
-          "yaxes": [
-            {
-              "format": "ms",
-              "logBase": 1,
-              "min": 0,
-              "show": true
-            },
-            {
-              "format": "ms",
-              "logBase": 1,
-              "min": "0",
-              "show": true
-            }
-          ],
-          "yaxis": {
-            "align": false
-          }
+          "dimensions": {
+            "StateMachineArn": "$stateMachineArn"
+          },
+          "expression": "",
+          "functions": [],
+          "group": {
+            "filter": ""
+          },
+          "hide": false,
+          "highResolution": false,
+          "host": {
+            "filter": ""
+          },
+          "id": "",
+          "item": {
+            "filter": ""
+          },
+          "label": "${PROP('MetricName')} ${PROP('Stat')}",
+          "metricEditorMode": 0,
+          "metricName": "ExecutionsFailed",
+          "metricQueryType": 0,
+          "mode": 0,
+          "namespace": "AWS/States",
+          "options": {
+            "showDisabledItems": false
+          },
+          "period": "$agg",
+          "refId": "Failed",
+          "region": "$region",
+          "returnData": false,
+          "statistic": "Sum"
         }
       ],
-      "title": "Lambdas",
-      "type": "row"
+      "title": "Executions Succeeded/Failed",
+      "type": "timeseries"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 114
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "legend": {
+        "alignAsTable": true,
+        "avg": false,
+        "current": false,
+        "max": true,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "9.4.7",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "dimensions": {
+            "FunctionName": "$LambdaName"
+          },
+          "expression": "REMOVE_EMPTY(SEARCH('{AWS/Lambda,FunctionName} MetricName=\"Errors\"', 'Sum', $period))/$period",
+          "id": "",
+          "label": "",
+          "matchExact": true,
+          "metricEditorMode": 0,
+          "metricName": "Errors",
+          "metricQueryType": 0,
+          "namespace": "AWS/Lambda",
+          "period": "$agg",
+          "refId": "A",
+          "region": "$region",
+          "statistic": "Sum"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Errors per function [count/sec]",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "logBase": 1,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {
+        "ExecutionTime Average": "orange",
+        "Maximum": "#e24d42"
+      },
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "uid": "$datasource"
+      },
+      "decimals": 3,
+      "editable": true,
+      "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 121
+      },
+      "hiddenSeries": false,
+      "id": 1,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": true,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "total": true,
+        "values": true
+      },
+      "lines": false,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "9.4.7",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "ExecutionTime Maximum",
+          "bars": false,
+          "fill": 0,
+          "lines": true,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "{{metric}} {{stat}}",
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "dimensions": {
+            "StateMachineArn": "$stateMachineArn"
+          },
+          "expression": "",
+          "functions": [],
+          "group": {
+            "filter": ""
+          },
+          "highResolution": false,
+          "host": {
+            "filter": ""
+          },
+          "id": "",
+          "item": {
+            "filter": ""
+          },
+          "metricEditorMode": 0,
+          "metricName": "ExecutionTime",
+          "metricQueryType": 0,
+          "mode": 0,
+          "namespace": "AWS/States",
+          "options": {
+            "showDisabledItems": false
+          },
+          "period": "$agg",
+          "refId": "A",
+          "region": "$region",
+          "returnData": false,
+          "statistic": "Average"
+        },
+        {
+          "alias": "{{metric}} {{stat}}",
+          "application": {
+            "filter": ""
+          },
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "dimensions": {
+            "StateMachineArn": "$stateMachineArn"
+          },
+          "expression": "",
+          "functions": [],
+          "group": {
+            "filter": ""
+          },
+          "hide": false,
+          "highResolution": false,
+          "host": {
+            "filter": ""
+          },
+          "id": "",
+          "item": {
+            "filter": ""
+          },
+          "metricEditorMode": 0,
+          "metricName": "ExecutionTime",
+          "metricQueryType": 0,
+          "mode": 0,
+          "namespace": "AWS/States",
+          "options": {
+            "showDisabledItems": false
+          },
+          "period": "$agg",
+          "refId": "B",
+          "region": "$region",
+          "returnData": false,
+          "statistic": "Maximum"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Execution Time",
+      "tooltip": {
+        "msResolution": false,
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "ms",
+          "logBase": 1,
+          "min": 0,
+          "show": true
+        },
+        {
+          "format": "ms",
+          "logBase": 1,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     }
   ],
   "refresh": "",
@@ -15259,8 +16508,8 @@
       {
         "current": {
           "selected": false,
-          "text": "us-east-2",
-          "value": "us-east-2"
+          "text": "us-east-1",
+          "value": "us-east-1"
         },
         "hide": 0,
         "includeAll": false,
@@ -15269,12 +16518,12 @@
         "name": "region",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "us-east-1",
             "value": "us-east-1"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "us-east-2",
             "value": "us-east-2"
           }
@@ -15309,6 +16558,26 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "10000",
+          "value": "10000"
+        },
+        "hide": 0,
+        "label": "Query Log Limit (10,000 Max)",
+        "name": "QueryLimit",
+        "options": [
+          {
+            "selected": true,
+            "text": "10000",
+            "value": "10000"
+          }
+        ],
+        "query": "10000",
+        "skipUrlSync": false,
+        "type": "textbox"
       }
     ]
   },
@@ -15344,6 +16613,6 @@
   "timezone": "browser",
   "title": "HydroVIS Pipeline Health",
   "uid": "AWSStepFn",
-  "version": 67,
+  "version": 91,
   "weekStart": ""
 }
