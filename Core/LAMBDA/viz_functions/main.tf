@@ -42,7 +42,7 @@ variable "deployment_bucket" {
   type        = string
 }
 
-variable "max_values_bucket" {
+variable "python_preprocessing_bucket" {
   description = "S3 bucket where the outputted max flows will live."
   type        = string
 }
@@ -232,7 +232,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   environment {
     variables = {
       DATASERVICES_HOST            = var.dataservices_host
-      MAX_VALS_BUCKET              = var.max_values_bucket
+      PYTHON_PREPROCESSING_BUCKET              = var.python_preprocessing_bucket
       PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
@@ -458,7 +458,7 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
     variables = {
       STEP_FUNCTION_ARN     = var.viz_pipeline_step_function_arn
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
-      MAX_VALS_DATA_BUCKET  = var.max_values_bucket
+      PYTHON_PREPROCESSING_BUCKET  = var.python_preprocessing_bucket
       RNR_DATA_BUCKET       = var.rnr_data_bucket
       RASTER_OUTPUT_BUCKET  = var.fim_output_bucket
       RASTER_OUTPUT_PREFIX  = local.raster_output_prefix
@@ -815,7 +815,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_PASSWORD        = var.egis_portal_password
       GIS_HOST            = local.egis_host
       GIS_USERNAME        = "hydrovis.proc"
-      PUBLISH_FLAG_BUCKET = var.max_values_bucket
+      PUBLISH_FLAG_BUCKET = var.python_preprocessing_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz_sd_files/"
       SERVICE_TAG         = local.service_suffix
@@ -858,7 +858,7 @@ module "image-based-lambdas" {
   account_id  = var.account_id
   region      = var.region
   deployment_bucket = var.deployment_bucket
-  max_values_bucket = var.max_values_bucket
+  python_preprocessing_bucket = var.python_preprocessing_bucket
   lambda_role = var.lambda_role
   hand_fim_processing_sgs = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets

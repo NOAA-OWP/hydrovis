@@ -582,7 +582,7 @@ module "viz-lambda-functions" {
   viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
   fim_data_bucket                = module.s3.buckets["deployment"].bucket
   fim_output_bucket              = module.s3.buckets["fim"].bucket
-  max_values_bucket              = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket              = module.s3.buckets["fim"].bucket
   rnr_data_bucket                = module.s3.buckets["rnr"].bucket
   deployment_bucket              = module.s3.buckets["deployment"].bucket
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
@@ -659,7 +659,7 @@ module "viz-ec2" {
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
-  nwm_max_values_data_bucket  = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket  = module.s3.buckets["fim"].bucket
   rnr_data_bucket             = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]

@@ -464,7 +464,7 @@ class configuration:
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
             elif "max" in ingest_file:
-                bucket=os.environ['MAX_VALS_DATA_BUCKET']
+                bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket
             
@@ -505,7 +505,7 @@ class configuration:
                 "fileset": python_preprocesing_file_set[0]['ingest_datasets'],
                 "fileset_bucket": python_preprocesing_file_set[0]['bucket'],
                 "output_file": formatted_output_file,
-                "output_file_bucket": os.environ['MAX_VALS_DATA_BUCKET'],
+                "output_file_bucket": os.environ['PYTHON_PREPROCESSING_BUCKET'],
             })
             
             db_ingest_file_groups = [{
@@ -572,7 +572,7 @@ class configuration:
                         fim_config['states_to_run'] = self.states_to_run_fim
 
                     if fim_config.get('preprocess'):
-                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
+                        fim_config['preprocess']['output_file_bucket'] = os.environ['PYTHON_PREPROCESSING_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
 
                     if fim_config['fim_type'] == "coastal":

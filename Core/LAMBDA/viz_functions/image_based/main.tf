@@ -14,7 +14,7 @@ variable "deployment_bucket" {
   type = string
 }
 
-variable "max_values_bucket" {
+variable "python_preprocessing_bucket" {
   type = string
 }
 
@@ -510,7 +510,7 @@ data "archive_file" "schism_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_schism_fim_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
-      MAX_VALS_BUCKET    = var.max_values_bucket
+      PYTHON_PREPROCESSING_BUCKET    = var.python_preprocessing_bucket
       INPUTS_BUCKET      = var.deployment_bucket
       INPUTS_PREFIX      = "schism_fim"
       VIZ_DB_DATABASE    = var.viz_db_name
