@@ -1,6 +1,7 @@
 product: mrf_gfs_10day_max_coastal_inundation
 configuration: medium_range_coastal_mem1
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -113,6 +114,8 @@ postprocess_sql:
     target_table: publish.mrf_gfs_5day_max_coastal_inundation
   - sql_file: mrf_gfs_10day_max_coastal_inundation
     target_table: publish.mrf_gfs_10day_max_coastal_inundation
+  - sql_file: mrf_gfs_10day_max_coastal_inundation_depth
+    target_table: publish.mrf_gfs_10day_max_coastal_inundation_depth
 
 services:
   - mrf_gfs_10day_max_coastal_inundation_extent_noaa

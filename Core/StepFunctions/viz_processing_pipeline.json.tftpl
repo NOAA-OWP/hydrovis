@@ -663,7 +663,7 @@
           },
           "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Product Processing Finished Log",
+            "Next": "Product Postprocessing",
             "Iterator": {
               "StartAt": "Fim Config Preprocessing",
               "States": {
@@ -677,7 +677,7 @@
                       "Next": "FIM Config Max File"
                     }
                   ],
-                  "Default": "FIM Data Preparation"
+                  "Default": "Coastal vs Inland Inundation"
                 },
                 "FIM Config Max File": {
                   "Type": "Task",
@@ -711,7 +711,7 @@
                       "Comment": "Missing S3 File"
                     }
                   ],
-                  "Next": "FIM Data Preparation",
+                  "Next": "Coastal vs Inland Inundation",
                   "OutputPath": "$.Payload",
                   "Catch": [
                     {
@@ -738,7 +738,7 @@
                           "BooleanEquals": true
                         }
                       ],
-                      "Next": "FIM Data Preparation"
+                      "Next": "Coastal vs Inland Inundation"
                     }
                   ],
                   "Default": "Fail"
@@ -778,7 +778,7 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "Coastal vs Inland Inundation",
+                  "Next": "HUC Processing Map",
                   "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
                     "hucs_to_process.$": "$.Payload.hucs_to_process",
@@ -795,7 +795,7 @@
                       "Next": "Process Coastal (SCHISM) FIM"
                     }
                   ],
-                  "Default": "HUC Processing Map"
+                  "Default": "FIM Data Preparation"
                 },
                 "Process Coastal (SCHISM) FIM": {
                   "Type": "Task",
@@ -807,10 +807,7 @@
                       "reference_time.$": "$.reference_time",
                       "job_type.$": "$.job_type",
                       "product.$": "$.product",
-                      "sql_rename_dict.$": "$.sql_rename_dict",
-                      "data_bucket.$": "$.huc_processing_payload.data_bucket",
-                      "data_prefix.$": "$.huc_processing_payload.data_prefix",
-                      "hucs_to_process.$": "$.huc_processing_payload.hucs_to_process"
+                      "sql_rename_dict.$": "$.sql_rename_dict"
                     }
                   },
                   "Next": "Postprocess SQL - FIM Config",

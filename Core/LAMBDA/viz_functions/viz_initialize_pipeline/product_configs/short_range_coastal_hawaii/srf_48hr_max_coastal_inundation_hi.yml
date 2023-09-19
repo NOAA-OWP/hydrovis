@@ -1,6 +1,7 @@
 product: srf_48hr_max_coastal_inundation_hi
 configuration: short_range_coastal_hawaii
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -16,6 +17,10 @@ fim_configs:
     postprocess:
       sql_file: srf_48hr_max_coastal_inundation_hi
       target_table: publish.srf_48hr_max_coastal_inundation_hi
+
+postprocess_sql:
+  - sql_file: srf_18hr_max_coastal_inundation_depth_hi
+    target_table: publish.srf_18hr_max_coastal_inundation_depth_hi
 
 services:
   - srf_48hr_max_coastal_inundation_extent_hi_noaa

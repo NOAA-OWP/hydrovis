@@ -1,6 +1,7 @@
 product: srf_48hr_max_coastal_inundation_prvi
 configuration: short_range_coastal_puertorico
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -16,6 +17,10 @@ fim_configs:
     postprocess:
       sql_file: srf_48hr_max_coastal_inundation_prvi
       target_table: publish.srf_48hr_max_coastal_inundation_prvi
+
+postprocess_sql:
+  - sql_file: srf_18hr_max_coastal_inundation_depth_prvi
+    target_table: publish.srf_18hr_max_coastal_inundation_depth_prvi
 
 services:
   - srf_48hr_max_coastal_inundation_extent_prvi_noaa
