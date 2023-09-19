@@ -4,7 +4,11 @@ description: 'Depicts the inundation extent of the peak National Water Model (NW
   over the next 5 days where the NWM is signaling high water. This service is derived from 
   the medium-range GFS configuration of the NWM over the contiguous U.S. Shown are reaches with peak flow 
   at or above high water thresholds. High water thresholds (regionally varied) and AEPs were derived 
-  using the 40-year NWM v2.1 reanalysis simulation. Updated every 6 hours.'
+  using the 40-year NWM v2.1 reanalysis simulation. Updated every 6 hours.
+  
+  This experimental map shows approximated flood inundation extent based on modeled river discharge and contains uncertainty. All flood extents
+  have been subsetted to the official NOAA public FIM domain which can be found at 
+  https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer.'
 tags: national water model, nwm, mrf, medium, range, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server

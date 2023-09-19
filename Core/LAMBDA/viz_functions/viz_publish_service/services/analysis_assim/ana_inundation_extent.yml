@@ -3,7 +3,11 @@ summary: Inundation Extent Analysis (EXPERIMENTAL)
 description: 'Depicts the inundation extent of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. 
   This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. Shown are reaches with flow 
   at or above high water thresholds. High water thresholds (regionally varied) and AEPs were derived using the 40-year NWM v2.1 reanalysis 
-  simulation. Updated hourly.'
+  simulation. Updated hourly.
+  
+  This experimental map shows approximated flood inundation extent based on modeled river discharge and contains uncertainty. All flood extents
+  have been subsetted to the official NOAA public FIM domain which can be found at 
+  https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer.'
 tags: national water model, nwm, ana, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
