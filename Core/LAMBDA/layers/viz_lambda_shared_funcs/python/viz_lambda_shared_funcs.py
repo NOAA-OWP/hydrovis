@@ -538,7 +538,7 @@ def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=
         dest_engine.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
         dest_engine.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
 
-def check_if_file_exists(bucket, file, download=False):
+def check_if_file_exists(bucket, file, download=False, download_subfolder=None):
     import requests
     from viz_classes import s3_file
     import xarray as xr
@@ -548,7 +548,13 @@ def check_if_file_exists(bucket, file, download=False):
     file_exists = False
 
     tempdir = tempfile.mkdtemp()
-    download_path = os.path.join(tempdir, os.path.basename(file))
+    if download_subfolder:
+        download_folder=os.path.join(tempdir, download_subfolder)
+        if not os.path.exists(download_folder):
+            os.mkdir(download_folder)
+        download_path = os.path.join(download_folder, os.path.basename(file))
+    else:
+        download_path = os.path.join(tempdir, os.path.basename(file))
     https_file = None
 
     if "https" in file:
@@ -711,7 +717,8 @@ def get_formatted_files(file_pattern, token_dict, reference_date):
         reference_date_file = parse_datetime_token_value(reference_date_file, reference_date, datetime_token)
 
     if token_dict['range']:
-        for range_token in token_dict['range']:
+        unique_range_tokens = list(set(token_dict['range']))
+        for range_token in unique_range_tokens:
             reference_date_files = parse_range_token_value(reference_date_file, range_token, existing_list=reference_date_files)
     else:
         reference_date_files = [reference_date_file]
