@@ -1,0 +1,71 @@
+from datetime import datetime
+
+from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
+from max_values import aggregate_max_to_file
+from high_water_probability import run_high_water_probability
+
+
+def lambda_handler(event, context):
+    """
+        The lambda handler is the function that is kicked off with the lambda. This function will take all the
+        forecast steps in the NWM configuration, calculate the max streamflow for each feature and then save the
+        output in S3
+        Args:
+            event(event object): An event is a JSON-formatted document that contains data for a Lambda function to
+                                 process
+            context(object): Provides methods and properties that provide information about the invocation, function,
+                             and runtime environment
+    """
+    # parse the event to get the bucket and file that kicked off the lambda
+    print("Parsing event to get configuration") 
+    reference_time = event['args']['reference_time']
+    step = event["step"]
+
+    if step == "fim_config_max_file":
+        config_name = event['args']['fim_config']['name']
+        print(f"Getting fileset for {config_name}")
+        preprocess_args = event['args']['fim_config']['preprocess']
+        file_pattern = preprocess_args['file_format']
+        file_step = preprocess_args['file_step']
+        file_window = preprocess_args['file_window']
+        fileset_bucket = preprocess_args['fileset_bucket']
+        output_file = preprocess_args['output_file']
+        output_file_bucket = preprocess_args['output_file_bucket']
+        reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
+        
+        file_step = None if file_step == "None" else file_step
+        file_window = None if file_window == "None" else file_window
+        
+        fileset = generate_file_list(file_pattern, file_step, file_window, reference_date)
+        output_file = generate_file_list(output_file, None, None, reference_date)[0]
+        
+        event['args']['fim_config'].pop("preprocess")
+        event['args']['fim_config']['max_file_bucket'] = output_file_bucket
+        event['args']['fim_config']['max_file'] = output_file
+    
+    else:
+        fileset = event['args']['python_preprocessing']['fileset']
+        fileset_bucket = event['args']['python_preprocessing']['fileset_bucket']
+        output_file = event['args']['python_preprocessing']['output_file']
+        output_file_bucket = event['args']['python_preprocessing']['output_file_bucket']
+
+    if "srf_12hr_max_high_water_probability.csv" in output_file:
+        run_srf_high_water_prob(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+    elif "mrf_gfs_5day_max_high_water_probability.csv" in output_file:
+        run_mrf_high_water_prob(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+    elif "srf_12hr_rapid_onset_flooding_probability.csv" in output_file:
+        run_srf_rapid_onset_flooding_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+    else:
+        print(f"Creating {output_file}")
+        # Once the files exist, calculate the max flows
+        aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+        print(f"Successfully created {output_file} in {output_file_bucket}")
+
+    print(f"Creating {output_file}")
+    # Once the files exist, calculate the max flows
+    aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+    print(f"Successfully created {output_file} in {output_file_bucket}")
+    
+    return event['args']
+
+

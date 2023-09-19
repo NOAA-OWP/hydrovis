@@ -1,12 +1,11 @@
 import os
-from datetime import datetime
 import xarray
 import pandas as pd
 import numpy as np
 import boto3
 import tempfile
 
-from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
+from viz_lambda_shared_funcs import check_if_file_exists
 
 CACHE_DAYS = os.environ['CACHE_DAYS']
 MAX_PROPS = {
@@ -23,58 +22,6 @@ MAX_PROPS = {
         'extras': ['SCHISM_hgrid_node_x', 'SCHISM_hgrid_node_y']
     }
 }
-
-
-def lambda_handler(event, context):
-    """
-        The lambda handler is the function that is kicked off with the lambda. This function will take all the
-        forecast steps in the NWM configuration, calculate the max streamflow for each feature and then save the
-        output in S3
-        Args:
-            event(event object): An event is a JSON-formatted document that contains data for a Lambda function to
-                                 process
-            context(object): Provides methods and properties that provide information about the invocation, function,
-                             and runtime environment
-    """
-    # parse the event to get the bucket and file that kicked off the lambda
-    print("Parsing event to get configuration")
-    
-    if event["step"] == "fim_config_max_file":
-        config_name = event['args']['fim_config']['name']
-        print(f"Getting fileset for {config_name}")
-        preprocess_args = event['args']['fim_config']['preprocess']
-        file_pattern = preprocess_args['file_format']
-        file_step = preprocess_args['file_step']
-        file_window = preprocess_args['file_window']
-        fileset_bucket = preprocess_args['fileset_bucket']
-        output_file = preprocess_args['output_file']
-        output_file_bucket = preprocess_args['output_file_bucket']
-        reference_time = event['args']['reference_time']
-        reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
-        
-        file_step = None if file_step == "None" else file_step
-        file_window = None if file_window == "None" else file_window
-        
-        fileset = generate_file_list(file_pattern, file_step, file_window, reference_date)
-        output_file = generate_file_list(output_file, None, None, reference_date)[0]
-        
-        event['args']['fim_config'].pop("preprocess")
-        event['args']['fim_config']['max_file_bucket'] = output_file_bucket
-        event['args']['fim_config']['max_file'] = output_file
-    else:
-        fileset = event['args']['lambda_max_flow']['fileset']
-        fileset_bucket = event['args']['lambda_max_flow']['fileset_bucket']
-        output_file = event['args']['lambda_max_flow']['output_file']
-        output_file_bucket = event['args']['lambda_max_flow']['output_file_bucket']
-        reference_time = event['args']['reference_time']
-        
-    print(f"Creating {output_file}")
-    # Once the files exist, calculate the max flows
-    aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
-    print(f"Successfully created {output_file} in {output_file_bucket}")
-    
-    return event['args']
-
 
 def aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file):
     """

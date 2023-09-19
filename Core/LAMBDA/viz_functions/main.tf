@@ -368,24 +368,24 @@ resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
 }
 
 #########################
-## Max Values Function ##
+## Python Preprocessing Function ##
 #########################
-data "archive_file" "max_values_zip" {
+data "archive_file" "python_preprocessing_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_max_values/lambda_function.py"
+  source_file = "${path.module}/viz_python_preprocessing/lambda_function.py"
 
-  output_path = "${path.module}/temp/viz_max_values_${var.environment}_${var.region}.zip"
+  output_path = "${path.module}/temp/viz_python_preprocessing_${var.environment}_${var.region}.zip"
 }
 
-resource "aws_s3_object" "max_values_zip_upload" {
+resource "aws_s3_object" "python_preprocessing_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_max_values.zip"
-  source      = data.archive_file.max_values_zip.output_path
-  source_hash = filemd5(data.archive_file.max_values_zip.output_path)
+  key         = "terraform_artifacts/${path.module}/viz_python_preprocessing.zip"
+  source      = data.archive_file.python_preprocessing_zip.output_path
+  source_hash = filemd5(data.archive_file.python_preprocessing_zip.output_path)
 }
 
-resource "aws_lambda_function" "viz_max_values" {
+resource "aws_lambda_function" "viz_python_preprocessing" {
   function_name = "hv-vpp-${var.environment}-viz-max-values"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
@@ -406,9 +406,9 @@ resource "aws_lambda_function" "viz_max_values" {
       NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
-  s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
-  s3_key           = aws_s3_object.max_values_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.max_values_zip.output_path)
+  s3_bucket        = aws_s3_object.python_preprocessing_zip_upload.bucket
+  s3_key           = aws_s3_object.python_preprocessing_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.python_preprocessing_zip.output_path)
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -878,8 +878,8 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "max_values" {
-  value = aws_lambda_function.viz_max_values
+output "python_preprocessing" {
+  value = aws_lambda_function.viz_python_preprocessing
 }
 
 output "initialize_pipeline" {

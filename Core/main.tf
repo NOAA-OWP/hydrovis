@@ -629,7 +629,7 @@ module "step-functions" {
   db_ingest_arn             = module.viz-lambda-functions.db_ingest.arn
   raster_processing_arn     = module.viz-lambda-functions.raster_processing.arn
   publish_service_arn       = module.viz-lambda-functions.publish_service.arn
-  max_values_arn            = module.viz-lambda-functions.max_values.arn
+  python_preprocessing_arn            = module.viz-lambda-functions.python_preprocessing.arn
   hand_fim_processing_arn   = module.viz-lambda-functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz-lambda-functions.schism_fim_processing.arn
   initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
