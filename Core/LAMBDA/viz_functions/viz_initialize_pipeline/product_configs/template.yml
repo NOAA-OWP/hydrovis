@@ -5,7 +5,7 @@ run: true  # (REQUIRED) Determines if this product is enabled or disabled
 run_times:  # (OPTIONAL) List of reference time hours that this product will run
   - 00:00  # (REQUIRED) reference hour:minute to run the service
 
-lambda_max_flows:  # (OPTIONAL) List of max_flows to run via a lambda function for larger file sets
+python_preprocessing:  # (OPTIONAL) List of max_flows to run via a lambda function for larger file sets
   - file_format: file/path/to/date.{{datetime:%Y%m%d}}/data.f{{range:1,19,1,%03d}}.conus.nc  # (REQUIRED) File path to data with regex type format for dynamic handling
     file_step: 1H  # (REQUIRED) If the datetime regex is used, then this determines the time slice that we want. 1H means hourly files, 6H means file every 6 hours, etc
     file_window: P7D  # (REQUIRED) If the datetime regex is used, then this determines the time range that we want. P1H means the past hour, P7D means the past 7 days, etc 
