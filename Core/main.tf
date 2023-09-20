@@ -582,13 +582,13 @@ module "viz-lambda-functions" {
   viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
   fim_data_bucket                = module.s3.buckets["deployment"].bucket
   fim_output_bucket              = module.s3.buckets["fim"].bucket
-  python_preprocessing_bucket              = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket    = module.s3.buckets["fim"].bucket
   rnr_data_bucket                = module.s3.buckets["rnr"].bucket
   deployment_bucket              = module.s3.buckets["deployment"].bucket
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
-  # sns_topics                     = module.sns.sns_topics
+  # sns_topics                   = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda-layers.es_logging.arn
@@ -629,7 +629,7 @@ module "step-functions" {
   db_ingest_arn             = module.viz-lambda-functions.db_ingest.arn
   raster_processing_arn     = module.viz-lambda-functions.raster_processing.arn
   publish_service_arn       = module.viz-lambda-functions.publish_service.arn
-  python_preprocessing_arn            = module.viz-lambda-functions.python_preprocessing.arn
+  python_preprocessing_arn  = module.viz-lambda-functions.python_preprocessing.arn
   hand_fim_processing_arn   = module.viz-lambda-functions.hand_fim_processing.arn
   schism_fim_processing_arn = module.viz-lambda-functions.schism_fim_processing.arn
   initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
@@ -659,7 +659,7 @@ module "viz-ec2" {
   fim_data_bucket             = module.s3.buckets["deployment"].bucket
   fim_output_bucket           = module.s3.buckets["fim"].bucket
   nwm_data_bucket             = local.env.nws_shared_account_s3_bucket
-  python_preprocessing_bucket  = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket = module.s3.buckets["fim"].bucket
   rnr_data_bucket             = module.s3.buckets["rnr"].bucket
   deployment_data_bucket      = module.s3.buckets["deployment"].bucket
   kms_key_arn                 = module.kms.key_arns["egis"]
