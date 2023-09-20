@@ -367,9 +367,9 @@ resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
   }
 }
 
-#########################
+###################################
 ## Python Preprocessing Function ##
-#########################
+###################################
 data "archive_file" "python_preprocessing_zip" {
   type = "zip"
 
@@ -390,7 +390,7 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
-    size = 1024
+    size = 6656
   }
   timeout = 900
 
