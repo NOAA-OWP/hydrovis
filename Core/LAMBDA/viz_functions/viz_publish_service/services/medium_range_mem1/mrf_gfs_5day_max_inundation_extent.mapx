@@ -248,7 +248,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "5 Days - Inundation Extent",
+      "name" : "5 Days - Inundation Extent (EXPERIMENTAL)",
       "uRI" : "CIMPATH=nwm_medium_range_max_fim_extent_forecast/5_days___inundation_extent.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -320,7 +320,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {

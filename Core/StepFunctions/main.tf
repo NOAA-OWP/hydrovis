@@ -73,6 +73,10 @@ variable "fifteen_minute_trigger" {
   })
 }
 
+variable "viz_processing_pipeline_log_group" {
+  type        = string
+}
+
 #########################################
 ##     Replace Route Step Function     ##
 #########################################
@@ -154,6 +158,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
         publish_service_arn  = var.publish_service_arn
         schism_fim_processing_step_function_arn = aws_sfn_state_machine.schism_fim_processing_step_function.arn
         hand_fim_processing_step_function_arn = aws_sfn_state_machine.hand_fim_processing_step_function.arn
+        viz_processing_pipeline_log_group = var.viz_processing_pipeline_log_group
     })
 }
 

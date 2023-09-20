@@ -1,3 +1,5 @@
+-- We'll temporarily increase work_mem to 512MB, to help with performance on PostGIS spatial joins (default is 4MB)
+SET work_mem TO '512MB';
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.ana_inundation_building_footprints_hi;
 SELECT
@@ -53,3 +55,7 @@ JOIN derived.channels_county_crosswalk AS crosswalk ON counties.geoid = crosswal
 JOIN publish.ana_inundation_hi AS fim on crosswalk.feature_id = fim.feature_id
 JOIN publish.ana_inundation_building_footprints_hi AS buildings ON crosswalk.feature_id = buildings.feature_id
 GROUP BY counties.geoid, counties.name, counties.geom, buildings.prop_st;
+
+INSERT INTO publish.ana_inundation_counties_hi(
+	geoid, county, state, max_flow_cfs, avg_flow_cfs, max_fim_stage_ft, avg_fim_stage_ft, buildings_impacted, building_sqft_impacted, bldgs_agriculture, bldgs_assembly, bldgs_commercial, bldgs_education, bldgs_government, bldgs_industrial, bldgs_residential, bldgs_utility_msc, bldgs_other, reference_time, update_time, geom)
+	VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL);

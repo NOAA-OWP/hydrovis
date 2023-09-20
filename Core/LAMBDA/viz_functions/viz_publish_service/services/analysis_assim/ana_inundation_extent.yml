@@ -1,5 +1,5 @@
 service: ana_inundation_extent
-summary: Inundation Extent Analysis
+summary: Inundation Extent Analysis (EXPERIMENTAL)
 description: 'Depicts the inundation extent of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. 
   This service is derived from the analysis and assimilation configuration of the NWM over the contiguous U.S. Shown are reaches with flow 
   at or above high water thresholds. High water thresholds (regionally varied) and AEPs were derived using the 40-year NWM v2.1 reanalysis 
@@ -8,5 +8,5 @@ tags: national water model, nwm, ana, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
-feature_service: false
-public_service: false
+feature_service: true
+public_service: true
