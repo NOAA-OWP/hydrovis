@@ -12,6 +12,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/short_range_coastal_hawaii/nwm.t{{datetime:%H}}z.short_range_coastal.total_water.f{{range:1,49,1,%03d}}.hawaii.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/short_range_coastal_hawaii/{{datetime:%Y%m%d}}/srf_max_coastal_hawaii_{{datetime:%H}}_max_elevs.nc
     postprocess:
       sql_file: srf_48hr_max_coastal_inundation_hi

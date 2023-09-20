@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from viz_lambda_shared_funcs import check_if_file_exists, generate_file_list
-from max_values import aggregate_max_to_file
-from high_water_probability import run_high_water_probability
+from viz_lambda_shared_funcs import generate_file_list
+from products.max_values import aggregate_max_to_file
+from products.high_water_probability import run_high_water_probability
 
 
 def lambda_handler(event, context):
@@ -19,6 +19,7 @@ def lambda_handler(event, context):
     # parse the event to get the bucket and file that kicked off the lambda
     print("Parsing event to get configuration") 
     reference_time = event['args']['reference_time']
+    reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     step = event["step"]
 
     if step == "fim_config_max_file":
@@ -29,9 +30,9 @@ def lambda_handler(event, context):
         file_step = preprocess_args['file_step']
         file_window = preprocess_args['file_window']
         fileset_bucket = preprocess_args['fileset_bucket']
+        product = preprocess_args['product']
         output_file = preprocess_args['output_file']
         output_file_bucket = preprocess_args['output_file_bucket']
-        reference_date = datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
         
         file_step = None if file_step == "None" else file_step
         file_window = None if file_window == "None" else file_window
@@ -46,26 +47,17 @@ def lambda_handler(event, context):
     else:
         fileset = event['args']['python_preprocessing']['fileset']
         fileset_bucket = event['args']['python_preprocessing']['fileset_bucket']
+        product = event['args']['python_preprocessing']['product']
         output_file = event['args']['python_preprocessing']['output_file']
         output_file_bucket = event['args']['python_preprocessing']['output_file_bucket']
-
-    if "srf_12hr_max_high_water_probability.csv" in output_file:
-        run_srf_high_water_prob(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
-    elif "mrf_gfs_5day_max_high_water_probability.csv" in output_file:
-        run_mrf_high_water_prob(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
-    elif "srf_12hr_rapid_onset_flooding_probability.csv" in output_file:
-        run_srf_rapid_onset_flooding_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
-    else:
-        print(f"Creating {output_file}")
-        # Once the files exist, calculate the max flows
-        aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
-        print(f"Successfully created {output_file} in {output_file_bucket}")
-
+        
+    
     print(f"Creating {output_file}")
-    # Once the files exist, calculate the max flows
-    aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+    if product == "max_values":
+        aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
+    elif product == "high_water_probability":
+        run_high_water_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+        
     print(f"Successfully created {output_file} in {output_file_bucket}")
     
     return event['args']
-
-

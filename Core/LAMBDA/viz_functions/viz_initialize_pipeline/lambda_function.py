@@ -495,6 +495,7 @@ class configuration:
         python_preprocesing_ingest_sets = []
         db_ingest_sets = []
         for file_group in file_groups:
+            product = file_group['product']
             output_file = file_group['output_file']
             
             token_dict = get_file_tokens(output_file)
@@ -504,6 +505,7 @@ class configuration:
             python_preprocesing_ingest_sets.append({
                 "fileset": python_preprocesing_file_set[0]['ingest_datasets'],
                 "fileset_bucket": python_preprocesing_file_set[0]['bucket'],
+                "product": product,
                 "output_file": formatted_output_file,
                 "output_file_bucket": os.environ['PYTHON_PREPROCESSING_BUCKET'],
             })

@@ -7,6 +7,7 @@ python_preprocessing:
   - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/short_range/nwm.t{{datetime:%H}}z.short_range.channel_rt.f{{range:1,19,1,%03d}}.conus.nc
     file_step: 1H
     file_window: PT7H
+    product: high_water_probability
     output_file: viz_ingest/short_range/{{datetime:%Y%m%d}}/{{datetime:%H}}_srf_12hr_max_high_water_probability.csv
     target_table: ingest.srf_12hr_max_high_water_probability
     target_keys: (feature_id)

@@ -12,6 +12,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_pacific/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.pacific.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/analysis_assim_coastal_pacific/{{datetime:%Y%m%d}}/ana_coastal_pacific_{{datetime:%H}}_max_elevs.nc
   - name: ana_coastal_inundation_atlgulf
     target_table: ingest.ana_coastal_inundation_atlgulf
@@ -21,6 +22,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim_coastal_atlgulf/nwm.t{{datetime:%H}}z.analysis_assim_coastal.total_water.tm00.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/analysis_assim_coastal_atlgulf/{{datetime:%Y%m%d}}/ana_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
       
 postprocess_sql:
