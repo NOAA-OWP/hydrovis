@@ -613,7 +613,7 @@ class configuration:
                 
             if product.get('python_preprocessing'):
                 product['python_preprocesing_dependent'] = True
-                self.python_preprocessing.extend([max_flow for max_flow in product['python_preprocessing'] if max_flow not in self.python_preprocessing])
+                self.python_preprocessing.extend([python_preprocess for python_preprocess in product['python_preprocessing'] if python_preprocess not in self.python_preprocessing])
                 
             if product.get('ingest_files'):
                 self.ingest_groups.extend([ingest_group for ingest_group in product['ingest_files'] if ingest_group not in self.ingest_groups])
