@@ -1,0 +1,70 @@
+product: stage_based_catfim
+configuration: catfim
+product_type: "fim"
+run: true
+
+db_max_flows:
+  - name: rfc_categorical_stages
+    target_table: cache.rfc_categorical_stages
+    target_keys: ()
+    method: database
+    max_flows_sql_file: rfc_categorical_stages
+
+fim_configs:
+  - name: stage_based_catfim_action
+    target_table: ingest.stage_based_catfim_action
+    fim_type: hand
+    sql_file: stage_based_catfim_action
+    process_by: ["nws_station_id", "huc"]
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_action
+      target_table: publish.stage_based_catfim_action
+    
+  - name: stage_based_catfim_minor
+    target_table: ingest.stage_based_catfim_minor
+    fim_type: hand
+    sql_file: stage_based_catfim_minor
+    process_by: ['nws_station_id', 'huc']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_minor
+      target_table: publish.stage_based_catfim_minor
+    
+  - name: stage_based_catfim_moderate
+    target_table: ingest.stage_based_catfim_moderate
+    fim_type: hand
+    sql_file: stage_based_catfim_moderate
+    process_by: ['nws_station_id', 'huc']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_moderate
+      target_table: publish.stage_based_catfim_moderate
+    
+  - name: stage_based_catfim_major
+    target_table: ingest.stage_based_catfim_major
+    fim_type: hand
+    sql_file: stage_based_catfim_major
+    process_by: ['nws_station_id', 'huc']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major
+      target_table: publish.stage_based_catfim_major
+    
+  - name: stage_based_catfim_record
+    target_table: ingest.stage_based_catfim_record
+    fim_type: hand
+    sql_file: stage_based_catfim_record
+    process_by: ['nws_station_id', 'huc']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_record
+      target_table: publish.stage_based_catfim_record
+
+product_summaries:
+  - sql_file: sites
+    target_table:
+      - publish.stage_based_catfim_sites
+
+services:
+  - static_stage_based_catfim_noaa

@@ -285,28 +285,20 @@ def create_service_db_tables(df, data_table_name, sql_files, service_table_names
                 refresh_fdw_schema(egis_connection, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
                 move_db_table(egis_connection, f"vizprc_publish.{service_table_name}", f"services.{service_table_name}", columns, add_oid=True, add_geom_index=True, update_srid=None) #Copy the publish table from the vizprc db to the egis db, using fdw
 
-        print(f"Creating shapefile for {service_table_name}")
+        print(f"Creating gpkg for {service_table_name}")
         tempdir = tempfile.mkdtemp()
-        shapefile_folder = os.path.join(tempdir, service_table_name)
-        shapefile_zip = os.path.join(tempdir, f"{service_table_name}.zip")
+        gpkg = os.path.join(tempdir, f"{service_table_name}.gpkg")
 
-        if os.path.exists(shapefile_folder):
-            shutil.rmtree(shapefile_folder)
-            
-        os.mkdir(shapefile_folder)
-        shapefile = os.path.join(shapefile_folder, f"{service_table_name}.shp")
         gdf = run_sql_in_db(f"select * from publish.{service_table_name}", return_geodataframe=True)
 
-        gdf.to_file(shapefile, index=False)
-        shutil.make_archive(shapefile_folder, 'zip', shapefile_folder)
+        gdf.to_file(gpkg, index=False)
 
         s3 = boto3.client("s3")
-        s3_cache_key = f'viz_cache/{reference_time.strftime("%Y%m%d")}/{reference_time.strftime("%H%M")}/{service_table_name}.zip'
-        print(f"Uploading zip to {PROCESSED_OUTPUT_BUCKET} at {s3_cache_key}")
-        s3.upload_file(shapefile_zip, PROCESSED_OUTPUT_BUCKET, s3_cache_key)
+        s3_cache_key = f'viz_cache/{reference_time.strftime("%Y%m%d")}/{reference_time.strftime("%H%M")}/{service_table_name}.gpkg'
+        print(f"Uploading gpkg to {PROCESSED_OUTPUT_BUCKET} at {s3_cache_key}")
+        s3.upload_file(gpkg, PROCESSED_OUTPUT_BUCKET, s3_cache_key)
 
-        os.remove(shapefile_zip)
-        shutil.rmtree(shapefile_folder)
+        os.remove(gpkg)
 
 def refresh_fdw_schema(db_connection, local_schema, remote_server, remote_schema):
     with db_connection as db_connection, db_connection.cursor() as cur:

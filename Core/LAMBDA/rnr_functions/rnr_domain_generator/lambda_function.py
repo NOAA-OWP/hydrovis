@@ -39,7 +39,7 @@ def lambda_handler(event, context):
             result = cur.fetchone()
             connection.commit()
 
-        reference_time = result[0].strftime(DT_FORMAT)
+        reference_time = dt.datetime.strptime(result[0], '%Y-%m-%d %H:%M:%S UTC').strftime(DT_FORMAT)
         run_time_obj = dt.datetime.strptime(event['run_time'], '%Y-%m-%dT%H:%M:%SZ')
         run_time = run_time_obj.strftime(DT_FORMAT)
         
