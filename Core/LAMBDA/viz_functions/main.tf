@@ -403,6 +403,10 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
     variables = {
       CACHE_DAYS            = 1
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
       NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
