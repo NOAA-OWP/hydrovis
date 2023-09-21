@@ -261,7 +261,7 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     """
     
     description = service_data['description']
-    if service_data['public_service']:
+    if service_data['public_service'] and not service_name.endswith("inundation_extent"):
         description = description + experimental_addition
 
     summary = service_data['summary'] + consts.SUMMARY_TAG
