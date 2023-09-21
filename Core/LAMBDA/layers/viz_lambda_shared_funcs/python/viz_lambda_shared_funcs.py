@@ -565,7 +565,7 @@ def check_if_file_exists(bucket, file, download=False):
         else:
             if "/prod" in file:
 
-                date_metadata = re.findall("(\d{8})/[a-z0-9_]*/nwm.t(\d{2})z.*[ftm](\d*)\.", file)
+                date_metadata = re.findall(r"(\d{8})/[a-z0-9_]*/nwm.t(\d{2})z.*[ftm](\d{1,9})\.", file)
                 date = date_metadata[0][0]
                 initialize_hour = date_metadata[0][1]
                 delta_hour = date_metadata[0][2]
