@@ -1,37 +1,20 @@
-variable "environment" {
-  type = string
-}
-
 variable "account_id" {
   type = string
 }
 
-variable "active_region" {
-  type = string
-}
-
-variable "egis_health_checks" {
-  type = map(map(string))
-}
-
-
-locals {
-  zone_names = {
-    uat = "maps-staging.water.noaa.gov"
-    prod = "maps.water.noaa.gov"
-  }
+variable "dns_records" {
+  type = any
 }
 
 
 # Base DNS Zone
 resource "aws_route53_zone" "public" {
-  name = local.zone_names[var.environment]
+  name = var.dns_records["domain"]
 
   tags = {
-    Name = local.zone_names[var.environment]
+    Name = var.dns_records["domain"]
   }
 }
-
 
 # DNSSEC
 resource "aws_kms_key" "public" {
@@ -89,15 +72,18 @@ resource "aws_kms_key" "public" {
     ]
   })
 }
+
 resource "aws_kms_alias" "public" {
   name          = "alias/noaaroute53"
   target_key_id = aws_kms_key.public.key_id
 }
+
 resource "aws_route53_key_signing_key" "public" {
   hosted_zone_id             = aws_route53_zone.public.id
   key_management_service_arn = aws_kms_key.public.arn
-  name                       = "NOAARoute53"
+  name                       = "WaterNOAAGovRoute53"
 }
+
 resource "aws_route53_hosted_zone_dnssec" "public" {
   depends_on = [
     aws_route53_key_signing_key.public
@@ -106,37 +92,44 @@ resource "aws_route53_hosted_zone_dnssec" "public" {
 }
 
 
-# Health Check and Failover DNS Records
-# resource "aws_route53_health_check" "egis_health_check" {
-#   for_each = var.egis_health_checks
+module "weighted-aliases" {
+  source   = "./WeightedAlias"
+  for_each = var.dns_records["weighted_alias"]
 
-#   type                            = "CLOUDWATCH_METRIC"
-#   cloudwatch_alarm_name           = each.value["alarm_name"]
-#   cloudwatch_alarm_region         = each.key
-#   insufficient_data_health_status = "LastKnownStatus"
+  aliases = each.value
+  zone    = aws_route53_zone.public
+}
 
-#   tags = {
-#     Name = "egis-health-check-${each.key}"
-#   }
-# }
-resource "aws_route53_record" "egis_alb" {
-  for_each = var.egis_health_checks
+resource "aws_route53_record" "aliases" {
+  for_each = var.dns_records["alias"]
 
   zone_id = aws_route53_zone.public.id
-  name    = aws_route53_zone.public.name
+  name    = each.key
   type    = "A"
 
   alias {
     evaluate_target_health = false
-    # evaluate_target_health = true
-    name                   = "dualstack.${each.value["alb_host"]}"
+    name                   = each.value["alb_host"]
     zone_id                = each.value["alb_zone_id"]
   }
+}
 
-  weighted_routing_policy {
-    weight = var.active_region == each.key ? 255 : 0
-  }
+resource "aws_route53_record" "as" {
+  for_each = var.dns_records["a"]
 
-  set_identifier = each.key
-  # health_check_id = aws_route53_health_check.egis_health_check[each.key].id
+  zone_id = aws_route53_zone.public.id
+  name    = each.key
+  type    = "A"
+  ttl     = 300
+  records = [each.value]
+}
+
+resource "aws_route53_record" "cnames" {
+  for_each = var.dns_records["cname"]
+
+  zone_id = aws_route53_zone.public.id
+  name    = each.key
+  type    = "CNAME"
+  ttl     = 300
+  records = [each.value]
 }

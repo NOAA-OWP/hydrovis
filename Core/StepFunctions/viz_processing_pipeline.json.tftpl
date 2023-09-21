@@ -1,7 +1,33 @@
 {
   "Comment": "A description of my state machine",
-  "StartAt": "Python Max Flow Processing",
+  "StartAt": "CreateLogStream",
   "States": {
+    "CreateLogStream": {
+      "Type": "Task",
+      "Next": "Step Function Initialized Log",
+      "Parameters": {
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:createLogStream",
+      "ResultPath": null
+    },
+    "Step Function Initialized Log": {
+      "Type": "Task",
+      "Next": "Python Max Flow Processing",
+      "Parameters": {
+        "LogEvents": [
+          {
+            "Message.$": "States.Format('\\{\"{}\": 1, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\"\\}', $.configuration, $.reference_time, $$.State.EnteredTime)",
+            "Timestamp.$": "$.logging_info.Timestamp"
+          }
+        ],
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+      "ResultPath": null
+    },
     "Python Max Flow Processing": {
       "Type": "Map",
       "ItemProcessor": {
@@ -47,14 +73,39 @@
           }
         }
       },
-      "Next": "Input Data Groups",
+      "Next": "Python Max Flow Finished Log",
       "ItemsPath": "$.configuration_data_flow.lambda_max_flows",
       "ResultPath": null,
       "ItemSelector": {
         "lambda_max_flow.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
-      }
+      },
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Data Prep Failure Log",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "Python Max Flow Finished Log": {
+      "Type": "Task",
+      "Next": "Input Data Groups",
+      "Parameters": {
+        "LogEvents": [
+          {
+            "Message.$": "States.Format('\\{\"{}\": 2, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\"\\}', $.configuration, $.reference_time, $$.State.EnteredTime)",
+            "Timestamp.$": "$.logging_info.Timestamp"
+          }
+        ],
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+      "ResultPath": null
     },
     "Input Data Groups": {
       "Type": "Map",
@@ -215,7 +266,32 @@
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
-      "Next": "DB Max Flows Processing"
+      "Next": "DB Ingest Finished Log",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Data Prep Failure Log",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "DB Ingest Finished Log": {
+      "Type": "Task",
+      "Next": "DB Max Flows Processing",
+      "Parameters": {
+        "LogEvents": [
+          {
+            "Message.$": "States.Format('\\{\"{}\": 3, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\"\\}', $.configuration, $.reference_time, $$.State.EnteredTime)",
+            "Timestamp.$": "$.logging_info.Timestamp"
+          }
+        ],
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+      "ResultPath": null
     },
     "DB Max Flows Processing": {
       "Type": "Map",
@@ -268,13 +344,73 @@
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
       "MaxConcurrency": 5,
-      "Next": "Product Processing"
+      "Next": "DB Max Flows Finished Log",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Data Prep Failure Log",
+          "ResultPath": "$.error"
+        }
+      ]
+    },
+    "DB Max Flows Finished Log": {
+      "Type": "Task",
+      "Next": "Product Processing",
+      "Parameters": {
+        "LogEvents": [
+          {
+            "Message.$": "States.Format('\\{\"{}\": 4, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\"\\}', $.configuration, $.reference_time, $$.State.EnteredTime)",
+            "Timestamp.$": "$.logging_info.Timestamp"
+          }
+        ],
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+      "ResultPath": null
+    },
+    "Data Prep Failure Log": {
+      "Type": "Task",
+      "Parameters": {
+        "LogEvents": [
+          {
+            "Message.$": "States.Format('\\{\"{}\": -9999, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\", \"error\": {}\\}', $.product.product, $.reference_time, $$.State.EnteredTime, $.error.Cause)",
+            "Timestamp.$": "$.logging_info.Timestamp"
+          }
+        ],
+        "LogGroupName": "${viz_processing_pipeline_log_group}",
+        "LogStreamName.$": "$$.Execution.Name"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+      "ResultPath": null,
+      "Next": "Data Prep Failure"
+    },
+    "Data Prep Failure": {
+      "Type": "Fail"
     },
     "Product Processing": {
       "Type": "Map",
       "Iterator": {
-        "StartAt": "FIM vs Non-FIM Services",
+        "StartAt": "Product Processing Initiated Log",
         "States": {
+          "Product Processing Initiated Log": {
+            "Type": "Task",
+            "Next": "FIM vs Non-FIM Services",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 1, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+            "ResultPath": null
+          },
           "FIM vs Non-FIM Services": {
             "Type": "Choice",
             "Choices": [
@@ -297,7 +433,7 @@
                 "Next": "Raster Processing"
               }
             ],
-            "Default": "Product Postprocessing"
+            "Default": "Product Processing Finished Log"
           },
           "Raster Processing": {
             "Type": "Task",
@@ -329,7 +465,16 @@
               }
             ],
             "Next": "Map",
-            "OutputPath": "$.Payload"
+            "OutputPath": "$.Payload",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "ResultPath": "$.error",
+                "Next": "Product Processing Failure Log"
+              }
+            ]
           },
           "Map": {
             "Type": "Map",
@@ -367,16 +512,26 @@
               "output_raster.$": "$$.Map.Item.Value",
               "output_bucket.$": "$.output_rasters.output_bucket"
             },
-            "ResultPath": null
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
+              }
+            ]
           },
           "Clean Up State Input": {
             "Type": "Pass",
-            "Next": "Product Postprocessing",
+            "Next": "Product Processing Finished Log",
             "Parameters": {
               "job_type.$": "$.job_type",
               "reference_time.$": "$.reference_time",
               "product.$": "$.product",
-              "sql_rename_dict.$": "$.sql_rename_dict"
+              "sql_rename_dict.$": "$.sql_rename_dict",
+              "logging_info.$": "$.logging_info"
             }
           },
           "Product Postprocessing": {
@@ -451,7 +606,7 @@
                 }
               }
             },
-            "Next": "Parallelize Summaries",
+            "Next": "Product Postprocessing Finished Log",
             "ItemsPath": "$.product.postprocess_sql",
             "ItemSelector": {
               "product.$": "$.product",
@@ -460,11 +615,55 @@
               "sql_rename_dict.$": "$.sql_rename_dict",
               "postprocess_sql.$": "$$.Map.Item.Value"
             },
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
+              }
+            ]
+          },
+          "Product Processing Failure Log": {
+            "Type": "Task",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": -9999, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\", \"error\": {}\\}', $.product.product, $.reference_time, $$.State.EnteredTime, $.error.Cause)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+            "End": true,
+            "ResultSelector": {
+              "success": false
+            },
+            "OutputPath": "$.success"
+          },
+          "Product Postprocessing Finished Log": {
+            "Type": "Task",
+            "Next": "Parallelize Summaries",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 3, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
           },
           "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Product Postprocessing",
+            "Next": "Product Processing Finished Log",
             "Iterator": {
               "StartAt": "Fim Config Preprocessing",
               "States": {
@@ -636,7 +835,6 @@
                           "Name.$": "$.state_machine_name",
                           "Input": {
                             "huc_branches_to_process.$": "$.huc_branches_to_process",
-                            "db_fim_table.$": "$.db_fim_table",
                             "data_bucket.$": "$.data_bucket",
                             "data_prefix.$": "$.data_prefix",
                             "reference_time.$": "$.reference_time",
@@ -653,11 +851,10 @@
                   "Next": "Postprocess SQL - FIM Config",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
-                    "db_fim_table.$": "$.fim_config.target_table",
                     "data_bucket.$": "$.huc_processing_payload.data_bucket",
                     "data_prefix.$": "$.huc_processing_payload.data_prefix",
                     "reference_time.$": "$.reference_time",
-                    "fim_config.$": "$.fim_config.name",
+                    "fim_config.$": "$.fim_config",
                     "product.$": "$.product",
                     "state_machine_name.$": "States.Format('{}_{}_{}', $$.Execution.Name, $.fim_config.name, $$.Map.Item.Index)"
                   },
@@ -736,11 +933,36 @@
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict"
             },
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
+              }
+            ]
+          },
+          "Product Processing Finished Log": {
+            "Type": "Task",
+            "Next": "Product Postprocessing",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 2, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
           },
           "Parallelize Summaries": {
             "Type": "Map",
-            "Next": "Parallel",
+            "Next": "Product Summaries Finished Log",
             "Iterator": {
               "StartAt": "Postprocess SQL - Summary",
               "States": {
@@ -816,11 +1038,47 @@
               "sql_rename_dict.$": "$.sql_rename_dict",
               "postprocess_summary.$": "$$.Map.Item.Value"
             },
+            "ResultPath": null,
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
+              }
+            ]
+          },
+          "Auto vs. Past Event Run": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.job_type",
+                "StringEquals": "past_event",
+                "Next": "Pass"
+              }
+            ],
+            "Default": "Parallel"
+          },
+          "Product Summaries Finished Log": {
+            "Type": "Task",
+            "Next": "Auto vs. Past Event Run",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 4, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
             "ResultPath": null
           },
           "Parallel": {
             "Type": "Parallel",
-            "Next": "Auto vs. Past Event Run",
+            "Next": "Updating EGIS Data Finished Log",
             "Branches": [
               {
                 "StartAt": "Update EGIS Data - Unstage DB Tables",
@@ -924,18 +1182,32 @@
                 }
               }
             ],
-            "ResultPath": null
-          },
-          "Auto vs. Past Event Run": {
-            "Type": "Choice",
-            "Choices": [
+            "ResultPath": null,
+            "Catch": [
               {
-                "Variable": "$.job_type",
-                "StringEquals": "past_event",
-                "Next": "Pass"
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
               }
-            ],
-            "Default": "Service Publishing"
+            ]
+          },
+          "Updating EGIS Data Finished Log": {
+            "Type": "Task",
+            "Next": "Service Publishing",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 5, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+            "ResultPath": null
           },
           "Service Publishing": {
             "Type": "Map",
@@ -973,7 +1245,7 @@
                 }
               }
             },
-            "Next": "Pass",
+            "Next": "Services Publishing Finished Log",
             "ItemsPath": "$.product.services",
             "ItemSelector": {
               "product.$": "$.product",
@@ -981,15 +1253,41 @@
               "job_type.$": "$.job_type",
               "sql_rename_dict.$": "$.sql_rename_dict",
               "service.$": "$$.Map.Item.Value"
-            }
+            },
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.ALL"
+                ],
+                "Next": "Product Processing Failure Log",
+                "ResultPath": "$.error"
+              }
+            ],
+            "ResultPath": null
+          },
+          "Services Publishing Finished Log": {
+            "Type": "Task",
+            "Next": "Pass",
+            "Parameters": {
+              "LogEvents": [
+                {
+                  "Message.$": "States.Format('\\{\"{}\": 6, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"product_processing\"\\}', $.product.product, $.reference_time, $$.State.EnteredTime)",
+                  "Timestamp.$": "$.logging_info.Timestamp"
+                }
+              ],
+              "LogGroupName": "${viz_processing_pipeline_log_group}",
+              "LogStreamName.$": "$$.Execution.Name"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
+            "ResultPath": null
           },
           "Pass": {
             "Type": "Pass",
             "End": true,
-            "ResultPath": null,
             "Result": {
-              "ValueEnteredInForm": ""
-            }
+              "success": true
+            },
+            "OutputPath": "$.success"
           }
         }
       },
@@ -997,14 +1295,32 @@
         "product.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "job_type.$": "$.job_type",
-        "sql_rename_dict.$": "$.sql_rename_dict"
+        "sql_rename_dict.$": "$.sql_rename_dict",
+        "logging_info.$": "$.logging_info"
       },
       "ItemsPath": "$.pipeline_products",
       "MaxConcurrency": 15,
       "ResultSelector": {
-        "error.$": "$[?(@.error)]"
+        "contains_error.$": "States.ArrayContains($, false)"
       },
-      "End": true
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.contains_error",
+          "BooleanEquals": true,
+          "Next": "Product Processing Failure"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Product Processing Failure": {
+      "Type": "Fail"
+    },
+    "Success": {
+      "Type": "Succeed"
     }
   },
   "TimeoutSeconds": 4500
