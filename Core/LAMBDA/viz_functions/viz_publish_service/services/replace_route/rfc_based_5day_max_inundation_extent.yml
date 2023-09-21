@@ -1,8 +1,31 @@
 service: rfc_based_5day_max_inundation_extent
 summary: RFC Based 5-Day Maximum Inundation Forecast (EXPERIMENTAL)
-description: 'Depicts maximum inundation extent over the next 5 days derived from the official River Forecast Center 
-  (RFC) forecast routed downstream through the National Water Model (NWM) stream network. Maximum streamflows are 
-  available downstream of RFC forecast points whose forecast reaches action status or greater. Updated hourly.'
+description: '
+<br><br>
+*****THIS IS AN EXPERIMENTAL SERVICE*****
+<br><br>
+This experimental map represents the National Weather Service''s best approximation of inundation extent based upon modeled river discharge.
+<br><br>
+The map depicts the maximum inundation extent over the next 5 days derived from the official River Forecast Center (RFC) forecast routed downstream through the National Water Model (NWM) stream network. Forecast inundation extents are available for an area that includes 10% of the U.S. population but will be expanded later as described in the Story Map below.
+<br><br>
+<a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
+<br><br>
+Boundary of 10% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
+<br><br>
+Shown are sections of river downstream of RFC forecast points whose forecast reaches action status or greater as depicted in the following service:
+<br><br>
+<a>https://maps.water.noaa.gov/server/rest/services/rfc/rfc_based_5day_max_streamflow/MapServer</a>
+<br><br>
+High water thresholds (regionally varied) and Annual Exceedance Probabilities (AEPs) are derived using the 40-year NWM reanalysis simulation which is available via the NOAA Open Data Dissemination Program (NODD). Forecast inundation extents do not fully capture coastal processes. The service below depicts the boundary of this coastal area.
+<br><br>
+<a>https://maps.water.noaa.gov/server/rest/services/reference/static_nwm_coastal_domain_noaa/MapServer</a>
+<br><br>
+This service is updated hourly.
+<br><br>
+For more information on the expansion of National Weather Service (NWS) flood inundation mapping capabilities, please visit <a>https://www.weather.gov/owp/operations</a>. For information about the NWM, please visit <a>https://water.noaa.gov</a>.
+<br><br>
+The NWS is accepting comments and feedback on the expansion of NWS flood inundation mapping capabilities. Please visit <a>https://www.surveymonkey.com/r/ExpFIMServices_2023</a> to provide feedback.
+'
 tags: national water model, nwm, rfc, conus, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
