@@ -376,7 +376,7 @@
       "Parameters": {
         "LogEvents": [
           {
-            "Message.$": "States.Format('\\{\"{}\": -9999, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\", \"error\": {}\\}', $.product.product, $.reference_time, $$.State.EnteredTime, $.error.Cause)",
+            "Message.$": "States.Format('\\{\"{}\": -9999, \"reference_time\": {}, \"step_finish\": {}, \"pipeline_step\": \"data_prep\", \"error\": {}\\}', $.configuration, $.reference_time, $$.State.EnteredTime, $.error.Cause)",
             "Timestamp.$": "$.logging_info.Timestamp"
           }
         ],
