@@ -1,6 +1,7 @@
 product: product_name  # (REQUIRED) The name of the product that will be processed
 configuration: configuration_name  # (REQUIRED) The configuration of the product (analysis_assim, short_range, etc)
 product_type: "vector"  # (REQUIRED) Type of product being created. Values can be "fim", "vector", or "raster"
+published_format: "tif"  # (OPTIONAL) Format of underlying services data. Values can be "mrf" or "tif". Defaults to "mrf".
 run: true  # (REQUIRED) Determines if this product is enabled or disabled
 run_times:  # (OPTIONAL) List of reference time hours that this product will run
   - 00:00  # (REQUIRED) reference hour:minute to run the service

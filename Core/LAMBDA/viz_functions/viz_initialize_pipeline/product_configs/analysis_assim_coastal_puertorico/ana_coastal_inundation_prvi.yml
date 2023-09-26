@@ -1,6 +1,7 @@
 product: ana_coastal_inundation_prvi
 configuration: analysis_assim_coastal_puertorico
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -16,6 +17,10 @@ fim_configs:
     postprocess:
       sql_file: ana_coastal_inundation_prvi
       target_table: publish.ana_coastal_inundation_prvi
+
+postprocess_sql:
+  - sql_file: ana_coastal_inundation_depth_prvi
+    target_table: publish.ana_coastal_inundation_depth_prvi
 
 services:
   - ana_coastal_inundation_extent_prvi_noaa
