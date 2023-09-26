@@ -9,5 +9,3 @@ SELECT
 INTO publish.mrf_gfs_max_inundation_5day_public
 FROM publish.mrf_gfs_max_inundation_5day as inun
 JOIN derived.public_fim_domain as fim_domain ON ST_Intersects(inun.geom, fim_domain.geom)
-JOIN derived.channels_conus cc ON cc.feature_id = inun.feature_id
-WHERE public_fim = true
