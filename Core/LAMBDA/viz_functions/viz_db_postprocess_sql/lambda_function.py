@@ -81,7 +81,6 @@ def run_admin_tasks(event, folder, step, sql_replace, reference_time):
         sql_replace.update({"{rows_imported}": 'NULL'}) #TODO Figure out how to get this from the last map of the state machine to here
         
         feature_id_column_exists = run_sql('admin/ingest_finish.sql', sql_replace)
-        print(feature_id_column_exists[0])
         if feature_id_column_exists[0]:
             run_sql('admin/remove_oconus_features.sql', sql_replace)
         
