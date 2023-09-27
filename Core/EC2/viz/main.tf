@@ -185,6 +185,16 @@ data "external" "github_repo_commit" {
   program = ["git", "log", "-1", "--pretty={%x22output%x22:%x22%H%x22}"]
 }
 
+data "aws_ssm_parameter" "latest_github_repo_commit" {
+  name = "latest_github_repo_commit"
+}
+
+resource "aws_ssm_parameter" "latest_github_repo_commit" {
+  name  = "latest_github_repo_commit"
+  type  = "String"
+  value = data.external.github_repo_commit.result.output
+}
+
 data "cloudinit_config" "pipeline_setup" {
   gzip          = false
   base64_encode = false
