@@ -273,7 +273,7 @@ $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
-Invoke-CommandAs -ScriptBlock {"C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file $LATEST_DEPLOYED_GITHUB_REPO_COMMIT} -AsUser $cred
+Invoke-CommandAs -ScriptBlock {& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file $LATEST_DEPLOYED_GITHUB_REPO_COMMIT} -AsUser $cred
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
