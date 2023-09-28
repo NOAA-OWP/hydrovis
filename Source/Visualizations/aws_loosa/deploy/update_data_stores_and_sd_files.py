@@ -117,7 +117,7 @@ def update_db_sd_files(latest_deployed_github_repo_commit):
     diffs = repo.head.commit.diff(latest_deployed_github_repo_commit)
     for d in diffs:
         changed_file = Path(d.a_path)
-        if ".mapx" in changed_file.name:
+        if (".mapx" in changed_file.name or ".yml" in changed_file.name) and "viz_publish_service" in str(changed_file):
             changed_services.append(changed_file.name.replace(".mapx", ""))
         
     for service_name in changed_services:
