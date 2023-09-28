@@ -1,0 +1,25 @@
+product: mrf_gfs_5day_max_high_water_probability
+configuration: medium_range_mem1
+product_type: "vector"
+run: true
+        
+python_preprocessing:
+  - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_mem{{range:1,7,1,%01d}}/nwm.t{{datetime:%H}}z.medium_range.channel_rt_{{range:1,7,1,%01d}}.f{{range:3,121,3,%03d}}.conus.nc
+    file_step: None
+    file_window: None
+    product: high_water_probability
+    output_file: viz_ingest/medium_range_mem1/{{datetime:%Y%m%d}}/{{datetime:%H}}_mrf_gfs_5day_max_high_water_probability.csv
+    target_table: ingest.mrf_gfs_5day_max_high_water_probability
+    target_keys: (feature_id)
+
+postprocess_sql:
+  - sql_file: mrf_gfs_5day_max_high_water_probability
+    target_table: publish.mrf_gfs_5day_max_high_water_probability
+
+product_summaries:
+  - sql_file:  hucs
+    target_table:
+      - publish.mrf_gfs_5day_max_high_water_probability_hucs
+
+services:
+  - mrf_gfs_5day_max_high_water_probability

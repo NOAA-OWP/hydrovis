@@ -14,7 +14,7 @@
     },
     "Step Function Initialized Log": {
       "Type": "Task",
-      "Next": "Python Max Flow Processing",
+      "Next": "Python Preprocessing",
       "Parameters": {
         "LogEvents": [
           {
@@ -28,23 +28,23 @@
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
       "ResultPath": null
     },
-    "Python Max Flow Processing": {
+    "Python Preprocessing": {
       "Type": "Map",
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Python - Max Flows",
+        "StartAt": "Python Preprocess",
         "States": {
-          "Python - Max Flows": {
+          "Python Preprocess": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${max_values_arn}",
+              "FunctionName": "${python_preprocessing_arn}",
               "Payload": {
                 "args.$": "$",
-                "step": "ingest_max_file"
+                "step": "python_preprocessing"
               }
             },
             "Retry": [
@@ -77,7 +77,7 @@
       "ItemsPath": "$.configuration_data_flow.lambda_max_flows",
       "ResultPath": null,
       "ItemSelector": {
-        "lambda_max_flow.$": "$$.Map.Item.Value",
+        "python_preprocessing.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
@@ -683,7 +683,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${max_values_arn}",
+                    "FunctionName": "${python_preprocessing_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"
