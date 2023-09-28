@@ -163,20 +163,16 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 
 function GetRepo
 {
-   Param ([string]$commit, [string]$prefix, [string]$repo)
+   Param ([string]$branch, [string]$prefix, [string]$repo)
 
    if (Test-Path -Path $repo) {
        Remove-Item $repo -Recurse
        Get-ChildItem $repo -Hidden -Recurse | Remove-Item -Force -Recurse
    }
    
-   git clone $prefix/$repo
+   git clone -b $branch $prefix/$repo
+
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
-
-   Set-Location $repo.replace(".git", "")
-
-   git checkout $commit
-   if ($LASTEXITCODE -gt 0) { throw "Error occurred checking out " + $commit }
 }
 
 function Retry([Action]$action)
@@ -217,7 +213,7 @@ New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 Set-Location -Path $VIZ_DIR
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $GITHUB_REPO_COMMIT $GITHUB_REPO_PREFIX hydrovis.git})
+Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
@@ -277,7 +273,7 @@ $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
-Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
+Invoke-CommandAs -ScriptBlock {"C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file $LATEST_DEPLOYED_GITHUB_REPO_COMMIT} -AsUser $cred
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing

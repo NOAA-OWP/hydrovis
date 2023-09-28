@@ -7,9 +7,12 @@ from aws_loosa.consts import paths
 import re
 import boto3
 import xml.dom.minidom as DOM
+import sys
+from pathlib import Path
+from git import Repo
 
 from aws_loosa.consts import paths
-from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata, get_mapx_files, check_s3_file_existence
+from aws_loosa.utils.viz_lambda_shared_funcs import get_service_metadata, check_s3_file_existence
 
 s3 = boto3.resource('s3')
 s3_client = boto3.client('s3')
@@ -88,7 +91,7 @@ def create_sde_file():
         )
 
 
-def update_db_sd_files():
+def update_db_sd_files(latest_deployed_github_repo_commit):  
     print("Updating mapx files and creating SD files")
     sd_folder = os.path.join(paths.AUTHORITATIVE_ROOT, "sd_files")
     deployment_bucket = os.environ['DEPLOYMENT_DATA_BUCKET']
@@ -106,11 +109,18 @@ def update_db_sd_files():
 
     baseline_aprx_path = os.path.join(paths.EMPTY_PRO_PROJECT_DIR, "Empty_Project.aprx")
 
-    mapx_fpaths = get_mapx_files()
     services_data = get_service_metadata()
 
-    for mapx_fpath in mapx_fpaths:
-        service_name = os.path.basename(mapx_fpath).split(".")[0]
+    print(f"Getting changed services since commit {latest_deployed_github_repo_commit}")
+    changed_services = []
+    repo = Repo(paths.HYDROVIS_DIR)
+    diffs = repo.head.commit.diff(latest_deployed_github_repo_commit)
+    for d in diffs:
+        changed_file = Path(d.a_path)
+        if ".mapx" in changed_file.name:
+            changed_services.append(changed_file.name.replace(".mapx", ""))
+        
+    for service_name in changed_services:
         print(f"Creating SD file for {service_name}...")
         
         service_data = [item for item in services_data if item['service'] == service_name]
@@ -120,7 +130,7 @@ def update_db_sd_files():
 
         service_data = service_data[0]
         temp_aprx = arcpy.mp.ArcGISProject(baseline_aprx_path)
-        temp_aprx.importDocument(mapx_fpath)
+        temp_aprx.importDocument(service_data['mapx'])
         temp_aprx_fpath = os.path.join(sd_folder, f'{service_name}.aprx')
         temp_aprx.saveACopy(temp_aprx_fpath)
         aprx = arcpy.mp.ArcGISProject(temp_aprx_fpath)
@@ -261,7 +271,7 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
     """
     
     description = service_data['description']
-    if service_data['public_service'] and not service_name.endswith("inundation_extent"):
+    if service_data['public_service']:
         description = description + experimental_addition
 
     summary = service_data['summary'] + consts.SUMMARY_TAG
@@ -355,8 +365,10 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
 
 
 if __name__ == '__main__':
+    latest_deployed_github_repo_commit = sys.argv[1]
+    
     update_data_stores()
 
     create_sde_file()
 
-    update_db_sd_files()
+    update_db_sd_files(latest_deployed_github_repo_commit)

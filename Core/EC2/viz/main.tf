@@ -7,7 +7,7 @@ variable "environment" {
 }
 
 variable "account_id" {
-  type        = string
+  type = string
 }
 
 variable "region" {
@@ -133,8 +133,8 @@ variable "egis_db_secret_string" {
 
 variable "private_route_53_zone" {
   type = object({
-    name     = string
-    zone_id  = string
+    name    = string
+    zone_id = string
   })
 }
 
@@ -185,6 +185,16 @@ data "external" "github_repo_commit" {
   program = ["git", "log", "-1", "--pretty={%x22output%x22:%x22%H%x22}"]
 }
 
+data "aws_ssm_parameter" "latest_deployed_github_repo_commit" {
+  name = "latest_deployed_github_repo_commit"
+}
+
+resource "aws_ssm_parameter" "latest_deployed_github_repo_commit" {
+  name  = "latest_deployed_github_repo_commit"
+  type  = "String"
+  value = data.external.github_repo_commit.result.output
+}
+
 data "cloudinit_config" "pipeline_setup" {
   gzip          = false
   base64_encode = false
@@ -192,42 +202,42 @@ data "cloudinit_config" "pipeline_setup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "prc_setup.ps1"
-    content      = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
-      VIZ_DATA_HASH                  = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
-      Fileshare_IP                   = "\\\\${aws_route53_record.viz_fileshare.name}"
-      EGIS_HOST                      = local.egis_host
-      VIZ_ENVIRONMENT                = var.environment
-      GITHUB_SSH_KEY_CONTENT         = file("${path.root}/sensitive/viz/github")
-      LICENSE_REG_CONTENT            = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
+    content = templatefile("${path.module}/templates/prc_setup.ps1.tftpl", {
+      VIZ_DATA_HASH          = filemd5(data.archive_file.viz_pipeline_zip.output_path) # This causes the Viz EC2 to update when that folder changes
+      Fileshare_IP           = "\\\\${aws_route53_record.viz_fileshare.name}"
+      EGIS_HOST              = local.egis_host
+      VIZ_ENVIRONMENT        = var.environment
+      GITHUB_SSH_KEY_CONTENT = file("${path.root}/sensitive/viz/github")
+      LICENSE_REG_CONTENT = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
         LICENSE_SERVER = var.license_server_host
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]
       })
-      FILEBEAT_YML_CONTENT           = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
-      NWM_DATA_BUCKET                = var.nwm_data_bucket
-      FIM_DATA_BUCKET                = var.fim_data_bucket
-      FIM_OUTPUT_BUCKET              = var.fim_output_bucket
+      FILEBEAT_YML_CONTENT               = templatefile("${path.module}/templates/filebeat.yml.tftpl", {})
+      NWM_DATA_BUCKET                    = var.nwm_data_bucket
+      FIM_DATA_BUCKET                    = var.fim_data_bucket
+      FIM_OUTPUT_BUCKET                  = var.fim_output_bucket
       PYTHON_PREPROCESSING_BUCKET    = var.python_preprocessing_bucket
-      RNR_DATA_BUCKET                = var.rnr_data_bucket
-      DEPLOYMENT_DATA_BUCKET         = var.deployment_data_bucket
-      DEPLOYMENT_DATA_OBJECT         = aws_s3_object.setup_upload.key
-      WINDOWS_SERVICE_STATUS         = var.windows_service_status
-      WINDOWS_SERVICE_STARTUP        = var.windows_service_startup
-      PIPELINE_USER                  = jsondecode(var.pipeline_user_secret_string)["username"]
-      PIPELINE_USER_ACCOUNT_PASSWORD = jsondecode(var.pipeline_user_secret_string)["password"]
-      HYDROVIS_EGIS_PASS             = var.hydrovis_egis_pass
-      GITHUB_REPO_PREFIX             = var.github_repo_prefix
-      GITHUB_HOST                    = var.github_host
-      GITHUB_REPO_COMMIT             = data.external.github_repo_commit.result.output
-      VIZ_DB_HOST                    = var.viz_db_host
-      VIZ_DB_DATABASE                = var.viz_db_name
-      VIZ_DB_USERNAME                = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD                = jsondecode(var.viz_db_user_secret_string)["password"]
-      EGIS_DB_HOST                   = var.egis_db_host
-      EGIS_DB_DATABASE               = var.egis_db_name
-      EGIS_DB_USERNAME               = jsondecode(var.egis_db_secret_string)["username"]
-      EGIS_DB_PASSWORD               = jsondecode(var.egis_db_secret_string)["password"]
-      AWS_REGION                     = var.region
-      NWM_DATAFLOW_VERSION           = var.nwm_dataflow_version
+      RNR_DATA_BUCKET                    = var.rnr_data_bucket
+      DEPLOYMENT_DATA_BUCKET             = var.deployment_data_bucket
+      DEPLOYMENT_DATA_OBJECT             = aws_s3_object.setup_upload.key
+      WINDOWS_SERVICE_STATUS             = var.windows_service_status
+      WINDOWS_SERVICE_STARTUP            = var.windows_service_startup
+      PIPELINE_USER                      = jsondecode(var.pipeline_user_secret_string)["username"]
+      PIPELINE_USER_ACCOUNT_PASSWORD     = jsondecode(var.pipeline_user_secret_string)["password"]
+      HYDROVIS_EGIS_PASS                 = var.hydrovis_egis_pass
+      GITHUB_REPO_PREFIX                 = var.github_repo_prefix
+      GITHUB_HOST                        = var.github_host
+      LATEST_DEPLOYED_GITHUB_REPO_COMMIT = nonsensitive(data.aws_ssm_parameter.latest_deployed_github_repo_commit.value)
+      VIZ_DB_HOST                        = var.viz_db_host
+      VIZ_DB_DATABASE                    = var.viz_db_name
+      VIZ_DB_USERNAME                    = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD                    = jsondecode(var.viz_db_user_secret_string)["password"]
+      EGIS_DB_HOST                       = var.egis_db_host
+      EGIS_DB_DATABASE                   = var.egis_db_name
+      EGIS_DB_USERNAME                   = jsondecode(var.egis_db_secret_string)["username"]
+      EGIS_DB_PASSWORD                   = jsondecode(var.egis_db_secret_string)["password"]
+      AWS_REGION                         = var.region
+      NWM_DATAFLOW_VERSION               = var.nwm_dataflow_version
     })
   }
 }
@@ -294,7 +304,7 @@ data "cloudinit_config" "fileshare_setup" {
   part {
     content_type = "text/x-shellscript"
     filename     = "fs_setup.ps1"
-    content      = templatefile("${path.module}/templates/fs_setup.ps1.tftpl", {
+    content = templatefile("${path.module}/templates/fs_setup.ps1.tftpl", {
       PIPELINE_USER = jsondecode(var.pipeline_user_secret_string)["username"]
     })
   }
