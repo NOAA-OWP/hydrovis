@@ -214,6 +214,8 @@ Set-Location -Path $VIZ_DIR
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
 Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
+$HYDROVIS_REPO = $VIZ_DIR + "\hydrovis"
+git config --system --add safe.directory $HYDROVIS_REPO.replace('\','/')
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
@@ -257,7 +259,9 @@ $cred = new-object system.management.automation.PSCredential $strScriptUser,$PSS
 
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\create_s3_connection_files.py"
-Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
+Invoke-CommandAs -ScriptBlock {param($python, $file)
+    & $python $file
+    } -AsUser $cred -ArgumentList $python_exe, $python_file
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -273,7 +277,9 @@ $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
-Invoke-CommandAs -ScriptBlock {& "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file $LATEST_DEPLOYED_GITHUB_REPO_COMMIT} -AsUser $cred
+Invoke-CommandAs -ScriptBlock {param($python, $file, $commit)
+    & $python $file $commit
+    } -AsUser $cred -ArgumentList $python_exe, $python_file, $LATEST_DEPLOYED_GITHUB_REPO_COMMIT
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing
