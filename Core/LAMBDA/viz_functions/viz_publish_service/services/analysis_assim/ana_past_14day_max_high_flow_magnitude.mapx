@@ -952,9 +952,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            204,
-                            51,
                             255,
+                            0,
+                            229,
                             100
                           ]
                         }
@@ -992,9 +992,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            230,
+                            158,
                             0,
-                            169,
+                            255,
                             100
                           ]
                         }
@@ -1030,11 +1030,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
+                            20,
                             0,
-                            100,
-                            100,
+                            255,
                             100
                           ]
                         }
@@ -1070,11 +1070,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            36,
-                            100,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1110,11 +1110,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            60,
-                            100,
-                            100,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }
@@ -1953,9 +1953,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            204,
-                            51,
                             255,
+                            0,
+                            229,
                             100
                           ]
                         }
@@ -1993,9 +1993,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            230,
+                            158,
                             0,
-                            169,
+                            255,
                             100
                           ]
                         }
@@ -2031,11 +2031,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
+                            20,
                             0,
-                            100,
-                            100,
+                            255,
                             100
                           ]
                         }
@@ -2071,11 +2071,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            36,
-                            100,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -2111,11 +2111,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            60,
-                            100,
-                            100,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }

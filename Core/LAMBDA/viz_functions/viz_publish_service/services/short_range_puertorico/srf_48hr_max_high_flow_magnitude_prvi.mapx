@@ -1011,9 +1011,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            204,
-                            51,
                             255,
+                            0,
+                            229,
                             100
                           ]
                         }
@@ -1052,9 +1052,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            230,
+                            158,
                             0,
-                            169,
+                            255,
                             100
                           ]
                         }
@@ -1090,11 +1090,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
+                            20,
                             0,
-                            100,
-                            100,
+                            255,
                             100
                           ]
                         }
@@ -1130,11 +1130,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            36,
-                            100,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1173,9 +1173,9 @@
                         "color" : {
                           "type" : "CIMHSVColor",
                           "values" : [
-                            60,
-                            100,
-                            100,
+                            209.24000000000001,
+                            51.07,
+                            91.370000000000005,
                             100
                           ]
                         }
