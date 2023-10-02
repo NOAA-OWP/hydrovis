@@ -257,7 +257,7 @@ class viz_lambda_pipeline:
             }
             
             db_run = {
-                "configuration": f"dmf_{self.configuration.name}",
+                "configuration": self.configuration.name,
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
                 "keep_raw": self.keep_raw,

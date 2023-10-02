@@ -48,10 +48,10 @@ METERS_TO_FT = 3.281
 def lambda_handler(event, context):
     print("Executing lambda handler...")
     step = event['step']
-    fim_config = event['args']['fim_config']['name']
 
     if step == 'get_domain_tile_basenames':
-        domain = [d for d in DOMAINS if d in fim_config][0]
+        max_file = event['args']['fim_config']['max_file']
+        domain = [d for d in DOMAINS if d in max_file][0]
         domain_tile_basenames = get_domain_tile_basenames(domain)
         return {
             "domain_tile_basenames": domain_tile_basenames
