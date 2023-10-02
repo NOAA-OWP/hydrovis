@@ -49,7 +49,10 @@ def lambda_handler(event, context):
     if step == 'get_domain_tile_basenames':
         fim_config = event['args']['fim_config']
         target_table = fim_config['target_table']
-        max_file = fim_config.get('max_file', fim_config['preprocess'].get('output_file'))
+        if fim_config.get('preprocess'):
+            max_file = fim_config['preprocess'].get('output_file')
+        else:
+            max_file = fim_config['max_file']
 
         domain = [d for d in DOMAINS if d in max_file][0]
         domain_tile_basenames = get_domain_tile_basenames(domain)
