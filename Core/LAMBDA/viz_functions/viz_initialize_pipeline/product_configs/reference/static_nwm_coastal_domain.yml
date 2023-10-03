@@ -4,4 +4,4 @@ product_type: "vector"
 run: true
 
 services:
-  - static_nwm_coastal_domain_noaa
+  - static_nwm_coastal_domain

@@ -16,4 +16,4 @@ postprocess_sql:
     target_table: publish.mrf_nbm_10day_high_water_arrival_time
 
 services:
-  - mrf_nbm_10day_high_water_arrival_time
+  - mrf_nbm_10day_high_water_arrival_time_noaa

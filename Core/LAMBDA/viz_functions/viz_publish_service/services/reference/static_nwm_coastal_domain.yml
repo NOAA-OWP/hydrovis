@@ -1,4 +1,4 @@
-service: static_nwm_coastal_domain_noaa
+service: static_nwm_coastal_domain
 summary: Coastal Regions where coastal flooding processes are not being considered in the visualization FIM output
 description: Depicts areas along the coast where coastal flooding processes are not being considered in the visualization FIM output.
 tags: national water model, nws, fim, reference, omission
