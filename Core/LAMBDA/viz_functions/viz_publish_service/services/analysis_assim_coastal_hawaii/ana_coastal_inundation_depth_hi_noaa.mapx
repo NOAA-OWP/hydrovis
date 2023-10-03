@@ -29,6 +29,9 @@
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=ana_coastal_inundation_depth_hi/vizprocessing_publish_ana_coastal_inundation_depth_hi.xml"
+    ],
     "defaultExtent" : {
       "xmin" : -125.895685813900741,
       "ymin" : 14.2068479882217993,

@@ -29,6 +29,9 @@
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=srf_18hr_max_coastal_inundation_depth_prvi/vizprocessing_publish_srf_18hr_max_coastal_inundation_depth_prvi.xml"
+    ],
     "defaultExtent" : {
       "xmin" : -125.895685813900741,
       "ymin" : 14.2068479882217993,
