@@ -377,7 +377,7 @@ resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
 data "archive_file" "python_preprocessing_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_python_preprocessing/lambda_function.py"
+  source_dir = "${path.module}/viz_python_preprocessing"
 
   output_path = "${path.module}/temp/viz_python_preprocessing_${var.environment}_${var.region}.zip"
 }
@@ -390,7 +390,7 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
 }
 
 resource "aws_lambda_function" "viz_python_preprocessing" {
-  function_name = "hv-vpp-${var.environment}-viz-max-values"
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
@@ -431,7 +431,7 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-max-values"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing"
   }
 }
 

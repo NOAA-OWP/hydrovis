@@ -19,12 +19,9 @@ import re
 import rioxarray as rxr
 import os
 import s3fs
-import tempfile
 import xarray as xr
 
-from shutil import rmtree
 from scipy.interpolate import griddata
-from rasterio import features
 from rasterio.session import AWSSession
 from shapely.geometry import box
 from time import sleep
@@ -48,11 +45,21 @@ METERS_TO_FT = 3.281
 def lambda_handler(event, context):
     print("Executing lambda handler...")
     step = event['step']
-    fim_config = event['args']['fim_config']['name']
 
     if step == 'get_domain_tile_basenames':
-        domain = [d for d in DOMAINS if d in fim_config][0]
+        fim_config = event['args']['fim_config']
+        target_table = fim_config['target_table']
+        if fim_config.get('preprocess'):
+            max_file = fim_config['preprocess'].get('output_file')
+        else:
+            max_file = fim_config['max_file']
+
+        domain = [d for d in DOMAINS if d in max_file][0]
         domain_tile_basenames = get_domain_tile_basenames(domain)
+
+        viz_db = database(db_type="viz")
+        setup_db_table(target_table, viz_db)
+
         return {
             "domain_tile_basenames": domain_tile_basenames
         }
@@ -522,3 +529,44 @@ def create_empty_tile(dem_memfile):
         src.write(dem, 1)
     
     return memfile
+
+def setup_db_table(db_fim_table, viz_db, sql_replace=None):
+    """
+        Sets up the necessary tables in a postgis data for later ingest from the huc processing functions
+
+        Args:
+            configuration(str): product configuration for the product being ran (i.e. srf, srf_hi, etc)
+            reference_time(str): Reference time of the data being ran
+            sql_replace(dict): An optional dictionary by which to use to create a new table if needed
+    """
+    index_name = f"idx_{db_fim_table.split('.')[-1:].pop()}_hydro_id"
+    db_schema = db_fim_table.split('.')[0]
+
+    print(f"Setting up {db_fim_table}")
+        
+    with viz_db.get_db_connection() as connection:
+        cur = connection.cursor()
+
+         # See if the target table exists #TODO: Ensure table exists would make a good helper function
+        cur.execute(f"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = '{db_fim_table.split('.')[0]}' AND tablename = '{db_fim_table.split('.')[1]}');")
+        table_exists = cur.fetchone()[0]
+        
+        # If the target table doesn't exist, create one basd on the sql_replace dict.
+        if not table_exists:
+            print(f"--> {db_fim_table} does not exist. Creating now.")
+            original_table = list(sql_replace.keys())[list(sql_replace.values()).index(db_fim_table)] #ToDo: error handling if not in list
+            cur.execute(f"DROP TABLE IF EXISTS {db_fim_table}; CREATE TABLE {db_fim_table} (LIKE {original_table})")
+            connection.commit()
+
+        # Drop the existing index on the target table
+        print("Dropping target table index (if exists).")
+        SQL = f"DROP INDEX IF EXISTS {db_schema}.{index_name};"
+        cur.execute(SQL)
+
+        # Truncate all records.
+        print("Truncating target table.")
+        SQL = f"TRUNCATE TABLE {db_fim_table};"
+        cur.execute(SQL)
+        connection.commit()
+    
+    return db_fim_table

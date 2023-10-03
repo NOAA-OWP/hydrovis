@@ -216,7 +216,7 @@ data "cloudinit_config" "pipeline_setup" {
       NWM_DATA_BUCKET                    = var.nwm_data_bucket
       FIM_DATA_BUCKET                    = var.fim_data_bucket
       FIM_OUTPUT_BUCKET                  = var.fim_output_bucket
-      PYTHON_PREPROCESSING_BUCKET    = var.python_preprocessing_bucket
+      PYTHON_PREPROCESSING_BUCKET        = var.python_preprocessing_bucket
       RNR_DATA_BUCKET                    = var.rnr_data_bucket
       DEPLOYMENT_DATA_BUCKET             = var.deployment_data_bucket
       DEPLOYMENT_DATA_OBJECT             = aws_s3_object.setup_upload.key
