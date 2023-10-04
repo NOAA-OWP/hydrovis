@@ -464,32 +464,10 @@ def get_service_metadata():
 
             service_stream = open(service_yml, 'r')
             service_metadata = yaml.safe_load(service_stream)
-
+            service_metadata['mapx'] = service_yml.replace(".yml", ".mapx")
             all_service_metadata.append(service_metadata)
     
     return all_service_metadata
-
-
-def get_mapx_files():
-    """
-    This function pulls mapx paths from the services tables in the publish service lambda.
-
-    Returns:
-        results (list): a list of dictionaries containing the mapx_paths.
-    """
-    mapx_fpaths = []
-
-    for configuration in os.listdir(MAPX_DIR):
-        configuration_mapx_dir = os.path.join(MAPX_DIR, configuration)
-        for mapx in os.listdir(configuration_mapx_dir):
-            if not mapx.endswith(".mapx"):
-                continue
-
-            service_mapx = os.path.join(configuration_mapx_dir, mapx)
-
-            mapx_fpaths.append(service_mapx)
-    
-    return mapx_fpaths
 
 def load_df_into_db(table_name, db_engine, df):
     import pandas as pd

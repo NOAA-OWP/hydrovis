@@ -42,7 +42,7 @@ variable "deployment_bucket" {
   type        = string
 }
 
-variable "max_values_bucket" {
+variable "python_preprocessing_bucket" {
   description = "S3 bucket where the outputted max flows will live."
   type        = string
 }
@@ -236,7 +236,7 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
   environment {
     variables = {
       DATASERVICES_HOST            = var.dataservices_host
-      MAX_VALS_BUCKET              = var.max_values_bucket
+      PYTHON_PREPROCESSING_BUCKET              = var.python_preprocessing_bucket
       PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
       INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
     }
@@ -371,30 +371,30 @@ resource "aws_cloudwatch_metric_alarm" "egis_healthcheck_errors" {
   }
 }
 
-#########################
-## Max Values Function ##
-#########################
-data "archive_file" "max_values_zip" {
+###################################
+## Python Preprocessing Function ##
+###################################
+data "archive_file" "python_preprocessing_zip" {
   type = "zip"
 
-  source_file = "${path.module}/viz_max_values/lambda_function.py"
+  source_dir = "${path.module}/viz_python_preprocessing"
 
-  output_path = "${path.module}/temp/viz_max_values_${var.environment}_${var.region}.zip"
+  output_path = "${path.module}/temp/viz_python_preprocessing_${var.environment}_${var.region}.zip"
 }
 
-resource "aws_s3_object" "max_values_zip_upload" {
+resource "aws_s3_object" "python_preprocessing_zip_upload" {
   bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_max_values.zip"
-  source      = data.archive_file.max_values_zip.output_path
-  source_hash = filemd5(data.archive_file.max_values_zip.output_path)
+  key         = "terraform_artifacts/${path.module}/viz_python_preprocessing.zip"
+  source      = data.archive_file.python_preprocessing_zip.output_path
+  source_hash = filemd5(data.archive_file.python_preprocessing_zip.output_path)
 }
 
-resource "aws_lambda_function" "viz_max_values" {
-  function_name = "hv-vpp-${var.environment}-viz-max-values"
+resource "aws_lambda_function" "viz_python_preprocessing" {
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 2048
   ephemeral_storage {
-    size = 1024
+    size = 6656
   }
   timeout = 900
 
@@ -407,12 +407,16 @@ resource "aws_lambda_function" "viz_max_values" {
     variables = {
       CACHE_DAYS            = 1
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
       NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
     }
   }
-  s3_bucket        = aws_s3_object.max_values_zip_upload.bucket
-  s3_key           = aws_s3_object.max_values_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.max_values_zip.output_path)
+  s3_bucket        = aws_s3_object.python_preprocessing_zip_upload.bucket
+  s3_key           = aws_s3_object.python_preprocessing_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.python_preprocessing_zip.output_path)
 
   runtime = "python3.9"
   handler = "lambda_function.lambda_handler"
@@ -427,7 +431,7 @@ resource "aws_lambda_function" "viz_max_values" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-max-values"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing"
   }
 }
 
@@ -460,18 +464,18 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN     = var.viz_pipeline_step_function_arn
-      DATA_BUCKET_UPLOAD    = var.fim_output_bucket
-      MAX_VALS_DATA_BUCKET  = var.max_values_bucket
-      RNR_DATA_BUCKET       = var.rnr_data_bucket
-      RASTER_OUTPUT_BUCKET  = var.fim_output_bucket
-      RASTER_OUTPUT_PREFIX  = local.raster_output_prefix
-      INGEST_FLOW_THRESHOLD = local.ingest_flow_threshold
-      VIZ_DB_DATABASE       = var.viz_db_name
-      VIZ_DB_HOST           = var.viz_db_host
-      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
-      NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
+      STEP_FUNCTION_ARN            = var.viz_pipeline_step_function_arn
+      DATA_BUCKET_UPLOAD           = var.fim_output_bucket
+      PYTHON_PREPROCESSING_BUCKET  = var.python_preprocessing_bucket
+      RNR_DATA_BUCKET              = var.rnr_data_bucket
+      RASTER_OUTPUT_BUCKET         = var.fim_output_bucket
+      RASTER_OUTPUT_PREFIX         = local.raster_output_prefix
+      INGEST_FLOW_THRESHOLD        = local.ingest_flow_threshold
+      VIZ_DB_DATABASE              = var.viz_db_name
+      VIZ_DB_HOST                  = var.viz_db_host
+      VIZ_DB_USERNAME              = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD              = jsondecode(var.viz_db_user_secret_string)["password"]
+      NWM_DATAFLOW_VERSION         = var.nwm_dataflow_version
     }
   }
   s3_bucket        = aws_s3_object.initialize_pipeline_zip_upload.bucket
@@ -873,7 +877,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_PASSWORD        = var.egis_portal_password
       GIS_HOST            = local.egis_host
       GIS_USERNAME        = "hydrovis.proc"
-      PUBLISH_FLAG_BUCKET = var.max_values_bucket
+      PUBLISH_FLAG_BUCKET = var.python_preprocessing_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz_sd_files/"
       SERVICE_TAG         = local.service_suffix
@@ -912,13 +916,13 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
 module "image-based-lambdas" {
   source = "./image_based"
 
-  environment = var.environment
-  account_id  = var.account_id
-  region      = var.region
-  deployment_bucket = var.deployment_bucket
-  max_values_bucket = var.max_values_bucket
-  lambda_role = var.lambda_role
-  hand_fim_processing_sgs = var.db_lambda_security_groups
+  environment                 = var.environment
+  account_id                  = var.account_id
+  region                      = var.region
+  deployment_bucket           = var.deployment_bucket
+  python_preprocessing_bucket = var.python_preprocessing_bucket
+  lambda_role                 = var.lambda_role
+  hand_fim_processing_sgs     = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets
   ecr_repository_image_tag    = local.ecr_repository_image_tag
   fim_version                 = var.fim_version
@@ -936,8 +940,8 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "max_values" {
-  value = aws_lambda_function.viz_max_values
+output "python_preprocessing" {
+  value = aws_lambda_function.viz_python_preprocessing
 }
 
 output "initialize_pipeline" {

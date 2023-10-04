@@ -14,7 +14,7 @@
     },
     "Step Function Initialized Log": {
       "Type": "Task",
-      "Next": "Python Max Flow Processing",
+      "Next": "Python Preprocessing",
       "Parameters": {
         "LogEvents": [
           {
@@ -28,23 +28,23 @@
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
       "ResultPath": null
     },
-    "Python Max Flow Processing": {
+    "Python Preprocessing": {
       "Type": "Map",
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Python - Max Flows",
+        "StartAt": "Python Preprocess",
         "States": {
-          "Python - Max Flows": {
+          "Python Preprocess": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${max_values_arn}",
+              "FunctionName": "${python_preprocessing_arn}",
               "Payload": {
                 "args.$": "$",
-                "step": "ingest_max_file"
+                "step": "python_preprocessing"
               }
             },
             "Retry": [
@@ -74,10 +74,10 @@
         }
       },
       "Next": "Python Max Flow Finished Log",
-      "ItemsPath": "$.configuration_data_flow.lambda_max_flows",
+      "ItemsPath": "$.configuration_data_flow.python_preprocessing",
       "ResultPath": null,
       "ItemSelector": {
-        "lambda_max_flow.$": "$$.Map.Item.Value",
+        "python_preprocessing.$": "$$.Map.Item.Value",
         "reference_time.$": "$.reference_time",
         "sql_rename_dict.$": "$.sql_rename_dict"
       },
@@ -663,7 +663,7 @@
           },
           "FIM Config Processing": {
             "Type": "Map",
-            "Next": "Product Processing Finished Log",
+            "Next": "Product Postprocessing",
             "Iterator": {
               "StartAt": "Fim Config Preprocessing",
               "States": {
@@ -677,13 +677,13 @@
                       "Next": "FIM Config Max File"
                     }
                   ],
-                  "Default": "FIM Data Preparation"
+                  "Default": "Coastal vs Inland Inundation"
                 },
                 "FIM Config Max File": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${max_values_arn}",
+                    "FunctionName": "${python_preprocessing_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"
@@ -711,7 +711,7 @@
                       "Comment": "Missing S3 File"
                     }
                   ],
-                  "Next": "FIM Data Preparation",
+                  "Next": "Coastal vs Inland Inundation",
                   "OutputPath": "$.Payload",
                   "Catch": [
                     {
@@ -738,7 +738,7 @@
                           "BooleanEquals": true
                         }
                       ],
-                      "Next": "FIM Data Preparation"
+                      "Next": "Coastal vs Inland Inundation"
                     }
                   ],
                   "Default": "Fail"
@@ -778,7 +778,7 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "Coastal vs Inland Inundation",
+                  "Next": "HUC Processing Map",
                   "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
                     "hucs_to_process.$": "$.Payload.hucs_to_process",
@@ -795,7 +795,7 @@
                       "Next": "Process Coastal (SCHISM) FIM"
                     }
                   ],
-                  "Default": "HUC Processing Map"
+                  "Default": "FIM Data Preparation"
                 },
                 "Process Coastal (SCHISM) FIM": {
                   "Type": "Task",
@@ -807,10 +807,7 @@
                       "reference_time.$": "$.reference_time",
                       "job_type.$": "$.job_type",
                       "product.$": "$.product",
-                      "sql_rename_dict.$": "$.sql_rename_dict",
-                      "data_bucket.$": "$.huc_processing_payload.data_bucket",
-                      "data_prefix.$": "$.huc_processing_payload.data_prefix",
-                      "hucs_to_process.$": "$.huc_processing_payload.hucs_to_process"
+                      "sql_rename_dict.$": "$.sql_rename_dict"
                     }
                   },
                   "Next": "Postprocess SQL - FIM Config",

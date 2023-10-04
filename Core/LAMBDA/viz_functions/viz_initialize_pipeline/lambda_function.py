@@ -221,7 +221,7 @@ class viz_lambda_pipeline:
         if self.start_event.get("skip_max_flows"):
             if self.start_event.get("skip_max_flows") is True:
                 self.configuration.configuration_data_flow['db_max_flows'] = []
-                self.configuration.configuration_data_flow['lambda_max_flows'] = []
+                self.configuration.configuration_data_flow['python_preprocessing'] = []
                 
         # This skips running FIM all-together
         if self.start_event.get("skip_fim"):
@@ -236,35 +236,35 @@ class viz_lambda_pipeline:
             
     ###################################
     def get_pipeline_runs(self):
-        lambda_max_flow_dependent_products = [product for product in self.pipeline_products if product['lambda_max_flow_dependent']]
-        db_max_flow_dependent_products = [product for product in self.pipeline_products if not product['lambda_max_flow_dependent']]
+        python_preprocesing_dependent_products = [product for product in self.pipeline_products if product['python_preprocesing_dependent']]
+        db_max_flow_dependent_products = [product for product in self.pipeline_products if not product['python_preprocesing_dependent']]
 
         pipeline_runs = []
-        if lambda_max_flow_dependent_products and db_max_flow_dependent_products:
+        if python_preprocesing_dependent_products and db_max_flow_dependent_products:
             lambda_run = {
-                "configuration": f"lmf_{self.configuration.name}",
+                "configuration": f"ppp_{self.configuration.name}",
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
                 "keep_raw": self.keep_raw,
                 "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="lambda"],
-                    "lambda_max_flows": self.configuration.lambda_input_sets,
+                    "python_preprocessing": self.configuration.lambda_input_sets,
                     "db_ingest_groups": [db_ingest for db_ingest in self.configuration.db_ingest_groups if db_ingest['data_origin']=="lambda"]
                 },
-                "pipeline_products": lambda_max_flow_dependent_products,
+                "pipeline_products": python_preprocesing_dependent_products,
                 "sql_rename_dict": self.sql_rename_dict
             }
             
             db_run = {
-                "configuration": f"dmf_{self.configuration.name}",
+                "configuration": self.configuration.name,
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
                 "keep_raw": self.keep_raw,
                 "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="database"],
-                    "lambda_max_flows": [],
+                    "python_preprocessing": [],
                     "db_ingest_groups": [db_ingest for db_ingest in self.configuration.db_ingest_groups if db_ingest['data_origin']=="raw"]
                 },
                 "pipeline_products": db_max_flow_dependent_products,
@@ -364,7 +364,7 @@ class configuration:
         
         for product in self.products_to_run:  # Remove configuration data flow keys from product info to be cleaner
             product.pop('db_max_flows', 'No Key found')
-            product.pop('lambda_max_flows', 'No Key found')
+            product.pop('python_preprocessing', 'No Key found')
             product.pop('ingest_files', 'No Key found')
 
         self.data_type = 'channel'
@@ -465,7 +465,7 @@ class configuration:
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
             elif "max" in ingest_file:
-                bucket=os.environ['MAX_VALS_DATA_BUCKET']
+                bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket
             
@@ -492,21 +492,23 @@ class configuration:
         return default_target_cols
         
     ###################################
-    def generate_lambda_max_flows_file_list(self, file_groups):
-        lambda_max_flow_ingest_sets = []
+    def generate_python_preprocessing_file_list(self, file_groups):
+        python_preprocesing_ingest_sets = []
         db_ingest_sets = []
         for file_group in file_groups:
+            product = file_group['product']
             output_file = file_group['output_file']
             
             token_dict = get_file_tokens(output_file)
             formatted_output_file = get_formatted_files(output_file, token_dict, self.reference_time)[0]
             
-            lambda_max_flow_file_set = self.generate_ingest_groups_file_list([file_group])
-            lambda_max_flow_ingest_sets.append({
-                "fileset": lambda_max_flow_file_set[0]['ingest_datasets'],
-                "fileset_bucket": lambda_max_flow_file_set[0]['bucket'],
+            python_preprocesing_file_set = self.generate_ingest_groups_file_list([file_group])
+            python_preprocesing_ingest_sets.append({
+                "fileset": python_preprocesing_file_set[0]['ingest_datasets'],
+                "fileset_bucket": python_preprocesing_file_set[0]['bucket'],
+                "product": product,
                 "output_file": formatted_output_file,
-                "output_file_bucket": os.environ['MAX_VALS_DATA_BUCKET'],
+                "output_file_bucket": os.environ['PYTHON_PREPROCESSING_BUCKET'],
             })
             
             db_ingest_file_groups = [{
@@ -519,7 +521,7 @@ class configuration:
             db_ingest_file_set = self.generate_ingest_groups_file_list(db_ingest_file_groups, data_origin="lambda")[0]
             db_ingest_sets.append(db_ingest_file_set)
     
-        return lambda_max_flow_ingest_sets, db_ingest_sets
+        return python_preprocesing_ingest_sets, db_ingest_sets
     
     ###################################
     # This method gathers information for the admin.services table in the database and returns a dictionary of services and their attributes.
@@ -573,7 +575,7 @@ class configuration:
                         fim_config['states_to_run'] = self.states_to_run_fim
 
                     if fim_config.get('preprocess'):
-                        fim_config['preprocess']['output_file_bucket'] = os.environ['MAX_VALS_DATA_BUCKET']
+                        fim_config['preprocess']['output_file_bucket'] = os.environ['PYTHON_PREPROCESSING_BUCKET']
                         fim_config['preprocess']['fileset_bucket'] = self.input_bucket
 
                     if fim_config['fim_type'] == "coastal":
@@ -602,30 +604,30 @@ class configuration:
         
     def get_configuration_data_flow(self):
         self.db_max_flows = []
-        self.lambda_max_flows = []
+        self.python_preprocessing = []
         self.ingest_groups = []
         
         for product in self.products_to_run:
-            product['lambda_max_flow_dependent'] = False
+            product['python_preprocesing_dependent'] = False
             if product.get('db_max_flows'):
                 self.db_max_flows.extend([max_flow for max_flow in product['db_max_flows'] if max_flow not in self.db_max_flows])
                 
-            if product.get('lambda_max_flows'):
-                product['lambda_max_flow_dependent'] = True
-                self.lambda_max_flows.extend([max_flow for max_flow in product['lambda_max_flows'] if max_flow not in self.lambda_max_flows])
+            if product.get('python_preprocessing'):
+                product['python_preprocesing_dependent'] = True
+                self.python_preprocessing.extend([python_preprocess for python_preprocess in product['python_preprocessing'] if python_preprocess not in self.python_preprocessing])
                 
             if product.get('ingest_files'):
                 self.ingest_groups.extend([ingest_group for ingest_group in product['ingest_files'] if ingest_group not in self.ingest_groups])
                 
         self.db_ingest_groups = self.generate_ingest_groups_file_list(self.ingest_groups)
         
-        self.lambda_input_sets, lambda_derived_db_ingest_sets = self.generate_lambda_max_flows_file_list(self.lambda_max_flows)
+        self.lambda_input_sets, lambda_derived_db_ingest_sets = self.generate_python_preprocessing_file_list(self.python_preprocessing)
         self.db_ingest_groups.extend(lambda_derived_db_ingest_sets)
         
         self.configuration_data_flow = {
             "db_max_flows": self.db_max_flows,
             "db_ingest_groups": self.db_ingest_groups,
-            "lambda_max_flows": self.lambda_input_sets
+            "python_preprocessing": self.lambda_input_sets
         }
         
         return

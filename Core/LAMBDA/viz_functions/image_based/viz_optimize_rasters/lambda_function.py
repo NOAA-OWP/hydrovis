@@ -114,7 +114,6 @@ def run_create_vrt(event):
     # publish folder it has to also exist in the tif folder since the tif folder
     # is used as the basis for what gets copied over in the viz_update_egis_data lambda
     create_vrt(output_bucket, f'{output_workspace}/tif/', '.tif')
-    create_vrt(output_bucket, f'{output_workspace}/mrf/', '.mrf')
 
 def create_vrt(output_bucket, output_workspace, extension):
     s3_client = boto3.client('s3')

@@ -14,7 +14,7 @@ variable "deployment_bucket" {
   type = string
 }
 
-variable "max_values_bucket" {
+variable "python_preprocessing_bucket" {
   type = string
 }
 
@@ -501,25 +501,25 @@ data "archive_file" "schism_processing_zip" {
 
   source {
     content = templatefile("${path.module}/viz_schism_fim_processing/serverless.yml.tmpl", {
-      SERVICE_NAME       = replace(local.viz_schism_fim_processing_lambda_name, "_", "-")
-      LAMBDA_TAGS        = jsonencode(merge(var.default_tags, { Name = local.viz_schism_fim_processing_lambda_name }))
-      DEPLOYMENT_BUCKET  = var.deployment_bucket
-      AWS_DEFAULT_REGION = var.region
-      LAMBDA_NAME        = local.viz_schism_fim_processing_lambda_name
-      AWS_ACCOUNT_ID     = var.account_id
-      IMAGE_REPO_NAME    = aws_ecr_repository.viz_schism_fim_processing_image.name
-      IMAGE_TAG          = var.ecr_repository_image_tag
-      LAMBDA_ROLE_ARN    = var.lambda_role
-      MAX_VALS_BUCKET    = var.max_values_bucket
-      INPUTS_BUCKET      = var.deployment_bucket
-      INPUTS_PREFIX      = "schism_fim"
-      VIZ_DB_DATABASE    = var.viz_db_name
-      VIZ_DB_HOST        = var.viz_db_host
-      VIZ_DB_PASSWORD    = jsondecode(var.viz_db_user_secret_string)["password"]
-      VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
-      SECURITY_GROUP_1   = var.hand_fim_processing_sgs[0]
-      SUBNET_1           = var.hand_fim_processing_subnets[0]
-      SUBNET_2           = var.hand_fim_processing_subnets[1]
+      SERVICE_NAME                = replace(local.viz_schism_fim_processing_lambda_name, "_", "-")
+      LAMBDA_TAGS                 = jsonencode(merge(var.default_tags, { Name = local.viz_schism_fim_processing_lambda_name }))
+      DEPLOYMENT_BUCKET           = var.deployment_bucket
+      AWS_DEFAULT_REGION          = var.region
+      LAMBDA_NAME                 = local.viz_schism_fim_processing_lambda_name
+      AWS_ACCOUNT_ID              = var.account_id
+      IMAGE_REPO_NAME             = aws_ecr_repository.viz_schism_fim_processing_image.name
+      IMAGE_TAG                   = var.ecr_repository_image_tag
+      LAMBDA_ROLE_ARN             = var.lambda_role
+      PYTHON_PREPROCESSING_BUCKET = var.python_preprocessing_bucket
+      INPUTS_BUCKET               = var.deployment_bucket
+      INPUTS_PREFIX               = "schism_fim"
+      VIZ_DB_DATABASE             = var.viz_db_name
+      VIZ_DB_HOST                 = var.viz_db_host
+      VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_USERNAME             = jsondecode(var.viz_db_user_secret_string)["username"]
+      SECURITY_GROUP_1            = var.hand_fim_processing_sgs[0]
+      SUBNET_1                    = var.hand_fim_processing_subnets[0]
+      SUBNET_2                    = var.hand_fim_processing_subnets[1]
     })
     filename = "serverless.yml"
   }

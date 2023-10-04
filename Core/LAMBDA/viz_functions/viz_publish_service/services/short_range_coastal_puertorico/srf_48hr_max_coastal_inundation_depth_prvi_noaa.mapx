@@ -29,6 +29,9 @@
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
+    "standaloneTables" : [
+      "CIMPATH=srf_18hr_max_coastal_inundation_depth_prvi/vizprocessing_publish_srf_18hr_max_coastal_inundation_depth_prvi.xml"
+    ],
     "defaultExtent" : {
       "xmin" : -125.895685813900741,
       "ymin" : 14.2068479882217993,
@@ -290,6 +293,95 @@
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/d37718d89ece7ecbefff4476d478739a.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230628</CreaDate><CreaTime>20055700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    }
+  ],
+  "tableDefinitions" : [
+    {
+      "type" : "CIMStandaloneTable",
+      "name" : "Service Metadata",
+      "uRI" : "CIMPATH=srf_18hr_max_coastal_inundation_depth_prvi/vizprocessing_publish_srf_18hr_max_coastal_inundation_depth_prvi.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "displayField" : "reference_time",
+      "editable" : true,
+      "fieldDescriptions" : [
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "oid",
+          "fieldName" : "oid",
+          "numberFormat" : {
+            "type" : "CIMNumericFormat",
+            "alignmentOption" : "esriAlignRight",
+            "alignmentWidth" : 0,
+            "roundingOption" : "esriRoundNumberOfDecimals",
+            "roundingValue" : 0
+          },
+          "readOnly" : true,
+          "visible" : false,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Reference Time",
+          "fieldName" : "reference_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Valid Time",
+          "fieldName" : "valid_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        },
+        {
+          "type" : "CIMFieldDescription",
+          "alias" : "Update Time",
+          "fieldName" : "update_time",
+          "visible" : true,
+          "searchMode" : "Exact"
+        }
+      ],
+      "dataConnection" : {
+        "type" : "CIMSqlQueryDataConnection",
+        "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+        "workspaceFactory" : "SDE",
+        "dataset" : "vizprocessing.publish.%srf_18hr_max_coastal_inundation_depth_prvi",
+        "datasetType" : "esriDTTable",
+        "sqlQuery" : "select oid,reference_time,valid_time,update_time from vizprocessing.publish.srf_18hr_max_coastal_inundation_depth_prvi",
+        "oIDFields" : "oid",
+        "geometryType" : "esriGeometryNull",
+        "queryFields" : [
+          {
+            "name" : "oid",
+            "type" : "esriFieldTypeInteger",
+            "alias" : "oid"
+          },
+          {
+            "name" : "reference_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "reference_time",
+            "length" : 25
+          },
+          {
+            "name" : "valid_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "valid_time",
+            "length" : 25
+          },
+          {
+            "name" : "update_time",
+            "type" : "esriFieldTypeString",
+            "alias" : "update_time",
+            "length" : 25
+          }
+        ]
+      },
+      "autoGenerateRowTemplates" : true,
+      "serviceTableID" : -1,
+      "showPopups" : true
     }
   ]
 }

@@ -5,10 +5,72 @@ import xarray
 import numpy as np
 import pandas as pd
 import re
-import arcpy
+import boto3
+import tempfile
+from viz_lambda_shared_funcs import get_db_values, check_if_file_exists
 
-arcpy.env.overwriteOutput = True
+def run_high_water_probability(reference_time, fileset_bucket, fileset, output_file_bucket, output_file):
+    ##### Data Prep #####
+    print("Downloading NWM Data")
+    input_files = organize_input_files(fileset_bucket, fileset, download_subfolder=reference_time.strftime('%Y%m%d'))
 
+    #Get NWM version from first file
+    with xarray.open_dataset(input_files[0]) as first_file:
+        nwm_vers = first_file.NWM_version_number.replace("v","")
+
+    print("Retrieving High Water Values From Viz DB")
+    df_high_water_threshold = get_db_values("derived.recurrence_flows_conus", ["feature_id", "high_water_threshold"])
+    df_high_water_threshold = df_high_water_threshold.set_index("feature_id")
+    df_high_water_threshold = df_high_water_threshold.sort_index()
+
+    ##### Short Range Configuration #####
+    if "short_range" in input_files[0]:
+        lead_times = list(range(1, 13, 1))
+        discard_threshold = 7
+        df_probabilities = srf_high_water_probability(reference_time, lead_times, discard_threshold, input_files, df_high_water_threshold)
+        df_probabilities = df_probabilities.rename(columns={"Prob": "srf_prob"})
+
+    ##### Medium Range Configuration #####
+    elif "medium_range" in input_files[0]:
+        df_probabilities = pd.DataFrame()
+        day_windows = {'start_hour': [3, 27, 51, 75, 3], 'end_hour': [24, 48, 72, 120, 120]}
+
+        for i in range(len(day_windows['start_hour'])):
+            day_files = []
+            begin_hour = day_windows['start_hour'][i]
+            end_hour = day_windows['end_hour'][i]
+            print(f"Calculating probabilities for {begin_hour}_to_{end_hour}")
+            for file in input_files:
+                hour_pattern = re.search(r'f(\d\d\d)', file).group(1)
+                if(hour_pattern):
+                    hour = int(hour_pattern)
+                    if(hour >= begin_hour and hour <= end_hour):
+                        day_files.append(file)
+
+            probability_df = mrf_high_water_probability(day_files, df_high_water_threshold)
+            probability_df = probability_df.rename(columns={"Prob": f"hours_{begin_hour}_to_{end_hour}"})
+
+            if df_probabilities.empty:
+                df_probabilities = probability_df
+            else:
+                df_probabilities = df_probabilities.join(probability_df)
+
+    ##### Format and Upload Output #####
+    print("Adding high water threshold, reference time, and update time to dataframe")
+    df_probabilities = df_probabilities.loc[~(df_probabilities == 0).all(axis=1)]
+    df_probabilities = df_probabilities.join(df_high_water_threshold)
+    df_probabilities = df_probabilities.loc[~(df_probabilities['high_water_threshold'] == 0)]
+    df_probabilities['nwm_vers'] = nwm_vers
+    df_probabilities = df_probabilities.reset_index()
+
+    print("Uploading output CSV file to S3")
+    s3 = boto3.client('s3')
+    tempdir = tempfile.mkdtemp()
+    tmp_ouput_path = os.path.join(tempdir, f"temp_output.csv")
+    df_probabilities.to_csv(tmp_ouput_path, index=False)
+    s3.upload_file(tmp_ouput_path, output_file_bucket, output_file)
+    print(f"--- Uploaded to {output_file_bucket}:{output_file}")
+    os.remove(tmp_ouput_path)
 
 def srf_high_water_probability(reference_time, lead_times, discard_threshold, nwm_fpaths, df_high_water_threshold):
     """
@@ -30,19 +92,19 @@ def srf_high_water_probability(reference_time, lead_times, discard_threshold, nw
     """
 
     # calculate valid time for forecast
-    arcpy.AddMessage("Calculating valid times...")
+    print("Calculating valid times...")
     valid_times = calc_valid_times(reference_time, lead_times)
 
     discard_date = reference_time - dt.timedelta(hours=discard_threshold)
 
     # return paths to all files with specified valid time
-    arcpy.AddMessage("Collecting files for valid times...")
+    print("Collecting files for valid times...")
     working_fpaths = find_nwm_file_paths(nwm_fpaths, valid_times, reference_time, discard_date)
     nwm_file_count = len(working_fpaths)
-    arcpy.AddMessage("Found {} files with matching valid times.".format(nwm_file_count))
+    print("Found {} files with matching valid times.".format(nwm_file_count))
 
     # Import Feature IDs
-    arcpy.AddMessage("-->Importing feature IDs...")
+    print("-->Importing feature IDs...")
     with xarray.open_dataset(working_fpaths[0]) as ds_features:
         # Gets a dataframe of feature ids and streamflow for forecast
         streamflow_features = ds_features['streamflow'].to_dataframe()
@@ -52,7 +114,7 @@ def srf_high_water_probability(reference_time, lead_times, discard_threshold, nw
     featureID_list = joined.index.values  # Extract feature_ids as array
 
     # Calculate High Flow Probabilities
-    arcpy.AddMessage("-->Calculating high flow probabilities...")
+    print("-->Calculating high flow probabilities...")
 
     # Set ensemble members (nwm forecast hours) on-the-fly
     # Ensemble members for srf are represented by a forecast hour, each of the 7 hours (t-hour) up to and
@@ -87,7 +149,7 @@ def srf_high_water_probability(reference_time, lead_times, discard_threshold, nw
         above_array = np.where(above_array >= 1, 1, 0)
         final_above_array += above_array  # add ensemble member's 0 or 1 predictions for each stream
 
-    arcpy.AddMessage("Processing NWM probabilities...")
+    print("Processing NWM probabilities...")
     # divides above_array by the total number of streamflow files to compute probabilities, and
     # then multiplies the results by 100 to covert them into percentages
     probabilities = (final_above_array / ensemble_number) * 100.0
@@ -114,7 +176,7 @@ def mrf_high_water_probability(streamflow_files_list, high_water_values):
     """
 
     # Import Feature IDs
-    arcpy.AddMessage("--> Importing feature IDs...")
+    print("--> Importing feature IDs...")
 
     with xarray.open_dataset(streamflow_files_list[0]) as ds_features:
         df_features = ds_features['streamflow'].to_dataframe()  # gets a dataframe of feature ids and streamflows
@@ -123,7 +185,7 @@ def mrf_high_water_probability(streamflow_files_list, high_water_values):
     featureID_array = joined.index.values  # extracts the feature IDs as an array
 
     # Calculate High Water Probabilities
-    arcpy.AddMessage("--> Calculating high water probabilities...")
+    print("--> Calculating high water probabilities...")
 
     ensemble_members = []
     for file in streamflow_files_list:  # finds the number of ensemble members on-the-fly
@@ -191,8 +253,8 @@ def find_nwm_file_paths(nwm_fpaths, valid_times, reference_time, discard_date):
 
     working_fpaths = []
     for nwm_fpath in nwm_fpaths:
-        # Extract file's date from filepath
-        file_date = dt.datetime.strptime(re.search('nwm\.[0-9]{8}', nwm_fpath).group(), 'nwm.%Y%m%d') \
+       # Extract file's date from filepath
+        file_date = dt.datetime.strptime(re.search('[0-9]{8}', nwm_fpath).group(), '%Y%m%d') \
                   + dt.timedelta(hours=int(re.search('t[0-9]{2}z', nwm_fpath).group()[1:3]))
 
         # Exclude file if older than discard date
@@ -218,3 +280,10 @@ def find_nwm_file_paths(nwm_fpaths, valid_times, reference_time, discard_date):
             print(('WARNING - File given could not be opened: {0}'.format(nwm_fpath)))
 
     return working_fpaths
+
+def organize_input_files(fileset_bucket, fileset, download_subfolder):
+    local_files = []
+    for file in fileset:
+        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=download_subfolder)
+        local_files.append(download_path)
+    return local_files
