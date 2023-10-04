@@ -12,6 +12,7 @@ SELECT
     rofp.rapid_onset_prob_7_12,
     rofp.rapid_onset_prob_all,
     rofp.high_water_threshold,
+    ST_LENGTH(channels.geom)*0.000621371 AS reach_length_miles,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
 INTO publish.srf_12hr_rapid_onset_flooding_probability
