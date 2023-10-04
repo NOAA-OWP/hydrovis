@@ -3,6 +3,7 @@ from datetime import datetime
 from viz_lambda_shared_funcs import generate_file_list
 from products.max_values import aggregate_max_to_file
 from products.high_water_probability import run_high_water_probability
+from products.rapid_onset_flooding_probability import run_rapid_onset_flooding_probability
 
 
 def lambda_handler(event, context):
@@ -57,6 +58,8 @@ def lambda_handler(event, context):
         aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
     elif product == "high_water_probability":
         run_high_water_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+    elif product == "rapid_onset_flooding_probability":
+        run_rapid_onset_flooding_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
         
     print(f"Successfully created {output_file} in {output_file_bucket}")
     
