@@ -23,4 +23,4 @@ postprocess_sql:
     target_table: publish.mrf_nbm_10day_max_high_flow_magnitude
 
 services:
-  - mrf_nbm_10day_max_high_flow_magnitude
+  - mrf_nbm_10day_max_high_flow_magnitude_noaa

@@ -10,4 +10,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: false
+public_service: true
