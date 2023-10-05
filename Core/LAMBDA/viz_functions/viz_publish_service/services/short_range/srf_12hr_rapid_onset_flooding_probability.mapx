@@ -2884,7 +2884,7 @@
             },
             {
               "name" : "rapid_onset_reach_cnt",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "rapid_onset_reach_cnt"
             },
             {
