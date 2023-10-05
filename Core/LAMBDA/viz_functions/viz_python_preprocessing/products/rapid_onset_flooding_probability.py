@@ -45,7 +45,7 @@ def run_rapid_onset_flooding_probability(reference_time, fileset_bucket, fileset
     s3 = boto3.client('s3')
     tempdir = tempfile.mkdtemp()
     tmp_ouput_path = os.path.join(tempdir, f"temp_output.csv")
-    df_rofp.to_csv(tmp_ouput_path)
+    df_rofp.to_csv(tmp_ouput_path, index=False)
     s3.upload_file(tmp_ouput_path, output_file_bucket, output_file)
     os.remove(tmp_ouput_path)
 
