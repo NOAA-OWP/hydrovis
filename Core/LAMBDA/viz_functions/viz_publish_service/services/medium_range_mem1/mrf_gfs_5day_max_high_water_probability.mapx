@@ -461,7 +461,7 @@
             },
             {
               "name" : "hours_3_to_24",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "hours_3_to_24"
             },
             {
@@ -1222,7 +1222,7 @@
             },
             {
               "name" : "hours_27_to_48",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "hours_27_to_48"
             },
             {
@@ -1983,7 +1983,7 @@
             },
             {
               "name" : "hours_51_to_72",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "hours_51_to_72"
             },
             {
@@ -2744,7 +2744,7 @@
             },
             {
               "name" : "hours_75_to_120",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "hours_75_to_120"
             },
             {
@@ -3495,7 +3495,7 @@
             },
             {
               "name" : "hours_3_to_120",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "hours_3_to_120"
             },
             {
