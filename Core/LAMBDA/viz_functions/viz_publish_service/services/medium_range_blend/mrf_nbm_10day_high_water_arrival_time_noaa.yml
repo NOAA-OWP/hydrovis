@@ -1,4 +1,4 @@
-service: mrf_nbm_10day_high_water_arrival_time
+service: mrf_nbm_10day_high_water_arrival_time_noaa
 summary: Medium-Range NBM 10 Day High Water Arrival Time Forecast
 description: Depicts the forecast arrival time of high water over the next 10 days. This service is derived from the 
   medium-range NBM configuration of the National Water Model (NWM) over the contiguous U.S. Shown are reaches that are 
