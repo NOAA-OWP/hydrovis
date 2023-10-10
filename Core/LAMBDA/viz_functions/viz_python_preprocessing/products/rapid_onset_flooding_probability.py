@@ -11,18 +11,10 @@ import tempfile
 from datetime import datetime, timedelta
 from itertools import cycle, islice
 
-from viz_lambda_shared_funcs import get_db_values, check_if_file_exists
+from viz_lambda_shared_funcs import get_db_values, organize_input_files
 
 CFS_FROM_CMS = 35.315
 pd.options.mode.chained_assignment = None
-
-def organize_input_files(fileset_bucket, fileset, download_subfolder):
-    local_files = []
-    for file in fileset:
-        print(f"--> Downloading {file}")
-        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=download_subfolder)
-        local_files.append(download_path)
-    return local_files
 
 def run_rapid_onset_flooding_probability(reference_time, fileset_bucket, fileset, output_file_bucket, output_file):
     percent_change_threshold = 100
