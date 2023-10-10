@@ -161,6 +161,10 @@ variable "yaml_layer" {
   type = string
 }
 
+variable "dask_layer" {
+  type = string
+}
+
 variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
@@ -428,6 +432,7 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer,
     var.requests_layer,
+    var.dask_layer,
   ]
 
   tags = {
