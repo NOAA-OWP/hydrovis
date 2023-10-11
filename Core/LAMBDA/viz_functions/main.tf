@@ -161,6 +161,10 @@ variable "yaml_layer" {
   type = string
 }
 
+variable "dask_layer" {
+  type = string
+}
+
 variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
@@ -409,6 +413,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_2GB" {
   environment {
     variables = {
       CACHE_DAYS            = 1
+      AUTH_DATA_BUCKET      = var.viz_authoritative_bucket
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
       VIZ_DB_DATABASE       = var.viz_db_name
       VIZ_DB_HOST           = var.viz_db_host
@@ -431,6 +436,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_2GB" {
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer,
     var.requests_layer,
+    var.dask_layer
   ]
 
   tags = {
@@ -458,6 +464,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
   environment {
     variables = {
       CACHE_DAYS            = 1
+      AUTH_DATA_BUCKET      = var.viz_authoritative_bucket
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
       VIZ_DB_DATABASE       = var.viz_db_name
       VIZ_DB_HOST           = var.viz_db_host
@@ -480,6 +487,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer,
     var.requests_layer,
+    var.dask_layer
   ]
 
   tags = {
