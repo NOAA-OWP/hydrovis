@@ -11,18 +11,10 @@ import tempfile
 from datetime import datetime, timedelta
 from itertools import cycle, islice
 
-from viz_lambda_shared_funcs import get_db_values, check_if_file_exists
+from viz_lambda_shared_funcs import get_db_values, organize_input_files
 
 CFS_FROM_CMS = 35.315
 pd.options.mode.chained_assignment = None
-
-def organize_input_files(fileset_bucket, fileset, download_subfolder):
-    local_files = []
-    for file in fileset:
-        print(f"--> Downloading {file}")
-        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=download_subfolder)
-        local_files.append(download_path)
-    return local_files
 
 def run_rapid_onset_flooding_probability(reference_time, fileset_bucket, fileset, output_file_bucket, output_file):
     percent_change_threshold = 100
@@ -31,6 +23,10 @@ def run_rapid_onset_flooding_probability(reference_time, fileset_bucket, fileset
     
     print("Downloading NWM Data")
     input_files = organize_input_files(fileset_bucket, fileset, download_subfolder=reference_time.strftime('%Y%m%d'))
+    
+    #Get NWM version from first file
+    with xr.open_dataset(input_files[0]) as first_file:
+        nwm_vers = first_file.NWM_version_number.replace("v","")
     
     print("Processing Files")
     ##### Short Range Configuration #####
@@ -41,7 +37,7 @@ def run_rapid_onset_flooding_probability(reference_time, fileset_bucket, fileset
     elif "medium_range" in input_files[0]:
         df_rofp = mrf_rapid_onset_probability(reference_time, input_files, percent_change_threshold, high_water_hour_threshold, stream_reaches_at_or_below)
 
-    df_rofp['reference_time'] = reference_time.strftime("%Y-%m-%d %H:%M:%S UTC")       
+    df_rofp['nwm_vers'] = nwm_vers
     s3 = boto3.client('s3')
     tempdir = tempfile.mkdtemp()
     tmp_ouput_path = os.path.join(tempdir, f"temp_output.csv")
