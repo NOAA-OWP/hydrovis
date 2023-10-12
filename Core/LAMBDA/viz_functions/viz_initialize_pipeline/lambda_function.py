@@ -201,6 +201,7 @@ class viz_lambda_pipeline:
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
             for word, replacement in self.sql_rename_dict.items():
                 self.configuration.configuration_data_flow = json.loads(json.dumps(self.configuration.configuration_data_flow).replace(word, replacement))
+                self.configuration.db_ingest_groups = json.loads(json.dumps(self.configuration.db_ingest_groups).replace(word, replacement))
                 self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
             self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time.strftime("%Y-%m-%d %H:%M:%S")}) #Add a reference time for placeholders in sql files
         
