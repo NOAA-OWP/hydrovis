@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_12hr_rapid_onset_flooding_probability;
+DROP TABLE IF EXISTS publish.srf_12hr_rof_prob;
 SELECT
     channels.feature_id,
     channels.feature_id::TEXT AS feature_id_str,
@@ -15,7 +15,7 @@ SELECT
     ST_LENGTH(channels.geom)*0.000621371 AS reach_length_miles,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
-INTO publish.srf_12hr_rapid_onset_flooding_probability
-FROM ingest.srf_12hr_rapid_onset_flooding_probability as rofp
+INTO publish.srf_12hr_rof_prob
+FROM ingest.srf_12hr_rof_prob as rofp
 JOIN derived.channels_conus channels ON rofp.feature_id = channels.feature_id
 JOIN derived.recurrence_flows_conus rf ON rofp.feature_id = rf.feature_id;
