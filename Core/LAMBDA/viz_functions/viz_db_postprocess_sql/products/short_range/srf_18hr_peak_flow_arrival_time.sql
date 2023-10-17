@@ -10,7 +10,9 @@ SELECT
     forecasts.nwm_vers,
     forecasts.reference_time,
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,
-    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.t_normal END AS below_bank_return_time,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') END AS peak_flow_arrival_time,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_hour END AS below_bank_return_hour,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * arrival_time.below_bank_return_hour, 'YYYY-MM-DD HH24:MI:SS UTC') END AS below_bank_return_time,
     round((max_flows.maxflow_18hour_cms*35.315)::numeric, 2) AS max_flow_cfs,
     rf.high_water_threshold,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
@@ -33,4 +35,4 @@ JOIN derived.recurrence_flows_conus AS rf ON forecasts.feature_id = rf.feature_i
 JOIN publish.srf_18hr_high_water_arrival_time AS arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_18hour_cms, channels.geom
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, arrival_time.below_bank_return_hour, max_flows.maxflow_18hour_cms, channels.geom

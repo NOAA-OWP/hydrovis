@@ -248,13 +248,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "t_high_water_threshold < 72",
+        "definitionExpression" : "high_water_arrival_hour < 72",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "t_high_water_threshold < 72"
+            "definitionExpression" : "high_water_arrival_hour < 72"
           }
         ],
         "displayField" : "Name",
@@ -325,8 +325,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water Arrival Time (hours)",
-            "fieldName" : "t_high_water_threshold",
+            "alias" : "High Water Arrival Hour",
+            "fieldName" : "high_water_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -339,8 +339,22 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water End Time (hours)",
-            "fieldName" : "t_normal",
+            "alias" : "High Water Arrival Time",
+            "fieldName" : "high_water_arrival_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water End Hour",
+            "fieldName" : "below_bank_return_hour",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water End Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -417,7 +431,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -467,15 +481,27 @@
               "length" : 25
             },
             {
-              "name" : "t_high_water_threshold",
+              "name" : "high_water_arrival_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "t_high_water_threshold"
+              "alias" : "high_water_arrival_hour"
             },
             {
-              "name" : "t_normal",
+              "name" : "high_water_arrival_time",
               "type" : "esriFieldTypeString",
-              "alias" : "t_normal",
+              "alias" : "high_water_arrival_time",
+              "length": 25
+            },
+            {
+              "name" : "below_bank_return_hour",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_hour",
               "length" : 10
+            },
+            {
+              "name" : "below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length": 25
             },
             {
               "name" : "duration",
@@ -9649,7 +9675,7 @@
             0.0039215686274509803
           ]
         },
-        "field" : "t_high_water_threshold",
+        "field" : "high_water_arrival_hour",
         "minimumBreak" : 3,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
@@ -9660,7 +9686,7 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : true,
-        "heading" : "High Water Arrival Time (hours)",
+        "heading" : "High Water Arrival Hour",
         "sampleSize" : 10000,
         "useDefaultSymbol" : true,
         "defaultSymbolPatch" : "Default",
@@ -9795,7 +9821,7 @@
               "nwm_vers",
               "reference_time",
               "t_bank",
-              "t_normal",
+              "below_bank_return_hour",
               "duration",
               "bank_flow",
               "max_flow"
@@ -9829,13 +9855,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "t_high_water_threshold > 0",
+        "definitionExpression" : "high_water_arrival_hour > 0",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "t_high_water_threshold > 0"
+            "definitionExpression" : "high_water_arrival_hour > 0"
           }
         ],
         "displayField" : "Name",
@@ -9906,8 +9932,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water Arrival Time (hours)",
-            "fieldName" : "t_high_water_threshold",
+            "alias" : "High Water Arrival Hour",
+            "fieldName" : "high_water_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -9920,8 +9946,22 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water End Time (hours)",
-            "fieldName" : "t_normal",
+            "alias" : "High Water Arrival Time",
+            "fieldName" : "high_water_arrival_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water End Hour",
+            "fieldName" : "below_bank_return_hour",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water End Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -9998,7 +10038,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10048,15 +10088,27 @@
               "length" : 25
             },
             {
-              "name" : "t_high_water_threshold",
+              "name" : "high_water_arrival_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "t_high_water_threshold"
+              "alias" : "high_water_arrival_hour"
             },
             {
-              "name" : "t_normal",
+              "name" : "high_water_arrival_time",
               "type" : "esriFieldTypeString",
-              "alias" : "t_normal",
+              "alias" : "high_water_arrival_time",
+              "length": 25
+            },
+            {
+              "name" : "below_bank_return_hour",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_hour",
               "length" : 10
+            },
+            {
+              "name" : "below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length": 25
             },
             {
               "name" : "duration",
@@ -19262,7 +19314,7 @@
             0.0039215686274509803
           ]
         },
-        "field" : "t_high_water_threshold",
+        "field" : "high_water_arrival_hour",
         "minimumBreak" : 3,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
@@ -19273,7 +19325,7 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : true,
-        "heading" : "High Water Arrival Time (hours)",
+        "heading" : "High Water Arrival Hour",
         "sampleSize" : 10000,
         "useDefaultSymbol" : true,
         "defaultSymbolPatch" : "Default",
@@ -19467,8 +19519,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water End Time (hours)",
-            "fieldName" : "t_normal",
+            "alias" : "High Water End Hour",
+            "fieldName" : "below_bank_return_hour",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water End Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -19481,8 +19540,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "High Water Arrival Time (hours)",
-            "fieldName" : "t_high_water_threshold",
+            "alias" : "High Water Arrival Hour",
+            "fieldName" : "high_water_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -19490,6 +19549,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water Arrival Time",
+            "fieldName" : "high_water_arrival_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -19559,7 +19625,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%mrf_bankfull_arrival_time_1_2_3_4_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,t_high_water_threshold,t_normal,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
+          "sqlQuery" : "select feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom,oid from hydrovis.services.mrf_nbm_10day_high_water_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -19609,15 +19675,27 @@
               "length" : 25
             },
             {
-              "name" : "t_high_water_threshold",
+              "name" : "high_water_arrival_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "t_high_water_threshold"
+              "alias" : "high_water_arrival_hour"
             },
             {
-              "name" : "t_normal",
+              "name" : "high_water_arrival_time",
               "type" : "esriFieldTypeString",
-              "alias" : "t_normal",
+              "alias" : "high_water_arrival_time",
+              "length": 25
+            },
+            {
+              "name" : "below_bank_return_hour",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_hour",
               "length" : 10
+            },
+            {
+              "name" : "below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length": 25
             },
             {
               "name" : "duration",
@@ -19983,7 +20061,7 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "t_normal"
+          "below_bank_return_hour"
         ],
         "groups" : [
           {
@@ -20761,7 +20839,7 @@
                 "visible" : true
               }
             ],
-            "heading" : "High Water End Time (hours)"
+            "heading" : "High Water End Hour"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"

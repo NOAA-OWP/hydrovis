@@ -315,7 +315,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Peak Flow Arrival Time (hours)",
+            "alias" : "Peak Flow Arrival Hour",
             "fieldName" : "peak_flow_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -329,8 +329,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Below Bank Return Time (hours)",
-            "fieldName" : "below_bank_return_time",
+            "alias" : "Peak Flow Arrival Time",
+            "fieldName" : "peak_flow_arrival_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Hour",
+            "fieldName" : "below_bank_return_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -338,6 +345,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -391,7 +405,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,state,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_nbm_10day_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,peak_flow_arrival_time,huc6,state,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_hour,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_nbm_10day_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -428,6 +442,12 @@
               "alias" : "peak_flow_arrival_hour"
             },
             {
+              "name" : peak_flow_arrival_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "peak_flow_arrival_time",
+              "length" : 25
+            },
+            {
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
@@ -461,9 +481,15 @@
               "alias" : "high_water_threshold"
             },
             {
-              "name" : "below_bank_return_time",
+              "name" : "below_bank_return_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "below_bank_return_time"
+              "alias" : "below_bank_return_hour"
+            },
+            {
+              "name" : below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length" : 25
             },
             {
               "name" : "update_time",
@@ -1197,7 +1223,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Peak Flow Arrival Time (hours)",
+            "alias" : "Peak Flow Arrival Hour",
             "fieldName" : "peak_flow_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -1211,8 +1237,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Below Bank Return Time (hours)",
-            "fieldName" : "below_bank_return_time",
+            "alias" : "Peak Flow Arrival Time",
+            "fieldName" : "peak_flow_arrival_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Hour",
+            "fieldName" : "below_bank_return_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -1220,6 +1253,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1273,7 +1313,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,huc6,state,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_nbm_10day_peak_flow_arrival_time",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,peak_flow_arrival_hour,peak_flow_arrival_time,huc6,state,nwm_vers,reference_time,max_flow_cfs,high_water_threshold,below_bank_return_hour,below_bank_return_time,update_time,geom from vizprocessing.dev.mrf_nbm_10day_peak_flow_arrival_time",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1310,6 +1350,12 @@
               "alias" : "peak_flow_arrival_hour"
             },
             {
+              "name" : "peak_flow_arrival_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "peak_flow_arrival_time",
+              "length" : 25
+            },
+            {
               "name" : "huc6",
               "type" : "esriFieldTypeString",
               "alias" : "huc6",
@@ -1343,9 +1389,15 @@
               "alias" : "high_water_threshold"
             },
             {
-              "name" : "below_bank_return_time",
+              "name" : "below_bank_return_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "below_bank_return_time"
+              "alias" : "below_bank_return_hour"
+            },
+            {
+              "name" : "below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length" : 25
             },
             {
               "name" : "update_time",
