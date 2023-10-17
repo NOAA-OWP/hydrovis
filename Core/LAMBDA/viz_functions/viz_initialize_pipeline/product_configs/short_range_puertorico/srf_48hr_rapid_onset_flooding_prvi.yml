@@ -1,5 +1,5 @@
 product: srf_48hr_rapid_onset_flooding_prvi
-configuration: short_range_hawaii
+configuration: short_range_puertorico
 product_type: "vector"
 run: true
 
