@@ -14,7 +14,7 @@ SELECT
     max_flows.maxflow_10day_cfs AS max_flow_cfs,
     rf.high_water_threshold,
     arrival_time.below_bank_return_hour,
-    to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * arrival_time.below_bank_return_hour, 'YYYY-MM-DD HH24:MI:SS UTC') AS below_bank_return_time,
+    arrival_time.below_bank_return_time,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
    
@@ -35,4 +35,4 @@ JOIN derived.recurrence_flows_conus AS rf ON forecasts.feature_id = rf.feature_i
 JOIN publish.mrf_nbm_10day_high_water_arrival_time AS arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, max_flows.maxflow_10day_cfs, arrival_time.below_bank_return_hour, channels.geom;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, max_flows.maxflow_10day_cfs, arrival_time.below_bank_return_hour, arrival_time.below_bank_return_time, channels.geom;

@@ -352,6 +352,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Flood Start Time",
+            "fieldName" : "flood_start_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Flood End (hour)",
             "fieldName" : "flood_end_hour",
             "numberFormat" : {
@@ -361,6 +368,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Flood End Time",
+            "fieldName" : "flood_end_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -475,7 +489,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_48hr_rapid_onset_flooding_1_2_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hi",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -530,9 +544,21 @@
               "alias" : "flood_start_hour"
             },
             {
+              "name" : "flood_start_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "flood_start_time",
+              "length" : 25
+            },
+            {
               "name" : "flood_end_hour",
               "type" : "esriFieldTypeInteger",
               "alias" : "flood_end_hour"
+            },
+            {
+              "name" : "flood_end_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "flood_end_time",
+              "length" : 25
             },
             {
               "name" : "flood_length",
@@ -9966,6 +9992,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Flood Start Time",
+            "fieldName" : "flood_start_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Flood End (hour)",
             "fieldName" : "flood_end_hour",
             "numberFormat" : {
@@ -9975,6 +10008,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Flood End Time",
+            "fieldName" : "flood_end_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -10089,7 +10129,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_48hr_rapid_onset_flooding_1_2_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_end_hour,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hi",
+          "sqlQuery" : "select feature_id_str AS feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom, oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -10144,9 +10184,21 @@
               "alias" : "flood_start_hour"
             },
             {
+              "name" : "flood_start_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "flood_start_time",
+              "length" : 25
+            },
+            {
               "name" : "flood_end_hour",
               "type" : "esriFieldTypeInteger",
               "alias" : "flood_end_hour"
+            },
+            {
+              "name" : "flood_end_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "flood_end_time",
+              "length" : 25
             },
             {
               "name" : "flood_length",
@@ -11056,8 +11108,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average Rapid Onset Flood Arrival Time (hours)",
-            "fieldName" : "avg_rof_arrival_time",
+            "alias" : "Average Rapid Onset Flood Arrival Hour",
+            "fieldName" : "avg_rof_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -11066,6 +11118,13 @@
               "roundingValue" : 0,
               "useSeparator" : true
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Average Rapid Onset Flood Arrival Time",
+            "fieldName" : "avg_rof_arrival_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -11105,7 +11164,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_48hr_rapid_onset_flooding_hucs_3_4_5_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hucs_hi",
+          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_hour,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hucs_hi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -11146,9 +11205,15 @@
               "alias" : "nwm_waterway_length_flooded_percent"
             },
             {
-              "name" : "avg_rof_arrival_time",
+              "name" : "avg_rof_arrival_hour",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_rof_arrival_time"
+              "alias" : "avg_rof_arrival_hour"
+            },
+            {
+              "name" : "avg_rof_arrival_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "avg_rof_arrival_time",
+              "length" : 25
             },
             {
               "name" : "reference_time",

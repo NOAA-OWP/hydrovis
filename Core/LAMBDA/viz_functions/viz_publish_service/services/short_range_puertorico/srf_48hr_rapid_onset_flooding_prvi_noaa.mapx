@@ -11056,8 +11056,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Average Rapid Onset Flood Arrival Time (hours)",
-            "fieldName" : "avg_rof_arrival_time",
+            "alias" : "Average Rapid Onset Flood Arrival Hour",
+            "fieldName" : "avg_rof_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -11066,6 +11066,13 @@
               "roundingValue" : 0,
               "useSeparator" : true
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Average Rapid Onset Flood Arrival Time",
+            "fieldName" : "avg_rof_arrival_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -11105,7 +11112,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_48hr_rapid_onset_flooding_hucs_3_4_5_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hucs_prvi",
+          "sqlQuery" : "select huc10_str,low_order_reach_count,total_low_order_reach_length,total_low_order_reach_miles,nwm_features_flooded_percent,nwm_waterway_length_flooded_percent,avg_rof_arrival_hour,avg_rof_arrival_time,reference_time,update_time,geom,oid from hydrovis.services.srf_48hr_rapid_onset_flooding_hucs_prvi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -11146,9 +11153,15 @@
               "alias" : "nwm_waterway_length_flooded_percent"
             },
             {
-              "name" : "avg_rof_arrival_time",
+              "name" : "avg_rof_arrival_hour",
               "type" : "esriFieldTypeDouble",
-              "alias" : "avg_rof_arrival_time"
+              "alias" : "avg_rof_arrival_hour"
+            },
+            {
+              "name" : "avg_rof_arrival_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "avg_rof_arrival_time",
+              "length" : 25
             },
             {
               "name" : "reference_time",
