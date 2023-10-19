@@ -74,3 +74,8 @@ INTO publish.srf_48hr_rapid_onset_flooding_prvi
 FROM derived.channels_prvi channels
 JOIN rapid_onset ON channels.feature_id = rapid_onset.feature_id
 where channels.strm_order <= 4;
+
+--Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features
+INSERT INTO publish.srf_48hr_rapid_onset_flooding_prvi(
+            state, reference_time, update_time)
+            VALUES('HI', to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'));
