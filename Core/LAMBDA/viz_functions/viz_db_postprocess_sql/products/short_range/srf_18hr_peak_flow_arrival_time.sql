@@ -12,7 +12,7 @@ SELECT
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') END AS peak_flow_arrival_time,
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_hour END AS below_bank_return_hour,
-    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_time,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_time END AS below_bank_return_time,
     round((max_flows.maxflow_18hour_cms*35.315)::numeric, 2) AS max_flow_cfs,
     rf.high_water_threshold,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
