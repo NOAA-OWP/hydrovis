@@ -1,13 +1,15 @@
 DROP TABLE IF EXISTS publish.srf_18hr_high_water_arrival_time;
 WITH arrival_time AS (
     SELECT forecasts.feature_id, 
-        min(forecasts.forecast_hour) AS t_high_water_threshold,
+        min(forecasts.forecast_hour) AS high_water_arrival_hour,
+        to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecasts.forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') AS high_water_arrival_time,
         forecasts.nwm_vers,
         forecasts.reference_time,
         CASE
             WHEN max(forecasts.forecast_hour) >= 18 THEN '> 18 hours'::text
             ELSE (max(forecasts.forecast_hour)+1)::text
-        END AS t_normal,
+        END AS below_bank_return_hour,
+        to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * (max(forecasts.forecast_hour)+3), 'YYYY-MM-DD HH24:MI:SS UTC') AS below_bank_return_time,
         CASE
             WHEN max(forecasts.forecast_hour) >= 18 THEN 'Outside SRF Forecast Window'::text
             ELSE ((max(forecasts.forecast_hour)+1) - min(forecasts.forecast_hour))::text
@@ -17,7 +19,6 @@ WITH arrival_time AS (
         to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time
     FROM ingest.nwm_channel_rt_srf forecasts
     JOIN derived.recurrence_flows_conus thresholds ON forecasts.feature_id = thresholds.feature_id
-    JOIN derived.channels_conus geo ON forecasts.feature_id = geo.feature_id
     WHERE thresholds.high_water_threshold > 0::double precision AND (forecasts.streamflow * 35.315::double precision) >= thresholds.high_water_threshold
     GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, thresholds.high_water_threshold
 )
@@ -29,8 +30,10 @@ SELECT channels.feature_id,
     channels.state,
 	arrival_time.nwm_vers,
 	arrival_time.reference_time,
-    arrival_time.t_high_water_threshold,
-    arrival_time.t_normal,
+    arrival_time.high_water_arrival_hour,
+    arrival_time.high_water_arrival_time,
+    arrival_time.below_bank_return_hour,
+    arrival_time.below_bank_return_time,
     arrival_time.duration,
     arrival_time.high_water_threshold,
     arrival_time.max_flow,

@@ -34,7 +34,9 @@ WITH rapid_onset AS (
 		forecasts.nwm_vers,
 		forecasts.reference_time,
 		min(forecasts.forecast_hour) AS flood_start_hour,
+		to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecasts.forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') AS flood_start_time,
 		max(forecasts.forecast_hour) AS flood_end_hour,
+		to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * max(forecasts.forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') AS flood_end_time,
 		max(forecasts.forecast_hour) - min(forecasts.forecast_hour) AS flood_length,
 		min(floodstart.flow) AS flood_flow,
 		min(floodstart.pct_chg) AS flood_percent_increase,
@@ -47,7 +49,8 @@ WITH rapid_onset AS (
 		((forecasts.streamflow * 35.315) >= thresholds.high_water_threshold) AND -- Only show reaches that hit high_water_threshold in the forecast window
 		((forecasts.forecast_hour - floodstart.forecast_hour) <= 6) AND -- At least 100% increase and high_water_threshold within 6 hours of rapid onset
 		floodstart.rnk = 1 -- This ensures that we're only looking the start of the flood based on the rank function used above.
-	GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers)
+	GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers
+)
 
 -- Put it all together with geometry
 SELECT channels.feature_id,
@@ -59,7 +62,9 @@ SELECT channels.feature_id,
     rapid_onset.nwm_vers,
     rapid_onset.reference_time,
 	flood_start_hour, 
+	flood_start_time,
 	flood_end_hour, 
+	flood_end_time,
 	flood_length, 
 	flood_flow, 
 	flood_percent_increase, 

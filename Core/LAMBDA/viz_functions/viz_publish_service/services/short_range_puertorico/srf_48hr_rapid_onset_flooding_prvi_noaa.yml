@@ -1,0 +1,18 @@
+service: srf_48hr_rapid_onset_flooding_prvi_noaa
+summary: Short-Range 48 Hour Rapid Onset Flooding Forecast for Puerto Rico and Virgin Islands 
+description: Depicts forecast rapid onset flooding using the short-range configuration 
+  of the National Water Model (NWM) for Puerto Rico and Virgin Islands. Shown are reaches 
+  (stream order 4 and below) with a forecast flow increase of 100% or greater within an 
+  hour, and which are expected to be at or above the high water threshold within 6 hours 
+  of that increase. Also shown are USGS HUC10 polygons symbolized by the percentage of 
+  NWM waterway length (within each HUC10) that is expected to meet the previously mentioned 
+  criteria. High water threshold flows 
+  and annual exceedance probabilities were derived from USGS regression equations 
+  found at https://pubs.usgs.gov/wri/wri994142/pdf/wri99-4142.pdf.. Updated every 
+  12 hours.
+tags: rapid onset flooding, national water model, nwm, srf, short, range, puertorico, prvi
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

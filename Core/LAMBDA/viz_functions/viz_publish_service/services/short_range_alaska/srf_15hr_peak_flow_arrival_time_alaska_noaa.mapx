@@ -314,7 +314,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Peak Flow Arrival Time (hours)",
+            "alias" : "Peak Flow Arrival Hour",
             "fieldName" : "peak_flow_arrival_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -328,8 +328,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Below Bank Return Time (hours)",
-            "fieldName" : "below_bank_return_time",
+            "alias" : "Peak Flow Arrival Time",
+            "fieldName" : "peak_flow_arrival_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Hour",
+            "fieldName" : "below_bank_return_hour",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -337,6 +344,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Below Bank Return Time",
+            "fieldName" : "below_bank_return_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -390,7 +404,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,peak_flow_arrival_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_15hr_peak_flow_arrival_time_alaska",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,peak_flow_arrival_hour,peak_flow_arrival_time,below_bank_return_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_15hr_peak_flow_arrival_time_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -450,9 +464,21 @@
               "alias" : "peak_flow_arrival_hour"
             },
             {
-              "name" : "below_bank_return_time",
+              "name" : "peak_flow_arrival_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "peak_flow_arrival_time",
+              "length" : 25
+            },
+            {
+              "name" : "below_bank_return_hour",
               "type" : "esriFieldTypeInteger",
-              "alias" : "below_bank_return_time"
+              "alias" : "below_bank_return_hour"
+            },
+            {
+              "name" : "below_bank_return_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_time",
+              "length" : 25
             },
             {
               "name" : "max_flow_cfs",
@@ -1005,7 +1031,7 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : true,
-        "heading" : "Peak Flow Arrival Time (hours)",
+        "heading" : "Peak Flow Arrival Hour",
         "sampleSize" : 10000,
         "useDefaultSymbol" : true,
         "defaultSymbolPatch" : "Default",
