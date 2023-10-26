@@ -46,11 +46,6 @@ provider "aws" {
 
 ###################### STAGE 1 ######################
 
-# IAM Settings
-module "iam" {
-  source = "./IAM"
-}
-
 # IAM Roles
 module "iam-roles" {
   source = "./IAM/Roles"

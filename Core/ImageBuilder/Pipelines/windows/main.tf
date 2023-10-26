@@ -200,7 +200,7 @@ resource "aws_imagebuilder_component" "pgadmin_install" {
             onFailure = "Abort"
             inputs = [
               {
-                source = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v7.4/windows/pgadmin4-7.4-x64.exe"
+                source = "https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v7.3/windows/pgadmin4-7.3-x64.exe"
                 destination = "C:\\Temp\\pgadmin_setup.exe"
               }
             ]
