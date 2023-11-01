@@ -46,7 +46,11 @@ def run_anomaly(reference_time, fileset_bucket, fileset, output_file_bucket, out
 
     print("Downloading NWM Data")
     input_files = organize_input_files(fileset_bucket, fileset, download_subfolder=reference_time.strftime('%Y%m%d'))
-
+    
+    #Get NWM version from first file
+    with xr.open_dataset(input_files[0]) as first_file:
+        nwm_vers = first_file.NWM_version_number.replace("v","")
+    
     # Import Feature IDs
     print("-->Looping through files to get streamflow sum")
     df = pd.DataFrame()
@@ -60,6 +64,7 @@ def run_anomaly(reference_time, fileset_bucket, fileset, output_file_bucket, out
             df = df.rename(columns={"streamflow": "streamflow_sum"})
         else:
             df['streamflow_sum'] += df_file['streamflow']
+        os.remove(file)
 
     df[average_flow_col] = df['streamflow_sum'] / len(input_files)
     df = df.drop(columns=['streamflow_sum'])
@@ -122,7 +127,8 @@ def run_anomaly(reference_time, fileset_bucket, fileset, output_file_bucket, out
     df.loc[(df[average_flow_col] >= df['prcntle_5']) & df[anom_col].isna(), anom_col] = "Much Below Normal (6th - 10th)"
     df.loc[(df[average_flow_col] < df['prcntle_5']) & df[anom_col].isna(), anom_col] = "Low (<= 5th)"
     df.loc[df[anom_col].isna(), anom_col] = "Insufficient Data Available"
-    df = df.replace(round(INSUFFICIENT_DATA_ERROR_CODE * 35.3147, 2), "No Data")
+    df = df.replace(round(INSUFFICIENT_DATA_ERROR_CODE * 35.3147, 2), None)
+    df['nwm_vers'] = nwm_vers
 
     print("Uploading output CSV file to S3")
     s3 = boto3.client('s3')
