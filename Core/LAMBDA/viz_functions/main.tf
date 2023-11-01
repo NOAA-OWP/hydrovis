@@ -1000,11 +1000,11 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "python_preprocessing" {
+output "python_preprocessing_2GB" {
   value = aws_lambda_function.viz_python_preprocessing_2GB
 }
 
-output "python_preprocessing" {
+output "python_preprocessing_10GB" {
   value = aws_lambda_function.viz_python_preprocessing_10GB
 }
 
