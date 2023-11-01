@@ -4,7 +4,7 @@ SELECT
 	hucs.huc10,
 	TO_CHAR(hucs.huc10, 'fm0000000000') AS huc10_str,
 	hucs.total_nwm_features,
-	count(hwp.feature_id)::double precision / hucs.total_nwm_features::double precision AS nwm_features_flooded_percent,
+	(count(hwp.feature_id)::double precision / hucs.total_nwm_features::double precision)*100 AS nwm_features_flooded_percent,
 	avg(srf_prob) as avg_prob,
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
