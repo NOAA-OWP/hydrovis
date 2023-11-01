@@ -473,7 +473,7 @@
             },
             {
               "name" : "srf_prob",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "srf_prob"
             },
             {

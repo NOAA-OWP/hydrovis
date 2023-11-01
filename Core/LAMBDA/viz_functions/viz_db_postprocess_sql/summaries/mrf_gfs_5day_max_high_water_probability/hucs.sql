@@ -4,8 +4,8 @@ SELECT
 	hucs.huc8,
 	TO_CHAR(hucs.huc8, 'fm00000000') AS huc8_str,
 	hucs.total_nwm_features,
-	round(cast(count(hwp.feature_id) / hucs.total_nwm_features * 100 as numeric), 2) AS nwm_features_flooded_percent,
-	round(avg(hwp.hours_3_to_120)::numeric, 0) AS avg_prob,
+	(count(hwp.feature_id)::double precision / hucs.total_nwm_features::double precision)*100 AS nwm_features_flooded_percent,
+	avg(hours_3_to_120) as avg_prob,
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	hucs.geom

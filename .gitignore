@@ -6,7 +6,7 @@
 **/.terraform/*
 
 # .tfstate files
-*.tfstate.*
+*.tfstate*
 !terraform.tfstate.d
 
 # Crash log files
@@ -49,3 +49,5 @@ terraform.rc
 
 **/buildplan
 **/destroyplan
+
+Dev/env.yaml

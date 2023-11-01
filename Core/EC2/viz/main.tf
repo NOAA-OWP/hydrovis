@@ -345,6 +345,7 @@ resource "aws_instance" "viz_fileshare" {
   }
 
   user_data = data.cloudinit_config.fileshare_setup.rendered
+  user_data_replace_on_change = true
 }
 
 resource "aws_route53_record" "viz_fileshare" {

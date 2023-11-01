@@ -8,7 +8,8 @@ SELECT
 	hucs.total_low_order_reach_miles,
 	count(rof.feature_id) / hucs.low_order_reach_count AS nwm_features_flooded_percent,
 	sum(rof.reach_length_miles) / hucs.total_low_order_reach_miles AS nwm_waterway_length_flooded_percent,
-	avg(flood_start_hour) AS avg_rof_arrival_time,
+	avg(flood_start_hour) AS avg_rof_arrival_hour,
+	to_char(max(rof.reference_time)::timestamp without time zone + INTERVAL '1 hour' * avg(flood_start_hour), 'YYYY-MM-DD HH24:MI:SS UTC') AS avg_rof_arrival_time,
 	to_char(max(rof.reference_time)::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	hucs.geom

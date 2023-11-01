@@ -10,7 +10,9 @@ SELECT
     forecasts.nwm_vers,
     forecasts.reference_time,
     CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE min(forecast_hour) END AS peak_flow_arrival_hour,
-    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.t_normal END AS below_bank_return_time,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') END AS peak_flow_arrival_time,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_hour END AS below_bank_return_hour,
+    CASE WHEN rf.high_water_threshold = -9999 THEN NULL ELSE arrival_time.below_bank_return_time END AS below_bank_return_time,
     round((max_flows.maxflow_48hour_cms*35.315)::numeric, 2) AS max_flow_cfs,
     rf.high_water_threshold,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
@@ -33,9 +35,9 @@ JOIN derived.recurrence_flows_hi as rf ON forecasts.feature_id = rf.feature_id
 JOIN publish.srf_48hr_high_water_arrival_time_hi as arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE (rf.high_water_threshold > 0 OR rf.high_water_threshold = '-9999') AND forecasts.streamflow * 35.315::double precision >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, arrival_time.t_normal, max_flows.maxflow_48hour_cms, channels.geom;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, channels.name, channels.strm_order, channels.huc6, rf.high_water_threshold, arrival_time.below_bank_return_hour, arrival_time.below_bank_return_time, max_flows.maxflow_48hour_cms, channels.geom;
 
 --Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features
 INSERT INTO publish.srf_48hr_peak_flow_arrival_time_hi(
-	feature_id, feature_id_str, name, strm_order, huc6, state, nwm_vers, reference_time, peak_flow_arrival_hour, below_bank_return_time, max_flow_cfs, high_water_threshold, update_time, geom)
-	VALUES (NULL, NULL, NULL, NULL, NULL, 'HI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL);
+	feature_id, feature_id_str, name, strm_order, huc6, state, nwm_vers, reference_time, peak_flow_arrival_hour, peak_flow_arrival_time, below_bank_return_hour, below_bank_return_time, max_flow_cfs, high_water_threshold, update_time, geom)
+	VALUES (NULL, NULL, NULL, NULL, NULL, 'HI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL);
