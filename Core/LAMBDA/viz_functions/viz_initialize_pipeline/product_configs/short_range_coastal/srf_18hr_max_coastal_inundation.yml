@@ -1,6 +1,7 @@
 product: srf_18hr_max_coastal_inundation
 configuration: short_range_coastal
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -12,6 +13,7 @@ fim_configs:
       file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/short_range_coastal_pacific/nwm.t{{datetime:%H}}z.short_range_coastal.total_water.f{{range:1,19,1,%03d}}.pacific.nc
       file_step: None
       file_window: None
+      product: max_values
       output_file: max_elevs/short_range_coastal_pacific/{{datetime:%Y%m%d}}/srf_max_coastal_pacific_{{datetime:%H}}_max_elevs.nc
   - name: srf_18hr_max_coastal_inundation_atlgulf
     target_table: ingest.srf_18hr_max_coastal_inundation_atlgulf
@@ -21,6 +23,7 @@ fim_configs:
       file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/short_range_coastal_atlgulf/nwm.t{{datetime:%H}}z.short_range_coastal.total_water.f{{range:1,19,1,%03d}}.atlgulf.nc
       file_step: None
       file_window: None
+      product: max_values
       output_file: max_elevs/short_range_coastal_atlgulf/{{datetime:%Y%m%d}}/srf_max_coastal_atlgulf_{{datetime:%H}}_max_elevs.nc
   - name: srf_18hr_max_coastal_inundation_atlgulf_psurge
     target_table: ingest.srf_18hr_max_coastal_inundation_atlgulf_psurge
@@ -31,6 +34,7 @@ fim_configs:
       file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/short_range_coastal_atlgulf_psurge/nwm.t{{datetime:%H}}z.short_range_coastal.total_water.psurge.f{{range:1,19,1,%03d}}.atlgulf.nc
       file_step: None
       file_window: None
+      product: max_values
       output_file: max_elevs/short_range_coastal_atlgulf_psurge/{{datetime:%Y%m%d}}/srf_max_coastal_atlgulf_psurge_{{datetime:%H}}_max_elevs.nc
     postprocess:
       sql_file: srf_18hr_max_coastal_inundation_atlgulf_psurge
@@ -39,6 +43,8 @@ fim_configs:
 postprocess_sql:
   - sql_file: srf_18hr_max_coastal_inundation
     target_table: publish.srf_18hr_max_coastal_inundation
+  - sql_file: srf_18hr_max_coastal_inundation_depth
+    target_table: publish.srf_18hr_max_coastal_inundation_depth
 
 services:
   - srf_18hr_max_coastal_inundation_extent_noaa

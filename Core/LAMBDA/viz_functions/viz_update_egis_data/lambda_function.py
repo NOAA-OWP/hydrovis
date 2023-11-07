@@ -43,6 +43,7 @@ def lambda_handler(event, context):
             
             mrf_extensions = ["idx", "til", "mrf", "mrf.aux.xml"]
             product_name = event['args']['product']['product']
+            published_format = event['args']['product'].get('published_format', 'mrf')
             
             print(f"Moving and caching rasters in {output_raster_workspace}")
             output_raster_workspace = f"{output_raster_workspace}/tif"
@@ -66,29 +67,31 @@ def lambda_handler(event, context):
     
                 print(f"Caching {s3_key} at {cache_key}")
                 s3.meta.client.copy(s3_object, s3_bucket, cache_key)
-                
-                print("Deleting tif workspace raster")
-                s3.Object(s3_bucket, s3_key).delete()
-    
-                raster_name = s3_filename.replace(s3_extension, "")
-                mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(s3_extension, "")
-                published_prefix = f"{processing_prefix}/published/{raster_name}"
-                
-                if s3_extension == '.tif':
-                    process_extensions = mrf_extensions
-                else:
-                    process_extensions = [s3_extension[1:]]
 
-                for extension in process_extensions:
-                    mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
-                    mrf_published_raster = f"{published_prefix}.{extension}"
+                if published_format == 'tif' and job_type == 'auto':
+                    tif_published_key = f"{processing_prefix}/published/{s3_filename}"
+                    print(f"Moving {s3_object} to published location at {tif_published_key}")
+                    s3.meta.client.copy(s3_object, s3_bucket, tif_published_key)
+                elif published_format == 'mrf':
+                    raster_name = s3_filename.replace(s3_extension, "")
+                    mrf_workspace_prefix = s3_key.replace("/tif/", "/mrf/").replace(s3_extension, "")
+                    published_prefix = f"{processing_prefix}/published/{raster_name}"
                     
-                    if job_type == 'auto':
-                        print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
-                        s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
-                
-                    print("Deleting a mrf workspace raster")
-                    s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
+                    if s3_extension == '.tif':
+                        process_extensions = mrf_extensions
+                    else:
+                        process_extensions = [s3_extension[1:]]
+
+                    for extension in process_extensions:
+                        mrf_workspace_raster = {"Bucket": s3_bucket, "Key": f"{mrf_workspace_prefix}.{extension}"}
+                        mrf_published_raster = f"{published_prefix}.{extension}"
+
+                        if job_type == 'auto':
+                            print(f"Moving {mrf_workspace_prefix}.{extension} to published location at {mrf_published_raster}")
+                            s3.meta.client.copy(mrf_workspace_raster, s3_bucket, mrf_published_raster)
+                    
+                        print("Deleting a mrf workspace raster")
+                        s3.Object(s3_bucket, f"{mrf_workspace_prefix}.{extension}").delete()
         
         return True
     

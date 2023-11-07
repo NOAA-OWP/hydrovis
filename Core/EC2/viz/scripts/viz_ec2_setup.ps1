@@ -121,7 +121,7 @@ $env:PRIMARY_SERVER = "server"
 $env:VIZ_ENVIRONMENT = $VIZ_ENVIRONMENT
 $env:VIZ_USER = $PIPELINE_USER
 $env:DEPLOYMENT_DATA_BUCKET = $DEPLOYMENT_DATA_BUCKET
-$env:NWM_MAX_VALUES_DATA_BUCKET = $NWM_MAX_VALUES_DATA_BUCKET
+$env:PYTHON_PREPROCESSING_BUCKET = $PYTHON_PREPROCESSING_BUCKET
 $env:RNR_DATA_BUCKET = $RNR_DATA_BUCKET
 $env:NWM_DATA_BUCKET = $NWM_DATA_BUCKET
 $env:NWM_DATAFLOW_VERSION = $NWM_DATAFLOW_VERSION
@@ -146,7 +146,7 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 [Environment]::SetEnvironmentVariable("VIZ_ENVIRONMENT", $env:VIZ_ENVIRONMENT, "2")
 [Environment]::SetEnvironmentVariable("VIZ_USER", $env:VIZ_USER, "2")
 [Environment]::SetEnvironmentVariable("DEPLOYMENT_DATA_BUCKET", $env:DEPLOYMENT_DATA_BUCKET, "2")
-[Environment]::SetEnvironmentVariable("NWM_MAX_VALUES_DATA_BUCKET", $env:NWM_MAX_VALUES_DATA_BUCKET, "2")
+[Environment]::SetEnvironmentVariable("PYTHON_PREPROCESSING_BUCKET", $env:PYTHON_PREPROCESSING_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("RNR_DATA_BUCKET", $env:RNR_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATA_BUCKET", $env:NWM_DATA_BUCKET, "2")
 [Environment]::SetEnvironmentVariable("NWM_DATAFLOW_VERSION", $env:NWM_DATAFLOW_VERSION, "2")
@@ -163,20 +163,16 @@ $env:EGIS_DB_PASSWORD = $EGIS_DB_PASSWORD
 
 function GetRepo
 {
-   Param ([string]$commit, [string]$prefix, [string]$repo)
+   Param ([string]$branch, [string]$prefix, [string]$repo)
 
    if (Test-Path -Path $repo) {
        Remove-Item $repo -Recurse
        Get-ChildItem $repo -Hidden -Recurse | Remove-Item -Force -Recurse
    }
    
-   git clone $prefix/$repo
+   git clone -b $branch $prefix/$repo
+
    if ($LASTEXITCODE -gt 0) { throw "Error occurred getting " + $repo }
-
-   Set-Location $repo.replace(".git", "")
-
-   git checkout $commit
-   if ($LASTEXITCODE -gt 0) { throw "Error occurred checking out " + $commit }
 }
 
 function Retry([Action]$action)
@@ -217,7 +213,9 @@ New-Item -ItemType Directory -Force -Path $VIZ_DIR | Out-Null
 Set-Location -Path $VIZ_DIR
 
 LogWrite "CLONING AWS VIZ SERVICES REPOSITORY INTO viz DIRECTORY"
-Retry({GetRepo $GITHUB_REPO_COMMIT $GITHUB_REPO_PREFIX hydrovis.git})
+Retry({GetRepo $VIZ_ENVIRONMENT $GITHUB_REPO_PREFIX hydrovis.git})
+$HYDROVIS_REPO = $VIZ_DIR + "\hydrovis"
+git config --system --add safe.directory $HYDROVIS_REPO.replace('\','/')
 
 LogWrite "CREATING FRESH viz VIRTUAL ENVIRONMENT"
 & "C:\Program Files\ArcGIS\Pro\bin\Python\Scripts\conda.exe" create -y --name viz --clone arcgispro-py3
@@ -261,7 +259,9 @@ $cred = new-object system.management.automation.PSCredential $strScriptUser,$PSS
 
 LogWrite "CREATING CONNECTION FILES FOR $FIM_DATA_BUCKET"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\create_s3_connection_files.py"
-Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
+Invoke-CommandAs -ScriptBlock {param($python, $file)
+    & $python $file
+    } -AsUser $cred -ArgumentList $python_exe, $python_file
 
 LogWrite "UPDATING PYTHON PERMISSIONS FOR $PIPELINE_USER"
 $ACL = Get-ACL -Path "C:\Program Files\ArcGIS\Pro\bin\Python"
@@ -277,7 +277,9 @@ $ACL | Set-Acl -Path "D:\"
 
 LogWrite "ADDING $PUBLISHED_ROOT TO $EGIS_HOST"
 $python_file = "$AWS_SERVICE_REPO\aws_loosa\deploy\update_data_stores_and_sd_files.py"
-Invoke-CommandAs -ScriptBlock { param($python_file) & "C:\Program Files\ArcGIS\Pro\bin\Python\envs\viz\python.exe" $python_file } -ArgumentList $python_file -AsUser $cred
+Invoke-CommandAs -ScriptBlock {param($python, $file, $commit)
+    & $python $file $commit
+    } -AsUser $cred -ArgumentList $python_exe, $python_file, $LATEST_DEPLOYED_GITHUB_REPO_COMMIT
 
 Set-Location HKCU:\Software\ESRI\ArcGISPro
 Remove-Item -Recurse -Force -Confirm:$false Licensing

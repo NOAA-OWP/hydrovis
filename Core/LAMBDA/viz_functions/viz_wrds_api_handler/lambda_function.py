@@ -11,7 +11,7 @@ from viz_lambda_shared_funcs import check_s3_file_existence
 from es_logging import get_elasticsearch_logger
 es_logger = get_elasticsearch_logger()
 
-MAX_VALS_BUCKET = os.environ['MAX_VALS_BUCKET']
+PYTHON_PREPROCESSING_BUCKET = os.environ['PYTHON_PREPROCESSING_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
 WRDS_HOST = os.environ["DATASERVICES_HOST"]
 CACHE_DAYS = os.environ.get('CACHE_DAYS') if os.environ.get('CACHE_DAYS') else 30
@@ -45,14 +45,14 @@ def lambda_handler(event, context):
 
     df_meta = df.drop(columns=['members'])
     meta_key = f"{PROCESSED_OUTPUT_PREFIX}/{reference_date.strftime('%Y%m%d')}/{reference_date.strftime('%H')}_{reference_date.strftime('%M')}_ahps_metadata.csv"
-    upload_df_to_s3(df_meta, MAX_VALS_BUCKET, meta_key)
+    upload_df_to_s3(df_meta, PYTHON_PREPROCESSING_BUCKET, meta_key)
 
     df_forecasts = extract_and_flatten_rfc_forecasts(df[['members']])
     forecast_key = f"{PROCESSED_OUTPUT_PREFIX}/{reference_date.strftime('%Y%m%d')}/{reference_date.strftime('%H')}_{reference_date.strftime('%M')}_ahps_forecasts.csv"
-    upload_df_to_s3(df_forecasts, MAX_VALS_BUCKET, forecast_key)
+    upload_df_to_s3(df_forecasts, PYTHON_PREPROCESSING_BUCKET, forecast_key)
 
     es_logger.info(f"Triggering DB ingest for ahps forecast and metadata for {reference_time}")
-    trigger_db_ingest("ahps", reference_time, MAX_VALS_BUCKET, forecast_key)
+    trigger_db_ingest("ahps", reference_time, PYTHON_PREPROCESSING_BUCKET, forecast_key)
 
     cleanup_cache(reference_date)
 
@@ -201,13 +201,13 @@ def cleanup_cache(reference_date, buffer_days=.25):
         metadata_csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{buffer_date.strftime('%Y%m%d')}/{buffer_date.strftime('%H')}_{buffer_date.strftime('%M')}_ahps_metadata.csv"  # noqa
         forecast_csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{buffer_date.strftime('%Y%m%d')}/{buffer_date.strftime('%H')}_{buffer_date.strftime('%M')}_ahps_forecasts.csv"  # noqa
 
-        if check_s3_file_existence(MAX_VALS_BUCKET, metadata_csv_key):
-            s3_resource.Object(MAX_VALS_BUCKET, metadata_csv_key).delete()
-            print(f"Deleted file {metadata_csv_key} from {MAX_VALS_BUCKET}")
+        if check_s3_file_existence(PYTHON_PREPROCESSING_BUCKET, metadata_csv_key):
+            s3_resource.Object(PYTHON_PREPROCESSING_BUCKET, metadata_csv_key).delete()
+            print(f"Deleted file {metadata_csv_key} from {PYTHON_PREPROCESSING_BUCKET}")
 
-        if check_s3_file_existence(MAX_VALS_BUCKET, forecast_csv_key):
-            s3_resource.Object(MAX_VALS_BUCKET, forecast_csv_key).delete()
-            print(f"Deleted file {forecast_csv_key} from {MAX_VALS_BUCKET}")
+        if check_s3_file_existence(PYTHON_PREPROCESSING_BUCKET, forecast_csv_key):
+            s3_resource.Object(PYTHON_PREPROCESSING_BUCKET, forecast_csv_key).delete()
+            print(f"Deleted file {forecast_csv_key} from {PYTHON_PREPROCESSING_BUCKET}")
 
 
 def trigger_db_ingest(configuration, reference_time, bucket, s3_file_path):

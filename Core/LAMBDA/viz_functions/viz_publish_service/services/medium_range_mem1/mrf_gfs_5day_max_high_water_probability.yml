@@ -1,0 +1,18 @@
+service: mrf_gfs_5day_max_high_water_probability
+summary: Medium-Range GFS 5 Day Max High Water Probability Forecast
+description: Depicts the probability of forecast high water over the next 5 days using ensembles 
+  from the medium-range GFS configuration of the National Water Model (NWM) over the contiguous 
+  U.S. Shown are reaches that are expected to have peak flow at or above high water on Day 1, 
+  Day 2, Day 3, and Days 4-5, using the 6 time-lagged ensemble members of the medium-range forecast. 
+  Reaches are colored by the probability that they will meet or exceed the high water threshold 
+  on Day 1, Day 2, Day 3, and Days 4-5. Probabilities are computed as the % agreement across 
+  the 6 time-lagged ensemble members, equally weighted. Also shown are USGS HUC8 polygons for basins with 
+  greater than 50% of NWM features with flow expected to be at or above high water over the next 
+  5 days, symbolized by the average probability. High water thresholds (regionally varied) were 
+  derived using the 40-year NWM v2.1 reanalysis simulation. Updated every 6 hours.
+tags: medium, range, forecast, high, water, ensemble, national, water, model, nwm, probability
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: true

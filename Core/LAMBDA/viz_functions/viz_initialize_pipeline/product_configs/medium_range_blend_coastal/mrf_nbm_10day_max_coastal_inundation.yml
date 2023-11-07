@@ -1,6 +1,7 @@
 product: mrf_nbm_10day_max_coastal_inundation
 configuration: medium_range_blend_coastal
 product_type: "fim"
+published_format: "tif"
 run: true
 
 fim_configs:
@@ -12,6 +13,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_pacific/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,73,3,%03d}}.pacific.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_pacific/{{datetime:%Y%m%d}}/mrf_nbm_coastal_pacific_3day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_5day_max_coastal_inundation_pacific
@@ -22,6 +24,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_pacific/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,121,3,%03d}}.pacific.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_pacific/{{datetime:%Y%m%d}}/mrf_nbm_coastal_pacific_5day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_10day_max_coastal_inundation_pacific
@@ -32,6 +35,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_pacific/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,241,3,%03d}}.pacific.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_pacific/{{datetime:%Y%m%d}}/mrf_nbm_coastal_pacific_10day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_3day_max_coastal_inundation_atlgulf
@@ -42,6 +46,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,73,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_3day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_5day_max_coastal_inundation_atlgulf
@@ -52,6 +57,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,121,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_5day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_10day_max_coastal_inundation_atlgulf
@@ -62,6 +68,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.f{{range:3,241,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_10day_{{datetime:%H}}_max_elevs.nc
   
   - name: mrf_nbm_3day_max_coastal_inundation_atlgulf_psurge
@@ -73,6 +80,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf_psurge/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.psurge.f{{range:3,73,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_psurge_3day_{{datetime:%H}}_max_elevs.nc
     postprocess:
         sql_file: mrf_nbm_3day_max_coastal_inundation_atlgulf_psurge
@@ -87,6 +95,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf_psurge/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.psurge.f{{range:3,121,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_psurge_5day_{{datetime:%H}}_max_elevs.nc
     postprocess:
         sql_file: mrf_nbm_5day_max_coastal_inundation_atlgulf_psurge
@@ -101,6 +110,7 @@ fim_configs:
         file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_blend_coastal_atlgulf_psurge/nwm.t{{datetime:%H}}z.medium_range_blend_coastal.total_water.psurge.f{{range:3,241,3,%03d}}.atlgulf.nc
         file_step: None
         file_window: None
+        product: max_values
         output_file: max_elevs/medium_range_blend_coastal_atlgulf/{{datetime:%Y%m%d}}/mrf_nbm_coastal_atlgulf_psurge_10day_{{datetime:%H}}_max_elevs.nc
     postprocess:
         sql_file: mrf_nbm_10day_max_coastal_inundation_atlgulf_psurge
@@ -113,6 +123,8 @@ postprocess_sql:
     target_table: publish.mrf_nbm_5day_max_coastal_inundation
   - sql_file: mrf_nbm_10day_max_coastal_inundation
     target_table: publish.mrf_nbm_10day_max_coastal_inundation
+  - sql_file: mrf_nbm_10day_max_coastal_inundation_depth
+    target_table: publish.mrf_nbm_10day_max_coastal_inundation_depth
 
 services:
   - mrf_nbm_10day_max_coastal_inundation_extent_noaa
