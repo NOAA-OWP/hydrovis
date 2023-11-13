@@ -24,32 +24,35 @@ def download_files_from_s3(bucket_name, folder_name, destination_dir, sso_profil
         s3_client = boto3.client('s3')
 
     # Retrieve list of objects in the specified folder
-    response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder_name)
+    paginator = s3_client.get_paginator('list_objects_v2')
+    pages = paginator.paginate(Bucket=bucket_name, Prefix=folder_name)
 
-    # If no objects, return
-    if len(response['Contents']) == 0:
-        print("No objects found on S3 matching given criteria.")
-        return
-    
-    # Iterate over each object and download it
-    for obj in response['Contents']:
-        # Extract the file name from the object key
-        file_name = os.path.basename(obj['Key'])
+    files_found = False
+    for page in pages:
+        # Iterate over each object and download it
+        for obj in page['Contents']:
+            # Extract the file name from the object key
+            file_name = os.path.basename(obj['Key'])
 
-        # Construct the local file path
-        local_file_path = os.path.join(destination_dir, file_name)
-        final_file_path = local_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
+            # Construct the local file path
+            local_file_path = os.path.join(destination_dir, file_name)
+            final_file_path = local_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
 
-        if any([x in file_name for x in skip_files_with]):
-            continue
-        elif len(include_files_with) > 0 and any([x not in file_name for x in include_files_with]):
-            continue
-        else:
-            if overwrite is False and (os.path.exists(local_file_path) or os.path.exists(final_file_path)):
-                print(f"{local_file_path} csv or {output_format} already exists and overwrite is false. Skipping.")
+            if any([x in file_name for x in skip_files_with]):
+                continue
+            elif len(include_files_with) > 0 and any([x not in file_name for x in include_files_with]):
+                continue
             else:
-                s3_client.download_file(bucket_name, obj['Key'], local_file_path)
-                print(f"Downloaded: {obj['Key']}")
+                files_found = True
+                if overwrite is False and (os.path.exists(local_file_path) or os.path.exists(final_file_path)):
+                    print(f"{local_file_path} csv or {output_format} already exists and overwrite is false. Skipping.")
+                else:
+                    print(f"Match found. Downloading: {file_name}...", end="", flush=True)
+                    s3_client.download_file(bucket_name, obj['Key'], local_file_path)
+                    print("... Done.")
+    
+    if not files_found:
+        print('No objects found on S3 matching the given criteria.')
 
 # Function to convert CSV to Geospatial file format
 def convert_csv_to_geospatial(csv_file, parts=1, output_format = 'gpkg', clip_to_states=None, delete_csv=True):
