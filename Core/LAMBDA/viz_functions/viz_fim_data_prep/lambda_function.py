@@ -41,6 +41,9 @@ def setup_huc_inundation(event):
     reference_time = event['args']['reference_time']
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     sql_replace = event['args']['sql_rename_dict']
+    sql_replace.update({'target_table': target_table})
+    if 'sql_find_replace' in fim_config:
+        sql_replace.update(fim_config['sql_find_replace'])
     one_off = event['args'].get("hucs")
     process_by = fim_config.get('process_by', ['huc'])
     if fim_config.get("states_to_run"):
@@ -74,7 +77,8 @@ def setup_huc_inundation(event):
     # sort the replace dictionary to have longer values upfront first
     sql_replace_sorted = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
     for word, replacement in sql_replace_sorted:
-        sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(f'{{{word}}}'), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(word), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     setup_db_table(target_table, reference_time, viz_db, process_db, sql_replace)
     
@@ -130,7 +134,7 @@ def setup_huc_inundation(event):
             if isinstance(group_vals, str):
                 group_vals = [group_vals]
 
-            csv_key = write_data_csv_file(product, fim_config_name, date, hour, group_vals, group_df)
+            csv_key = write_data_csv_file(product, fim_config_name, date, hour, map(str, group_vals), group_df)
         
         s3_keys = []
         df_streamflows = df_streamflows.drop_duplicates(process_by + ["huc8_branch"])

@@ -56,7 +56,7 @@ def lambda_handler(event, context):
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        s3_path_piece = '/'.join([run_values[by] for by in process_by])
+        s3_path_piece = '/'.join([str(run_values[by]) for by in process_by])
         subsetted_data = f"{data_prefix}/{product}/{fim_config_name}/workspace/{date}/{hour}/data/{s3_path_piece}_data.csv"
 
         print(f"Processing HUC {huc8} for {fim_config_name} for {date}T{hour}:00:00Z")
@@ -64,6 +64,7 @@ def lambda_handler(event, context):
         if input_variable == 'stage':
             stage_lookup = s3_csv_to_df(data_bucket, subsetted_data)
             stage_lookup = stage_lookup.set_index('hydro_id')
+            stage_lookup = stage_lookup[stage_lookup['huc8_branch']==huc8_branch]
         else:
             # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
             catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
@@ -88,7 +89,7 @@ def lambda_handler(event, context):
             return
 
         # Run the desired configuration
-        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable)
+        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, fim_config_name)
 
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     db_schema = db_fim_table.split(".")[0]
@@ -229,7 +230,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     return df_final
     
 
-def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable):
+def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, fim_config_name):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
@@ -402,7 +403,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
-    df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
+    if 'catfim' not in fim_config_name:
+        df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
         

@@ -1,4 +1,4 @@
-service: static_flow_based_catfim_noaa
+service: static_flow_based_catfim_noaa_pipeline
 summary: Depicts flood inundation extents derived from official NWS category thresholds and the Height Above Nearest 
   Drainage (HAND) technique. Official threshold discharges are used.
 description: 'Depicts flood inundation extents derived from official NWS category thresholds and the Height 

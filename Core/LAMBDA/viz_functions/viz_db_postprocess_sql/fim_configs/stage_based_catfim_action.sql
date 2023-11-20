@@ -1,28 +1,48 @@
 DROP TABLE IF EXISTS publish.stage_based_catfim_action;
 
-SELECT DISTINCT
-	inun.hydro_id,
-	inun.hydro_id_str::TEXT AS hydro_id_str,
-	inun.branch,
-	inun.feature_id,
-	inun.feature_id_str::TEXT AS feature_id_str,
-	inun.fim_stage_ft,
-	inun.fim_version,
-	inun.huc8,
-	inun.geom,
-	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time, 
-	channels.strm_order, 
-    channels.name,
-	inun.nws_station_id,
-	station.name as station_name,
+WITH one_poly_per_station AS (
+	SELECT 
+		nws_station_id,
+		fim_stage_ft,
+		fim_version,
+		ST_Union(geom) as geom
+	FROM ingest.stage_based_catfim_action
+	GROUP BY 
+		nws_station_id,
+		fim_stage_ft,
+		fim_version
+), station_no_multi_polygons AS (
+	SELECT
+		nws_station_id,
+		fim_stage_ft,
+		fim_version,
+		(ST_Dump(geom)).geom AS geom
+	FROM one_poly_per_station
+), inun AS (
+	SELECT 
+		nws_station_id, 
+		fim_stage_ft,
+		STRING_AGG(DISTINCT fim_version, ', ') as fim_version,
+		ST_Simplify(ST_BuildArea(ST_Union(ST_Boundary(geom))), 1) as geom
+	FROM station_no_multi_polygons
+	GROUP BY 
+		nws_station_id,
+		fim_stage_ft,
+		fim_version
+)
+
+SELECT
+	station.nws_station_id,
+	station.name AS station_name,
 	station.wfo,
 	station.rfc,
 	station.state,
-	'action' as stage_category
-
+	inun.fim_stage_ft,
+	'action' AS stage_category,
+	inun.fim_version,
+	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
+	inun.geom
 INTO publish.stage_based_catfim_action
-FROM ingest.stage_based_catfim_action AS inun
-LEFT JOIN derived.channels_conus as channels
-	ON channels.feature_id = inun.feature_id
+FROM inun
 LEFT JOIN external.nws_station AS station
 	ON station.nws_station_id = inun.nws_station_id;

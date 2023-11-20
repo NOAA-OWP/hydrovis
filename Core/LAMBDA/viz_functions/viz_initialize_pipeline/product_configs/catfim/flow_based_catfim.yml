@@ -24,7 +24,7 @@ fim_configs:
     target_table: ingest.flow_based_catfim_minor
     fim_type: hand
     sql_file: flow_based_catfim_minor
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     postprocess:
       sql_file: flow_based_catfim_minor
       target_table: publish.flow_based_catfim_minor
@@ -33,7 +33,7 @@ fim_configs:
     target_table: ingest.flow_based_catfim_moderate
     fim_type: hand
     sql_file: flow_based_catfim_moderate
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     postprocess:
       sql_file: flow_based_catfim_moderate
       target_table: publish.flow_based_catfim_moderate
@@ -42,7 +42,7 @@ fim_configs:
     target_table: ingest.flow_based_catfim_major
     fim_type: hand
     sql_file: flow_based_catfim_major
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     postprocess:
       sql_file: flow_based_catfim_major
       target_table: publish.flow_based_catfim_major
@@ -51,7 +51,7 @@ fim_configs:
     target_table: ingest.flow_based_catfim_record
     fim_type: hand
     sql_file: flow_based_catfim_record
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     postprocess:
       sql_file: flow_based_catfim_record
       target_table: publish.flow_based_catfim_record
@@ -62,4 +62,4 @@ product_summaries:
       - publish.flow_based_catfim_sites
 
 services:
-  - static_flow_based_catfim_noaa
+  - static_flow_based_catfim_noaa_pipeline

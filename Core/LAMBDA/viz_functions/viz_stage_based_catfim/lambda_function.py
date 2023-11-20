@@ -15,6 +15,8 @@ from viz_classes import database
 
 INITIALIZE_PIPELINE_FUNCTION = os.environ['INITIALIZE_PIPELINE_FUNCTION']
 NUM_THREADS = 15
+SEA_LEVEL_SITES = ['QUTG1', 'AUGG1', 'BAXG1', 'LAMF1', 'ADLG1', 'HRAG1', 'STNG1']
+CATEGORIES = ['action', 'minor', 'moderate', 'major', 'record']
 
 def lambda_handler(event, context):
     """
@@ -30,7 +32,9 @@ def lambda_handler(event, context):
     """
     viz_db = database(db_type="viz")
     print("Getting raw stage data from database...")
-    viz_db.run_sql_file_in_db('ingest.sql')
+    # Creates ingest.stage_based_catfim_sites
+    viz_db.run_sql_file_in_db('ingest.sql')  
+    # Queries from ingest.stage_based_catfim_sites (created abvove)
     df = viz_db.run_sql_in_db('SELECT * FROM ingest.stage_based_catfim_sites')
     df['datum_adj_ft'] = None
     session = requests.Session()
@@ -50,6 +54,36 @@ def lambda_handler(event, context):
     for thread in threads:
         thread.join()
     
+    for sea_level_site in SEA_LEVEL_SITES:
+        df.loc[df['nws_station_id'] == sea_level_site, 'status'] += 'thresholds seem to be based on sea level and not channel thalweg;'
+        df.loc[df['nws_station_id'] == sea_level_site, 'mapped'] = False
+
+    # Add adjusted stage values
+    # Update status if any negative
+    # Set mapped to false if all negative
+
+    for cat in CATEGORIES:
+        df[f'adj_{cat}_stage_m'] = np.nan
+        df[f'adj_{cat}_stage_ft'] = np.nan
+
+    for i, row in df.iterrows():
+        cat_vals = []
+        for cat in CATEGORIES:
+            adj_cat_stage_m = np.nan
+            try:
+                adj_cat_stage_m = ((row[f'{cat}_stage'] + row.datum_adj_ft + row.usgs_datum) * 0.3048) - row.dem_adj_elevation
+                df.at[i, f'adj_{cat}_stage_m'] = adj_cat_stage_m
+                df.at[i, f'adj_{cat}_stage_ft'] = adj_cat_stage_m * 3.28084
+                if adj_cat_stage_m < 0:
+                    df.at[i, 'status'] += f'datum-adjusted {cat} threshold less than 0; '
+            except TypeError:
+                pass
+            finally:
+                cat_vals.append(adj_cat_stage_m)
+
+        if all(np.isnan(x) or x < 0 for x in cat_vals):
+            df.at[i, 'mapped'] = False
+
     print("Writing results back to database...")
     df.to_sql(con=viz_db.engine, schema='ingest', name='stage_based_catfim_sites', index=False, if_exists='replace')
     print("Triggering initialize_pipeline...")
@@ -61,7 +95,7 @@ def process_group(full_df, subset_df, session=None, progress=None):
         data = {}
         lid = row['nws_station_id'].lower()
         # Always default to using USGS data first, if available
-        if row['usgs_datum'] and row['usgs_vcs'] and row['usgs_lat'] and row['usgs_lon'] and row['usgs_crs']:
+        if all(row[x] is not None for x in ['usgs_datum', 'usgs_vcs', 'usgs_lat', 'usgs_lon', 'usgs_crs']):
             data['datum'] = row['usgs_datum']
             data['vcs'] = row['usgs_vcs']
             data['lat'] = row['usgs_lat']
@@ -120,12 +154,13 @@ def process_group(full_df, subset_df, session=None, progress=None):
 
                 if e:
                     message += 'NOAA VDatum adjustment error: '
+                    
                     if 'Invalid projection' in e:
-                        message += 'invalid projection;'
+                        message += 'invalid projection; '
                     else:
-                        message += 'reason unknown;'
-                    if 'reason unknown' in message:
+                        message += 'reason unknown; '
                         print(f'VDatum error. Inputs: {data}. Error: {e}')
+                    
                     full_df.loc[full_df['nws_station_id'] == lid.upper(), 'status'] += message
                     full_df.loc[full_df['nws_station_id'] == lid.upper(), 'mapped'] = False
                     print_progress(progress)
@@ -169,20 +204,16 @@ def _ngvd_to_navd_ft(datum_info, region='contiguous', session=None):
     #Define url for datum API
     datum_url = 'https://vdatum.noaa.gov/vdatumweb/api/convert'     
     #Define parameters. Hard code most parameters to convert NGVD to NAVD.    
-    params = {}
-    params['s_y'] = lat
-    params['s_x'] = lon
-    params['region'] = region
-    params['s_h_frame'] = 'NAD27'     #Source CRS
-    params['s_v_frame'] = 'NGVD29'    #Source vertical coord datum
-    params['s_vertical_unit'] = 'm'   #Source vertical units
-    params['src_height'] = 0.0        #Source vertical height
-    params['t_v_frame'] = 'NAVD88'    #Target vertical datum
-    params['tar_vertical_unit'] = 'm' #Target vertical height
-    
+    params = {
+        'lon': lon,               # Input Source X (Longitude or Easting or X) (required)
+        'lat': lat,               # Input Source Y (Latitude or Northing or Y) (required)
+        'region': region,         # Input Region (optional - default is "contigous")
+        's_h_frame': 'NAD27',     # Input Source Horizontal Reference Frame (optional - default is "NAD83_2011")
+        's_v_frame': 'NGVD29'     # Input Source Vertical Reference Frame (optional - default is "NAVD88")
+    }
     #Call the API
     requestor = session if session else requests
-    response = requestor.get(datum_url, params = params, verify=False)
+    response = requestor.get(datum_url, params=params, verify=False)
     results = response.json()
     
     if 'errorCode' in results:

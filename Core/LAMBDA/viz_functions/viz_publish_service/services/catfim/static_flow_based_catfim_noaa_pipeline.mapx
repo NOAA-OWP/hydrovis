@@ -291,7 +291,7 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68334a5054764d616d31384e656a3575697137686750416b614e4d79753372326c73466e6a594d3864494b553d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_sites",
           "datasetType" : "esriDTFeatureClass",
@@ -335,13 +335,13 @@
               "name" : "goes_id",
               "type" : "esriFieldTypeString",
               "alias" : "goes_id",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "state",
@@ -358,7 +358,7 @@
               "name" : "county_name",
               "type" : "esriFieldTypeString",
               "alias" : "county_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -403,13 +403,13 @@
               "name" : "status",
               "type" : "esriFieldTypeString",
               "alias" : "status",
-              "length" : 60000
+              "length" : 200
             },
             {
               "name" : "mapped",
               "type" : "esriFieldTypeString",
               "alias" : "mapped",
-              "length" : 60000
+              "length" : 5
             },
             {
               "name" : "oid",
@@ -980,7 +980,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Flow-Based CatFIM: Action",
+      "name" : "Flow-Based CatFIM: Action Threshold",
       "uRI" : "CIMPATH=map/hydrovis_services_flow_based_catfim_action.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -1023,41 +1023,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Station Name",
             "fieldName" : "station_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1126,90 +1091,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hydro_id",
-            "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "hydro_id_str",
-            "fieldName" : "hydro_id_str",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "branch",
-            "fieldName" : "branch",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "fim_stage_ft",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_stage_ft",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_discharge_cfs",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : true,
@@ -1233,11 +1114,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686963394233476d4c416732506545535a47384578367930385143792f562b586f7a4f374f70546266356e513d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_action",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_action",
+          "sqlQuery" : "select nws_station_id,station_name,wfo,rfc,state,streamflow_cfs,flow_category,rating_source,fim_version,update_time,geom,oid from hydrovis.services.flow_based_catfim_action",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1257,108 +1138,16 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "hydro_id"
-            },
-            {
-              "name" : "hydro_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 60000
-            },
-            {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "streamflow_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "fim_stage_ft"
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 60000
-            },
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
-            {
-              "name" : "geom",
-              "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
-              "geometryDef" : {
-                "avgNumPoints" : 0,
-                "geometryType" : "esriGeometryPolygon",
-                "hasM" : false,
-                "hasZ" : false,
-                "spatialReference" : {
-                  "wkid" : 102100,
-                  "latestWkid" : 3857
-                }
-              }
-            },
-            {
-              "name" : "update_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 60000
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 100
-            },
-            {
               "name" : "nws_station_id",
               "type" : "esriFieldTypeString",
               "alias" : "nws_station_id",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -1379,16 +1168,48 @@
               "length" : 2
             },
             {
-              "name" : "rating_source",
-              "type" : "esriFieldTypeString",
-              "alias" : "rating_source",
-              "length" : 60000
+              "name" : "streamflow_cfs",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "streamflow_cfs"
             },
             {
               "name" : "flow_category",
               "type" : "esriFieldTypeString",
               "alias" : "flow_category",
-              "length" : 60000
+              "length" : 100
+            },
+            {
+              "name" : "rating_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "rating_source",
+              "length" : 100
+            },
+            {
+              "name" : "fim_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "fim_version",
+              "length" : 100
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 100
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolygon",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
             },
             {
               "name" : "oid",
@@ -1705,7 +1526,7 @@
                             110,
                             110,
                             110,
-                            0
+                            100
                           ]
                         }
                       },
@@ -1749,7 +1570,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Flow-Based CatFIM: Minor",
+      "name" : "Flow-Based CatFIM: Minor Threshold",
       "uRI" : "CIMPATH=map/hydrovis_services_flow_based_catfim_minor.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -1792,41 +1613,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Station Name",
             "fieldName" : "station_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1895,90 +1681,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hydro_id",
-            "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "hydro_id_str",
-            "fieldName" : "hydro_id_str",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "branch",
-            "fieldName" : "branch",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "fim_stage_ft",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_stage_ft",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_discharge_cfs",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : true,
@@ -2002,11 +1704,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686963394233476d4c416732506545535a47384578367930385143792f562b586f7a4f374f70546266356e513d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_minor",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,nws_station_id,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_minor",
+          "sqlQuery" : "select nws_station_id,station_name,wfo,rfc,state,streamflow_cfs,flow_category,rating_source,fim_version,update_time,geom,oid from hydrovis.services.flow_based_catfim_minor",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2026,108 +1728,16 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "hydro_id"
-            },
-            {
-              "name" : "hydro_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 60000
-            },
-            {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
-            },
-            {
               "name" : "nws_station_id",
               "type" : "esriFieldTypeString",
               "alias" : "nws_station_id",
-              "length" : 60000
-            },
-            {
-              "name" : "streamflow_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "fim_stage_ft"
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 60000
-            },
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
-            {
-              "name" : "geom",
-              "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
-              "geometryDef" : {
-                "avgNumPoints" : 0,
-                "geometryType" : "esriGeometryPolygon",
-                "hasM" : false,
-                "hasZ" : false,
-                "spatialReference" : {
-                  "wkid" : 102100,
-                  "latestWkid" : 3857
-                }
-              }
-            },
-            {
-              "name" : "update_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 60000
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
               "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -2148,16 +1758,48 @@
               "length" : 2
             },
             {
-              "name" : "rating_source",
-              "type" : "esriFieldTypeString",
-              "alias" : "rating_source",
-              "length" : 60000
+              "name" : "streamflow_cfs",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "streamflow_cfs"
             },
             {
               "name" : "flow_category",
               "type" : "esriFieldTypeString",
               "alias" : "flow_category",
-              "length" : 60000
+              "length" : 100
+            },
+            {
+              "name" : "rating_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "rating_source",
+              "length" : 100
+            },
+            {
+              "name" : "fim_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "fim_version",
+              "length" : 100
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 100
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolygon",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
             },
             {
               "name" : "oid",
@@ -2474,7 +2116,7 @@
                             110,
                             110,
                             110,
-                            0
+                            100
                           ]
                         }
                       },
@@ -2518,7 +2160,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Flow-Based CatFIM: Moderate",
+      "name" : "Flow-Based CatFIM: Moderate Threshold",
       "uRI" : "CIMPATH=map/hydrovis_services_flow_based_catfim_moderate.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -2561,41 +2203,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Station Name",
             "fieldName" : "station_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2664,90 +2271,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hydro_id",
-            "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "hydro_id_str",
-            "fieldName" : "hydro_id_str",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "branch",
-            "fieldName" : "branch",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "fim_stage_ft",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_stage_ft",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_discharge_cfs",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : true,
@@ -2771,11 +2294,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686963394233476d4c416732506545535a47384578367930385143792f562b586f7a4f374f70546266356e513d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_moderate",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_moderate",
+          "sqlQuery" : "select nws_station_id,station_name,wfo,rfc,state,streamflow_cfs,flow_category,rating_source,fim_version,update_time,geom,oid from hydrovis.services.flow_based_catfim_moderate",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2795,108 +2318,16 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "hydro_id"
-            },
-            {
-              "name" : "hydro_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 60000
-            },
-            {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "streamflow_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "fim_stage_ft"
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 60000
-            },
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
-            {
-              "name" : "geom",
-              "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
-              "geometryDef" : {
-                "avgNumPoints" : 0,
-                "geometryType" : "esriGeometryPolygon",
-                "hasM" : false,
-                "hasZ" : false,
-                "spatialReference" : {
-                  "wkid" : 102100,
-                  "latestWkid" : 3857
-                }
-              }
-            },
-            {
-              "name" : "update_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 60000
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 100
-            },
-            {
               "name" : "nws_station_id",
               "type" : "esriFieldTypeString",
               "alias" : "nws_station_id",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -2917,16 +2348,48 @@
               "length" : 2
             },
             {
-              "name" : "rating_source",
-              "type" : "esriFieldTypeString",
-              "alias" : "rating_source",
-              "length" : 60000
+              "name" : "streamflow_cfs",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "streamflow_cfs"
             },
             {
               "name" : "flow_category",
               "type" : "esriFieldTypeString",
               "alias" : "flow_category",
-              "length" : 60000
+              "length" : 100
+            },
+            {
+              "name" : "rating_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "rating_source",
+              "length" : 100
+            },
+            {
+              "name" : "fim_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "fim_version",
+              "length" : 100
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 100
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolygon",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
             },
             {
               "name" : "oid",
@@ -3243,7 +2706,7 @@
                             110,
                             110,
                             110,
-                            0
+                            100
                           ]
                         }
                       },
@@ -3287,7 +2750,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Flow-Based CatFIM: Major",
+      "name" : "Flow-Based CatFIM: Major Threshold",
       "uRI" : "CIMPATH=map/hydrovis_services_flow_based_catfim_major.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -3330,41 +2793,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Station Name",
             "fieldName" : "station_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3433,90 +2861,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hydro_id",
-            "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "hydro_id_str",
-            "fieldName" : "hydro_id_str",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "branch",
-            "fieldName" : "branch",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "fim_stage_ft",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_stage_ft",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_discharge_cfs",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : true,
@@ -3540,11 +2884,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686963394233476d4c416732506545535a47384578367930385143792f562b586f7a4f374f70546266356e513d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_major",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_major",
+          "sqlQuery" : "select nws_station_id,station_name,wfo,rfc,state,streamflow_cfs,flow_category,rating_source,fim_version,update_time,geom,oid from hydrovis.services.flow_based_catfim_major",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3564,108 +2908,16 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "hydro_id"
-            },
-            {
-              "name" : "hydro_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 60000
-            },
-            {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "streamflow_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "fim_stage_ft"
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 60000
-            },
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
-            {
-              "name" : "geom",
-              "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
-              "geometryDef" : {
-                "avgNumPoints" : 0,
-                "geometryType" : "esriGeometryPolygon",
-                "hasM" : false,
-                "hasZ" : false,
-                "spatialReference" : {
-                  "wkid" : 102100,
-                  "latestWkid" : 3857
-                }
-              }
-            },
-            {
-              "name" : "update_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 60000
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 100
-            },
-            {
               "name" : "nws_station_id",
               "type" : "esriFieldTypeString",
               "alias" : "nws_station_id",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -3686,16 +2938,48 @@
               "length" : 2
             },
             {
-              "name" : "rating_source",
-              "type" : "esriFieldTypeString",
-              "alias" : "rating_source",
-              "length" : 60000
+              "name" : "streamflow_cfs",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "streamflow_cfs"
             },
             {
               "name" : "flow_category",
               "type" : "esriFieldTypeString",
               "alias" : "flow_category",
-              "length" : 60000
+              "length" : 100
+            },
+            {
+              "name" : "rating_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "rating_source",
+              "length" : 100
+            },
+            {
+              "name" : "fim_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "fim_version",
+              "length" : 100
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 100
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolygon",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
             },
             {
               "name" : "oid",
@@ -4012,7 +3296,7 @@
                             110,
                             110,
                             110,
-                            0
+                            100
                           ]
                         }
                       },
@@ -4056,7 +3340,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Flow-Based CatFIM: Record",
+      "name" : "Flow-Based CatFIM: Record Threshold",
       "uRI" : "CIMPATH=map/hydrovis_services_flow_based_catfim_record.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -4099,41 +3383,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Station Name",
             "fieldName" : "station_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4202,90 +3451,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "hydro_id",
-            "fieldName" : "hydro_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "hydro_id_str",
-            "fieldName" : "hydro_id_str",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "branch",
-            "fieldName" : "branch",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "fim_stage_ft",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_stage_ft",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "max_rc_discharge_cfs",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "geom",
             "fieldName" : "geom",
             "visible" : true,
@@ -4309,11 +3474,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686963394233476d4c416732506545535a47384578367930385143792f562b586f7a4f374f70546266356e513d2a00;SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%flow_based_catfim_record",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id,hydro_id_str,branch,feature_id,feature_id_str,streamflow_cfs,fim_stage_ft,max_rc_stage_ft,max_rc_discharge_cfs,fim_version,huc8,geom,update_time,strm_order,name,nws_station_id,station_name,wfo,rfc,state,rating_source,flow_category,oid from hydrovis.services.flow_based_catfim_record",
+          "sqlQuery" : "select nws_station_id,station_name,wfo,rfc,state,streamflow_cfs,flow_category,rating_source,fim_version,update_time,geom,oid from hydrovis.services.flow_based_catfim_record",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4333,108 +3498,16 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "hydro_id"
-            },
-            {
-              "name" : "hydro_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 60000
-            },
-            {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
-            },
-            {
-              "name" : "streamflow_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "fim_stage_ft"
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 60000
-            },
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
-            {
-              "name" : "geom",
-              "type" : "esriFieldTypeGeometry",
-              "alias" : "geom",
-              "geometryDef" : {
-                "avgNumPoints" : 0,
-                "geometryType" : "esriGeometryPolygon",
-                "hasM" : false,
-                "hasZ" : false,
-                "spatialReference" : {
-                  "wkid" : 102100,
-                  "latestWkid" : 3857
-                }
-              }
-            },
-            {
-              "name" : "update_time",
-              "type" : "esriFieldTypeString",
-              "alias" : "update_time",
-              "length" : 60000
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 100
-            },
-            {
               "name" : "nws_station_id",
               "type" : "esriFieldTypeString",
               "alias" : "nws_station_id",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "station_name",
               "type" : "esriFieldTypeString",
               "alias" : "station_name",
-              "length" : 60000
+              "length" : 100
             },
             {
               "name" : "wfo",
@@ -4455,16 +3528,48 @@
               "length" : 2
             },
             {
-              "name" : "rating_source",
-              "type" : "esriFieldTypeString",
-              "alias" : "rating_source",
-              "length" : 60000
+              "name" : "streamflow_cfs",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "streamflow_cfs"
             },
             {
               "name" : "flow_category",
               "type" : "esriFieldTypeString",
               "alias" : "flow_category",
-              "length" : 60000
+              "length" : 100
+            },
+            {
+              "name" : "rating_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "rating_source",
+              "length" : 100
+            },
+            {
+              "name" : "fim_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "fim_version",
+              "length" : 100
+            },
+            {
+              "name" : "update_time",
+              "type" : "esriFieldTypeString",
+              "alias" : "update_time",
+              "length" : 100
+            },
+            {
+              "name" : "geom",
+              "type" : "esriFieldTypeGeometry",
+              "alias" : "geom",
+              "geometryDef" : {
+                "avgNumPoints" : 0,
+                "geometryType" : "esriGeometryPolygon",
+                "hasM" : false,
+                "hasZ" : false,
+                "spatialReference" : {
+                  "wkid" : 102100,
+                  "latestWkid" : 3857
+                }
+              }
             },
             {
               "name" : "oid",
@@ -4781,7 +3886,7 @@
                             110,
                             110,
                             110,
-                            0
+                            100
                           ]
                         }
                       },

@@ -23,17 +23,12 @@ WITH sites_base AS (
 	WHERE station.rfc_defined_fcst_point is TRUE
 ),
 
-fim_xwalked_flows AS (
+fim_xwalk AS (
 	SELECT 
 		flow.nws_station_id, 
 		flow.nwm_feature_id, 
-		max(flow.action_flow_cfs) as action_flow_cfs,
-		max(flow.minor_flow_cfs) as minor_flow_cfs,
-		max(flow.moderate_flow_cfs) as moderate_flow_cfs,
-		max(flow.major_flow_cfs) as major_flow_cfs,
-		max(flow.record_flow_cfs) as record_flow_cfs,
-		NOT every(xwalk.feature_id IS NULL) as fim_xwalked,
-		every(xwalk.lake_id != -999) as lake_xwalked
+		NOT every(xwalk.feature_id IS NULL) as is_minimally_xwalked,
+		every(xwalk.lake_id != -999) as is_all_lakes
 	FROM cache.rfc_categorical_flows flow
 	LEFT JOIN derived.fim4_featureid_crosswalk xwalk
 		ON flow.trace_feature_id = xwalk.feature_id
@@ -61,14 +56,14 @@ SELECT DISTINCT
     END 
     ||
 	CASE
-	WHEN flows.lake_xwalked
-	THEN 'site crosswalked with a lake; '
+	WHEN fim_xwalk.is_all_lakes
+	THEN 'site trace fully crosswalked with a lake; '
 	ELSE ''
 	END 
 	||
 	CASE
-	WHEN NOT flows.fim_xwalked
-	THEN 'site missing from FIM crosswalk; '
+	WHEN NOT fim_xwalk.is_minimally_xwalked
+	THEN 'site trace fully missing from FIM crosswalk; '
 	ELSE ''
 	END 
 	||
@@ -112,7 +107,7 @@ SELECT DISTINCT
     CASE
         WHEN base.nwm_feature_id IS NULL
         THEN 'no'
-		WHEN NOT flows.fim_xwalked OR flows.lake_xwalked
+		WHEN NOT fim_xwalk.is_minimally_xwalked OR fim_xwalk.is_all_lakes
 		THEN 'no'
         WHEN action_flow_cfs IS NULL AND minor_flow_cfs IS NULL AND moderate_flow_cfs IS NULL and major_flow_cfs IS NULL and record_flow_cfs IS NULL
         THEN 'no'
@@ -120,6 +115,6 @@ SELECT DISTINCT
     END as mapped
 INTO publish.flow_based_catfim_sites
 FROM sites_base as base
-LEFT JOIN fim_xwalked_flows AS flows
-	ON flows.nwm_feature_id = base.nwm_feature_id
-	AND flows.nws_station_id = base.nws_station_id;
+LEFT JOIN fim_xwalk
+	ON fim_xwalk.nwm_feature_id = base.nwm_feature_id
+	AND fim_xwalk.nws_station_id = base.nws_station_id;

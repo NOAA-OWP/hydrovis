@@ -5,7 +5,7 @@ WITH feature_streamflows as (
 INSERT INTO {db_fim_table}(
     nws_station_id, hydro_id, hydro_id_str, geom, feature_id, feature_id_str, 
     fim_stage_ft, max_rc_stage_ft, max_rc_discharge_cfs,
-    fim_version, reference_time, huc8, branch
+    fim_version, reference_time, huc8, branch, interval_ft
 )
 SELECT
     nws_station_id,
@@ -20,7 +20,8 @@ SELECT
     CONCAT ('ras2fim_', gc.version) as fim_version,
     '{reference_time}' as reference_time,
     fhc.huc8,
-    NULL as branch
+    NULL as branch,
+    fs.interval_ft
 FROM ras2fim.geocurves gc
 JOIN feature_streamflows fs ON fs.feature_id = gc.feature_id
 JOIN derived.featureid_huc_crosswalk fhc ON fs.feature_id = fhc.feature_id

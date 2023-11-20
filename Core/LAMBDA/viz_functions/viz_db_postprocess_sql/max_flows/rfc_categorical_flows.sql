@@ -179,12 +179,19 @@ upstream_trace AS (
 
 	UNION
 
-	SELECT upstream_trace.root_feature_id, iter.nwm_feature_id as trace_feature_id, iter.upstream_feature_id, iter.stream_order, iter.stream_length, upstream_trace.trace_length + iter.stream_length as trace_length
+	SELECT 
+		upstream_trace.root_feature_id, 
+		iter.nwm_feature_id as trace_feature_id, 
+		iter.upstream_feature_id, 
+		iter.stream_order, 
+		iter.stream_length, 
+		upstream_trace.trace_length + iter.stream_length as trace_length
 	FROM ingest.mod_routelink iter
 	JOIN upstream_trace 
 		ON iter.nwm_feature_id = upstream_trace.upstream_feature_id
 		AND iter.stream_order = upstream_trace.stream_order
-		AND upstream_trace.trace_length + iter.stream_length < 8047
+		AND upstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
+		AND upstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 downstream_trace AS (
@@ -202,12 +209,19 @@ downstream_trace AS (
 
 	UNION
 
-	SELECT downstream_trace.root_feature_id, iter.nwm_feature_id as trace_feature_id, iter.downstream_feature_id, iter.stream_order, iter.stream_length, downstream_trace.trace_length + iter.stream_length as trace_length
+	SELECT 
+		downstream_trace.root_feature_id, 
+		iter.nwm_feature_id as trace_feature_id, 
+		iter.downstream_feature_id, 
+		iter.stream_order, 
+		iter.stream_length, 
+		downstream_trace.trace_length + iter.stream_length as trace_length
 	FROM ingest.nwm_routelink iter
 	JOIN downstream_trace 
 		ON iter.nwm_feature_id = downstream_trace.downstream_feature_id
 		AND iter.stream_order = downstream_trace.stream_order
-		AND downstream_trace.trace_length + iter.stream_length < 8047
+		AND downstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
+		AND downstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 trace AS (

@@ -39,12 +39,19 @@ upstream_trace AS (
 
 	UNION
 
-	SELECT upstream_trace.root_feature_id, iter.nwm_feature_id as trace_feature_id, iter.upstream_feature_id, iter.stream_order, iter.stream_length, upstream_trace.trace_length + iter.stream_length as trace_length
+	SELECT 
+		upstream_trace.root_feature_id, 
+		iter.nwm_feature_id as trace_feature_id, 
+		iter.upstream_feature_id, 
+		iter.stream_order, 
+		iter.stream_length, 
+		upstream_trace.trace_length + iter.stream_length as trace_length
 	FROM ingest.routelink_up iter
 	JOIN upstream_trace 
 		ON iter.nwm_feature_id = upstream_trace.upstream_feature_id
 		AND iter.stream_order = upstream_trace.stream_order
-		AND upstream_trace.trace_length + iter.stream_length < 8047
+		AND upstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
+		AND upstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 downstream_trace AS (
@@ -62,12 +69,19 @@ downstream_trace AS (
 
 	UNION
 
-	SELECT downstream_trace.root_feature_id, iter.nwm_feature_id as trace_feature_id, iter.downstream_feature_id, iter.stream_order, iter.stream_length, downstream_trace.trace_length + iter.stream_length as trace_length
+	SELECT 
+		downstream_trace.root_feature_id, 
+		iter.nwm_feature_id as trace_feature_id, 
+		iter.downstream_feature_id, 
+		iter.stream_order, 
+		iter.stream_length, 
+		downstream_trace.trace_length + iter.stream_length as trace_length
 	FROM ingest.routelink iter
 	JOIN downstream_trace 
 		ON iter.nwm_feature_id = downstream_trace.downstream_feature_id
 		AND iter.stream_order = downstream_trace.stream_order
-		AND downstream_trace.trace_length + iter.stream_length < 8047
+		AND downstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
+		AND downstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 trace AS (
@@ -88,11 +102,16 @@ SELECT
 	trace.root_feature_id as nwm_feature_id,
 	trace.trace_feature_id,
 	basis_site.nws_station_id,
-	((basis_site.action_stage + basis_site.datum_adj_ft + basis_site.usgs_datum) * 0.3048) - basis_site.dem_adj_elevation as adj_action_stage_m,
-	((basis_site.minor_stage + basis_site.datum_adj_ft + basis_site.usgs_datum) * 0.3048) - basis_site.dem_adj_elevation as adj_minor_stage_m,
-	((basis_site.moderate_stage + basis_site.datum_adj_ft + basis_site.usgs_datum) * 0.3048) - basis_site.dem_adj_elevation as adj_moderate_stage_m,
-	((basis_site.major_stage + basis_site.datum_adj_ft + basis_site.usgs_datum) * 0.3048) - basis_site.dem_adj_elevation as adj_major_stage_m,
-	((basis_site.record_stage + basis_site.datum_adj_ft + basis_site.usgs_datum) * 0.3048) - basis_site.dem_adj_elevation as adj_record_stage_m
+	adj_action_stage_m,
+	adj_action_stage_ft,
+	adj_minor_stage_m,
+	adj_minor_stage_ft,
+	adj_moderate_stage_m,
+	adj_moderate_stage_ft,
+	adj_major_stage_m,
+	adj_major_stage_ft,
+	adj_record_stage_m,
+	adj_record_stage_ft
 INTO cache.rfc_categorical_stages
 FROM trace
 LEFT JOIN basis_site

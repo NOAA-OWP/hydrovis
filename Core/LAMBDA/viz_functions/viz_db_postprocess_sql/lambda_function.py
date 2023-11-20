@@ -26,6 +26,9 @@ def lambda_handler(event, context):
             if not event['args']['fim_config'].get('postprocess'):
                 return
             sql_file = event['args']['fim_config']['postprocess']['sql_file']
+            sql_replace.update({'target_table': event['args']['fim_config']['postprocess']['target_table']})
+            if 'sql_find_replace' in event['args']['fim_config']:
+                sql_replace.update(event['args']['fim_config']['sql_find_replace'])
         # Product
         elif step == "products":
             folder = os.path.join(folder, event['args']['product']['configuration'])
@@ -100,7 +103,8 @@ def run_sql(sql_path_or_str, sql_replace=None):
     # sort the replace dictionary to have longer values upfront first
     sql_replace = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
     for word, replacement in sql_replace:
-        sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(f'{{{word}}}'), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(word), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     viz_db = database(db_type="viz")
     with viz_db.get_db_connection() as connection:

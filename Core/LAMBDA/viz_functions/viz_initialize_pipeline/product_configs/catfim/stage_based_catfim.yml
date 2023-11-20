@@ -1,6 +1,6 @@
 product: stage_based_catfim
 configuration: catfim
-product_type: "fim"
+product_type: fim
 run: true
 
 db_max_flows:
@@ -15,7 +15,7 @@ fim_configs:
     target_table: ingest.stage_based_catfim_action
     fim_type: hand
     sql_file: stage_based_catfim_action
-    process_by: ["nws_station_id", "huc"]
+    process_by: ['huc', 'nws_station_id']
     input_variable: stage
     postprocess:
       sql_file: stage_based_catfim_action
@@ -25,7 +25,7 @@ fim_configs:
     target_table: ingest.stage_based_catfim_minor
     fim_type: hand
     sql_file: stage_based_catfim_minor
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     input_variable: stage
     postprocess:
       sql_file: stage_based_catfim_minor
@@ -35,7 +35,7 @@ fim_configs:
     target_table: ingest.stage_based_catfim_moderate
     fim_type: hand
     sql_file: stage_based_catfim_moderate
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     input_variable: stage
     postprocess:
       sql_file: stage_based_catfim_moderate
@@ -45,7 +45,7 @@ fim_configs:
     target_table: ingest.stage_based_catfim_major
     fim_type: hand
     sql_file: stage_based_catfim_major
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     input_variable: stage
     postprocess:
       sql_file: stage_based_catfim_major
@@ -55,11 +55,237 @@ fim_configs:
     target_table: ingest.stage_based_catfim_record
     fim_type: hand
     sql_file: stage_based_catfim_record
-    process_by: ['nws_station_id', 'huc']
+    process_by: ['huc', 'nws_station_id']
     input_variable: stage
     postprocess:
       sql_file: stage_based_catfim_record
       target_table: publish.stage_based_catfim_record
+
+  # ################ #
+  # ACTION INTERVALS #
+  # ################ #
+  
+  - name: stage_based_catfim_action_intervals_1
+    target_table: ingest.stage_based_catfim_action_intervals_1
+    fim_type: hand
+    sql_file: stage_based_catfim_action_intervals
+    sql_find_replace:
+      job_num: "1"
+      lower_interval: "0"
+      upper_interval: "1"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_action_intervals
+      target_table: publish.stage_based_catfim_action_intervals_1
+
+  - name: stage_based_catfim_action_intervals_2
+    target_table: ingest.stage_based_catfim_action_intervals_2
+    fim_type: hand
+    sql_file: stage_based_catfim_action_intervals
+    sql_find_replace:
+      job_num: "2"
+      lower_interval: "1"
+      upper_interval: "2"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_action_intervals
+      target_table: publish.stage_based_catfim_action_intervals_2
+
+  - name: stage_based_catfim_action_intervals_3
+    target_table: ingest.stage_based_catfim_action_intervals_3
+    fim_type: hand
+    sql_file: stage_based_catfim_action_intervals
+    sql_find_replace:
+      job_num: "3"
+      lower_interval: "2"
+      upper_interval: "100"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_action_intervals
+      target_table: publish.stage_based_catfim_action_intervals_3
+    
+  # ############### #
+  # MINOR INTERVALS #
+  # ############### #
+    
+  - name: stage_based_catfim_minor_intervals_1
+    target_table: ingest.stage_based_catfim_minor_intervals_1
+    fim_type: hand
+    sql_file: stage_based_catfim_minor_intervals
+    sql_find_replace:
+      job_num: "1"
+      lower_interval: "0"
+      upper_interval: "1"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_minor_intervals
+      target_table: publish.stage_based_catfim_minor_intervals_1
+
+  - name: stage_based_catfim_minor_intervals_2
+    target_table: ingest.stage_based_catfim_minor_intervals_2
+    fim_type: hand
+    sql_file: stage_based_catfim_minor_intervals
+    sql_find_replace:
+      job_num: "2"
+      lower_interval: "1"
+      upper_interval: "2"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_minor_intervals
+      target_table: publish.stage_based_catfim_minor_intervals_2
+
+  - name: stage_based_catfim_minor_intervals_3
+    target_table: ingest.stage_based_catfim_minor_intervals_3
+    fim_type: hand
+    sql_file: stage_based_catfim_minor_intervals
+    sql_find_replace:
+      job_num: "3"
+      lower_interval: "2"
+      upper_interval: "100"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_minor_intervals
+      target_table: publish.stage_based_catfim_minor_intervals_3
+
+  # ################## #
+  # MODERATE INTERVALS #
+  # ################## #
+    
+  - name: stage_based_catfim_moderate_intervals_1
+    target_table: ingest.stage_based_catfim_moderate_intervals_1
+    fim_type: hand
+    sql_file: stage_based_catfim_moderate_intervals
+    sql_find_replace:
+      job_num: "1"
+      lower_interval: "0"
+      upper_interval: "1"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_moderate_intervals
+      target_table: publish.stage_based_catfim_moderate_intervals_1
+
+  - name: stage_based_catfim_moderate_intervals_2
+    target_table: ingest.stage_based_catfim_moderate_intervals_2
+    fim_type: hand
+    sql_file: stage_based_catfim_moderate_intervals
+    sql_find_replace:
+      job_num: "2"
+      lower_interval: "1"
+      upper_interval: "2"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_moderate_intervals
+      target_table: publish.stage_based_catfim_moderate_intervals_2
+
+  - name: stage_based_catfim_moderate_intervals_3
+    target_table: ingest.stage_based_catfim_moderate_intervals_3
+    fim_type: hand
+    sql_file: stage_based_catfim_moderate_intervals
+    sql_find_replace:
+      job_num: "3"
+      lower_interval: "2"
+      upper_interval: "3"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_moderate_intervals
+      target_table: publish.stage_based_catfim_moderate_intervals_3
+  
+  - name: stage_based_catfim_moderate_intervals_4
+    target_table: ingest.stage_based_catfim_moderate_intervals_4
+    fim_type: hand
+    sql_file: stage_based_catfim_moderate_intervals
+    sql_find_replace:
+      job_num: "4"
+      lower_interval: "3"
+      upper_interval: "100"
+    process_by: ['huc', 'nws_station_id', 'interval_ft']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_moderate_intervals
+      target_table: publish.stage_based_catfim_moderate_intervals_4
+
+  # ############### #
+  # MAJOR INTERVALS #
+  # ############### #
+    
+  - name: stage_based_catfim_major_intervals_1
+    target_table: ingest.stage_based_catfim_major_intervals_1
+    fim_type: hand
+    sql_file: stage_based_catfim_major_intervals
+    sql_find_replace:
+      ft_from_major: "1"
+    process_by: ['huc', 'nws_station_id']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major_intervals
+      target_table: publish.stage_based_catfim_major_intervals_1
+  
+  - name: stage_based_catfim_major_intervals_2
+    target_table: ingest.stage_based_catfim_major_intervals_2
+    fim_type: hand
+    sql_file: stage_based_catfim_major_intervals
+    sql_find_replace:
+      ft_from_major: "2"
+    process_by: ['huc', 'nws_station_id']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major_intervals
+      target_table: publish.stage_based_catfim_major_intervals_2
+  
+  - name: stage_based_catfim_major_intervals_3
+    target_table: ingest.stage_based_catfim_major_intervals_3
+    fim_type: hand
+    sql_file: stage_based_catfim_major_intervals
+    sql_find_replace:
+      ft_from_major: "3"
+    process_by: ['huc', 'nws_station_id']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major_intervals
+      target_table: publish.stage_based_catfim_major_intervals_3
+
+  - name: stage_based_catfim_major_intervals_4
+    target_table: ingest.stage_based_catfim_major_intervals_4
+    fim_type: hand
+    sql_file: stage_based_catfim_major_intervals
+    sql_find_replace:
+      ft_from_major: "4"
+    process_by: ['huc', 'nws_station_id']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major_intervals
+      target_table: publish.stage_based_catfim_major_intervals_4
+
+  - name: stage_based_catfim_major_intervals_5
+    target_table: ingest.stage_based_catfim_major_intervals_5
+    fim_type: hand
+    sql_file: stage_based_catfim_major_intervals
+    sql_find_replace:
+      ft_from_major: "5"
+    process_by: ['huc', 'nws_station_id']
+    input_variable: stage
+    postprocess:
+      sql_file: stage_based_catfim_major_intervals
+      target_table: publish.stage_based_catfim_major_intervals_5
+
+postprocess_sql:
+  - sql_file: stage_based_catfim_action_intervals
+    target_table: publish.stage_based_catfim_action_intervals
+  - sql_file: stage_based_catfim_minor_intervals
+    target_table: publish.stage_based_catfim_minor_intervals
+  - sql_file: stage_based_catfim_moderate_intervals
+    target_table: publish.stage_based_catfim_moderate_intervals
+  - sql_file: stage_based_catfim_major_intervals
+    target_table: publish.stage_based_catfim_major_intervals
 
 product_summaries:
   - sql_file: sites
@@ -67,4 +293,4 @@ product_summaries:
       - publish.stage_based_catfim_sites
 
 services:
-  - static_stage_based_catfim_noaa
+  - static_stage_based_catfim_noaa_pipeline

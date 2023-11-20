@@ -8,7 +8,8 @@ SELECT
     LEFT(LPAD(crosswalk.huc8::text, 8, '0'), 6) as huc,
     crosswalk.hydro_id,
     fs.stage_m,
-    fs.nws_station_id
+    fs.nws_station_id,
+    fs.interval_ft
 FROM derived.fim4_featureid_crosswalk AS crosswalk
 JOIN feature_streamflows fs ON fs.feature_id = crosswalk.feature_id
 LEFT JOIN {db_fim_table} r2f ON r2f.feature_id = crosswalk.feature_id
