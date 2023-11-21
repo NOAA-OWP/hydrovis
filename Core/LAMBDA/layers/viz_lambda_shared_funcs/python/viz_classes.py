@@ -51,7 +51,8 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     def get_db_connection(self, asynchronous=False):
         import psycopg2
         db_host, db_name, db_user, db_password = self.get_db_credentials()
-        connection = psycopg2.connect(f"host={db_host} dbname={db_name} user={db_user} password={db_password}", async_=asynchronous)
+        port = 5439 if self.type == "redshift" else 5432
+        connection = psycopg2.connect(f"host={db_host} dbname={db_name} user={db_user} password={db_password} port={port}", async_=asynchronous)
         print(f"***> Established db connection to: {db_host} from {inspect.stack()[1].function}()")
         return connection
 
