@@ -1,0 +1,1 @@
+DROP VIEW {postgis_fim_temp_geo_view};
