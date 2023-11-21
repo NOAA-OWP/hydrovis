@@ -1,36 +1,36 @@
 DROP TABLE IF EXISTS publish.mrf_nbm_10day_max_high_flow_magnitude;
 WITH high_flow_mag AS (
      SELECT maxflows.feature_id,
-        maxflows.maxflow_3day_cfs,
-        maxflows.maxflow_5day_cfs,
-        maxflows.maxflow_10day_cfs,
+        maxflows_3day.discharge_cfs AS maxflow_3day_cfs,
+        maxflows_5day.discharge_cfs AS maxflow_5day_cfs,
+        maxflows_10day.discharge_cfs AS maxflow_10day_cfs,
         maxflows.nwm_vers,
         maxflows.reference_time,
             CASE
-                WHEN maxflows.maxflow_3day_cfs >= thresholds.rf_50_0_17c THEN '2'::text
-				WHEN maxflows.maxflow_3day_cfs >= thresholds.rf_25_0_17c THEN '4'::text
-				WHEN maxflows.maxflow_3day_cfs >= thresholds.rf_10_0_17c THEN '10'::text
-                WHEN maxflows.maxflow_3day_cfs >= thresholds.rf_5_0_17c THEN '20'::text
-                WHEN maxflows.maxflow_3day_cfs >= thresholds.rf_2_0_17c THEN '50'::text
-                WHEN maxflows.maxflow_3day_cfs >= thresholds.high_water_threshold THEN '>50'::text
+                WHEN maxflows_3day.discharge_cfs >= thresholds.rf_50_0_17c THEN '2'::text
+				WHEN maxflows_3day.discharge_cfs >= thresholds.rf_25_0_17c THEN '4'::text
+				WHEN maxflows_3day.discharge_cfs >= thresholds.rf_10_0_17c THEN '10'::text
+                WHEN maxflows_3day.discharge_cfs >= thresholds.rf_5_0_17c THEN '20'::text
+                WHEN maxflows_3day.discharge_cfs >= thresholds.rf_2_0_17c THEN '50'::text
+                WHEN maxflows_3day.discharge_cfs >= thresholds.high_water_threshold THEN '>50'::text
                 ELSE NULL::text
             END AS recur_cat_3day,
             CASE
-                WHEN maxflows.maxflow_5day_cfs >= thresholds.rf_50_0_17c THEN '2'::text
-				WHEN maxflows.maxflow_5day_cfs >= thresholds.rf_25_0_17c THEN '4'::text
-				WHEN maxflows.maxflow_5day_cfs >= thresholds.rf_10_0_17c THEN '10'::text
-                WHEN maxflows.maxflow_5day_cfs >= thresholds.rf_5_0_17c THEN '20'::text
-                WHEN maxflows.maxflow_5day_cfs >= thresholds.rf_2_0_17c THEN '50'::text
-                WHEN maxflows.maxflow_5day_cfs >= thresholds.high_water_threshold THEN '>50'::text
+                WHEN maxflows_5day.discharge_cfs >= thresholds.rf_50_0_17c THEN '2'::text
+				WHEN maxflows_5day.discharge_cfs >= thresholds.rf_25_0_17c THEN '4'::text
+				WHEN maxflows_5day.discharge_cfs >= thresholds.rf_10_0_17c THEN '10'::text
+                WHEN maxflows_5day.discharge_cfs >= thresholds.rf_5_0_17c THEN '20'::text
+                WHEN maxflows_5day.discharge_cfs >= thresholds.rf_2_0_17c THEN '50'::text
+                WHEN maxflows_5day.discharge_cfs >= thresholds.high_water_threshold THEN '>50'::text
                 ELSE NULL::text
             END AS recur_cat_5day,
             CASE
-                WHEN maxflows.maxflow_10day_cfs >= thresholds.rf_50_0_17c THEN '2'::text
-				WHEN maxflows.maxflow_10day_cfs >= thresholds.rf_25_0_17c THEN '4'::text
-				WHEN maxflows.maxflow_10day_cfs >= thresholds.rf_10_0_17c THEN '10'::text
-                WHEN maxflows.maxflow_10day_cfs >= thresholds.rf_5_0_17c THEN '20'::text
-                WHEN maxflows.maxflow_10day_cfs >= thresholds.rf_2_0_17c THEN '50'::text
-                WHEN maxflows.maxflow_10day_cfs >= thresholds.high_water_threshold THEN '>50'::text
+                WHEN maxflows_10day.discharge_cfs >= thresholds.rf_50_0_17c THEN '2'::text
+				WHEN maxflows_10day.discharge_cfs >= thresholds.rf_25_0_17c THEN '4'::text
+				WHEN maxflows_10day.discharge_cfs >= thresholds.rf_10_0_17c THEN '10'::text
+                WHEN maxflows_10day.discharge_cfs >= thresholds.rf_5_0_17c THEN '20'::text
+                WHEN maxflows_10day.discharge_cfs >= thresholds.rf_2_0_17c THEN '50'::text
+                WHEN maxflows_10day.discharge_cfs >= thresholds.high_water_threshold THEN '>50'::text
                 ELSE NULL::text
             END AS recur_cat_10day,
         thresholds.high_water_threshold AS high_water_threshold,
@@ -39,9 +39,11 @@ WITH high_flow_mag AS (
         thresholds.rf_10_0_17c AS flow_10yr,
 		thresholds.rf_25_0_17c AS flow_25yr,
 		thresholds.rf_50_0_17c AS flow_50yr
-       FROM cache.max_flows_mrf_nbm maxflows
+       FROM cache.max_flows_mrf_nbm_10day AS maxflows_10day
+         JOIN cache.max_flows_mrf_nbm_5day AS maxflows_5day ON maxflows_10day.feature_id = maxflows_5day.feature_id
+         JOIN cache.max_flows_mrf_nbm_3day AS maxflows_3day ON maxflows_10day.feature_id = maxflows_3day.feature_id
          JOIN derived.recurrence_flows_conus thresholds ON maxflows.feature_id = thresholds.feature_id
-      WHERE (thresholds.high_water_threshold > 0::double precision) AND maxflows.maxflow_10day_cfs >= thresholds.high_water_threshold
+      WHERE (thresholds.high_water_threshold > 0::double precision) AND maxflows_10day.discharge_cfs >= maxflows_10day.high_water_threshold
     )
 
 SELECT channels.feature_id,

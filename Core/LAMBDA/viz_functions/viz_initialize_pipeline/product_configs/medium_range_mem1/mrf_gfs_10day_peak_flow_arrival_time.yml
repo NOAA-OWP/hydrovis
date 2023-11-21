@@ -11,11 +11,11 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 db_max_flows:
-  - name: mrf_gfs_max_flows
-    target_table: cache.max_flows_mrf_gfs
+  - name: mrf_gfs_10day_max_flows
+    target_table: cache.max_flows_mrf_gfs_10day
     target_keys: (feature_id, streamflow)
     method: database
-    max_flows_sql_file: mrf_gfs_max_flows
+    max_flows_sql_file: mrf_gfs_10day_max_flows
 
 postprocess_sql:
   - sql_file: mrf_gfs_10day_peak_flow_arrival_time
