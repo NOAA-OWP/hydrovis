@@ -56,6 +56,7 @@ def setup_huc_inundation(event):
     print(f"Running FIM for {configuration} for {reference_time}")
     viz_db = database(db_type="viz")
     egis_db = database(db_type="egis")
+    redshift_db = database(db_type="redshift")
     if reference_service:
         process_db = egis_db
     else:
@@ -115,7 +116,11 @@ def setup_huc_inundation(event):
         # Parses the forecast key to get the necessary metadata for the output file
         date = reference_date.strftime("%Y%m%d")
         hour = reference_date.strftime("%H")
-        
+
+        # Load cached fim data from Redshift into the RDS table
+        redshift_fim_table = target_table.replace("ingest", "fim")
+        load_cached_fim_from_redshift(viz_db, target_table, redshift_fim_table)
+
         ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
         df_streamflows = get_features_for_HAND_processing(sql, ras_publish_table, viz_db)
         processing_groups = df_streamflows.groupby(process_by)
@@ -186,16 +191,6 @@ def setup_db_table(db_fim_table, reference_time, viz_db, process_db, sql_replace
     db_schema = db_fim_table.split('.')[0]
 
     print(f"Setting up {db_fim_table}")
-        
-    with viz_db.get_db_connection() as connection:
-        cur = connection.cursor()
-
-        # Add a row to the ingest status table indicating that an import has started.
-        SQL = f"INSERT INTO admin.ingest_status (target, reference_time, status, update_time) " \
-              f"VALUES ('{db_fim_table}', '{reference_time}', 'Import Started', " \
-              f"'{datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}')"
-        cur.execute(SQL)
-
     with process_db.get_db_connection() as connection:
         cur = connection.cursor()
 
@@ -217,11 +212,24 @@ def setup_db_table(db_fim_table, reference_time, viz_db, process_db, sql_replace
 
         # Truncate all records.
         print("Truncating target table.")
-        SQL = f"TRUNCATE TABLE {db_fim_table};"
+        SQL = f"TRUNCATE TABLE {db_fim_table}; TRUNCATE TABLE {db_fim_table}_geo;"
         cur.execute(SQL)
-        connection.commit()
+    connection.close()
     
     return db_fim_table
+
+def load_cached_fim_from_redshift(viz_db, db_fim_table, redshift_fim_table):
+    template = f'templates_sql/cached_fim_insertion.sql'
+    with open(template, 'r') as file:
+        sql = file.read()
+        sql = sql \
+            .replace("{db_fim_table}", db_fim_table) \
+            .replace("{redshift_fim_table}", redshift_fim_table)
+        print(f"Copying {redshift_fim_table} from Redshift to {db_fim_table} on RDS")    
+        with viz_db.get_db_connection() as connection:
+            cur = connection.cursor()
+            cur.execute(sql)
+        connection.close()
 
 def write_data_csv_file(product, fim_config_name, date, hour, identifiers, huc_data):
     '''
@@ -277,12 +285,14 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
     with viz_db.get_db_connection() as connection:
         cur = connection.cursor()
         cur.execute(ras_insertion_sql)
+    connection.close()
 
     if reference_service:
         with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
             cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
             column_names = [desc[0] for desc in cur.description]
             columns = ', '.join(column_names)
+        db_connection.close()
         
         print(f"Copying {publish_table} to {db_fim_table}")
         try: # Try copying the data
@@ -330,6 +340,7 @@ def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_g
         if update_srid and "geom" in columns:
             print(f"---> Updating SRID to {update_srid}")
             cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    with db_connection.close()
             
 def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
     with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
@@ -339,4 +350,5 @@ def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
         IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
         """
         cur.execute(sql)
+    db_connection.close()
     print(f"---> Refreshed {local_schema} foreign schema.")
