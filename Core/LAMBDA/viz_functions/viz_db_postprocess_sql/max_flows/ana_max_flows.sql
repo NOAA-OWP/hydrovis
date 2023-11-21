@@ -6,13 +6,12 @@ INSERT INTO cache.max_flows_ana_past_hour
 SELECT * FROM cache.max_flows_ana;
 
 -- Regular ana max flows
-DROP TABLE IF EXISTS cache.max_flows_ana;
-
-SELECT forecasts.feature_id,
-	forecasts.reference_time,
-	forecasts.nwm_vers,
-    ROUND(MAX(forecasts.streamflow)::numeric, 2) AS discharge_cms,
-	ROUND((MAX(forecasts.streamflow) * 35.315)::numeric, 2) AS discharge_cfs
-INTO cache.max_flows_ana
-FROM ingest.nwm_channel_rt_ana forecasts
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;
+TRUNCATE TABLE cache.max_flows_ana;
+INSERT INTO cache.max_flows_ana(feature_id, reference_time, nwm_vers, discharge_cms, discharge_cfs)
+	SELECT forecasts.feature_id,
+		forecasts.reference_time,
+		forecasts.nwm_vers,
+		ROUND(MAX(forecasts.streamflow)::numeric, 2) AS discharge_cms,
+		ROUND((MAX(forecasts.streamflow) * 35.315)::numeric, 2) AS discharge_cfs
+	FROM ingest.nwm_channel_rt_ana forecasts
+	GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers;
