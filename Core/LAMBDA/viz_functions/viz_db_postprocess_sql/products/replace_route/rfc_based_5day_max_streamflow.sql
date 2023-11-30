@@ -30,7 +30,17 @@ max_flows_station_xwalk AS (
 		ON station.nws_station_id = xwalk.nws_station_id
 ),
 
-usgs_threshold AS (
+native_threshold AS (
+	SELECT DISTINCT ON (location_id)
+		location_id as nws_station_id,
+		rating_source,
+		action_flow,
+		minor_flow,
+		moderate_flow,
+		major_flow
+	FROM external.threshold
+	WHERE rating_source = 'NONE' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk)
+), usgs_threshold AS (
 	SELECT DISTINCT ON (location_id) 
 		location_id as nws_station_id,
 		rating_source,
@@ -39,7 +49,7 @@ usgs_threshold AS (
 		moderate_flow_calc as moderate_flow,
 		major_flow_calc as major_flow
 	FROM external.threshold
-	WHERE rating_source = 'USGS Rating Depot' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk)
+	WHERE rating_source = 'USGS Rating Depot' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM native_threshold)
 ), nrldb_threshold AS (
 	SELECT DISTINCT ON (location_id)
 		location_id as nws_station_id,
@@ -49,17 +59,7 @@ usgs_threshold AS (
 		moderate_flow_calc as moderate_flow,
 		major_flow_calc as major_flow
 	FROM external.threshold
-	WHERE rating_source = 'NRLDB' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM usgs_threshold)
-), native_threshold AS (
-	SELECT DISTINCT ON (location_id)
-		location_id as nws_station_id,
-		rating_source,
-		action_flow,
-		minor_flow,
-		moderate_flow,
-		major_flow
-	FROM external.threshold
-	WHERE rating_source = 'NONE' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM usgs_threshold UNION SELECT nws_station_id FROM nrldb_threshold)
+	WHERE rating_source = 'NRLDB' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM native_threshold UNION SELECT nws_station_id FROM usgs_threshold)
 ), threshold AS (
 	SELECT * FROM usgs_threshold
 	UNION
