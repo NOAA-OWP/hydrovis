@@ -6,6 +6,7 @@ max_flows_station_xwalk AS (
 	SELECT 
 		mf.feature_id,
 		xwalk.nws_station_id,
+		xwalk.gage_id,
 		station.rfc_defined_fcst_point,
 		mf.reference_time,
 		mf.time_of_max,
@@ -30,45 +31,77 @@ max_flows_station_xwalk AS (
 		ON station.nws_station_id = xwalk.nws_station_id
 ),
 
+max_flows_station_xwalk_with_rc_stage AS (
+	SELECT
+		main.*, 
+		ROUND((curve.stage + ((curve.next_higher_point_stage - curve.stage) / (curve.next_higher_point_flow - curve.flow) * (main.streamflow - curve.flow)))::numeric, 2) as stage_from_curve
+	FROM max_flows_station_xwalk main
+	LEFT JOIN external.rating rating
+		ON rating.location_id = main.gage_id
+	LEFT JOIN rnr.staggered_curves curve
+		ON curve.rating_id = rating.rating_id
+		AND (curve.flow = main.streamflow
+			OR (curve.flow < main.streamflow 
+				AND curve.next_higher_point_flow > main.streamflow))
+),
+
 native_threshold AS (
 	SELECT DISTINCT ON (location_id)
 		location_id as nws_station_id,
 		rating_source,
+		action_stage,
+		minor_stage,
+		moderate_stage,
+		major_stage,
+		record_stage,
 		action_flow,
 		minor_flow,
 		moderate_flow,
-		major_flow
+		major_flow,
+		record_flow
 	FROM external.threshold
-	WHERE rating_source = 'NONE' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk)
+	WHERE rating_source = 'NONE'
 ), usgs_threshold AS (
 	SELECT DISTINCT ON (location_id) 
 		location_id as nws_station_id,
 		rating_source,
+		action_stage,
+		minor_stage,
+		moderate_stage,
+		major_stage,
+		record_stage,
 		action_flow_calc as action_flow,
 		minor_flow_calc as minor_flow,
 		moderate_flow_calc as moderate_flow,
-		major_flow_calc as major_flow
+		major_flow_calc as major_flow,
+		record_flow_calc as record_flow
 	FROM external.threshold
-	WHERE rating_source = 'USGS Rating Depot' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM native_threshold)
+	WHERE rating_source = 'USGS Rating Depot' AND location_id NOT IN (SELECT nws_station_id FROM native_threshold)
 ), nrldb_threshold AS (
 	SELECT DISTINCT ON (location_id)
 		location_id as nws_station_id,
 		rating_source,
+		action_stage,
+		minor_stage,
+		moderate_stage,
+		major_stage,
+		record_stage,
 		action_flow_calc as action_flow,
 		minor_flow_calc as minor_flow,
 		moderate_flow_calc as moderate_flow,
-		major_flow_calc as major_flow
+		major_flow_calc as major_flow,
+		record_flow_calc as record_flow
 	FROM external.threshold
-	WHERE rating_source = 'NRLDB' AND location_id IN (SELECT nws_station_id FROM max_flows_station_xwalk) AND location_id NOT IN (SELECT nws_station_id FROM native_threshold UNION SELECT nws_station_id FROM usgs_threshold)
+	WHERE rating_source = 'NRLDB' AND location_id NOT IN (SELECT nws_station_id FROM native_threshold UNION SELECT nws_station_id FROM usgs_threshold)
 ), threshold AS (
+	SELECT * FROM native_threshold
+	UNION
 	SELECT * FROM usgs_threshold
 	UNION
 	SELECT * FROM nrldb_threshold
-	UNION
-	SELECT * FROM native_threshold
 ),
 
-fcst AS (
+fcst_meta AS (
 	SELECT DISTINCT ON (lid, product_time) 
 		lid, 
 		product_time as issue_time
@@ -84,28 +117,38 @@ root_status_trace_reaches AS (
 		stream_order,
 		stream_length,
 		is_waterbody,
-		issue_time,
+		fcst_meta.issue_time,
 		rating_source,
 		CASE
-			WHEN rfc_defined_fcst_point AND issue_time IS NULL
+			WHEN rfc_defined_fcst_point AND fcst_meta.issue_time IS NULL
 			THEN 'No Forecast'
 			WHEN major_flow IS NOT NULL AND streamflow > major_flow
 			THEN 'Major'
+			WHEN major_stage IS NOT NULL AND stage_from_curve > major_stage
+			THEN 'Major'
 			WHEN moderate_flow IS NOT NULL AND streamflow > moderate_flow
+			THEN 'Moderate'
+			WHEN moderate_stage IS NOT NULL AND stage_from_curve > moderate_stage
 			THEN 'Moderate'
 			WHEN minor_flow IS NOT NULL AND streamflow > minor_flow
 			THEN 'Minor'
+			WHEN minor_stage IS NOT NULL AND stage_from_curve > minor_stage
+			THEN 'Minor'
 			WHEN action_flow IS NOT NULL AND streamflow > action_flow
 			THEN 'Action'
-			WHEN issue_time IS NOT NULL AND action_flow IS NULL AND minor_flow IS NULL AND moderate_flow IS NULL AND major_flow IS NULL
+			WHEN action_stage IS NOT NULL AND stage_from_curve > action_stage
+			THEN 'Action'
+			WHEN issue_time IS NOT NULL
+				AND action_flow IS NULL AND minor_flow IS NULL AND moderate_flow IS NULL AND major_flow IS NULL
+				AND action_stage IS NULL AND minor_stage IS NULL AND moderate_stage IS NULL AND major_stage IS NULL
 			THEN 'All Thresholds Undefined'
 			WHEN mf.nws_station_id IS NOT NULL
 			THEN 'No Flooding'
 			ELSE ''
 		END as max_status
-	FROM max_flows_station_xwalk mf
-	LEFT JOIN fcst
-		ON fcst.lid = mf.nws_station_id
+	FROM max_flows_station_xwalk_with_rc_stage mf
+	LEFT JOIN fcst_meta
+		ON fcst_meta.lid = mf.nws_station_id
 	LEFT JOIN threshold
 		ON threshold.nws_station_id = mf.nws_station_id
 	WHERE rfc_defined_fcst_point IS TRUE OR issue_time IS NOT NULL
