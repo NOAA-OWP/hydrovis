@@ -1,6 +1,7 @@
 product: mrf_nbm_10day_max_inundation
 configuration: medium_range_blend
 product_type: "fim"
+domain: conus
 run: true
 
 ingest_files:
@@ -30,18 +31,21 @@ db_max_flows:
 
 fim_configs:
   - name: mrf_nbm_max_inundation_3day
+    flows_table: cache.max_flows_mrf_nbm_3day
     target_table: ingest.mrf_nbm_max_inundation_3day
     fim_type: hand
     postprocess:
       sql_file: mrf_nbm_max_inundation_3day
       target_table: publish.mrf_nbm_max_inundation_3day
   - name: mrf_nbm_max_inundation_5day
+    flows_table: cache.max_flows_mrf_nbm_5day
     target_table: ingest.mrf_nbm_max_inundation_5day
     fim_type: hand
     postprocess:
       sql_file: mrf_nbm_max_inundation_5day
       target_table: publish.mrf_nbm_max_inundation_5day
   - name: mrf_nbm_max_inundation_10day
+    flows_table: cache.max_flows_mrf_nbm_10day
     target_table: ingest.mrf_nbm_max_inundation_10day
     fim_type: hand
     postprocess:

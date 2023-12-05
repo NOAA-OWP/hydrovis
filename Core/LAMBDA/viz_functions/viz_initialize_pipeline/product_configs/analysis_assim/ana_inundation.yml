@@ -1,6 +1,7 @@
 product: ana_inundation
 configuration: analysis_assim
 product_type: "fim"
+domain: conus
 run: true
 
 ingest_files:
@@ -19,6 +20,7 @@ db_max_flows:
 
 fim_configs:
   - name: ana_inundation
+    flows_table: cache.max_flows_ana
     target_table: ingest.ana_inundation
     fim_type: hand
     postprocess:

@@ -1,6 +1,7 @@
 product: srf_18hr_max_inundation
 configuration: short_range
 product_type: "fim"
+domain: conus
 run: true
 
 ingest_files:
@@ -19,6 +20,7 @@ db_max_flows:
 
 fim_configs:
   - name: srf_18hr_max_inundation
+    flows_table: cache.max_flows_srf
     target_table: ingest.srf_18hr_max_inundation
     fim_type: hand
     postprocess:

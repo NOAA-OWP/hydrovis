@@ -1,10 +1,12 @@
 product: rfc_based_5day_max_inundation
 configuration: replace_route
 product_type: "fim"
+domain: conus
 run: true
 
 fim_configs:
   - name: rfc_based_5day_max_inundation
+    flows_table: cache.max_flows_rnr
     target_table: ingest.rfc_based_5day_max_inundation
     fim_type: hand
     postprocess:
