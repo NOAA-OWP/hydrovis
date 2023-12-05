@@ -37,4 +37,4 @@ JOIN derived.channels_alaska as channels ON forecasts.feature_id = channels.feat
 -- Join in arrival_time query results
 JOIN arrival_time ON forecasts.feature_id = arrival_time.feature_id
 
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, arrival_time.below_bank_return_hour, max_flows.discharge_cms, channels.geom, channels.strm_order, channels.name, channels.huc6;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, arrival_time.below_bank_return_hour, max_flows.discharge_cfs, channels.geom, channels.strm_order, channels.name, channels.huc6;

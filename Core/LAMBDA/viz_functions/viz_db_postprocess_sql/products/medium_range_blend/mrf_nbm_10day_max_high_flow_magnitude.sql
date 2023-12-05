@@ -1,11 +1,11 @@
 DROP TABLE IF EXISTS publish.mrf_nbm_10day_max_high_flow_magnitude;
 WITH high_flow_mag AS (
-     SELECT maxflows.feature_id,
+     SELECT maxflows_10day.feature_id,
         maxflows_3day.discharge_cfs AS maxflow_3day_cfs,
         maxflows_5day.discharge_cfs AS maxflow_5day_cfs,
         maxflows_10day.discharge_cfs AS maxflow_10day_cfs,
-        maxflows.nwm_vers,
-        maxflows.reference_time,
+        maxflows_10day.nwm_vers,
+        maxflows_10day.reference_time,
             CASE
                 WHEN maxflows_3day.discharge_cfs >= thresholds.rf_50_0_17c THEN '2'::text
 				WHEN maxflows_3day.discharge_cfs >= thresholds.rf_25_0_17c THEN '4'::text
@@ -42,8 +42,8 @@ WITH high_flow_mag AS (
        FROM cache.max_flows_mrf_nbm_10day AS maxflows_10day
          JOIN cache.max_flows_mrf_nbm_5day AS maxflows_5day ON maxflows_10day.feature_id = maxflows_5day.feature_id
          JOIN cache.max_flows_mrf_nbm_3day AS maxflows_3day ON maxflows_10day.feature_id = maxflows_3day.feature_id
-         JOIN derived.recurrence_flows_conus thresholds ON maxflows.feature_id = thresholds.feature_id
-      WHERE (thresholds.high_water_threshold > 0::double precision) AND maxflows_10day.discharge_cfs >= maxflows_10day.high_water_threshold
+         JOIN derived.recurrence_flows_conus thresholds ON maxflows_10day.feature_id = thresholds.feature_id
+      WHERE (thresholds.high_water_threshold > 0::double precision) AND maxflows_10day.discharge_cfs >= thresholds.high_water_threshold
     )
 
 SELECT channels.feature_id,

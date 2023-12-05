@@ -1,6 +1,6 @@
 -- Create a past_hour ana table. This is an interim solution to Shawn's rate of change service.
-CREATE TABLE IF NOT EXISTS cache.max_flows_ana (feature_id bigint, reference_time timestamp without time zone, nwm_vers double precision, discharge_cms double precision, discharge_cfs double precision);
-CREATE TABLE IF NOT EXISTS cache.max_flows_ana_past_hour (feature_id bigint, reference_time timestamp without time zone, nwm_vers double precision, discharge_cms double precision, discharge_cfs double precision);
+CREATE TABLE IF NOT EXISTS cache.max_flows_ana (feature_id bigint, reference_time text, nwm_vers double precision, discharge_cms double precision, discharge_cfs double precision);
+CREATE TABLE IF NOT EXISTS cache.max_flows_ana_past_hour (feature_id bigint, reference_time text, nwm_vers double precision, discharge_cms double precision, discharge_cfs double precision);
 TRUNCATE TABLE cache.max_flows_ana_past_hour;
 INSERT INTO cache.max_flows_ana_past_hour
 SELECT * FROM cache.max_flows_ana;
