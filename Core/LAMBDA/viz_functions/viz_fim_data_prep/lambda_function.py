@@ -118,7 +118,8 @@ def setup_huc_inundation(event):
         hour = reference_date.strftime("%H")
 
         # Load cached fim data from Redshift into the RDS table
-        redshift_fim_table = target_table.replace("ingest", "fim")
+        #TODO: Clean this up with postprocess_sql logic.
+        redshift_fim_table = target_table.replace("ingest", "temp")
         load_cached_fim_from_redshift(viz_db, target_table, redshift_fim_table)
 
         ras_publish_table = get_valid_ras2fim_models(sql, target_table, reference_time, viz_db, egis_db, reference_service)
@@ -340,7 +341,7 @@ def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_g
         if update_srid and "geom" in columns:
             print(f"---> Updating SRID to {update_srid}")
             cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
-    with db_connection.close()
+    db_connection.close()
             
 def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
     with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
