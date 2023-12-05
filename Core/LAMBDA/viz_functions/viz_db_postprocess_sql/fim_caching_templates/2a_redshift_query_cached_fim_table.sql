@@ -18,7 +18,7 @@ SELECT
     cfm.fim_version,
     to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     'Cached' AS prc_method
-FROM {rs_streamflow_table} AS fs
+FROM {rs_fim_table}_flows AS fs
 JOIN fim.hydrotable_cached_max AS cfm ON fs.feature_id = cfm.feature_id AND fs.hydro_id = cfm.hydro_id AND fs.huc8 = cfm.huc8 AND fs.branch = cfm.branch
 JOIN fim.hydrotable_cached AS cf ON fs.feature_id = cf.feature_id AND fs.hydro_id = cf.hydro_id AND fs.huc8 = cf.huc8 AND fs.branch = cf.branch
 WHERE (fs.discharge_cfs <= cf.rc_discharge_cfs AND fs.discharge_cfs > cf.rc_previous_discharge_cfs) OR (fs.discharge_cfs >= cfm.max_rc_discharge_cfs);
@@ -31,16 +31,16 @@ JOIN fim.hydrotable_cached_geo AS cfg ON fim.feature_id = cfg.feature_id AND fim
 INSERT INTO {rs_fim_table}_zero_stage(hydro_id, feature_id, huc8, branch, rc_discharge_cms, note)
 SELECT zero_stage.hydro_id, zero_stage.feature_id, zero_stage.huc8, zero_stage.branch, zero_stage.rc_discharge_cms, zero_stage.note
 FROM fim.hydrotable_cached_zero_stage AS zero_stage
-JOIN fim.ana_inundation_status AS Status
+JOIN {rs_fim_table}_flows AS Status
 ON status.feature_id = zero_stage.feature_id AND status.hydro_id = zero_stage.hydro_id AND status.huc8 = zero_stage.huc8 AND status.branch = zero_stage.branch
 WHERE (status.discharge_cms <= zero_stage.rc_discharge_cms) OR zero_stage.rc_discharge_cms = 0;
 
-UPDATE {rs_streamflow_table} AS status
+UPDATE {rs_fim_table}_flows AS status
 SET prc_status = 'Cached'
 FROM {rs_fim_table} AS fim
 WHERE status.feature_id = fim.feature_id AND status.hydro_id = fim.hydro_id AND status.huc8 = fim.huc8 AND status.branch = fim.branch;
 
-UPDATE {rs_streamflow_table} AS status
+UPDATE {rs_fim_table}_flows AS status
 SET prc_status = 'Zero_Stage'
 FROM {rs_fim_table}_zero_stage AS zero_stage
 WHERE status.feature_id = zero_stage.feature_id AND status.hydro_id = zero_stage.hydro_id AND status.huc8 = zero_stage.huc8 AND status.branch = zero_stage.branch;

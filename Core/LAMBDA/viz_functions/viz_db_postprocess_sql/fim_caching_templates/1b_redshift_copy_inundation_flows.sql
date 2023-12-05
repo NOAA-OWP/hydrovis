@@ -1,5 +1,5 @@
-TRUNCATE {rs_streamflow_table};
-INSERT INTO fim.ana_inundation_status (feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
+TRUNCATE {rs_fim_table}_flows;
+INSERT INTO {rs_fim_table}_flows (feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
 SELECT
-    *
-FROM external_viz_ingest.ana_inundation_flows;
+    feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status
+FROM external_viz_{db_fim_table}_flows;
