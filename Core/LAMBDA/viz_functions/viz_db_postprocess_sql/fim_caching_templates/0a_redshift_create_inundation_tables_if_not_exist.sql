@@ -12,32 +12,32 @@ CREATE TABLE IF NOT EXISTS {rs_fim_table}_flows
 );
 
 CREATE TABLE IF NOT EXISTS {rs_fim_table} (
-    hydro_id integer ENCODE az64,
-    feature_id integer ENCODE az64,
-    huc8 integer ENCODE az64,
-    branch bigint ENCODE az64,
-    forecast_discharge_cfs double precision ENCODE raw,
-    forecast_stage_ft double precision ENCODE raw,
-    rc_discharge_cfs double precision ENCODE raw,
-    rc_previous_discharge_cfs double precision ENCODE raw,
-    rc_stage_ft double precision ENCODE raw,
-    rc_previous_stage_ft double precision ENCODE raw,
-    max_rc_discharge_cfs double precision ENCODE raw,
-    max_rc_stage_ft double precision ENCODE raw,
-    fim_version character varying(256) ENCODE lzo,
-    reference_time character varying(23) ENCODE lzo,
-    prc_method character varying(10) ENCODE lzo,
+    hydro_id integer,
+    feature_id integer,
+    huc8 integer,
+    branch bigint,
+    forecast_discharge_cfs double precision,
+    forecast_stage_ft double precision,
+    rc_discharge_cfs double precision,
+    rc_previous_discharge_cfs double precision,
+    rc_stage_ft double precision,
+    rc_previous_stage_ft double precision,
+    max_rc_discharge_cfs double precision,
+    max_rc_stage_ft double precision,
+    fim_version text,
+    reference_time text,
+    prc_method text,
     PRIMARY KEY("hydro_id", "feature_id", "huc8", "branch")
 ) DISTSTYLE AUTO;
 
 CREATE TABLE IF NOT EXISTS {rs_fim_table}_geo (
-    hydro_id integer ENCODE az64,
-    feature_id integer ENCODE az64,
+    hydro_id integer,
+    feature_id integer,
     huc8 INTEGER,
-    branch bigint ENCODE az64,
-    rc_stage_ft integer ENCODE az64,
-    geom_part integer ENCODE az64,
-    geom geometry ENCODE raw
+    branch bigint,
+    rc_stage_ft integer,
+    geom_part integer,
+    geom geometry
 ) DISTSTYLE AUTO;
 
 CREATE TABLE IF NOT EXISTS {rs_fim_table}_zero_stage

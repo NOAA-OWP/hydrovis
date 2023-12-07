@@ -45,8 +45,7 @@ SELECT
 FROM {postgis_fim_table}_geo_view AS fim
 JOIN fim.hydrotable_cached_max AS hcm ON fim.hydro_id = hcm.hydro_id AND fim.feature_id = hcm.feature_id AND fim.huc8 = hcm.huc8 AND fim.branch = hcm.branch
 LEFT OUTER JOIN fim.hydrotable_cached_geo AS hcg ON fim.hydro_id = hcg.hydro_id AND fim.rc_stage_ft = hcg.rc_stage_ft AND fim.feature_id = hcg.feature_id AND fim.huc8 = hcg.huc8 AND fim.branch = hcg.branch
-WHERE hcg.rc_stage_ft IS NULL
-      AND ;
+WHERE hcg.rc_stage_ft IS NULL;
 
 -- 4. Add records for zero_stage features to zero stage table
 INSERT INTO fim.hydrotable_cached_zero_stage (hydro_id, feature_id, huc8, branch, rc_discharge_cms, note)
