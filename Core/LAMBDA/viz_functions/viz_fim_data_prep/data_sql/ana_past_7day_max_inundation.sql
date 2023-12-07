@@ -1,1 +1,0 @@
-SELECT * FROM ingest.ana_past_7day_max_inundation_flows

@@ -1,1 +1,0 @@
-SELECT * FROM ingest.mrf_gfs_max_inundation_5day_flows

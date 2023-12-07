@@ -1,1 +1,0 @@
-SELECT * FROM ingest.srf_48hr_max_inundation_hi_flows
