@@ -760,3 +760,10 @@ def gen_dict_extract(key, var):
                 for d in v:
                     for result in gen_dict_extract(key, d):
                         yield result
+
+def organize_input_files(fileset_bucket, fileset, download_subfolder):
+    local_files = []
+    for file in fileset:
+        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=download_subfolder)
+        local_files.append(download_path)
+    return local_files
