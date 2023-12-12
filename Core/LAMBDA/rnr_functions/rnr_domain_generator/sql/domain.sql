@@ -75,8 +75,8 @@ flow_fcsts_from_rating_curve AS (
 	JOIN rnr.staggered_curves curve
 		ON curve.rating_id = rating.rating_id
 		AND (curve.stage = f.value 
-			OR (curve.stage > f.value 
-				AND curve.next_higher_point_stage < f.value))
+			OR (curve.stage < f.value 
+				AND curve.next_higher_point_stage > f.value))
 ),
 
 all_flow_forecasts AS (

@@ -47,7 +47,7 @@ SELECT channels.feature_id,
 	arrival_time.duration,
 	arrival_time.high_water_threshold,
 	arrival_time.max_flow,
-	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UtC') AS update_time,
+	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	channels.geom
 INTO publish.srf_48hr_high_water_arrival_time_prvi
 FROM derived.channels_prvi channels
@@ -56,4 +56,4 @@ JOIN arrival_time ON channels.feature_id = arrival_time.feature_id;
 --Add an empty row so that service monitor will pick up a reference and update time in the event of no fim features
 INSERT INTO publish.srf_48hr_high_water_arrival_time_prvi(
 	feature_id, feature_id_str, name, strm_order, huc6, state, nwm_vers, reference_time, high_water_arrival_hour, high_water_arrival_time, below_bank_return_hour, below_bank_return_time, duration, high_water_threshold, max_flow, update_time, geom)
-	VALUES (NULL, NULL, NULL, NULL, NULL, 'PRVI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UtC'), NULL);
+	VALUES (NULL, NULL, NULL, NULL, NULL, 'PRVI', NULL, to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL, NULL, NULL, NULL, NULL, NULL, NULL, to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC'), NULL);
