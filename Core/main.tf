@@ -625,24 +625,25 @@ module "viz-lambda-functions" {
 module "step-functions" {
   source = "./StepFunctions"
 
-  viz_lambda_role           = module.iam-roles.role_viz_pipeline.arn
-  rnr_lambda_role           = module.iam-roles.role_sync_wrds_location_db.arn
-  environment               = local.env.environment
-  optimize_rasters_arn      = module.viz-lambda-functions.optimize_rasters.arn
-  update_egis_data_arn      = module.viz-lambda-functions.update_egis_data.arn
-  fim_data_prep_arn         = module.viz-lambda-functions.fim_data_prep.arn
-  db_postprocess_sql_arn    = module.viz-lambda-functions.db_postprocess_sql.arn
-  db_ingest_arn             = module.viz-lambda-functions.db_ingest.arn
-  raster_processing_arn     = module.viz-lambda-functions.raster_processing.arn
-  publish_service_arn       = module.viz-lambda-functions.publish_service.arn
-  python_preprocessing_arn  = module.viz-lambda-functions.python_preprocessing.arn
-  hand_fim_processing_arn   = module.viz-lambda-functions.hand_fim_processing.arn
-  schism_fim_processing_arn = module.viz-lambda-functions.schism_fim_processing.arn
-  initialize_pipeline_arn   = module.viz-lambda-functions.initialize_pipeline.arn
-  rnr_domain_generator_arn  = module.rnr-lambda-functions.rnr_domain_generator.arn
-  email_sns_topics          = module.sns.email_sns_topics
-  aws_instances_to_reboot   = [module.rnr.ec2.id]
-  fifteen_minute_trigger    = module.eventbridge.fifteen_minute_eventbridge
+  viz_lambda_role                   = module.iam-roles.role_viz_pipeline.arn
+  rnr_lambda_role                   = module.iam-roles.role_sync_wrds_location_db.arn
+  environment                       = local.env.environment
+  optimize_rasters_arn              = module.viz-lambda-functions.optimize_rasters.arn
+  update_egis_data_arn              = module.viz-lambda-functions.update_egis_data.arn
+  fim_data_prep_arn                 = module.viz-lambda-functions.fim_data_prep.arn
+  db_postprocess_sql_arn            = module.viz-lambda-functions.db_postprocess_sql.arn
+  db_ingest_arn                     = module.viz-lambda-functions.db_ingest.arn
+  raster_processing_arn             = module.viz-lambda-functions.raster_processing.arn
+  publish_service_arn               = module.viz-lambda-functions.publish_service.arn
+  python_preprocessing_2GB_arn      = module.viz-lambda-functions.python_preprocessing_2GB.arn
+  python_preprocessing_10GB_arn     = module.viz-lambda-functions.python_preprocessing_10GB.arn
+  hand_fim_processing_arn           = module.viz-lambda-functions.hand_fim_processing.arn
+  schism_fim_processing_arn         = module.viz-lambda-functions.schism_fim_processing.arn
+  initialize_pipeline_arn           = module.viz-lambda-functions.initialize_pipeline.arn
+  rnr_domain_generator_arn          = module.rnr-lambda-functions.rnr_domain_generator.arn
+  email_sns_topics                  = module.sns.email_sns_topics
+  aws_instances_to_reboot           = [module.rnr.ec2.id]
+  fifteen_minute_trigger            = module.eventbridge.fifteen_minute_eventbridge
   viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
 }
 
