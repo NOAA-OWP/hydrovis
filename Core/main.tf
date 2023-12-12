@@ -603,6 +603,7 @@ module "viz-lambda-functions" {
   psycopg2_sqlalchemy_layer      = module.lambda-layers.psycopg2_sqlalchemy.arn
   requests_layer                 = module.lambda-layers.requests.arn
   yaml_layer                     = module.lambda-layers.yaml.arn
+  dask_layer                     = module.lambda-layers.dask.arn
   viz_lambda_shared_funcs_layer  = module.lambda-layers.viz_lambda_shared_funcs.arn
   db_lambda_security_groups      = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
   nat_sg_group                   = module.security-groups.vpc_access.id

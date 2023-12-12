@@ -414,7 +414,6 @@
           "dataset" : "hydrovis.services.%Day 1 Bankfull Probability (%)_6",
           "datasetType" : "esriDTFeatureClass",
           "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,hours_3_to_24,high_water_threshold,reference_time,feature_id_str AS feature_id,update_time,oid from hydrovis.services.mrf_gfs_5day_max_high_water_prob",
-
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
