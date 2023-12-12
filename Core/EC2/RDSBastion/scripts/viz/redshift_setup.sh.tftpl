@@ -23,5 +23,5 @@ psql -h "${viz_redshift_host}" -U "${viz_redshift_username}" -p ${viz_redshift_p
           FROM POSTGRES
           DATABASE '${viz_db_name}' SCHEMA 'ingest'
           URI '${viz_db_host}' PORT ${viz_db_port}
-          IAM_ROLE ${viz_redshift_iam_role_arn}
+          IAM_ROLE '${viz_redshift_iam_role_arn}'
           SECRET_ARN '${viz_proc_admin_rw_secret_arn}';"
