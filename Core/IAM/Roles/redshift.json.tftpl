@@ -1,0 +1,28 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "s3_access",
+            "Action": [
+                "s3:PutObject",
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::hydrovis-${environment}-fim-${region}/*"
+            ] 
+        },
+        {
+            "Sid": "secret_for_external_data_schema",
+            "Action": [
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:GetSecretValue"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "${viz_proc_admin_rw_secret_arn}"
+            ] 
+        }
+    ] 
+}
