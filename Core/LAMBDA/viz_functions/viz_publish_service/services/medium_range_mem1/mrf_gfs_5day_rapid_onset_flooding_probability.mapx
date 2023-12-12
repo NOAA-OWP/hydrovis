@@ -390,7 +390,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%Day 1 Rapid Onset Flooding Probability (%)_5",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day1, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day1, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1139,7 +1139,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%Day 2 Rapid Onset Flooding Probability (%)_4",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day2, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day2, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1888,7 +1888,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%Day 3 Rapid Onset Flooding Probability (%)_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day3, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day3, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2637,7 +2637,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%Day 4 Rapid Onset Flooding Probability (%)_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day4_5, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_day4_5, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3386,7 +3386,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%Days 1-5 Rapid Onset Flooding Probability (%)_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_all, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, rapid_onset_prob_all, reference_time, update_time, oid  from hydrovis.services.mrf_gfs_5day_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4183,7 +4183,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%hucs",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.mrf_gfs_5day_rapid_onset_flooding_probability_hucs",
+          "sqlQuery" : "select huc8_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.mrf_gfs_5day_rof_prob_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4225,7 +4225,7 @@
             },
             {
               "name" : "rapid_onset_reach_cnt",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "rapid_onset_reach_cnt"
             },
             {

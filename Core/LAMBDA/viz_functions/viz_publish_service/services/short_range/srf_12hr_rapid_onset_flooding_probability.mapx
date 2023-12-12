@@ -251,7 +251,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rof_prob",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -430,7 +430,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1056,7 +1056,7 @@
       },
       "metadataURI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rof_prob",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -1235,7 +1235,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1860,7 +1860,7 @@
         "start" : 978307200000
       },
       "useSourceMetadata" : true,
-      "description" : "hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+      "description" : "hydrovis.services.srf_12hr_rof_prob",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{861E09F4-AA31-4E74-9067-1853ACCD88FD}"
@@ -2030,7 +2030,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%srf_12hr_rapid_onset_flooding_probability",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rapid_onset_flooding_probability",
+          "sqlQuery" : "select strm_order,name,huc6,nwm_vers,geom,rapid_onset_prob_all,rapid_onset_prob_1_6,rapid_onset_prob_7_12,reference_time,feature_id_str AS feature_id,update_time,reach_length_miles,oid from hydrovis.services.srf_12hr_rof_prob",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2842,7 +2842,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%hucs",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc10_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.srf_12hr_rapid_onset_flooding_probability_hucs",
+          "sqlQuery" : "select huc10_str, low_order_reach_count, total_low_order_reach_length, total_low_order_reach_miles, rapid_onset_reach_cnt, weighted_mean, pct_reachs_rapid_onset, pct_reach_length_rapid_onset, reference_time, update_time, geom, oid  from hydrovis.services.srf_12hr_rof_prob_hucs",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2884,7 +2884,7 @@
             },
             {
               "name" : "rapid_onset_reach_cnt",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "rapid_onset_reach_cnt"
             },
             {
@@ -3478,7 +3478,7 @@
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/7961f5a8692ac56421001d3ec48dc4fc.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220314</CreaDate><CreaTime>05060400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>hydrovis.services.srf_12hr_rapid_onset_flooding_probability</resTitle></idCitation><idAbs>hydrovis.services.srf_12hr_rapid_onset_flooding_probability</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220314</CreaDate><CreaTime>05060400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>hydrovis.services.srf_12hr_rof_prob</resTitle></idCitation><idAbs>hydrovis.services.srf_12hr_rof_prob</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
