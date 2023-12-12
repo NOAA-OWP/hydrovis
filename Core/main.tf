@@ -58,6 +58,7 @@ module "iam-roles" {
   prod_account_id              = local.env.prod_account_id
   region                       = local.env.region
   nws_shared_account_s3_bucket = local.env.nws_shared_account_s3_bucket
+  viz_proc_admin_rw_secret_arn = module.secrets-manager.secret_arns["viz-proc-admin-rw-user"]
 }
 
 # IAM Users
@@ -110,6 +111,8 @@ module "secrets-manager" {
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
     "viz-proc-admin-rw-user"              = { "username" : "viz_proc_admin_rw_user" }
     "viz-proc-dev-rw-user"                = { "username" : "viz_proc_dev_rw_user" }
+    "viz_redshift_master"                 = { "username" : "viz_redshift_master" }
+    "viz_redshift_user"                   = { "username" : "viz_redshift_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc-fcst"                        = { "username" : "rfc_fcst" }
@@ -339,6 +342,21 @@ module "rds-viz" {
   private_route_53_zone = module.private-route53.zone
 }
 
+module "redshift-viz" {
+  source = "./Redshift/viz"
+
+  environment                             = local.env.environment
+  subnet-a                                = module.vpc.subnet_private_a.id
+  subnet-b                                = module.vpc.subnet_private_b.id
+  db_viz_redshift_master_secret_string    = module.secrets-manager.secret_strings["viz-redshift-master"]
+  db_viz_redshift_user_secret_string      = module.secrets-manager.secret_strings["viz-redshift-user"]
+  db_viz_redshift_security_groups         = [module.security-groups.redshift.id]
+  viz_redshift_db_name                    = local.env.viz_redshift_db_name
+  role_viz_redshift_arn                   = module.iam-roles.redshift.arn
+
+  private_route_53_zone = module.private-route53.zone
+}
+
 ###################### STAGE 4 ###################### (Set up Deployment Bucket Artifacts and EGIS Resources before deploying)
 
 # EGIS Route53 DNS
@@ -362,46 +380,53 @@ module "rds-egis" {
 module "rds-bastion" {
   source = "./EC2/RDSBastion"
 
-  environment                    = local.env.environment
-  region                         = local.env.region
-  account_id                     = local.env.account_id
-  ec2_instance_profile_name      = module.iam-roles.profile_data_ingest.name
-  ec2_instance_subnet            = module.vpc.subnet_private_a.id
-  ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
-  ec2_instance_sgs               = [
+  environment                       = local.env.environment
+  region                            = local.env.region
+  account_id                        = local.env.account_id
+  ec2_instance_profile_name         = module.iam-roles.profile_data_ingest.name
+  ec2_instance_subnet               = module.vpc.subnet_private_a.id
+  ec2_instance_availability_zone    = module.vpc.subnet_private_a.availability_zone
+  ec2_instance_sgs                  = [
     module.security-groups.rds.id,
     module.security-groups.rabbitmq.id,
     module.security-groups.vpc_access.id
   ]
-  kms_key_arn                    = module.kms.key_arns["encrypt-ec2"]
+  kms_key_arn                       = module.kms.key_arns["encrypt-ec2"]
 
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
-  ingest_db_secret_string        = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
-  ingest_db_address              = module.rds-ingest.dns_name
-  ingest_db_port                 = module.rds-ingest.instance.port
-  nwm_viz_ro_secret_string       = module.secrets-manager.secret_strings["rds-nwm-viz-ro"]
-  rfc_fcst_secret_string         = module.secrets-manager.secret_strings["rds-rfc-fcst"]
-  rfc_fcst_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
-  rfc_fcst_user_secret_string    = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
-  location_ro_user_secret_string = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
-  location_db_name               = local.env.location_db_name
-  forecast_db_name               = local.env.forecast_db_name
+  ingest_db_secret_string           = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
+  ingest_db_address                 = module.rds-ingest.dns_name
+  ingest_db_port                    = module.rds-ingest.instance.port
+  nwm_viz_ro_secret_string          = module.secrets-manager.secret_strings["rds-nwm-viz-ro"]
+  rfc_fcst_secret_string            = module.secrets-manager.secret_strings["rds-rfc-fcst"]
+  rfc_fcst_ro_user_secret_string    = module.secrets-manager.secret_strings["data-services-forecast-pg-rdssecret"]
+  rfc_fcst_user_secret_string       = module.secrets-manager.secret_strings["rds-rfc-fcst-user"]
+  location_ro_user_secret_string    = module.secrets-manager.secret_strings["data-services-location-pg-rdssecret"]
+  location_db_name                  = local.env.location_db_name
+  forecast_db_name                  = local.env.forecast_db_name
 
   ingest_mq_secret_string = module.secrets-manager.secret_strings["ingest-mqsecret"]
   ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
-  viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
-  viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz-proc-dev-rw-user"]
-  viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
-  viz_db_address                  = module.rds-viz.instance.address
-  viz_db_port                     = module.rds-viz.instance.port
-  viz_db_name                     = local.env.viz_db_name
-  egis_db_master_secret_string    = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
-  egis_db_secret_string           = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_db_address                 = module.rds-egis.dns_name
-  egis_db_port                    = module.rds-egis.instance.port
-  egis_db_name                    = local.env.egis_db_name
+  viz_proc_admin_rw_secret_string   = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+  viz_proc_admin_rw_secret_arn      = module.secrets-manager.secret_arns["viz-proc-admin-rw-user"]
+  viz_proc_dev_rw_secret_string     = module.secrets-manager.secret_strings["viz-proc-dev-rw-user"]
+  viz_db_secret_string              = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_address                    = module.rds-viz.instance.address
+  viz_db_port                       = module.rds-viz.instance.port
+  viz_db_name                       = local.env.viz_db_name
+  viz_redshift_master_secret_string = module.secrets-manager.secret_strings["viz_redshift_master"]
+  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz_redshift_user"]
+  viz_redshift_address              = module.redshift-viz.dns_name
+  viz_redshift_port                 = module.redshift-viz.port
+  viz_redshift_name                 = local.env.viz_redshift_db_name
+  viz_redshift_iam_role             = module.iam-roles.redshift.arn
+  egis_db_master_secret_string      = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
+  egis_db_secret_string             = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_db_address                   = module.rds-egis.dns_name
+  egis_db_port                      = module.rds-egis.instance.port
+  egis_db_name                      = local.env.egis_db_name
 
   fim_version = local.env.fim_version
 }
@@ -580,46 +605,49 @@ module "viz-lambda-functions" {
     aws.sns = aws.sns
   }
 
-  environment                    = local.env.environment
-  account_id                     = local.env.account_id
-  region                         = local.env.region
-  viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
-  fim_data_bucket                = module.s3.buckets["deployment"].bucket
-  fim_output_bucket              = module.s3.buckets["fim"].bucket
-  python_preprocessing_bucket    = module.s3.buckets["fim"].bucket
-  rnr_data_bucket                = module.s3.buckets["rnr"].bucket
-  deployment_bucket              = module.s3.buckets["deployment"].bucket
-  viz_cache_bucket               = module.s3.buckets["fim"].bucket
-  fim_version                    = local.env.fim_version
-  lambda_role                    = module.iam-roles.role_viz_pipeline.arn
-  # sns_topics                   = module.sns.sns_topics
-  nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
-  email_sns_topics               = module.sns.email_sns_topics
-  es_logging_layer               = module.lambda-layers.es_logging.arn
-  xarray_layer                   = module.lambda-layers.xarray.arn
-  pandas_layer                   = module.lambda-layers.pandas.arn
-  geopandas_layer                = module.lambda-layers.geopandas.arn
-  arcgis_python_api_layer        = module.lambda-layers.arcgis_python_api.arn
-  psycopg2_sqlalchemy_layer      = module.lambda-layers.psycopg2_sqlalchemy.arn
-  requests_layer                 = module.lambda-layers.requests.arn
-  yaml_layer                     = module.lambda-layers.yaml.arn
-  dask_layer                     = module.lambda-layers.dask.arn
-  viz_lambda_shared_funcs_layer  = module.lambda-layers.viz_lambda_shared_funcs.arn
-  db_lambda_security_groups      = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
-  nat_sg_group                   = module.security-groups.vpc_access.id
-  db_lambda_subnets              = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
-  viz_db_host                    = module.rds-viz.dns_name
-  viz_db_name                    = local.env.viz_db_name
-  viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
-  egis_db_host                   = module.rds-egis.dns_name
-  egis_db_name                   = local.env.egis_db_name
-  egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
-  egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
-  dataservices_host              = module.data-services.dns_name
-  viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
-  default_tags                   = local.env.tags
-  nwm_dataflow_version           = local.env.nwm_dataflow_version
-  five_minute_trigger            = module.eventbridge.five_minute_eventbridge
+  environment                       = local.env.environment
+  account_id                        = local.env.account_id
+  region                            = local.env.region
+  viz_authoritative_bucket          = module.s3.buckets["deployment"].bucket
+  fim_data_bucket                   = module.s3.buckets["deployment"].bucket
+  fim_output_bucket                 = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket       = module.s3.buckets["fim"].bucket
+  rnr_data_bucket                   = module.s3.buckets["rnr"].bucket
+  deployment_bucket                 = module.s3.buckets["deployment"].bucket
+  viz_cache_bucket                  = module.s3.buckets["fim"].bucket
+  fim_version                       = local.env.fim_version
+  lambda_role                       = module.iam-roles.role_viz_pipeline.arn
+  # sns_topics                      = module.sns.sns_topics
+  nws_shared_account_nwm_sns        = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
+  email_sns_topics                  = module.sns.email_sns_topics
+  es_logging_layer                  = module.lambda-layers.es_logging.arn
+  xarray_layer                      = module.lambda-layers.xarray.arn
+  pandas_layer                      = module.lambda-layers.pandas.arn
+  geopandas_layer                   = module.lambda-layers.geopandas.arn
+  arcgis_python_api_layer           = module.lambda-layers.arcgis_python_api.arn
+  psycopg2_sqlalchemy_layer         = module.lambda-layers.psycopg2_sqlalchemy.arn
+  requests_layer                    = module.lambda-layers.requests.arn
+  yaml_layer                        = module.lambda-layers.yaml.arn
+  dask_layer                        = module.lambda-layers.dask.arn
+  viz_lambda_shared_funcs_layer     = module.lambda-layers.viz_lambda_shared_funcs.arn
+  db_lambda_security_groups         = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
+  nat_sg_group                      = module.security-groups.vpc_access.id
+  db_lambda_subnets                 = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
+  viz_db_host                       = module.rds-viz.dns_name
+  viz_db_name                       = local.env.viz_db_name
+  viz_db_user_secret_string         = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+  egis_db_host                      = module.rds-egis.dns_name
+  egis_db_name                      = local.env.egis_db_name
+  egis_db_user_secret_string        = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
+  egis_portal_password              = local.env.viz_ec2_hydrovis_egis_pass
+  viz_redshift_host                 = module.redshift-viz.dns_name
+  viz_redshift_db_name              = local.env.viz_redshift_db_name
+  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz_redshift_user"]
+  dataservices_host                 = module.data-services.dns_name
+  viz_pipeline_step_function_arn    = module.step-functions.viz_pipeline_step_function.arn
+  default_tags                      = local.env.tags
+  nwm_dataflow_version              = local.env.nwm_dataflow_version
+  five_minute_trigger               = module.eventbridge.five_minute_eventbridge
 }
 
 module "step-functions" {
