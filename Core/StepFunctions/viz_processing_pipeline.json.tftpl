@@ -41,7 +41,7 @@
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${python_preprocessing_arn}",
+              "FunctionName": "${python_preprocessing_2GB_arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "python_preprocessing"
@@ -683,7 +683,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${python_preprocessing_arn}",
+                    "FunctionName": "${python_preprocessing_2GB_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"

@@ -446,7 +446,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%7-Day Average Streamflow Percentile_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, average_flow_7day, prcntle_5, prcntle_10, prcntle_25, prcntle_75, prcntle_90, prcntle_95, anom_cat_7day, latest_flow,reference_time,valid_time,update_time, oid  from hydrovis.services.ana_anomaly",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, average_flow_7day, pctl_5_7d AS prcntle_5, pctl_10_7d AS prcntle_10, pctl_25_7d AS prcntle_25, pctl_75_7d AS prcntle_75, pctl_90_7d AS prcntle_90, pctl_95_7d AS prcntle_95, anom_cat_7day, latest_flow, reference_time, valid_time, update_time, oid from hydrovis.services.ana_anomaly WHERE anom_cat_7day IS NOT NULL",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1404,7 +1404,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%14-Day Average Streamflow Percentile_2_2_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, prcntle_5, prcntle_10, prcntle_25, prcntle_75, prcntle_90, prcntle_95, average_flow_14day, anom_cat_14day, latest_flow, reference_time, valid_time, update_time, oid  from hydrovis.services.ana_anomaly",
+          "sqlQuery" : "select strm_order, name, huc6, nwm_vers, geom, feature_id_str AS feature_id, average_flow_14day, pctl_5_14d AS prcntle_5, pctl_10_14d AS prcntle_10, pctl_25_14d AS prcntle_25, pctl_75_14d AS prcntle_75, pctl_90_14d AS prcntle_90, pctl_95_14d AS prcntle_95, anom_cat_14day, latest_flow, reference_time, valid_time, update_time, oid from hydrovis.services.ana_anomaly WHERE anom_cat_14day IS NOT NULL",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

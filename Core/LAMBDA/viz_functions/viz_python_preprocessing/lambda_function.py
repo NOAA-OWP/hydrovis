@@ -1,10 +1,11 @@
 from datetime import datetime
+import os
 
 from viz_lambda_shared_funcs import generate_file_list
 from products.max_values import aggregate_max_to_file
 from products.high_water_probability import run_high_water_probability
 from products.rapid_onset_flooding_probability import run_rapid_onset_flooding_probability
-
+from products.anomaly import run_anomaly
 
 def lambda_handler(event, context):
     """
@@ -53,13 +54,17 @@ def lambda_handler(event, context):
         output_file_bucket = event['args']['python_preprocessing']['output_file_bucket']
         
     
-    print(f"Creating {output_file}")
+    print(f"Running {product} code and creating {output_file}")
     if product == "max_values":
         aggregate_max_to_file(fileset_bucket, fileset, output_file_bucket, output_file)
     elif product == "high_water_probability":
         run_high_water_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
     elif product == "rapid_onset_flooding_probability":
         run_rapid_onset_flooding_probability(reference_date, fileset_bucket, fileset, output_file_bucket, output_file)
+    elif product == "anomaly":
+        anomaly_config = event['args']['python_preprocessing']['config']
+        auth_data_bucket = os.environ['AUTH_DATA_BUCKET']
+        run_anomaly(reference_date, fileset_bucket, fileset, output_file_bucket, output_file, auth_data_bucket, anomaly_config=anomaly_config)
         
     print(f"Successfully created {output_file} in {output_file_bucket}")
     
