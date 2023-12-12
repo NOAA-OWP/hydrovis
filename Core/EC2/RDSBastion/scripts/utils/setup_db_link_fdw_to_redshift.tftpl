@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo ""
+echo "---- SETTING UP FOREIGN DATA WRAPPER TO REDSHIFT ----"
+
+# Setup foreign data server for db_link to Redshift - The syntax is a little diferent for this one, so I'm not abstracting it like the other foreign data wrapper connections at this time.
+echo "Adding foreing data_server for db_link to Redshift..."
+psql -h "${db_host}" -U "${db_username}" -p ${db_port} -d "${db_name}" \
+    -tAc "CREATE SERVER external_vpp_redshift
+                FOREIGN DATA WRAPPER postgres_fdw
+                OPTIONS (host '${viz_redshift_host}', port '${viz_redshift_port}', dbname '${viz_redshift_name}', sslmode 'require');
+          CREATE USER MAPPING FOR postgres
+                SERVER external_vpp_redshift
+                OPTIONS (user '${viz_redshift_user_username}', password '${viz_redshift_user_password}');
+          CREATE USER MAPPING FOR ${db_user_mapping}
+                SERVER external_vpp_redshift
+                OPTIONS (user '${viz_redshift_user_username}', password '${viz_redshift_user_password}');"
