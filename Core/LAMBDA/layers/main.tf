@@ -314,5 +314,5 @@ output "requests" {
 }
 
 output "yaml" {
-  value = resource.aws_lambda_layer_version.yaml
+  value = resource.aws_lambda_layer_version.dask
 }
