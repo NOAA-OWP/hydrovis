@@ -10,6 +10,7 @@ python_preprocessing:
     file_step: 1H
     file_window: P7D
     product: anomaly
+    lambda_ram: 10gb
     config: 7
     output_file: viz_ingest/analysis_assim/{{datetime:%Y%m%d}}/{{datetime:%H}}_ana_7day_anomaly.csv
     target_table: ingest.ana_7day_anomaly
@@ -18,6 +19,7 @@ python_preprocessing:
     file_step: 1H
     file_window: P14D
     product: anomaly
+    lambda_ram: 10gb
     config: 14
     output_file: viz_ingest/analysis_assim/{{datetime:%Y%m%d}}/{{datetime:%H}}_ana_14day_anomaly.csv
     target_table: ingest.ana_14day_anomaly

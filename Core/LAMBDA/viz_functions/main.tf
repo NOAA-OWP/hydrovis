@@ -396,10 +396,10 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
 #########################
 #### 2GB RAM Version ####
 #########################
-resource "aws_lambda_function" "viz_python_preprocessing_2GB" {
-  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
+resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
   description   = "Lambda function to create max streamflow files for NWM data"
-  memory_size   = 2048
+  memory_size   = 3072
   ephemeral_storage {
     size = 6656
   }
@@ -440,7 +440,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_2GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-2GB"
+    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_3GB"
   }
 }
 
@@ -448,7 +448,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_2GB" {
 #### 10GB RAM Version ####
 #########################
 resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
-  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 10240
   ephemeral_storage {
@@ -491,7 +491,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-2GB"
+    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_10GB"
   }
 }
 
@@ -1001,7 +1001,7 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 
 output "python_preprocessing_2GB" {
-  value = aws_lambda_function.viz_python_preprocessing_2GB
+  value = aws_lambda_function.viz_python_preprocessing_3GB
 }
 
 output "python_preprocessing_10GB" {

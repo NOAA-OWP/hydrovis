@@ -8,6 +8,7 @@ python_preprocessing:
     file_step: 1H
     file_window: PT7H
     product: rapid_onset_flooding_probability
+    lambda_ram: 2gb
     output_file: viz_ingest/short_range/{{datetime:%Y%m%d}}/{{datetime:%H}}_srf_12hr_rapid_onset_flooding_probability.csv
     target_table: ingest.srf_12hr_rof_prob
     target_keys: (feature_id)
