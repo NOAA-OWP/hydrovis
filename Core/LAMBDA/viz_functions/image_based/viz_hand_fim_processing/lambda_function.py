@@ -109,13 +109,18 @@ def lambda_handler(event, context):
         # Split geometry into seperate table per new schema
         df_inundation_geo = df_inundation[['hydro_id',  'feature_id', 'huc8', 'branch', 'rc_stage_ft', 'geom']]
         df_inundation.drop(columns=['geom'], inplace=True)
-
+        
+        # If records exist in stage_lookup that don't exist in df_inundation, add those to the zero_stage table.
+        df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['feature_id','hydro_id'],how='left',indicator=True)
+        df_no_inundation = df_no_inundation.loc[df_no_inundation['_merge'] == 'left_only']
+        if df_no_inundation.empty == False:
+            df_no_inundation.drop(df_no_inundation.columns.difference(['hydro_id','feature_id','huc8','branch','rc_discharge_cms','note']), axis=1,  inplace=True)
+            df_no_inundation['branch'] = int(branch)
+            df_no_inundation['huc8'] = int(huc8)
+            df_no_inundation['note'] = "Error - No inundation returned from hand processing."
+            df_no_inundation.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+        # If no records exist for valid inundation, stop.
         if df_inundation.empty:
-            stage_lookup.drop(columns=['discharge_cms', 'stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_previous_discharge_cms', 'max_rc_stage_m', 'max_rc_discharge_cms'], inplace=True)
-            stage_lookup['branch'] = int(branch)
-            stage_lookup['huc8'] = int(huc8)
-            stage_lookup['note'] = "Error"
-            stage_lookup.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=True)
             return
     
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
@@ -506,10 +511,12 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     
     print(f"Removing {len(df_forecast[df_forecast['stage_m'].isna()])} reaches with a NaN interpolated stage")
     df_zero_stage = df_forecast[df_forecast['stage_m'].isna()].copy()
+    df_zero_stage['note'] = "NaN Stage After Hydrotable Lookup"
     df_forecast = df_forecast[~df_forecast['stage_m'].isna()]
 
     print(f"Removing {len(df_forecast[df_forecast['stage_m']==0])} reaches with a 0 interpolated stage")
     df_zero_stage = pd.concat([df_zero_stage, df_forecast[df_forecast['stage_m']==0].copy()], axis=0)
+    df_zero_stage['note'] = np.where(df_zero_stage.note.isnull(), "0 Stage After Hydrotable Lookup", np.NaN)
     df_forecast = df_forecast[df_forecast['stage_m']!=0]
 
     df_zero_stage.drop(columns=['discharge_cms', 'stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_previous_discharge_cms'], inplace=True)

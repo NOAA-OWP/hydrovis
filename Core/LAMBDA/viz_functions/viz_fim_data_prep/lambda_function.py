@@ -60,9 +60,9 @@ def setup_huc_inundation(event):
     # Split reaches with flows into processing groups, and write two sets of csv files to S3 (we need to write to csvs to not exceed the limit of what can be passed in the step function):
     # This first loop splits up the number of huc8_branch combinations into X even 'hucs_to_process' groups, in order to parallel process groups in a step function map, and writes those to csv files on S3.
     s3_keys = []
-    df_streamflows = df_streamflows.drop_duplicates(process_by + ["huc8_branch"])
-    df_streamflows_split = [df_split for df_split in np.array_split(df_streamflows[process_by + ["huc8_branch"]], hand_processing_parallel_groups) if not df_split.empty]
-    for index, df in enumerate(df_streamflows_split):
+    df_huc8_branches = df_streamflows.drop_duplicates(process_by + ["huc8_branch"])
+    df_huc8_branches_split = [df_split for df_split in np.array_split(df_huc8_branches[process_by + ["huc8_branch"]], hand_processing_parallel_groups) if not df_split.empty]
+    for index, df in enumerate(df_huc8_branches_split):
         # Key for the csv file that will be stored in S3
         csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/hucs_to_process_{index}.csv"
         s3_keys.append(csv_key)
@@ -78,7 +78,7 @@ def setup_huc_inundation(event):
         
     # This second loop writes the actual reaches/flows data to a csv file for each huc8_branch, using the write_flows_data_csv_file function defined below.
     processing_groups = df_streamflows.groupby(process_by)
-    print(f"Setting up {len(processing_groups)} processing groups for {product} for {reference_time}")
+    print(f"{len(df_streamflows)} Total Features for {product} HAND Processing for Reference Time:{reference_time} - Setting up {len(processing_groups)} processing groups.")
     for group_vals, group_df in processing_groups:
         if one_off and group_vals not in one_off:
             continue
