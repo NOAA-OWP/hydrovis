@@ -1,3 +1,4 @@
+-- This SQL queries the just-updated hand cache table on RDS, and inserts appropriate rows into the fim tables of the given run.
 INSERT INTO {db_fim_table}(
 	SELECT * FROM dblink('external_vpp_redshift', $REDSHIFT$
 	SELECT hydro_id, feature_id, huc8, branch, forecast_discharge_cfs, forecast_stage_ft, rc_discharge_cfs,

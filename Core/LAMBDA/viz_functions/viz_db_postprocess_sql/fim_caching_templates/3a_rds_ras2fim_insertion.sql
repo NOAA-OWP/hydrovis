@@ -1,3 +1,4 @@
+-- This SQL queries the ras2fim cache on RDS, and inserts appropriate rows into the fim tables of the given run.
 TRUNCATE {db_fim_table};
 TRUNCATE {db_fim_table}_geo;
 TRUNCATE {db_fim_table}_zero_stage;

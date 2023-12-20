@@ -1,3 +1,5 @@
+-- This creates the four tables on a Redshift db needed for a cached fim pipeline run.
+-- These four tables exist on both RDS and Redshift, so any changes here will need to be synced with the RDS version as well - 0b_rds_create_inundation_tables_if_not_exist.sql
 CREATE TABLE IF NOT EXISTS {rs_fim_table}_flows
 (
     feature_id integer,

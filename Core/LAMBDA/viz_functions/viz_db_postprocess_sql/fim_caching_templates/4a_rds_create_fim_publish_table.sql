@@ -1,3 +1,4 @@
+-- This is a generic / standardized query to create a publish.fim table for fim_config product processing (works for NWM configurations, but may not work for special fim configurations like RnR or CatFIM)
 DROP TABLE IF EXISTS {db_publish_table};
 
 SELECT  

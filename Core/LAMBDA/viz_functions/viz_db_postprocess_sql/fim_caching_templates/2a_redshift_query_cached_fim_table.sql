@@ -1,3 +1,6 @@
+-- This is the query that pulls cached hand fim from the cache on Redshift. It does this by joining to the just-populated flows table, with WHERE clauses on discharge
+-- As of right now, feature_id, hydro_id, huc8, branch, and stage combine to represent a primary key in the hand hydrotables, so all of those fields are used in joins
+-- (I've asked the fim team to hash a single unique id for feature_id, hydro_id, huc8, branch combinations... which will simplify these queries, and hopefully help with performance.
 TRUNCATE {rs_fim_table};
 TRUNCATE {rs_fim_table}_geo;
 TRUNCATE {rs_fim_table}_zero_stage;

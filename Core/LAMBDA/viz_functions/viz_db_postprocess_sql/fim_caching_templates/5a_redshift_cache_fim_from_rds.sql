@@ -1,4 +1,8 @@
--- This template is designed to add freshly processed FIM polygons to the cached_fim tables on Redshift
+-- This template is designed to add freshly processed FIM polygons (which don't already exist in the cache) in the current FIM run back into to the cached hand tables on Redshift.
+-- To ensure that no duplicates are added to the cache (which could be possible if multiple fim configurations are running at the same time), this query joins to the target table and ensures that
+-- the current hydrotable record doesn't alraedy exist in the cache. This slows down the query significantly, and there is likely a potential optimization here... possibly using the UPSERT functionality of Redshift.
+-- As of right now, feature_id, hydro_id, huc8, branch, and stage combine to represent a primary key in the hand hydrotables, so all of those fields are used in joins
+-- (I've asked the fim team to hash a single unique id for feature_id, hydro_id, huc8, branch combinations... which will simplify these queries, and hopefully help with performance.
 
 -- 1. Add unique feature_id/hydro_id records to the hydrotable_cached_max table
 INSERT INTO fim.hydrotable_cached_max(hydro_id, feature_id, huc8, branch, fim_version, max_rc_discharge_cfs, max_rc_stage_ft)
