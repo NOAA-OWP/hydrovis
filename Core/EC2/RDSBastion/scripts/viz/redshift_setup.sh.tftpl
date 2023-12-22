@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export PGOPTIONS='-c client_min_messages=warning'
+
+postgres_data_folder="/home/ec2-user/postgres_data"
+
+echo ""
+echo "---- SETTING UP VIZ REDSHIFT DB ----"
+
+
+# Setting up Viz Redshift DB
+export PGPASSWORD=${viz_db_password}
+
+# Adding users to Viz Redshift DB
+echo "Adding viz redshift user..."
+psql -h "${viz_redshift_host}" -U "${viz_redshift_username}" -p ${viz_redshift_port} -d "${viz_redshift_name}" -qtAc "CREATE USER ${viz_redshift_user_username} WITH PASSWORD '${viz_redshift_user_password}';"
+
+# Setup external schemas - linked to viz processing rds datbase - this could be abstracted as done with the viz processing foreign schemas, but I'm not doing that now since it is only one schema we need.
+echo "Adding external schema link to viz ingest ..."
+psql -h "${viz_redshift_host}" -U "${viz_redshift_username}" -p ${viz_redshift_port} -d "${viz_redshift_name}" \
+    -tAc "DROP SCHEMA IF EXISTS external_viz_ingest;
+          CREATE EXTERNAL SCHEMA external_viz_ingest
+          FROM POSTGRES
+          DATABASE '${viz_db_name}' SCHEMA 'ingest'
+          URI '${viz_db_host}' PORT ${viz_db_port}
+          IAM_ROLE '${viz_redshift_iam_role_arn}'
+          SECRET_ARN '${viz_proc_admin_rw_secret_arn}';"
