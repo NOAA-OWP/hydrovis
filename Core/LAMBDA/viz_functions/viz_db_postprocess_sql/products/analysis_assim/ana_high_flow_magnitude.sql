@@ -1,16 +1,16 @@
 DROP TABLE IF EXISTS publish.ana_high_flow_magnitude;
 WITH high_flow_mag AS
 	(SELECT maxflows.feature_id,
-			maxflows.maxflow_1hour_cfs AS max_flow,
+			maxflows.discharge_cfs AS max_flow,
 			maxflows.reference_time,
 			maxflows.nwm_vers,
 			CASE
-                WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_50_0_17c THEN '2'::text
-				WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_25_0_17c THEN '4'::text
-				WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_10_0_17c THEN '10'::text
-                WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_5_0_17c THEN '20'::text
-	 			WHEN maxflows.maxflow_1hour_cfs >= thresholds.rf_2_0_17c THEN '50'::text
-                WHEN maxflows.maxflow_1hour_cfs >= thresholds.high_water_threshold THEN '>50'::text
+                WHEN maxflows.discharge_cfs >= thresholds.rf_50_0_17c THEN '2'::text
+				WHEN maxflows.discharge_cfs >= thresholds.rf_25_0_17c THEN '4'::text
+				WHEN maxflows.discharge_cfs >= thresholds.rf_10_0_17c THEN '10'::text
+                WHEN maxflows.discharge_cfs >= thresholds.rf_5_0_17c THEN '20'::text
+	 			WHEN maxflows.discharge_cfs >= thresholds.rf_2_0_17c THEN '50'::text
+                WHEN maxflows.discharge_cfs >= thresholds.high_water_threshold THEN '>50'::text
 							ELSE NULL::text
 			END AS recur_cat,
         thresholds.high_water_threshold AS high_water_threshold,
@@ -22,7 +22,7 @@ WITH high_flow_mag AS
 		FROM cache.max_flows_ana maxflows
 		JOIN derived.recurrence_flows_CONUS thresholds ON maxflows.feature_id = thresholds.feature_id
 		WHERE (thresholds.high_water_threshold > 0::double precision)
-			AND maxflows.maxflow_1hour_cfs >= thresholds.high_water_threshold)
+			AND maxflows.discharge_cfs >= thresholds.high_water_threshold)
 SELECT channels.feature_id,
 	channels.feature_id::TEXT AS feature_id_str,
 	channels.strm_order,

@@ -130,7 +130,7 @@ def lambda_handler(event, context):
         except Exception as e:
             print(f"Error: {e}")
             raise e
-    
+    connection.close()
     dump_dict = {
                         "file": file,
                         "target_table": target_table,

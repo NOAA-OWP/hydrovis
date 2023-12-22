@@ -1,6 +1,7 @@
 product: mrf_gfs_10day_max_inundation
 configuration: medium_range_mem1
 product_type: "fim"
+domain: conus
 run: true
 
 ingest_files:
@@ -11,26 +12,39 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 db_max_flows:
-  - name: mrf_gfs_max_flows
-    target_table: cache.max_flows_mrf_gfs
+  - name: mrf_gfs_3day_max_flows
+    target_table: cache.max_flows_mrf_gfs_3day
     target_keys: (feature_id, streamflow)
     method: database
-    max_flows_sql_file: mrf_gfs_max_flows
+    max_flows_sql_file: mrf_gfs_3day_max_flows
+  - name: mrf_gfs_5day_max_flows
+    target_table: cache.max_flows_mrf_gfs_5day
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_gfs_5day_max_flows
+  - name: mrf_gfs_10day_max_flows
+    target_table: cache.max_flows_mrf_gfs_10day
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_gfs_10day_max_flows
 
 fim_configs:
   - name: mrf_gfs_max_inundation_3day
+    flows_table: cache.max_flows_mrf_gfs_3day
     target_table: ingest.mrf_gfs_max_inundation_3day
     fim_type: hand
     postprocess:
       sql_file: mrf_gfs_max_inundation_3day
       target_table: publish.mrf_gfs_max_inundation_3day
   - name: mrf_gfs_max_inundation_5day
+    flows_table: cache.max_flows_mrf_gfs_5day
     target_table: ingest.mrf_gfs_max_inundation_5day
     fim_type: hand
     postprocess:
       sql_file: mrf_gfs_max_inundation_5day
       target_table: publish.mrf_gfs_max_inundation_5day
   - name: mrf_gfs_max_inundation_10day
+    flows_table: cache.max_flows_mrf_gfs_10day
     target_table: ingest.mrf_gfs_max_inundation_10day
     fim_type: hand
     postprocess:

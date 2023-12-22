@@ -1,6 +1,7 @@
 product: srf_48hr_max_inundation_prvi
 configuration: short_range_puertorico
 product_type: "fim"
+domain: prvi
 run: true
 
 ingest_files:
@@ -19,6 +20,7 @@ db_max_flows:
 
 fim_configs:
   - name: srf_48hr_max_inundation_prvi
+    flows_table: cache.max_flows_srf_prvi
     target_table: ingest.srf_48hr_max_inundation_prvi
     fim_type: hand
     postprocess:

@@ -15,7 +15,7 @@ SELECT
     to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * min(forecasts.forecast_hour), 'YYYY-MM-DD HH24:MI:SS UTC') AS peak_flow_arrival_time,
     forecasts.nwm_vers,
     forecasts.reference_time,
-    max_flows.maxflow_10day_cfs AS max_flow_cfs,
+    max_flows.discharge_cfs AS max_flow_cfs,
     arrival_time.below_bank_return_hour,
     to_char(forecasts.reference_time::timestamp without time zone + INTERVAL '1 hour' * arrival_time.below_bank_return_hour, 'YYYY-MM-DD HH24:MI:SS UTC') AS below_bank_return_time,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
@@ -30,8 +30,8 @@ INTO publish.mrf_nbm_10day_peak_flow_arrival_time_alaska
 FROM ingest.nwm_channel_rt_mrf_nbm_ak AS forecasts
 
 -- Join in max flows on max streamflow to only get peak flows
-JOIN cache.mrf_nbm_max_flows_ak AS max_flows
-    ON forecasts.feature_id = max_flows.feature_id AND round((forecasts.streamflow*35.315)::numeric, 2) = max_flows.maxflow_10day_cfs
+JOIN cache.mrf_nbm_max_flows_ak_10day AS max_flows
+    ON forecasts.feature_id = max_flows.feature_id AND round((forecasts.streamflow*35.315)::numeric, 2) = max_flows.discharge_cfs
 
 -- Join in channels data to get reach metadata and geometry
 JOIN derived.channels_alaska as channels ON forecasts.feature_id = channels.feature_id::bigint
@@ -39,4 +39,4 @@ JOIN derived.channels_alaska as channels ON forecasts.feature_id = channels.feat
 -- Join in arrival_time 
 JOIN arrival_time ON forecasts.feature_id = arrival_time.feature_id
 
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, max_flows.maxflow_10day_cfs, arrival_time.below_bank_return_hour, channels.geom, channels.strm_order, channels.name, channels.huc6;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, max_flows.discharge_cfs, arrival_time.below_bank_return_hour, channels.geom, channels.strm_order, channels.name, channels.huc6;

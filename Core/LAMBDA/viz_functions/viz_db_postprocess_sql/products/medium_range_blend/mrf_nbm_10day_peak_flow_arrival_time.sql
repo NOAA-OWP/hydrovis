@@ -11,7 +11,7 @@ SELECT
     channels.state,
     forecasts.nwm_vers,
     forecasts.reference_time,
-    max_flows.maxflow_10day_cfs AS max_flow_cfs,
+    max_flows.discharge_cfs AS max_flow_cfs,
     rf.high_water_threshold,
     arrival_time.below_bank_return_hour,
     arrival_time.below_bank_return_time,
@@ -22,8 +22,8 @@ INTO publish.mrf_nbm_10day_peak_flow_arrival_time
 FROM ingest.nwm_channel_rt_mrf_nbm AS forecasts
 
 -- Join in max flows on max streamflow to only get peak flows
-JOIN cache.max_flows_mrf_nbm AS max_flows
-    ON forecasts.feature_id = max_flows.feature_id AND round((forecasts.streamflow*35.315)::numeric, 2) = max_flows.maxflow_10day_cfs
+JOIN cache.max_flows_mrf_nbm_10day AS max_flows
+    ON forecasts.feature_id = max_flows.feature_id AND round((forecasts.streamflow*35.315)::numeric, 2) = max_flows.discharge_cfs
 
 -- Join in channels data to get reach metadata and geometry
 JOIN derived.channels_conus AS channels ON forecasts.feature_id = channels.feature_id
@@ -35,4 +35,4 @@ JOIN derived.recurrence_flows_conus AS rf ON forecasts.feature_id = rf.feature_i
 JOIN publish.mrf_nbm_10day_high_water_arrival_time AS arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
 WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
-GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, max_flows.maxflow_10day_cfs, arrival_time.below_bank_return_hour, arrival_time.below_bank_return_time, channels.geom;
+GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, forecasts.streamflow, channels.name, channels.strm_order, channels.huc6, channels.state, rf.high_water_threshold, max_flows.discharge_cfs, arrival_time.below_bank_return_hour, arrival_time.below_bank_return_time, channels.geom;
