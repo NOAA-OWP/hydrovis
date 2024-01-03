@@ -111,8 +111,8 @@ module "secrets-manager" {
     "viz-processing-pg-rdssecret"         = { "username" : "postgres" }
     "viz-proc-admin-rw-user"              = { "username" : "viz_proc_admin_rw_user" }
     "viz-proc-dev-rw-user"                = { "username" : "viz_proc_dev_rw_user" }
-    "viz_redshift_master"                 = { "username" : "viz_redshift_master" }
-    "viz_redshift_user"                   = { "username" : "viz_redshift_user" }
+    "viz-redshift-master"                 = { "username" : "viz_redshift_master" }
+    "viz-redshift-user"                   = { "username" : "viz_redshift_user" }
     "ingest-pg-rdssecret"                 = { "username" : "postgres" }
     "ingest-mqsecret"                     = { "username" : "rabbit_admin" }
     "rds-rfc-fcst"                        = { "username" : "rfc_fcst" }
@@ -352,7 +352,7 @@ module "redshift-viz" {
   db_viz_redshift_user_secret_string      = module.secrets-manager.secret_strings["viz-redshift-user"]
   db_viz_redshift_security_groups         = [module.security-groups.redshift.id]
   viz_redshift_db_name                    = local.env.viz_redshift_db_name
-  role_viz_redshift_arn                   = module.iam-roles.redshift.arn
+  role_viz_redshift_arn                   = module.iam-roles.role_redshift.arn
 
   private_route_53_zone = module.private-route53.zone
 }
@@ -416,12 +416,12 @@ module "rds-bastion" {
   viz_db_address                    = module.rds-viz.instance.address
   viz_db_port                       = module.rds-viz.instance.port
   viz_db_name                       = local.env.viz_db_name
-  viz_redshift_master_secret_string = module.secrets-manager.secret_strings["viz_redshift_master"]
-  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz_redshift_user"]
+  viz_redshift_master_secret_string = module.secrets-manager.secret_strings["viz-redshift-master"]
+  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz-redshift-user"]
   viz_redshift_address              = module.redshift-viz.dns_name
   viz_redshift_port                 = module.redshift-viz.port
   viz_redshift_name                 = local.env.viz_redshift_db_name
-  viz_redshift_iam_role             = module.iam-roles.redshift.arn
+  viz_redshift_iam_role_arn         = module.iam-roles.role_redshift.arn
   egis_db_master_secret_string      = module.secrets-manager.secret_strings["egis-master-pg-rds-secret"]
   egis_db_secret_string             = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_db_address                   = module.rds-egis.dns_name
@@ -642,7 +642,7 @@ module "viz-lambda-functions" {
   egis_portal_password              = local.env.viz_ec2_hydrovis_egis_pass
   viz_redshift_host                 = module.redshift-viz.dns_name
   viz_redshift_db_name              = local.env.viz_redshift_db_name
-  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz_redshift_user"]
+  viz_redshift_user_secret_string   = module.secrets-manager.secret_strings["viz-redshift-user"]
   dataservices_host                 = module.data-services.dns_name
   viz_pipeline_step_function_arn    = module.step-functions.viz_pipeline_step_function.arn
   default_tags                      = local.env.tags

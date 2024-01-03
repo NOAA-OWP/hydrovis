@@ -2,7 +2,7 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "s3_access",
+            "Sid": "s3Access",
             "Action": [
                 "s3:PutObject",
                 "s3:Get*",
@@ -14,7 +14,7 @@
             ] 
         },
         {
-            "Sid": "secret_for_external_data_schema",
+            "Sid": "secretForExternalDataSchema",
             "Action": [
                 "secretsmanager:DescribeSecret",
                 "secretsmanager:GetSecretValue"

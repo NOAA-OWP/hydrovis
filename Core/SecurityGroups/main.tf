@@ -158,7 +158,7 @@ resource "aws_security_group" "redshift" {
       protocol         = "tcp"
       security_groups  = []
       self             = false
-      to_port          = 22
+      to_port          = 5439
     }
   ]
   

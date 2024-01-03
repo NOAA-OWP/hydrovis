@@ -48,7 +48,7 @@ def lambda_handler(event, context):
 
     # Check to see if the service already exists and a publish flag is present or not.
     time.sleep(30)
-    matching_services = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish]  # noqa: E501
+    matching_services = [service for service in publish_server.services.list(folder=folder) if 'serviceName' in service.properties and (service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish)]  # noqa: E501
     publish_flag = s3_file(publish_flag_bucket, publish_flag_key).check_existence()
     if len(matching_services) > 0 and publish_flag is True:
         print(f"{matching_services[0].properties['serviceName']} is already online.")
@@ -77,7 +77,7 @@ def lambda_handler(event, context):
             print(f"---> Published {sd_s3_path}")
 
             # Ensuring that the description for the service matches the iteminfo
-            matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
+            matching_service = [service for service in publish_server.services.list(folder=folder) if 'serviceName' in service.properties and (service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish)][0]
             if not matching_service.properties['description']:
                 print("Updating service property description to match iteminfo")
                 service_properties = matching_service.properties
@@ -85,7 +85,7 @@ def lambda_handler(event, context):
                 try:
                     matching_service.edit(dict(service_properties))
                 except:
-                    matching_service = [service for service in publish_server.services.list(folder=folder) if service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish][0]
+                    matching_service = [service for service in publish_server.services.list(folder=folder) if 'serviceName' in service.properties and (service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish)][0]
                     if not matching_service.properties['description']:
                         raise Exception("Failed to update the map service description")
                         

@@ -80,7 +80,7 @@ variable "viz_redshift_name" {
   type = string
 }
 
-variable "viz_redshift_iam_role" {
+variable "viz_redshift_iam_role_arn" {
   type = string
 }
 
@@ -378,6 +378,7 @@ data "cloudinit_config" "startup" {
       viz_redshift_master_password      = local.dbs["viz_redshift"]["db_password"]
       viz_redshift_user_username        = jsondecode(var.viz_redshift_user_secret_string)["username"]
       viz_redshift_user_password        = jsondecode(var.viz_redshift_user_secret_string)["password"]
+      viz_redshift_iam_role_arn         = var.viz_redshift_iam_role_arn
       viz_db_name                       = local.dbs["viz"]["db_name"]
       viz_db_host                       = local.dbs["viz"]["db_host"]
       viz_db_port                       = local.dbs["viz"]["db_port"]
