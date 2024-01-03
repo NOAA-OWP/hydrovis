@@ -19,6 +19,6 @@ output "secret_strings" {
   value = { for name in keys(var.names_and_users) : name => module.secret[name].secret_string }
 }
 
-output "arns" {
+output "secret_arns" {
   value = { for name in keys(var.names_and_users) : name => module.secret[name].secret_arn }
 }

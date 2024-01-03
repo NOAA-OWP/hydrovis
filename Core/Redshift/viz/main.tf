@@ -62,9 +62,13 @@ resource "aws_route53_record" "viz_redshift_data_warehouse" {
   name    = "redshift-viz.${var.private_route_53_zone.name}"
   type    = "CNAME"
   ttl     = 300
-  records = [aws_redshift_cluster.viz_redshift_data_warehouse.address]
+  records = [aws_redshift_cluster.viz_redshift_data_warehouse.dns_name]
 }
 
 output "dns_name" {
   value = aws_route53_record.viz_redshift_data_warehouse.name
+}
+
+output "port" {
+  value = aws_redshift_cluster.viz_redshift_data_warehouse.port
 }
