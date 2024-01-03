@@ -28,20 +28,66 @@
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
       "ResultPath": null
     },
-    "Python Preprocessing": {
+     "Python Preprocessing": {
       "Type": "Map",
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Python Preprocess",
+        "StartAt": "Small or Large Lambda Function",
         "States": {
-          "Python Preprocess": {
+          "Small or Large Lambda Function": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.python_preprocessing.lambda_ram",
+                "StringEquals": "10gb",
+                "Next": "Python Preprocess - 10GB"
+              }
+            ],
+            "Default": "Python Preprocess - 3GB"
+          },
+          "Python Preprocess - 3GB": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${python_preprocessing_2GB_arn}",
+              "FunctionName": "${python_preprocessing_3GB_arn}",
+              "Payload": {
+                "args.$": "$",
+                "step": "python_preprocessing"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
+                  "MissingS3FileException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 120,
+                "MaxAttempts": 35,
+                "Comment": "Missing S3 File"
+              }
+            ],
+            "End": true
+          },
+          "Python Preprocess - 10GB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "FunctionName": "${python_preprocessing_10GB_arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "python_preprocessing"
@@ -683,7 +729,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${python_preprocessing_2GB_arn}",
+                    "FunctionName": "${python_preprocessing_3GB_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"

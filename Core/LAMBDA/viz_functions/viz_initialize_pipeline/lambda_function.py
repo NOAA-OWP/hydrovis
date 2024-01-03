@@ -499,6 +499,7 @@ class configuration:
         for file_group in file_groups:
             product = file_group['product'] 
             config = file_group['config'] if file_group.get('config') else None
+            lambda_ram = file_group['lambda_ram'] if file_group.get('lambda_ram') else None
             output_file = file_group['output_file']
             
             token_dict = get_file_tokens(output_file)
@@ -510,6 +511,7 @@ class configuration:
                 "fileset_bucket": python_preprocesing_file_set[0]['bucket'],
                 "product": product,
                 "config": config,
+                "lambda_ram": lambda_ram,
                 "output_file": formatted_output_file,
                 "output_file_bucket": os.environ['PYTHON_PREPROCESSING_BUCKET'],
             })
