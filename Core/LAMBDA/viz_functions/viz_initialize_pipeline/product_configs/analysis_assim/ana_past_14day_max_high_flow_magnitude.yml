@@ -10,6 +10,7 @@ python_preprocessing:
     file_step: 1H
     file_window: P7D
     product: max_values
+    lambda_ram: 3gb
     output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_7day_00_max_flows.nc
     target_table: ingest.nwm_channel_rt_ana_7day_max
     target_keys: (feature_id, streamflow)
@@ -17,6 +18,7 @@ python_preprocessing:
     file_step: 1H
     file_window: P14D
     product: max_values
+    lambda_ram: 3gb
     output_file: max_flows/analysis_assim/{{datetime:%Y%m%d}}/ana_14day_00_max_flows.nc
     target_table: ingest.nwm_channel_rt_ana_14day_max
     target_keys: (feature_id, streamflow)
