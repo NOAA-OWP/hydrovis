@@ -10,7 +10,7 @@ variable "environment" {
   type        = string
 }
 
-variable "python_preprocessing_2GB_arn" {
+variable "python_preprocessing_3GB_arn" {
   type        = string
 }
 
@@ -152,7 +152,7 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     role_arn = var.viz_lambda_role
 
     definition = templatefile("${path.module}/viz_processing_pipeline.json.tftpl", {
-        python_preprocessing_2GB_arn = var.python_preprocessing_2GB_arn
+        python_preprocessing_3GB_arn = var.python_preprocessing_3GB_arn
         python_preprocessing_10GB_arn = var.python_preprocessing_10GB_arn
         db_postprocess_sql_arn = var.db_postprocess_sql_arn
         db_ingest_arn      = var.db_ingest_arn

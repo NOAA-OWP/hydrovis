@@ -8,7 +8,7 @@ python_preprocessing:
     file_step: None
     file_window: None
     product: high_water_probability
-    lambda_ram: 2gb
+    lambda_ram: 3gb
     output_file: viz_ingest/medium_range_mem1/{{datetime:%Y%m%d}}/{{datetime:%H}}_mrf_gfs_5day_max_high_water_probability.csv
     target_table: ingest.mrf_gfs_5day_max_high_water_prob
     target_keys: (feature_id)

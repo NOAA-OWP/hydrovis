@@ -394,7 +394,7 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
 }
 
 #########################
-#### 2GB RAM Version ####
+#### 3GB RAM Version ####
 #########################
 resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
   function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
@@ -1000,7 +1000,7 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "python_preprocessing_2GB" {
+output "python_preprocessing_3GB" {
   value = aws_lambda_function.viz_python_preprocessing_3GB
 }
 
