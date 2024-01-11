@@ -13,7 +13,7 @@ SELECT
     max_forecast.discharge_cfs,
     'Pending' AS prc_status
 FROM {max_flows_table} max_forecast
-JOIN derived.recurrence_flows_conus rf ON rf.feature_id=max_forecast.feature_id
+JOIN derived.recurrence_flows_{domain} rf ON rf.feature_id=max_forecast.feature_id
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON max_forecast.feature_id = crosswalk.feature_id
 WHERE 
     max_forecast.discharge_cfs >= rf.high_water_threshold AND 
