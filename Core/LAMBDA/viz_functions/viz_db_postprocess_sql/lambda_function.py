@@ -18,18 +18,19 @@ def lambda_handler(event, context):
         
     # For FIM steps, setup some other variables based on the step function inputs and provide them to the sql_replace dictionary as args/params
     if step == "hand_pre_processing" or step == "hand_post_processing" or step == "fim_config":
-        # Define the table names that will be used in the SQL templates
-        # TODO: Move this to initialize pipeline and Update this to work with past event functionality?
-        max_flows_table = event['args']['fim_config']['flows_table']
-        db_fim_table = event['args']['fim_config']['target_table']
-        rs_fim_table = db_fim_table.replace("ingest", "ingest_rs")
-        domain = event['args']['product']['domain']
-        sql_replace.update({"{max_flows_table}":max_flows_table})
-        sql_replace.update({"{db_fim_table}":db_fim_table})
-        sql_replace.update({"{rs_fim_table}":rs_fim_table})
-        sql_replace.update({"{domain}":domain})
-        sql_replace.update({"{postgis_fim_table}":db_fim_table.replace("ingest", "external_viz_ingest")})
-        sql_replace.update({"{db_publish_table}":db_fim_table.replace("ingest", "publish")})
+        if event['args']['fim_config']['fim_type'] == 'hand':
+            # Define the table names that will be used in the SQL templates
+            # TODO: Move this to initialize pipeline and Update this to work with past event functionality?
+            max_flows_table = event['args']['fim_config']['flows_table']
+            db_fim_table = event['args']['fim_config']['target_table']
+            rs_fim_table = db_fim_table.replace("ingest", "ingest_rs")
+            domain = event['args']['product']['domain']
+            sql_replace.update({"{max_flows_table}":max_flows_table})
+            sql_replace.update({"{db_fim_table}":db_fim_table})
+            sql_replace.update({"{rs_fim_table}":rs_fim_table})
+            sql_replace.update({"{domain}":domain})
+            sql_replace.update({"{postgis_fim_table}":db_fim_table.replace("ingest", "external_viz_ingest")})
+            sql_replace.update({"{db_publish_table}":db_fim_table.replace("ingest", "publish")})
 
     ############################################################ Conditional Logic ##########################################################
     # This section contains the conditional logic of database operations within our pipelline. At some point it may be nice to abstract this.
