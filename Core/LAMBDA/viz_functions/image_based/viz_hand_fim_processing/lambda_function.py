@@ -94,9 +94,9 @@ def lambda_handler(event, context):
  
         # Upload zero_stage reaches for tracking / FIM cache
         print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
-        df_zero_stage_records['branch'] = int(branch)
-        df_zero_stage_records['huc8'] = int(huc8)
-        df_zero_stage_records.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=True)
+        df_zero_stage_records = df_zero_stage_records.reset_index()
+        df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)
+        df_zero_stage_records.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
         
         # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
         if stage_lookup.empty:
@@ -107,16 +107,15 @@ def lambda_handler(event, context):
         df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable)
 
         # Split geometry into seperate table per new schema
-        df_inundation_geo = df_inundation[['hydro_id',  'feature_id', 'huc8', 'branch', 'rc_stage_ft', 'geom']]
+        df_inundation_geo = df_inundation[['hand_id', 'rc_stage_ft', 'geom']]
         df_inundation.drop(columns=['geom'], inplace=True)
         
         # If records exist in stage_lookup that don't exist in df_inundation, add those to the zero_stage table.
-        df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['feature_id','hydro_id'],how='left',indicator=True)
+        df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['hand_id'],how='left',indicator=True)
         df_no_inundation = df_no_inundation.loc[df_no_inundation['_merge'] == 'left_only']
         if df_no_inundation.empty == False:
-            df_no_inundation.drop(df_no_inundation.columns.difference(['hydro_id','feature_id','huc8','branch','rc_discharge_cms','note']), axis=1,  inplace=True)
-            df_no_inundation['branch'] = int(branch)
-            df_no_inundation['huc8'] = int(huc8)
+            print(f"Adding {len(df_no_inundation)} reaches with NaN inundation to zero_stage table")
+            df_no_inundation.drop(df_no_inundation.columns.difference(['hand_id','rc_discharge_cms','note']), axis=1,  inplace=True)
             df_no_inundation['note'] = "Error - No inundation returned from hand processing."
             df_no_inundation.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
         # If no records exist for valid inundation, stop.
@@ -125,6 +124,7 @@ def lambda_handler(event, context):
     
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     try:
+        df_inundation.drop(columns=['hydro_id', 'feature_id'], inplace=True)
         df_inundation.to_sql(db_table, con=process_db.engine, schema=db_schema, if_exists='append', index=False)
         df_inundation_geo.to_postgis(f"{db_table}_geo", con=process_db.engine, schema=db_schema, if_exists='append')
     except Exception as e:
@@ -452,8 +452,6 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
     df_final['reference_time'] = reference_time
-    df_final['huc8'] = huc8
-    df_final['branch'] = branch
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['prc_method'] = 'HAND_Processing'
     
