@@ -2,9 +2,10 @@
 -- the prc_status columns is updated throughout the fim run with a status reflecting how fim is calculated for each reach (from ras2fim cache, from hand cache, hand processing, etc.)
 -- This table is copied to Redshift in the next step (in order to query the cache there), but this table on RDS is the authoritative source as far as the prc_status column goes.
 TRUNCATE {db_fim_table}_flows;
-INSERT INTO {db_fim_table}_flows (feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
+INSERT INTO {db_fim_table}_flows (feature_id, hand_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
 SELECT
     max_forecast.feature_id,
+    crosswalk.hand_id,
     crosswalk.hydro_id,
     crosswalk.huc8::integer,
     crosswalk.branch_id AS branch,

@@ -5,60 +5,48 @@
 -- (I've asked the fim team to hash a single unique id for feature_id, hydro_id, huc8, branch combinations... which will simplify these queries, and hopefully help with performance.
 
 -- 1. Add unique feature_id/hydro_id records to the hydrotable_cached_max table
-INSERT INTO fim.hydrotable_cached_max(hydro_id, feature_id, huc8, branch, fim_version, max_rc_discharge_cfs, max_rc_stage_ft)
+INSERT INTO fim.hydrotable_cached_max(hand_id, hydro_id, feature_id, huc8, branch, fim_version, max_rc_discharge_cfs, max_rc_stage_ft)
 SELECT
-    fim.hydro_id,
-    fim.feature_id,
-    fim.huc8,
-    fim.branch,
+    fim.hand_id,
     fim.fim_version,
     fim.max_rc_discharge_cfs,
     fim.max_rc_stage_ft
 FROM {postgis_fim_table} AS fim
-LEFT OUTER JOIN fim.hydrotable_cached_max AS hcm ON fim.hydro_id = hcm.hydro_id AND fim.feature_id = hcm.feature_id AND fim.huc8 = hcm.huc8 AND fim.branch = hcm.branch
+LEFT OUTER JOIN fim.hydrotable_cached_max AS hcm ON fim.hand_id = hcm.hand_id
 WHERE fim.prc_method = 'HAND_Processing' AND
 hcm.hydro_id IS NULL
-GROUP BY fim.hydro_id, fim.feature_id, fim.huc8, fim.branch, fim.fim_version, fim.max_rc_discharge_cfs, fim.max_rc_stage_ft;
+GROUP BY fim.hand_id, fim.fim_version, fim.max_rc_discharge_cfs, fim.max_rc_stage_ft;
 
 -- 2. Add records for each step of the hydrotable to the hydrotable_cached table
-INSERT INTO fim.hydrotable_cached (hydro_id, feature_id, huc8, branch, rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft)
+INSERT INTO fim.hydrotable_cached (hand_id, rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft)
 SELECT
-    fim.hydro_id,
-    fim.feature_id,
-    fim.huc8,
-    fim.branch,
+    fim.hand_id,
     fim.rc_discharge_cfs,
     fim.rc_previous_discharge_cfs,
     fim.rc_stage_ft,
     fim.rc_previous_stage_ft
 FROM {postgis_fim_table} AS fim
-LEFT OUTER JOIN fim.hydrotable_cached AS hc ON fim.hydro_id = hc.hydro_id AND fim.rc_stage_ft = hc.rc_stage_ft AND fim.feature_id = hc.feature_id AND fim.huc8 = hc.huc8 AND fim.branch = hc.branch
+LEFT OUTER JOIN fim.hydrotable_cached AS hc ON fim.hand_id = hc.hand_id AND fim.rc_stage_ft = hc.rc_stage_ft
 WHERE fim.prc_method = 'HAND_Processing' AND
 hc.rc_stage_ft IS NULL;
 
 -- 3. Add records for each subdivided part of the geometry to hydrotable_cached_geo table
-INSERT INTO fim.hydrotable_cached_geo (hydro_id, feature_id, huc8, branch, rc_stage_ft, geom_part, geom)
+INSERT INTO fim.hydrotable_cached_geo (hand_id, rc_stage_ft, geom_part, geom)
 SELECT
-    fim.hydro_id,
-    fim.feature_id,
-    fim.huc8,
-    fim.branch,
+    fim.hand_id,
     fim.rc_stage_ft,
     fim.geom_part,
     ST_GeomFromText(geom_wkt)
 FROM {postgis_fim_table}_geo_view AS fim
-LEFT OUTER JOIN fim.hydrotable_cached_geo AS hcg ON fim.hydro_id = hcg.hydro_id AND fim.rc_stage_ft = hcg.rc_stage_ft AND fim.feature_id = hcg.feature_id AND fim.huc8 = hcg.huc8 AND fim.branch = hcg.branch
+LEFT OUTER JOIN fim.hydrotable_cached_geo AS hcg ON fim.hand_id = hcg.hand_id AND fim.rc_stage_ft = hcg.rc_stage_ft
 WHERE hcg.rc_stage_ft IS NULL;
 
 -- 4. Add records for zero_stage features to zero stage table
-INSERT INTO fim.hydrotable_cached_zero_stage (hydro_id, feature_id, huc8, branch, rc_discharge_cms, note)
+INSERT INTO fim.hydrotable_cached_zero_stage (hand_id, rc_discharge_cms, note)
 SELECT
-    fim.hydro_id,
-    fim.feature_id,
-    fim.huc8,
-    fim.branch,
+    fim.hand_id,
     fim.rc_discharge_cms,
     fim.note
 FROM {postgis_fim_table}_zero_stage AS fim
-LEFT OUTER JOIN fim.hydrotable_cached_zero_stage AS hczs ON fim.hydro_id = hczs.hydro_id AND fim.feature_id = hczs.feature_id AND fim.huc8 = hczs.huc8 AND fim.branch = hczs.branch
+LEFT OUTER JOIN fim.hydrotable_cached_zero_stage AS hczs ON fim.hand_id = hczs.hand_id
 WHERE hczs.rc_discharge_cms IS NULL;

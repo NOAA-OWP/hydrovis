@@ -2,6 +2,7 @@
 -- These four tables exist on both RDS and Redshift, so any changes here will need to be synced with the Redshift version as well - 0a_redshift_create_inundation_tables_if_not_exist.sql
 CREATE TABLE IF NOT EXISTS {db_fim_table}_flows
 (
+    hand_id integer,
     hydro_id integer,
     feature_id integer,
     huc8 integer,
@@ -14,10 +15,7 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}_flows
 
 CREATE TABLE IF NOT EXISTS {db_fim_table} 
 (
-    hydro_id integer,
-    feature_id integer,
-	huc8 integer,
-    branch bigint,
+    hand_id integer,
     forecast_discharge_cfs double precision,
 	forecast_stage_ft double precision,
     rc_discharge_cfs double precision,
@@ -32,39 +30,27 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}
 );
 
 CREATE TABLE IF NOT EXISTS {db_fim_table}_geo (
-    hydro_id integer,
-    feature_id integer,
-	huc8 integer,
-	branch bigint,
+    hand_id integer,
     rc_stage_ft integer,
 	geom_part integer,
     geom geometry(geometry, 3857)
 );
 
 CREATE TABLE IF NOT EXISTS {db_fim_table}_zero_stage (
-    hydro_id integer,
-    feature_id integer,
-	huc8 integer,
-	branch bigint,
+    hand_id integer,
     rc_discharge_cms double precision,
 	note text
 );
 
  -- Create a view that contains subdivided polygons in WKT text, for import into Redshift
  CREATE OR REPLACE VIEW {db_fim_table}_geo_view AS
-   SELECT fim_subdivide.hydro_id,
-      fim_subdivide.feature_id,
-      fim_subdivide.huc8,
-      fim_subdivide.branch,
+   SELECT fim_subdivide.hand_id,
       fim_subdivide.rc_stage_ft,
       0 AS geom_part,
       st_astext(fim_subdivide.geom) AS geom_wkt
-      FROM ( SELECT fim.hydro_id,
-               fim.feature_id,
-               fim.huc8,
-               fim.branch,
+      FROM ( SELECT fim.hand_id,
                fim.rc_stage_ft,
                st_subdivide(fim_geo.geom) AS geom
             FROM {db_fim_table} fim
-            JOIN {db_fim_table}_geo fim_geo ON fim.hydro_id = fim_geo.hydro_id AND fim.feature_id = fim_geo.feature_id AND fim.huc8 = fim_geo.huc8 AND fim.branch = fim_geo.branch AND fim.rc_stage_ft = fim_geo.rc_stage_ft
+            JOIN {db_fim_table}_geo fim_geo ON fim.hand_id = fim_geo.hand_id
             WHERE fim.prc_method = 'HAND_Processing'::text) fim_subdivide;
