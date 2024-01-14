@@ -13,17 +13,19 @@ SELECT
     buildings.prod_date,
     buildings.source,
     buildings.val_method,
-    fim.hydro_id,
-	fim.hydro_id_str::TEXT AS hydro_id_str,
-	fim.feature_id,
-	fim.feature_id_str::TEXT AS feature_id_str,
-	fim.streamflow_cfs,
-	fim.fim_stage_ft,
+    flows.hydro_id,
+	flows.hydro_id::TEXT AS hydro_id_str,
+	flows.feature_id,
+	flows.feature_id::TEXT AS feature_id_str,
+	flows.discharge_cfs AS streamflow_cfs,
+	fim.rc_stage_ft AS fim_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.mrf_nbm_max_inundation_5day_building_footprints
 FROM external.building_footprints_fema as buildings
-JOIN publish.mrf_nbm_max_inundation_5day fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN fim_ingest.mrf_nbm_max_inundation_5day_geo fim_geo ON ST_INTERSECTS(fim.geom, buildings.geom)
+JOIN fim_ingest.mrf_nbm_max_inundation_5day_flows flows ON fim_geo.hand_id = flows.hand_id
+JOIN fim_ingest.mrf_nbm_max_inundation_5day fim ON fim_geo.hand_id = fim.hand_id;
 
 --------------- County Summary ---------------
 DROP TABLE IF EXISTS publish.mrf_nbm_max_inundation_5day_counties;

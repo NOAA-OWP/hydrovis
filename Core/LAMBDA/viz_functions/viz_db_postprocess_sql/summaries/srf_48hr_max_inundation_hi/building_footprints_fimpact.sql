@@ -14,16 +14,19 @@ SELECT
     buildings.source,
     buildings.val_method,
     fim.hydro_id,
-	fim.hydro_id_str::TEXT AS hydro_id_str,
-	fim.feature_id,
-	fim.feature_id_str::TEXT AS feature_id_str,
-	fim.streamflow_cfs,
-	fim.fim_stage_ft,
+    flows.hydro_id,
+	flows.hydro_id::TEXT AS hydro_id_str,
+	flows.feature_id,
+	flows.feature_id::TEXT AS feature_id_str,
+	flows.discharge_cfs AS streamflow_cfs,
+	fim.rc_stage_ft AS fim_stage_ft,
     buildings.geom,
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.srf_48hr_max_inundation_building_footprints_hi
 FROM external.building_footprints_fema as buildings
-JOIN publish.srf_48hr_max_inundation_hi fim ON ST_INTERSECTS(fim.geom, buildings.geom);
+JOIN fim_ingest.srf_48hr_max_inundation_hi_geo fim_geo ON ST_INTERSECTS(fim.geom, buildings.geom)
+JOIN fim_ingest.srf_48hr_max_inundation_hi_flows flows ON fim_geo.hand_id = flows.hand_id
+JOIN fim_ingest.srf_48hr_max_inundation_hi fim ON fim_geo.hand_id = fim.hand_id;
 
 --------------- County Summary ---------------
 DROP TABLE IF EXISTS publish.srf_48hr_max_inundation_counties_hi;
