@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS cache.max_flows_mrf_nbm_10day
 );
 
 TRUNCATE TABLE cache.max_flows_mrf_nbm_10day;
-INSERT INTO cache.max_flows_mrf_nbm_10day_ak(feature_id, reference_time, nwm_vers, discharge_cms, discharge_cfs)
+INSERT INTO cache.max_flows_mrf_nbm_10day(feature_id, reference_time, nwm_vers, discharge_cms, discharge_cfs)
     SELECT forecasts.feature_id,
         forecasts.reference_time,
         forecasts.nwm_vers,
