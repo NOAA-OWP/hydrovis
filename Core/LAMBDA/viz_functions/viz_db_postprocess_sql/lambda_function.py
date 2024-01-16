@@ -64,7 +64,7 @@ def lambda_handler(event, context):
                 sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
             else: # if not, use the fim_publish_template
                 folder = 'fim_caching_templates'
-                sql_file = '4a_rds_create_fim_publish_table'
+                sql_file = '4_create_fim_config_publish_table'
                 sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
         
         ##########################################################
