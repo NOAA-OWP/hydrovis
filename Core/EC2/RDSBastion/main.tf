@@ -64,26 +64,6 @@ variable "viz_db_name" {
   type = string
 }
 
-variable "viz_redshift_master_secret_string" {
-  type = string
-}
-
-variable "viz_redshift_address" {
-  type = string
-}
-
-variable "viz_redshift_port" {
-  type = string
-}
-
-variable "viz_redshift_name" {
-  type = string
-}
-
-variable "viz_redshift_iam_role" {
-  type = string
-}
-
 variable "egis_db_master_secret_string" {
   type = string
 }
@@ -148,10 +128,6 @@ variable "viz_proc_dev_rw_secret_string" {
   type = string
 }
 
-variable "viz_redshift_user_secret_string" {
-  type = string
-}
-
 variable "fim_version" {
   type = string
 }
@@ -185,13 +161,6 @@ locals {
       db_name     = var.viz_db_name
       db_username = jsondecode(var.viz_db_secret_string)["username"]
       db_password = jsondecode(var.viz_db_secret_string)["password"]
-    }
-    viz_redshift = {
-      db_host     = var.viz_redshift_address
-      db_port     = var.viz_redshift_port
-      db_name     = var.viz_redshift_name
-      db_username = jsondecode(var.viz_redshift_master_secret_string)["username"]
-      db_password = jsondecode(var.viz_redshift_master_secret_string)["password"]
     }
     egis = {
       db_host     = var.egis_db_address
@@ -369,28 +338,6 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "2b_viz_redshift_setup.sh"
-    content      = templatefile("${path.module}/scripts/viz/redshift_setup.sh.tftpl", {
-      viz_redshift_name                 = local.dbs["viz_redshift"]["db_name"]
-      viz_redshift_host                 = local.dbs["viz_redshift"]["db_host"]
-      viz_redshift_port                 = local.dbs["viz_redshift"]["db_port"]
-      viz_redshift_master_username      = local.dbs["viz_redshift"]["db_username"]
-      viz_redshift_master_password      = local.dbs["viz_redshift"]["db_password"]
-      viz_redshift_user_username        = jsondecode(var.viz_redshift_user_secret_string)["username"]
-      viz_redshift_user_password        = jsondecode(var.viz_redshift_user_secret_string)["password"]
-      viz_db_name                       = local.dbs["viz"]["db_name"]
-      viz_db_host                       = local.dbs["viz"]["db_host"]
-      viz_db_port                       = local.dbs["viz"]["db_port"]
-      viz_db_username                   = local.dbs["viz"]["db_username"]
-      viz_db_password                   = local.dbs["viz"]["db_password"]
-      viz_proc_admin_rw_secret_arn      = var.viz_proc_admin_rw_secret_arn
-      viz_proc_admin_rw_username        = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-      viz_proc_admin_rw_password        = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-    })
-  }
-
-  part {
-    content_type = "text/x-shellscript"
     filename     = "3_viz_restore_db_dumps.sh"
     content      = templatefile("${path.module}/scripts/utils/restore_db_dumps_from_s3.sh.tftpl", {
       db_name     = local.dbs["viz"]["db_name"]
@@ -443,25 +390,6 @@ data "cloudinit_config" "startup" {
       foreign_schema      = "public EXCEPT (hml, hml_status, hml_log, hml_xml, hml_xml_log)"
       foreign_server      = "wrds_rfcfcst"
       user_mappings       = [jsondecode(var.viz_proc_admin_rw_secret_string)["username"]]
-    })
-  }
-
-  part {
-    content_type = "text/x-shellscript"
-    filename     = "4c_viz_setup_fdw_to_redshift.sh"
-    content      = templatefile("${path.module}/scripts/utils/setup_db_link_fdw_to_redshift.tftpl", {
-      db_name                           = local.dbs["viz"]["db_name"]
-      db_host                           = local.dbs["viz"]["db_host"]
-      db_port                           = local.dbs["viz"]["db_port"]
-      db_username                       = local.dbs["viz"]["db_username"]
-      db_password                       = local.dbs["viz"]["db_password"]
-      db_admin_mapping                  = jsondecode(var.viz_db_secret_string)["username"]
-      db_user_mapping                   = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-      viz_redshift_name                 = local.dbs["viz_redshift"]["db_name"]
-      viz_redshift_host                 = local.dbs["viz_redshift"]["db_host"]
-      viz_redshift_port                 = local.dbs["viz_redshift"]["db_port"]
-      viz_redshift_user_username        = jsondecode(var.viz_redshift_user_secret_string)["username"]
-      viz_redshift_user_password        = jsondecode(var.viz_redshift_user_secret_string)["password"]
     })
   }
 

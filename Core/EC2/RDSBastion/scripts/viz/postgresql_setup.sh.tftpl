@@ -21,13 +21,6 @@ rm "$${postgres_data_folder}/postgis_setup.sql"
 echo "Setting up aws_s3..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
 
-echo "Setting up db_link..."
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE EXTENSION IF NOT EXISTS dblink CASCADE;"
-
-# Set password encryption to md5 - we need this to play nice with Redshift foreign data connections
-echo "Setting password encyption to md5"
-psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "SET password_encryption = 'md5';"
-
 # Adding users to Viz DB
 echo "Adding viz proc user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_admin_rw_username};"

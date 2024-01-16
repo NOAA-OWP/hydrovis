@@ -26,10 +26,6 @@ variable "nws_shared_account_s3_bucket" {
   type = string
 }
 
-variable "viz_proc_admin_rw_secret_arn" {
-  type = string
-}
-
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
@@ -200,36 +196,6 @@ resource "aws_iam_role_policy" "rds_s3_export" {
     environment = var.environment
     account_id  = var.account_id
     region      = var.region
-  })
-}
-
-# Redshift Role
-resource "aws_iam_role" "redshift" {
-  name = "hv-vpp-${var.environment}-${var.region}-redshift"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "redshift.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "redshift" {
-  name   = "hv-vpp-${var.environment}-${var.region}-redshift"
-  role   = aws_iam_role.redshift.id
-  policy = templatefile("${path.module}/redshift.json.tftpl", {
-    environment                  = var.environment
-    account_id                   = var.account_id
-    region                       = var.region
-    viz_proc_admin_rw_secret_arn = var.viz_proc_admin_rw_secret_arn
   })
 }
 
@@ -447,10 +413,6 @@ output "role_viz_pipeline" {
 
 output "role_rds_s3_export" {
   value = aws_iam_role.rds_s3_export
-}
-
-output "role_redshift" {
-  value = aws_iam_role.redshift
 }
 
 output "profile_data_services" {

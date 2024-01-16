@@ -87,17 +87,16 @@ def lambda_handler(event, context):
         for sql_file_to_run in sql_files_to_run:
             sql_file = sql_file_to_run['sql_file']
             db_type = sql_file_to_run['db_type']
-            if 'check_dependencies' in sql_file_to_run: # This allows one to set a specific step to not check db dependences, which we currently want to avoid on Redshift and Hand Preprocessing steps (since tables are truncated prior)
+            if 'check_dependencies' in sql_file_to_run: # This allows one to set a specific step to not check db dependences, if needed.
                 check_dependencies = sql_file_to_run['check_dependencies']
             
             ### Get the Appropriate SQL File ###
             sql_path = f"{folder}/{sql_file}.sql"
             
-            if db_type == "viz" and check_dependencies is True:
+            if check_dependencies is True:
                 # Checks if all tables references in sql file exist and are updated (if applicable)
                 # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
                 # and invoke a retry
-                # TODO: I do not currently have this setup for Redshift, need to think that through.
                 database(db_type=db_type).check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
             run_sql(sql_path, sql_replace, db_type=db_type)

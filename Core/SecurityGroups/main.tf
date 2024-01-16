@@ -125,48 +125,6 @@ resource "aws_security_group" "rds" {
   }
 }
 
-resource "aws_security_group" "redshift" {
-  name = "hv-vpp-${var.environment}-redshift"
-  description = "Redshift access"
-  vpc_id = var.vpc_main_id
-
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-
-  ingress = [
-    {
-      cidr_blocks = [
-        var.vpc_main_cidr_block,
-      ]
-      description      = ""
-      from_port        = 5439
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 22
-    }
-  ]
-  
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-redshift"
-  }
-}
-
 resource "aws_security_group" "vpc_access" {
   name = "ssm-session-manager-sg"
   description = "allow access to VPC endpoints"
@@ -375,10 +333,6 @@ output "rabbitmq" {
 
 output "rds" {
   value = aws_security_group.rds
-}
-
-output "redshift" {
-  value = aws_security_group.redshift
 }
 
 output "vpc_access" {
