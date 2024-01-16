@@ -60,12 +60,11 @@ def lambda_handler(event, context):
                 return
             db_type = "viz"
             sql_file = event['args']['fim_config']['postprocess']['sql_file']
-            if os.path.exists(os.path.join(folder, sql_file)): #if there is product-specific fim_configs sql file, use it.
+            if os.path.exists(os.path.join(folder, sql_file + '.sql')): #if there is product-specific fim_configs sql file, use it.
                 sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
             else: # if not, use the fim_publish_template
                 folder = 'fim_caching_templates'
                 sql_file = '4a_rds_create_fim_publish_table'
-                sql_replace.update({"{domain}":domain})
                 sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
         
         ##########################################################

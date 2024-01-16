@@ -5,7 +5,7 @@
 -- (I've asked the fim team to hash a single unique id for feature_id, hydro_id, huc8, branch combinations... which will simplify these queries, and hopefully help with performance.
 
 -- 1. Add unique feature_id/hydro_id records to the hydrotable_cached_max table
-INSERT INTO fim.hydrotable_cached_max(hand_id, hydro_id, feature_id, huc8, branch, fim_version, max_rc_discharge_cfs, max_rc_stage_ft)
+INSERT INTO fim.hydrotable_cached_max(hand_id, fim_version, max_rc_discharge_cfs, max_rc_stage_ft)
 SELECT
     fim.hand_id,
     fim.fim_version,
@@ -14,7 +14,7 @@ SELECT
 FROM {postgis_fim_table} AS fim
 LEFT OUTER JOIN fim.hydrotable_cached_max AS hcm ON fim.hand_id = hcm.hand_id
 WHERE fim.prc_method = 'HAND_Processing' AND
-hcm.hydro_id IS NULL
+hcm.hand_id IS NULL
 GROUP BY fim.hand_id, fim.fim_version, fim.max_rc_discharge_cfs, fim.max_rc_stage_ft;
 
 -- 2. Add records for each step of the hydrotable to the hydrotable_cached table

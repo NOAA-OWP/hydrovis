@@ -24,7 +24,7 @@ SELECT
 	ST_Centroid(buildings.geom) as geom_xy
 INTO publish.ana_inundation_building_footprints_prvi
 FROM external.building_footprints_fema as buildings
-JOIN fim_ingest.ana_inundation_prvi_geo fim_geo ON ST_INTERSECTS(fim.geom, buildings.geom)
+JOIN fim_ingest.ana_inundation_prvi_geo fim_geo ON ST_INTERSECTS(fim_geo.geom, buildings.geom)
 JOIN fim_ingest.ana_inundation_prvi_flows flows ON fim_geo.hand_id = flows.hand_id
 JOIN fim_ingest.ana_inundation_prvi fim ON fim_geo.hand_id = fim.hand_id;
 

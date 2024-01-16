@@ -3,4 +3,4 @@ TRUNCATE {rs_fim_table}_flows;
 INSERT INTO {rs_fim_table}_flows (hand_id, feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
 SELECT
     hand_id, feature_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status
-FROM external_viz_{db_fim_table}_flows;
+FROM {postgis_fim_table}_flows;
