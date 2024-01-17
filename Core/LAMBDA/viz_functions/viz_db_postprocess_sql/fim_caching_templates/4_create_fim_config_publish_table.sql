@@ -1,6 +1,3 @@
--- Create a spatial index on inundation geometry
-CREATE INDEX IF NOT EXISTS fim_geo_idx ON {db_fim_table}_geo USING GIST (geom);
-
 -- This is a generic / standardized query to create a publish.fim table for fim_config product processing (works for NWM configurations, but may not work for special fim configurations like RnR or CatFIM)
 DROP TABLE IF EXISTS {db_publish_table};
 
@@ -24,7 +21,7 @@ SELECT
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS valid_time,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
-	ST_UNION(geo.geom) as geom
+	geo.geom as geom
 INTO {db_publish_table}
 FROM {db_fim_table} as inun
 JOIN {db_fim_table}_flows as flows ON inun.hand_id = flows.hand_id
