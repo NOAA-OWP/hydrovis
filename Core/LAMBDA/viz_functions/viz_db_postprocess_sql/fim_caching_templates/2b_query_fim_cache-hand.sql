@@ -17,7 +17,7 @@ FROM {db_fim_table}_flows AS fs
 JOIN fim_cache.hand_hydrotable_cached_max AS cfm ON fs.hand_id = cfm.hand_id
 JOIN fim_cache.hand_hydrotable_cached AS cf ON fs.hand_id = cf.hand_id
 WHERE fs.prc_status = 'Pending' AND ((fs.discharge_cfs <= cf.rc_discharge_cfs AND fs.discharge_cfs > cf.rc_previous_discharge_cfs)
-									  OR (fs.discharge_cfs >= cfm.max_rc_discharge_cfs));
+									  OR ((fs.discharge_cfs >= cfm.max_rc_discharge_cfs) AND rc_stage_ft = 83));
 
 INSERT INTO {db_fim_table}_geo(hand_id, rc_stage_ft, geom)
 SELECT fim.hand_id, fim.rc_stage_ft, geom
