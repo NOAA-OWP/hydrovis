@@ -24,6 +24,7 @@ def lambda_handler(event, context):
             max_flows_table = event['args']['fim_config']['flows_table']
             db_fim_table = event['args']['fim_config']['target_table']
             domain = event['args']['product']['domain']
+            db_publish_table = db_fim_table.replace("fim_ingest", "publish")
             
             # If these tables exist in the sql_replace dictionary, update accordingly (for past events)
             if max_flows_table in sql_replace:
@@ -33,10 +34,11 @@ def lambda_handler(event, context):
             if db_publish_table in sql_replace:
                 db_publish_table = sql_replace[db_publish_table]            
             
-            sql_replace.update({"{max_flows_table}":max_flows_table})
-            sql_replace.update({"{db_fim_table}":db_fim_table})
-            sql_replace.update({"{domain}":domain})
-            sql_replace.update({"{db_publish_table}":db_fim_table.replace("fim_ingest", "publish")})
+            sql_replace.update({"{max_flows_table}": max_flows_table})
+            sql_replace.update({"{db_fim_table}": db_fim_table})
+            sql_replace.update({"{domain}": domain})
+            sql_replace.update({"{db_publish_table}": db_publish_table})
+
     ############################################################ Conditional Logic ##########################################################
     # This section contains the conditional logic of database operations within our pipelline. At some point it may be nice to abstract this.
     
