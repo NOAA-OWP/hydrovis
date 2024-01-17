@@ -23,8 +23,8 @@ JOIN ras2fim.max_geocurves mgc ON gc.feature_id = mgc.feature_id
 JOIN {db_fim_table} fim ON fs.hand_id = fim.hand_id
 WHERE gc.discharge_cfs >= fs.discharge_cfs AND gc.previous_discharge_cfs < fs.discharge_cfs;
 
-INSERT INTO {db_fim_table}_geo (hand_id, rc_stage_ft, geom_part, geom)
-SELECT fim.hand_id, fim.rc_stage_ft, row_number() OVER ()::integer AS geom_part, ST_Transform(gc.geom, 3857) as geom
+INSERT INTO {db_fim_table}_geo (hand_id, rc_stage_ft, geom)
+SELECT fim.hand_id, fim.rc_stage_ft, ST_Transform(gc.geom, 3857) as geom
 FROM {db_fim_table} AS fim
 JOIN {db_fim_table}_flows fs ON fim.hand_id = fs.hand_id
 JOIN ras2fim.geocurves AS gc ON fs.feature_id = gc.feature_id AND fim.rc_stage_ft = gc.stage_ft;
