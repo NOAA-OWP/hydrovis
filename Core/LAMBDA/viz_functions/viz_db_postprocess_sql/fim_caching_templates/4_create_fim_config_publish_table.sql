@@ -26,6 +26,4 @@ INTO {db_publish_table}
 FROM {db_fim_table} as inun
 JOIN {db_fim_table}_flows as flows ON inun.hand_id = flows.hand_id
 JOIN {db_fim_table}_geo as geo ON inun.hand_id = geo.hand_id
-LEFT JOIN derived.channels_{domain} as channels ON channels.feature_id = flows.feature_id
-GROUP BY flows.hydro_id, flows.feature_id, flows.huc8, flows.branch, channels.strm_order, channels.name, channels.state, inun.forecast_discharge_cfs, inun.forecast_stage_ft,
-		 inun.rc_discharge_cfs,inun.rc_stage_ft,inun.max_rc_stage_ft,inun.max_rc_discharge_cfs,inun.fim_version;
+LEFT JOIN derived.channels_{domain} as channels ON channels.feature_id = flows.feature_id;
