@@ -278,8 +278,9 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
   rule      = var.five_minute_trigger.name
-  target_id = aws_lambda_function.viz_wrds_api_handler.function_name
-  arn       = aws_lambda_function.viz_wrds_api_handler.arn
+  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
+  arn       = aws_lambda_function.viz_initialize_pipeline.arn
+  input     = "{\"configuration\":\"rfc\"}"
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {

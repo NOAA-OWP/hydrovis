@@ -185,6 +185,8 @@ class viz_lambda_pipeline:
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
                 self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
+            elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'rfc':
+                self.configuration = configuration('rfc', reference_time=datetime.datetime.utcnow().replace(second=0, microsecond=0))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
