@@ -907,6 +907,14 @@
                       "IntervalSeconds": 1,
                       "MaxAttempts": 3,
                       "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "MaxAttempts": 3,
+                      "IntervalSeconds": 30,
+                      "BackoffRate": 1
                     }
                   ],
                   "Next": "FIM Cache - Load Cached FIM Into FIM Config Tables",
