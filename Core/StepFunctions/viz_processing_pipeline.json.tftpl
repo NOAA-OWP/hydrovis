@@ -1044,6 +1044,15 @@
                       "IntervalSeconds": 1,
                       "MaxAttempts": 3,
                       "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "UniqueViolation"
+                      ],
+                      "BackoffRate": 1,
+                      "MaxAttempts": 3,
+                      "Comment": "Retry if a unique violation happens - this may need a custom exception.",
+                      "IntervalSeconds": 60
                     }
                   ],
                   "Next": "Postprocess SQL - FIM Config",
