@@ -843,7 +843,7 @@
                   ],
                   "Default": "FIM Cache - Prepare Flows Table"
                 },
-                "FIM Cache - Prepare Flows Table": {
+                 "FIM Cache - Prepare FIM Config Tables": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
@@ -855,11 +855,42 @@
                       "sql_templates_to_run": [
                         {
                           "sql_file": "0_create_or_truncate_tables",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz",
                           "check_dependencies": false
-                        },
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "FIM Cache - Prepare Flows Table",
+                  "ResultPath": null
+                },
+                "FIM Cache - Prepare Flows Table": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing - prepare flows",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
                         {
                           "sql_file": "1_prepare_fim_config_flows_table",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz"
                         }
                       ]
@@ -892,10 +923,13 @@
                       "sql_templates_to_run": [
                         {
                           "sql_file": "2a_query_fim_cache-ras2fim",
-                          "db_type": "viz"
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
                         },
                         {
                           "sql_file": "2b_query_fim_cache-hand",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz",
                           "check_dependencies": false
                         }
@@ -992,6 +1026,7 @@
                       "sql_templates_to_run": [
                         {
                           "sql_file": "3_add_any_processed_hand_fim_back_to_cache",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz",
                           "check_dependencies": false
                         }
