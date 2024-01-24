@@ -18,8 +18,9 @@ def lambda_handler(event, context):
         
     # For FIM steps that require template use, setup some other variables based on the step function inputs and provide them to the sql_replace dictionary as args/params
     # TODO: This is probably better to move to initialize pipeline and/or abstract these conditions / have the steps that need this specify it in the initilize_pipeline config files
-    if step == "hand_pre_processing" or step == "hand_post_processing" or step == "fim_config":
+    if "hand_pre_processing" in step or step == "hand_post_processing" or step == "fim_config":
         if event['args']['fim_config']['fim_type'] == 'hand':
+            
             # Define the table names that will be used in the SQL templates
             max_flows_table = event['args']['fim_config']['flows_table']
             db_fim_table = event['args']['fim_config']['target_table']
@@ -37,8 +38,8 @@ def lambda_handler(event, context):
             sql_replace.update({"{max_flows_table}": max_flows_table})
             sql_replace.update({"{db_fim_table}": db_fim_table})
             sql_replace.update({"{domain}": domain})
-            sql_replace.update({"{db_publish_table}": db_publish_table})
-
+            sql_replace.update({"{db_publish_table}": db_publish_table})  
+            
     ############################################################ Conditional Logic ##########################################################
     # This section contains the conditional logic of database operations within our pipelline. At some point it may be nice to abstract this.
     
@@ -52,7 +53,7 @@ def lambda_handler(event, context):
         if step == "max_flows":
             db_type = "viz"
             sql_file = event['args']['db_max_flow']['max_flows_sql_file']
-            sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})   
+            sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type})  
         
         ###################### FIM Workflows ######################
         # All of the pre and post processing steps of a fim workflow (everything but step 4) - see attached readme - are templated, and can be executed using the input parameters defined in the step function
@@ -60,6 +61,20 @@ def lambda_handler(event, context):
             # Get the sql file instructions from the step function parameter dictionary, and add it to the list to run
             sql_templates_to_run = event['sql_templates_to_run']
             sql_files_to_run.extend(sql_templates_to_run)
+
+        elif step == "hand_pre_processing - prepare flows":
+            # If a sql file is present for this fim_config in the fim_flows folder, use it to generate flows table instead of the template.
+            fim_flows_file = os.path.join("fim_flows", event['args']['fim_config']['name'] + '.sql')
+            if os.path.exists(fim_flows_file):
+                sql_file = event['args']['fim_config']['name']
+                sql_files_to_run.append({"sql_file":sql_file, "folder": "fim_flows", "db_type":"viz"})
+
+                # If a flows column is present in the fim_config, add that to the sql replace dictionary.
+                if 'flows_column' in event['args']['fim_config']:
+                    sql_replace.update({"{flows_column}": event['args']['fim_config']['flows_column']})
+            else:
+                sql_templates_to_run = event['sql_templates_to_run']
+                sql_files_to_run.extend(sql_templates_to_run) 
             
         # FIM Config Step 4 - This is where we actually create the publish inundation tables to send to the EGIS service, and in this case we look to
         # see if a product-specific sql file exists (for special cases like RnR, CatFIM, etc.), and if not, we use a template file.
@@ -68,12 +83,13 @@ def lambda_handler(event, context):
                 return
             db_type = "viz"
             sql_file = event['args']['fim_config']['postprocess']['sql_file']
-            if os.path.exists(os.path.join(folder, sql_file + '.sql')): #if there is product-specific fim_configs sql file, use it.
-                sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
+            if os.path.exists(os.path.join("fim_configs", sql_file + '.sql')): #if there is product-specific fim_configs sql file, use it.
+                sql_files_to_run.append({"sql_file":sql_file, "folder": "fim_configs", "db_type":db_type})  
             else: # if not, use the fim_publish_template
                 folder = 'fim_caching_templates'
                 sql_file = '4_create_fim_config_publish_table'
-                sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
+                check_dependencies = False
+                sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type})  
         
         ##########################################################
         
@@ -82,29 +98,32 @@ def lambda_handler(event, context):
             db_type = "viz"
             folder = os.path.join(folder, event['args']['product']['configuration'])
             sql_file = event['args']['postprocess_sql']['sql_file']
-            sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
+            sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type})  
         # Summary
         elif step == 'summaries':
             db_type = "viz"
             folder = os.path.join(folder, event['args']['product']['product'])
             sql_file = event['args']['postprocess_summary']['sql_file']        
-            sql_files_to_run.append({"sql_file":sql_file, "db_type":db_type})
+            sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type})  
 
     ############################################################ Run the SQL ##########################################################
         # Iterate through the sql commands defined in the logic above
         for sql_file_to_run in sql_files_to_run:
             sql_file = sql_file_to_run['sql_file']
+            folder = sql_file_to_run['folder']
             db_type = sql_file_to_run['db_type']
-            if 'check_dependencies' in sql_file_to_run: # This allows one to set a specific step to not check db dependences, if needed.
+            if 'check_dependencies' in sql_file_to_run: # This allows one to set a specific step to not check db dependences, which we currently want to avoid on Redshift and Hand Preprocessing steps (since tables are truncated prior)
                 check_dependencies = sql_file_to_run['check_dependencies']
             
             ### Get the Appropriate SQL File ###
             sql_path = f"{folder}/{sql_file}.sql"
             
-            if check_dependencies is True:
+            if db_type == "viz" and check_dependencies is True:
                 # Checks if all tables references in sql file exist and are updated (if applicable)
                 # Raises a custom RequiredTableNotUpdated if not, which will be caught by viz_pipline
                 # and invoke a retry
+                # TODO: This doesn't work great with the new FIM_Caching templates, so I'm presently skipping it on several of the FIM steps.'
+                # I'll try to re-work this if there is time, but we need a way to ignore certain types of this error when appropriate, such as no fim records in HI, which happens often.
                 database(db_type=db_type).check_required_tables_updated(sql_path, sql_replace, reference_time, raise_if_false=True)
 
             run_sql(sql_path, sql_replace, db_type=db_type)
