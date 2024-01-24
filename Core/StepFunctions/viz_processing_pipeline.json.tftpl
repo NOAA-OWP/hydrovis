@@ -1066,7 +1066,21 @@
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config",
-                      "folder": "fim_configs"
+                      "folder": "fim_configs",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "4_create_fim_config_publish_table",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        },
+                        {
+                          "sql_file": "5_dummy_rows_for_wpod_service_monitor",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
                     }
                   },
                   "Retry": [
