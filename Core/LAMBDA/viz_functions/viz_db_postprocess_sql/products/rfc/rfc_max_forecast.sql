@@ -1,3 +1,27 @@
+/*
+Most column names of the WRDS forecast database tables follow the SHEF Code naming conventions. These are largely clear
+and understood for those largely unfamiliar with the conventions. However, there are a few single- or double-digit
+column names that would be near impossible to discern for first-time viewers. Namely: "pe", "d", "t", "s", "e", and "p".
+These are explained below in an excerpt from the SHEF Code Manual (see 
+https://www.weather.gov/media/mdl/SHEF_CodeManual_5July2012.pdf).
+
+In SHEF messages, different types of data are keyed by a sevencharacter parameter code represented 
+by the character string “PEDTSEP.” The string is broken down as follows:
+
+PE = Physical Element (gage height, precipitation, etc.)
+D = Duration Code (instantaneous, hourly, daily, etc.)
+T = Type Code (observed, forecast, etc.)
+S = Source Code (a further refinement of type code which may indicate how data was
+created or transmitted)
+E = Extremum Code (maximum, minimum, etc.)
+P = Probability Code (90 percent, 10 percent, etc.)
+
+The parameter code string, when fully specified, contains six keys for database identification. In
+order to reduce manual entry and communications requirements, standard defaults for each key
+(except PE) reduce identification of most hydrometeorological data to a minimum key of two
+characters. The full key is used primarily in the transmission of unique hydrometeorological data.
+*/
+
 DROP TABLE IF EXISTS publish.rfc_max_forecast;
 
 WITH
