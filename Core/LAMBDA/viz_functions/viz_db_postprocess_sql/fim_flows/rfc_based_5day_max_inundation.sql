@@ -1,7 +1,7 @@
 -- This populates a standardized fim_flows table, filtered to high water threshold, on RDS. This is essentially the domain of a given fim run.
 -- the prc_status columns is updated throughout the fim run with a status reflecting how fim is calculated for each reach (from ras2fim cache, from hand cache, hand processing, etc.)
-TRUNCATE fim_ingest.rfc_based_5day_inundation_flows;
-INSERT INTO fim_ingest.rfc_based_5day_inundation_flows (feature_id, hand_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
+TRUNCATE fim_ingest.rfc_based_5day_max_inundation_flows;
+INSERT INTO fim_ingest.rfc_based_5day_max_inundation_flows (feature_id, hand_id, hydro_id, huc8, branch, reference_time, discharge_cms, discharge_cfs, prc_status)
 SELECT
     max_forecast.feature_id,
     crosswalk.hand_id,
@@ -20,6 +20,6 @@ WHERE
     rf.high_water_threshold > 0::double precision AND
     crosswalk.huc8 IS NOT NULL AND 
     crosswalk.lake_id = -999 AND
-	max_forecast.waterbody = 'no' AND
+	max_forecast.is_waterbody = 'no' AND
 	max_forecast.is_downstream_of_waterbody = 'no' AND
 	viz_status IN ('Action', 'Minor', 'Moderate', 'Major');
