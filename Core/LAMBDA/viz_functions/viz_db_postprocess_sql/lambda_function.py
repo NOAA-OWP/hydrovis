@@ -88,8 +88,7 @@ def lambda_handler(event, context):
             else: # if not, use the fim_publish_template
                 folder = 'fim_caching_templates'
                 sql_file = '4_create_fim_config_publish_table'
-                check_dependencies = False
-                sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type})  
+                sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type, "check_dependencies": False})  
         
         ##########################################################
         
