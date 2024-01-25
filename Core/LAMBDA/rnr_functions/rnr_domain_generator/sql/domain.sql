@@ -105,13 +105,13 @@ SELECT
 INTO rnr.temporal_domain_flow_forecasts
 FROM all_flow_forecasts;
 
--------------------------------------------------------
--------------------------------------------------------
-------------- CREATE RNR DOMAIN ROUTLINK  -------------
--------------------------------------------------------
--------------------------------------------------------
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+------------- CREATE DOMAIN LIDS WITH STATUS TABLE  -------------
+-----------------------------------------------------------------
+-----------------------------------------------------------------
 
-DROP TABLE IF EXISTS rnr.domain_routelink;
+DROP TABLE IF EXISTS rnr.domain_lids_with_status;
 
 WITH RECURSIVE 
 
@@ -215,10 +215,11 @@ max_status_flow AS (
 			THEN CASE 
 					WHEN th.record_flow IS NOT NULL AND mf.max_flow_cfs >= th.record_flow
 					THEN 'record'
-					ELSE 'thresholds undefined'
+					ELSE 'all thresholds undefined'
 				 END
-			ELSE 'no_flooding'
-		END as status
+			ELSE 'no flooding'
+		END as status,
+		rating_source
 	FROM max_flow AS mf
 	LEFT JOIN threshold AS th
 		ON th.nws_station_id = mf.lid
@@ -240,39 +241,53 @@ max_status_stage AS (
 			THEN CASE 
 					WHEN th.record_stage IS NOT NULL AND mf.max_stage_ft >= th.record_stage
 					THEN 'record'
-					ELSE 'thresholds undefined'
+					ELSE 'all thresholds undefined'
 				 END
-			ELSE 'no_flooding'
-		END as status
+			ELSE 'no flooding'
+		END as status,
+		rating_source
 	FROM max_stage AS mf
 	LEFT JOIN threshold AS th
 		ON th.nws_station_id = mf.lid
 ),
 
-flood_flow_lid AS (
-	SELECT lid
-    FROM max_status_flow
-	WHERE status in ('action', 'minor', 'moderate', 'major', 'record')
-),
-
-flood_stage_lid AS (
-	SELECT lid
+lid_status AS (
+	SELECT
+		lid,
+		status,
+		rating_source
 	FROM max_status_stage
-	WHERE status in ('action', 'minor', 'moderate', 'major', 'record')
-),
-
-flood_lid AS (
-	SELECT
-		lid
-	FROM flood_flow_lid
-
+	
 	UNION
+	
+	SELECT
+		lid,
+		status,
+		rating_source
+	FROM max_status_flow
+	WHERE lid NOT IN (SELECT lid FROM max_status_stage)
+)
 
+SELECT *
+INTO rnr.domain_lids_with_status
+FROM lid_status
+LEFT JOIN derived.ahps_restricted_sites restricted
+	ON restricted.nws_lid = lid_status.lid
+WHERE restricted.nws_lid IS NULL;
+
+-------------------------------------------------------
+-------------------------------------------------------
+------------- CREATE RNR DOMAIN ROUTLINK  -------------
+-------------------------------------------------------
+-------------------------------------------------------
+
+DROP TABLE IF EXISTS rnr.domain_routelink;
+
+WITH RECURSIVE flood_lid AS (
 	SELECT
 		lid
-	FROM flood_stage_lid
-	WHERE lid NOT IN (SELECT lid FROM flood_flow_lid)
-		AND lid IN (SELECT lid FROM max_flow)
+	FROM rnr.domain_lids_with_status
+	WHERE status IN ('action', 'minor', 'moderate', 'major')
 ),
 
 flood_xwalk AS (

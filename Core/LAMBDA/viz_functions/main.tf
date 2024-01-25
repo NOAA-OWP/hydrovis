@@ -448,7 +448,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
 #### 10GB RAM Version ####
 #########################
 resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
-  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 10240
   ephemeral_storage {

@@ -118,39 +118,13 @@ root_status_trace_reaches AS (
 		stream_length,
 		is_waterbody,
 		fcst_meta.issue_time,
-		rating_source,
-		CASE
-			WHEN rfc_defined_fcst_point AND fcst_meta.issue_time IS NULL
-			THEN 'No Forecast'
-			WHEN major_flow IS NOT NULL AND streamflow > major_flow
-			THEN 'Major'
-			WHEN major_stage IS NOT NULL AND stage_from_curve > major_stage
-			THEN 'Major'
-			WHEN moderate_flow IS NOT NULL AND streamflow > moderate_flow
-			THEN 'Moderate'
-			WHEN moderate_stage IS NOT NULL AND stage_from_curve > moderate_stage
-			THEN 'Moderate'
-			WHEN minor_flow IS NOT NULL AND streamflow > minor_flow
-			THEN 'Minor'
-			WHEN minor_stage IS NOT NULL AND stage_from_curve > minor_stage
-			THEN 'Minor'
-			WHEN action_flow IS NOT NULL AND streamflow > action_flow
-			THEN 'Action'
-			WHEN action_stage IS NOT NULL AND stage_from_curve > action_stage
-			THEN 'Action'
-			WHEN issue_time IS NOT NULL
-				AND action_flow IS NULL AND minor_flow IS NULL AND moderate_flow IS NULL AND major_flow IS NULL
-				AND action_stage IS NULL AND minor_stage IS NULL AND moderate_stage IS NULL AND major_stage IS NULL
-			THEN 'All Thresholds Undefined'
-			WHEN mf.nws_station_id IS NOT NULL
-			THEN 'No Flooding'
-			ELSE ''
-		END as max_status
+		status.rating_source,
+		INITCAP(status.status) as max_status
 	FROM max_flows_station_xwalk_with_rc_stage mf
 	LEFT JOIN fcst_meta
 		ON fcst_meta.lid = mf.nws_station_id
-	LEFT JOIN threshold
-		ON threshold.nws_station_id = mf.nws_station_id
+	LEFT JOIN rnr.domain_lids_with_status status
+		ON status.lid = mf.nws_station_id
 	WHERE rfc_defined_fcst_point IS TRUE OR issue_time IS NOT NULL
 	ORDER BY feature_id, issue_time, rfc_defined_fcst_point DESC
 ),
@@ -219,7 +193,7 @@ agg_trace AS (
 				WHEN max_status = 'All Thresholds Undefined'
 				THEN max_status || ' at ' || influential_forecast_point || ' (' || root_feature_id || ' [' || root_stream_order || ']) despite forecast issued ' || issue_time || ' ' || ROUND(CAST(distance_from_forecast_point * 0.000621 as numeric), 1) || ' miles upstream'
 				WHEN issue_time IS NOT NULL
-				THEN max_status || ' (' || rating_source || ') issued ' || issue_time || ' at ' || influential_forecast_point || ' (' || root_feature_id || ' [' || root_stream_order || ']) ' || ROUND(CAST(distance_from_forecast_point * 0.000621 as numeric), 1) || ' miles upstream'
+				THEN max_status || ' issued ' || issue_time || ' at ' || influential_forecast_point || ' (' || root_feature_id || ' [' || root_stream_order || ']) ' || ROUND(CAST(distance_from_forecast_point * 0.000621 as numeric), 1) || ' miles upstream'
 				ELSE max_status || ' at ' || influential_forecast_point || ' (' || root_feature_id || ' [' || root_stream_order || ']) ' || ROUND(CAST(distance_from_forecast_point * 0.000621 as numeric), 1) || ' miles upstream'
 			END,
 			'; '
