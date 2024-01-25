@@ -47,4 +47,5 @@ SELECT
     fim.note
 FROM {db_fim_table}_zero_stage AS fim
 LEFT OUTER JOIN fim_cache.hand_hydrotable_cached_zero_stage AS hczs ON fim.hand_id = hczs.hand_id
-WHERE hczs.rc_discharge_cms IS NULL;
+WHERE hczs.rc_discharge_cms IS NULL
+AND fim.rc_discharge_cms IS NOT NULL;
