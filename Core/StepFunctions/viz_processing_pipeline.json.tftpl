@@ -824,7 +824,7 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "HUC Processing Map",
+                  "Next": "HAND Processing",
                   "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
                     "hucs_to_process.$": "$.Payload.hucs_to_process",
@@ -841,9 +841,9 @@
                       "Next": "Process Coastal (SCHISM) FIM"
                     }
                   ],
-                  "Default": "FIM Cache - Save Flows to Redshift"
+                  "Default": "FIM Cache - Prepare Flows Table"
                 },
-                "FIM Cache - Save Flows to Redshift": {
+                 "FIM Cache - Prepare FIM Config Tables": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
@@ -854,89 +854,90 @@
                       "folder": "fim_caching_templates",
                       "sql_templates_to_run": [
                         {
-                          "sql_file": "0b_rds_create_inundation_tables_if_not_exist",
+                          "sql_file": "0_create_or_truncate_tables",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "FIM Cache - Prepare Flows Table",
+                  "ResultPath": null
+                },
+                "FIM Cache - Prepare Flows Table": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing - prepare flows",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "1_prepare_fim_config_flows_table",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz"
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "MaxAttempts": 3,
+                      "IntervalSeconds": 30,
+                      "BackoffRate": 1
+                    }
+                  ],
+                  "Next": "FIM Cache - Load Cached FIM Into FIM Config Tables",
+                  "ResultPath": null
+                },
+                "FIM Cache - Load Cached FIM Into FIM Config Tables": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "2a_query_fim_cache-ras2fim",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz",
                           "check_dependencies": false
                         },
                         {
-                          "sql_file": "0a_redshift_create_inundation_tables_if_not_exist",
-                          "db_type": "redshift"
-                        },
-                        {
-                          "sql_file": "1a_rds_build_inundation_flows_table",
-                          "db_type": "viz"
-                        },
-                        {
-                          "sql_file": "1b_redshift_copy_inundation_flows",
-                          "db_type": "redshift"
-                        }
-                      ]
-                    }
-                  },
-                  "Retry": [
-                    {
-                      "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                      ],
-                      "IntervalSeconds": 1,
-                      "MaxAttempts": 3,
-                      "BackoffRate": 2
-                    }
-                  ],
-                  "Next": "FIM Cache - Build FIM Table on Redshift",
-                  "ResultPath": null
-                },
-                "FIM Cache - Build FIM Table on Redshift": {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::lambda:invoke",
-                  "Parameters": {
-                    "Payload": {
-                      "args.$": "$",
-                      "step": "hand_pre_processing",
-                      "folder": "fim_caching_templates",
-                      "sql_templates_to_run": [
-                        {
-                          "sql_file": "2a_redshift_query_cached_fim_table",
-                          "db_type": "redshift"
-                        }
-                      ]
-                    },
-                    "FunctionName": "${db_postprocess_sql_arn}"
-                  },
-                  "Retry": [
-                    {
-                      "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                      ],
-                      "IntervalSeconds": 1,
-                      "MaxAttempts": 3,
-                      "BackoffRate": 2
-                    }
-                  ],
-                  "Next": "FIM Cache - Load Cached FIM Into Ingest Tables",
-                  "ResultPath": null
-                },
-                "FIM Cache - Load Cached FIM Into Ingest Tables": {
-                  "Type": "Task",
-                  "Resource": "arn:aws:states:::lambda:invoke",
-                  "Parameters": {
-                    "Payload": {
-                      "args.$": "$",
-                      "step": "hand_pre_processing",
-                      "folder": "fim_caching_templates",
-                      "sql_templates_to_run": [
-                        {
-                          "sql_file": "3a_rds_ras2fim_insertion",
-                          "db_type": "viz"
-                        },
-                        {
-                          "sql_file": "3b_rds_cached_hand_insertion",
+                          "sql_file": "2b_query_fim_cache-hand",
+                          "folder": "fim_caching_templates",
                           "db_type": "viz",
                           "check_dependencies": false
                         }
@@ -982,7 +983,7 @@
                     "sql_rename_dict.$": "$.Output.sql_rename_dict"
                   }
                 },
-                "HUC Processing Map": {
+                "HAND Processing": {
                   "Type": "Map",
                   "Iterator": {
                     "StartAt": "FIM HUC Processing State Machine",
@@ -1008,7 +1009,7 @@
                     }
                   },
                   "ItemsPath": "$.huc_processing_payload.hucs_to_process",
-                  "Next": "FIM Cache - Add Processed FIM to Cache",
+                  "Next": "FIM Cache - Add Processed FIM Back to HAND Cache",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
                     "data_bucket.$": "$.huc_processing_payload.data_bucket",
@@ -1021,19 +1022,20 @@
                   "MaxConcurrency": 4,
                   "ResultPath": null
                 },
-                "FIM Cache - Add Processed FIM to Cache": {
+                "FIM Cache - Add Processed FIM Back to HAND Cache": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "arn:aws:lambda:us-east-1:526904826677:function:hv-vpp-cached-fim-viz-db-postprocess-sql:$LATEST",
+                    "FunctionName": "${db_postprocess_sql_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "hand_post_processing",
                       "folder": "fim_caching_templates",
                       "sql_templates_to_run": [
                         {
-                          "sql_file": "5a_redshift_cache_fim_from_rds",
-                          "db_type": "redshift",
+                          "sql_file": "3_add_any_processed_hand_fim_back_to_cache",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
                           "check_dependencies": false
                         }
                       ]
@@ -1050,6 +1052,15 @@
                       "IntervalSeconds": 1,
                       "MaxAttempts": 3,
                       "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "UniqueViolation"
+                      ],
+                      "BackoffRate": 1,
+                      "MaxAttempts": 3,
+                      "Comment": "Retry if a unique violation happens - this may need a custom exception.",
+                      "IntervalSeconds": 60
                     }
                   ],
                   "Next": "Postprocess SQL - FIM Config",
@@ -1063,7 +1074,21 @@
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config",
-                      "folder": "fim_configs"
+                      "folder": "fim_configs",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "4_create_fim_config_publish_table",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        },
+                        {
+                          "sql_file": "5_dummy_rows_for_wpod_service_monitor",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
                     }
                   },
                   "Retry": [

@@ -114,16 +114,6 @@ variable "egis_db_name" {
   type = string
 }
 
-variable "viz_redshift_host" {
-  description = "Hostname of the viz data warehouse redshift cluster."
-  type        = string
-}
-
-variable "viz_redshift_db_name" {
-  description = "DB Name of the viz data warehouse redshift cluster."
-  type        = string
-}
-
 variable "viz_db_user_secret_string" {
   description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
@@ -131,11 +121,6 @@ variable "viz_db_user_secret_string" {
 
 variable "egis_db_user_secret_string" {
   description = "The secret string for the egis rds database."
-  type        = string
-}
-
-variable "viz_redshift_user_secret_string" {
-  description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
 
@@ -412,7 +397,7 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
 #### 3GB RAM Version ####
 #########################
 resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
-  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 3072
   ephemeral_storage {
@@ -455,7 +440,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_3GB"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
   }
 }
 
@@ -506,7 +491,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_10GB"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
   }
 }
 
@@ -641,10 +626,6 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_HOST           = var.viz_db_host
       VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
-      REDSHIFT_DB_DATABASE  = var.viz_redshift_db_name
-      REDSHIFT_DB_HOST      = var.viz_redshift_host
-      REDSHIFT_DB_USERNAME  = jsondecode(var.viz_redshift_user_secret_string)["username"]
-      REDSHIFT_DB_PASSWORD  = jsondecode(var.viz_redshift_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
