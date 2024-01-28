@@ -1,0 +1,23 @@
+schemaVersion: 1.0
+parameters:
+  - CincConfig:
+      type: string
+      description: Cinc Configutation File.
+
+  - WorkingFolder:
+      type: string
+      description: Working Folder.
+
+phases:
+  - name: build
+    steps:
+      - name: RunCincClient
+        action: ExecutePowerShell
+        timeoutSeconds: 3600
+        onFailure: Abort
+        inputs:
+          commands:
+            - |
+              $cincworkspacepath = Join-Path $env:SystemDrive 'cinc'
+              Set-Location -Path $cincworkspacepath            
+              cinc-client -z -j '{{ WorkingFolder }}/{{ CincConfig }}'
