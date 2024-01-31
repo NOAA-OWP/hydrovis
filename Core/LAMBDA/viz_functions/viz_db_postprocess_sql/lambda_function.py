@@ -86,9 +86,8 @@ def lambda_handler(event, context):
             if os.path.exists(os.path.join("fim_configs", sql_file + '.sql')): #if there is product-specific fim_configs sql file, use it.
                 sql_files_to_run.append({"sql_file":sql_file, "folder": "fim_configs", "db_type":db_type})  
             else: # if not, use the fim_publish_template
-                folder = 'fim_caching_templates'
-                sql_file = '4_create_fim_config_publish_table'
-                sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type, "check_dependencies": False})  
+                sql_templates_to_run = event['sql_templates_to_run']
+                sql_files_to_run.extend(sql_templates_to_run) 
         
         ##########################################################
         

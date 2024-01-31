@@ -14,7 +14,6 @@ SELECT
     buildings.prod_date,
     buildings.source,
     buildings.val_method,
-    fim.hydro_id,
     flows.hydro_id,
 	flows.hydro_id::TEXT AS hydro_id_str,
 	flows.feature_id,
