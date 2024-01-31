@@ -4,13 +4,12 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "RFC Max Stage Forecast",
+    "name" : "RFC Max Value Forecast",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
-      "type" : "TimeInstant",
-      "start" : 978307200000
+      "type" : "TimeInstant"
     },
-    "metadataURI" : "CIMPATH=Metadata/5c375a972b3700d71bdd0b258872d95d.xml",
+    "metadataURI" : "CIMPATH=Metadata/09f79039c3172d78e1f15353d35d1bf8.xml",
     "useSourceMetadata" : true,
     "illumination" : {
       "type" : "CIMIlluminationProperties",
@@ -27,78 +26,18 @@
     },
     "layers" : [
       "CIMPATH=rfc_max_forecast_forecast/max_status___forecast_trend.xml",
-      "CIMPATH=ahps_max_stage_forecast/maximum_status___forecast_trend.xml"
+      "CIMPATH=ahps_max_value_forecast/maximum_status___forecast_trend.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
-    "customFullExtent" : {
-      "rings" : [
-        [
-          [
-            1461297.49225695338,
-            -681897.843323865905
-          ],
-          [
-            2885768.27730376506,
-            1597768.26308573037
-          ],
-          [
-            7179521.98532605823,
-            824373.868930706754
-          ],
-          [
-            7719043.36909858882,
-            -1809048.09699437954
-          ],
-          [
-            1461297.49225695338,
-            -681897.843323865905
-          ]
-        ]
-      ],
-      "spatialReference" : {
-        "wkid" : 3587,
-        "latestWkid" : 3587
-      }
-    },
-    "datumTransforms" : [
-      {
-        "type" : "CIMDatumTransform",
-        "forward" : true,
-        "geoTransformation" : {
-          "geoTransforms" : [
-            {
-              "wkid" : 15931,
-              "latestWkid" : 15931,
-              "transformForward" : false,
-              "name" : "NAD_1983_NSRS2007_To_WGS_1984_1"
-            }
-          ]
-        }
-      },
-      {
-        "type" : "CIMDatumTransform",
-        "forward" : false,
-        "geoTransformation" : {
-          "geoTransforms" : [
-            {
-              "wkid" : 15931,
-              "latestWkid" : 15931,
-              "transformForward" : false,
-              "name" : "NAD_1983_NSRS2007_To_WGS_1984_1"
-            }
-          ]
-        }
-      }
-    ],
     "defaultExtent" : {
-      "xmin" : 2067455.53342193644,
-      "ymin" : -1886735.70271008671,
-      "xmax" : 7700296.5388222253,
-      "ymax" : 2079032.8727831312,
+      "xmin" : -14653391.4020208828,
+      "ymin" : 903438.768891409971,
+      "xmax" : -6739868.60789241642,
+      "ymax" : 8184582.38302292768,
       "spatialReference" : {
-        "wkid" : 3587,
-        "latestWkid" : 3587
+        "wkid" : 102100,
+        "latestWkid" : 3857
       }
     },
     "elevationSurfaces" : [
@@ -107,7 +46,7 @@
         "elevationMode" : "BaseGlobeSurface",
         "name" : "Ground",
         "verticalExaggeration" : 1,
-        "mapElevationID" : "{BA983530-794C-4D31-A84A-05EA0F26A66A}",
+        "mapElevationID" : "{F2DDA1E7-58A6-4E30-BF89-9E14A119E929}",
         "color" : {
           "type" : "CIMRGBColor",
           "values" : [
@@ -157,8 +96,8 @@
       "isZSnappingEnabled" : true
     },
     "spatialReference" : {
-      "wkid" : 3587,
-      "latestWkid" : 3587
+      "wkid" : 102100,
+      "latestWkid" : 3857
     },
     "timeDisplay" : {
       "type" : "CIMMapTimeDisplay",
@@ -192,7 +131,7 @@
       "description" : "egdb.hydrovis.Maximum Status - Forecast Trend",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{BA983530-794C-4D31-A84A-05EA0F26A66A}"
+        "mapElevationID" : "{F2DDA1E7-58A6-4E30-BF89-9E14A119E929}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -243,7 +182,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "USGS Site Code",
-            "fieldName" : "usgs_sitecode",
+            "fieldName" : "usgs_site_code",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -359,8 +298,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Initial Stage",
-            "fieldName" : "initial_stage",
+            "alias" : "Forecast Initial Value",
+            "fieldName" : "initial_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -380,15 +319,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Initial Stage Timestep",
-            "fieldName" : "initial_stage_timestep",
+            "alias" : "Forecast Initial Value Timestep",
+            "fieldName" : "initial_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Min Stage",
-            "fieldName" : "min_stage",
+            "alias" : "Forecast Min Value",
+            "fieldName" : "min_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -409,15 +348,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Min Stage Timestep",
-            "fieldName" : "min_stage_timestep",
+            "alias" : "Forecast Min Value Timestep",
+            "fieldName" : "min_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Max Stage",
-            "fieldName" : "max_stage",
+            "alias" : "Forecast Max Value",
+            "fieldName" : "max_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -438,8 +377,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Max Stage Timestep",
-            "fieldName" : "max_stage_timestep",
+            "alias" : "Forecast Max Value Timestep",
+            "fieldName" : "max_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -453,7 +392,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Record Forecast",
-            "fieldName" : "record_forecast",
+            "fieldName" : "is_record_forecast",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -502,11 +441,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
+          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -522,9 +461,9 @@
               "length" : 5
             },
             {
-              "name" : "initial_stage",
+              "name" : "initial_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "initial_stage"
+              "alias" : "initial_value"
             },
             {
               "name" : "initial_status",
@@ -533,15 +472,15 @@
               "length" : 15
             },
             {
-              "name" : "initial_stage_timestep",
+              "name" : "initial_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "initial_stage_timestep",
+              "alias" : "initial_value_timestep",
               "length" : 25
             },
             {
-              "name" : "min_stage",
+              "name" : "min_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "min_stage"
+              "alias" : "min_value"
             },
             {
               "name" : "min_status",
@@ -550,15 +489,15 @@
               "length" : 15
             },
             {
-              "name" : "min_stage_timestep",
+              "name" : "min_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "min_stage_timestep",
+              "alias" : "min_value_timestep",
               "length" : 25
             },
             {
-              "name" : "max_stage",
+              "name" : "max_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_stage"
+              "alias" : "max_value"
             },
             {
               "name" : "max_status",
@@ -567,9 +506,9 @@
               "length" : 15
             },
             {
-              "name" : "max_stage_timestep",
+              "name" : "max_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "max_stage_timestep",
+              "alias" : "max_value_timestep",
               "length" : 25
             },
             {
@@ -603,9 +542,9 @@
               "length" : 25
             },
             {
-              "name" : "usgs_sitecode",
+              "name" : "usgs_site_code",
               "type" : "esriFieldTypeString",
-              "alias" : "usgs_sitecode",
+              "alias" : "usgs_site_code",
               "length" : 25
             },
             {
@@ -662,9 +601,9 @@
               "alias" : "major_threshold"
             },
             {
-              "name" : "record_forecast",
+              "name" : "is_record_forecast",
               "type" : "esriFieldTypeString",
-              "alias" : "record_forecast",
+              "alias" : "is_record_forecast",
               "length" : 60000
             },
             {
@@ -2319,7 +2258,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Record Forecasts",
-      "uRI" : "CIMPATH=ahps_max_stage_forecast/maximum_status___forecast_trend.xml",
+      "uRI" : "CIMPATH=ahps_max_value_forecast/maximum_status___forecast_trend.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -2329,7 +2268,7 @@
       "description" : "egdb.hydrovis.Maximum Status - Forecast Trend",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{BA983530-794C-4D31-A84A-05EA0F26A66A}"
+        "mapElevationID" : "{F2DDA1E7-58A6-4E30-BF89-9E14A119E929}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -2346,13 +2285,13 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "definitionExpression" : "record_forecast = 'true'",
+        "definitionExpression" : "is_record_forecast = 'true'",
         "definitionExpressionName" : "Query 1",
         "definitionFilterChoices" : [
           {
             "type" : "CIMDefinitionFilter",
             "name" : "Query 1",
-            "definitionExpression" : "record_forecast = 'true'"
+            "definitionExpression" : "is_record_forecast = 'true'"
           }
         ],
         "displayField" : "nws_name",
@@ -2389,7 +2328,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "USGS Site Code",
-            "fieldName" : "usgs_sitecode",
+            "fieldName" : "usgs_site_code",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2505,8 +2444,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Initial Stage",
-            "fieldName" : "initial_stage",
+            "alias" : "Forecast Initial Value",
+            "fieldName" : "initial_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2526,15 +2465,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Initial Stage Timestep",
-            "fieldName" : "initial_stage_timestep",
+            "alias" : "Forecast Initial Value Timestep",
+            "fieldName" : "initial_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Min Stage",
-            "fieldName" : "min_stage",
+            "alias" : "Forecast Min Value",
+            "fieldName" : "min_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2555,15 +2494,15 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Min Stage Timestep",
-            "fieldName" : "min_stage_timestep",
+            "alias" : "Forecast Min Value Timestep",
+            "fieldName" : "min_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Max Stage",
-            "fieldName" : "max_stage",
+            "alias" : "Forecast Max Value",
+            "fieldName" : "max_value",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
@@ -2584,8 +2523,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Forecast Max Stage Timestep",
-            "fieldName" : "max_stage_timestep",
+            "alias" : "Forecast Max Value Timestep",
+            "fieldName" : "max_value_timestep",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2599,7 +2538,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Record Forecast",
-            "fieldName" : "record_forecast",
+            "fieldName" : "is_record_forecast",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2648,11 +2587,11 @@
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "SERVER=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-ti-egis-rds-pg-egdb.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e6867502f493636474b764d76564c4c5043476a7378625171366a484733715648483632694531386970514d7544454e737878675254745a356232396c714c5561552a00;SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_stage,initial_status,initial_stage_timestep,min_stage,min_status,min_stage_timestep,max_stage,max_status,max_stage_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_sitecode,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
+          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2668,9 +2607,9 @@
               "length" : 5
             },
             {
-              "name" : "initial_stage",
+              "name" : "initial_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "initial_stage"
+              "alias" : "initial_value"
             },
             {
               "name" : "initial_status",
@@ -2679,15 +2618,15 @@
               "length" : 15
             },
             {
-              "name" : "initial_stage_timestep",
+              "name" : "initial_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "initial_stage_timestep",
+              "alias" : "initial_value_timestep",
               "length" : 25
             },
             {
-              "name" : "min_stage",
+              "name" : "min_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "min_stage"
+              "alias" : "min_value"
             },
             {
               "name" : "min_status",
@@ -2696,15 +2635,15 @@
               "length" : 15
             },
             {
-              "name" : "min_stage_timestep",
+              "name" : "min_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "min_stage_timestep",
+              "alias" : "min_value_timestep",
               "length" : 25
             },
             {
-              "name" : "max_stage",
+              "name" : "max_value",
               "type" : "esriFieldTypeDouble",
-              "alias" : "max_stage"
+              "alias" : "max_value"
             },
             {
               "name" : "max_status",
@@ -2713,9 +2652,9 @@
               "length" : 15
             },
             {
-              "name" : "max_stage_timestep",
+              "name" : "max_value_timestep",
               "type" : "esriFieldTypeString",
-              "alias" : "max_stage_timestep",
+              "alias" : "max_value_timestep",
               "length" : 25
             },
             {
@@ -2749,9 +2688,9 @@
               "length" : 25
             },
             {
-              "name" : "usgs_sitecode",
+              "name" : "usgs_site_code",
               "type" : "esriFieldTypeString",
-              "alias" : "usgs_sitecode",
+              "alias" : "usgs_site_code",
               "length" : 25
             },
             {
@@ -2808,9 +2747,9 @@
               "alias" : "major_threshold"
             },
             {
-              "name" : "record_forecast",
+              "name" : "is_record_forecast",
               "type" : "esriFieldTypeString",
-              "alias" : "record_forecast",
+              "alias" : "is_record_forecast",
               "length" : 5
             },
             {
@@ -3513,8 +3452,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/5c375a972b3700d71bdd0b258872d95d.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20220209</CreaDate><CreaTime>17051700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCADIASwDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgDzabxh4p/tuWwisdJ8xb4WqW7SS+\r\naUJJEnQDGwFs+xFcTxbWKWH5Hte+lrFcvu81z0mu0kKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAz20bT5NbTWGtIzqCQm3W4x8wjz\r\nnb9Mk/mfWgDQoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgBrEhSVALY4BOM0AeZT/FDULS2tJrnw/An2iUw+UupbpI2Bwd48rC4OAST\r\njketecsxpurUpcsrwV3pp8tdTWNJyaSe5raV48u7/XrTS5dBeBrncfMW7WTYqjJYjA46D8RV4TMa\r\nOKbVO+nka4jCVMOk59Tua7jlCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoA5vxXr9x4d0+3uoLFLlZJhC7SSlFiyDgsQrHBOB06kVlXqKlTc2m7d\r\nty6VP2k1BO1+55HqeqTL4ovZtZurq3iu4zcQRWuq3JEe1QCmAUGCclQB6ivBrZhiMTFTwTas0mml\r\n169fmerTwlKi+XE2fVavp9x6x4G0m60nw1El7PcSXNwxuZFuJ3lMRYDCAuScAAd+uT3r6CCkopTd\r\n33PJm05NxVkTXHg7Rbm61eeW0DSatD5F0dx5XGMqP4SeMkd1B7VVluSVPCXhFvD0l1c3t2b6+mPl\r\nJOw5SBSdq+xOcsR1OPQVz4fC0sPFxpKybubVq86zTmzra6TEKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAK8t3bQMFmuIo2IyA7gH9aAGXlra6rps1\r\nrOqTWtzGUcdQykUbgc14Z8EW2i2cq6g8ep3kkyP9omiB2iPHlBQc4243Z/vEmsaFGnRjyU1Zb/ea\r\nVas6suabOwrYzCgDzLxTqnibTvEc2nWuqTRy36K2kxx2sTIzZ2urllJGzKsTn7p9q4MTLFRrU/Yp\r\nOD+K/T/hyly2dz0a2SSO1iSaTzZVQB327dzY5OO2a7ySegAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAy113TX199FFyp1BIfPaHB4TOM56Z5HHXkUrq9gNS\r\nmBwvjTw3d3+oW+oabYW15cPF9jmFxtxGhbKyjd12EsSByQe9efj8H9aUUpuNnfTquqLhLlOr0jTY\r\ndI0i006D/VW0SxqT3wOtegtCC/QAUAFAEbRozqzIpZfukjkfSgDhvE/iXUrTxC+m2epWOmRW9mLs\r\ny3sJYTklhtByAFGBnHPzDFeVmWPng+TkpufM7adDSEFK92dP4b1ObWfDWm6ncW/2ea7to5nj/ull\r\nB/KvVMzWoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA8/g\r\n8CarFe21y+uW/mw3zXrXC2jec5bIZSxkI2lDtxtwAB6VwxwUY4l4nnd2rW0tb0t+pXN7vKdvdz/Z\r\nbOe4EUk3lRs4jiG5nwM4A7k13EnnHgvV9WbxMBd2Gut/aitJdNd2M0UNtKu5l2s6gBduEwOpVT3N\r\ncOHniXUqe2jaN/d1W3n+fzKly2Vj1Cu4kKACgAoAKAKd5plhqOz7bZwXPlnKedGG2n2zQBbAAAAG\r\nAKAFoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgBpIAJJwB1JoAzdM1/SNZeZNN1O0vHhOJBBMrlfrj\r\nt70AalABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAF\r\nABQAUAFABQAUAZ+tae2q6Jfaesxha6geESAZ27gRn9aAOR8M+GNZtvEFrqOqW+nWSWFm9nEunyM3\r\n2jcVJZgVXao25C88nPbnzMvy36k6kudy5nfXoXOfNbQ76vTICgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA4Lxlr+r6DqQZbyO3sZbf/RsWwkaScZ/dcsOW\r\n+Xbx61wYytiKXJ7CCld2fl5+ncqKT3Ou0f8AtD+x7T+1TEdQMS/aPKGF345xXeSX6ACgAoAKACgA\r\noAKAOF8aa3qehahDKt/9l02WBgrLbCQmcHhMnoWB49wa4MdVxNKMXhoKTbs79L9SoqL3On0P+0Do\r\nlmdWZGv2iDT7F2gMecY9ume+M8V3K9tSTTpgFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQA\r\nUAFABQAUAFABQAUAFABQBBPbwT7PPhjk8txIm9Q21h0YZ6EetAE9ABQAUAFABQAUAFABQBFLDHMm\r\nyWNXXIO1hkZByD+dAEtABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFA\r\nBQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAF\r\nABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUA\r\nFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAU\r\nAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQA\r\nUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQ\r\nAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFAB\r\nQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFA\r\nBQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAF\r\nABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUA\r\nFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAUAFABQAU\r\nAFABQAUAFABQAUAFABQAUAFABQAUAFABQBxfjW+1HSjZXy39xa6Uu6O7e2jRnRjjYx3K2V4KnpyR\r\nXDjpYmNFywyTkuj6r5NFRUW/eNbwmNVPh22l1idpLybMp3qAyKxyinAAyFwDx1zXXDm5Vz79fUlm\r\n9Vgf/9k=</Data></Thumbnail></Binary></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/09f79039c3172d78e1f15353d35d1bf8.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20231221</CreaDate><CreaTime>21165500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
