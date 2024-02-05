@@ -223,7 +223,11 @@ forecast_initial_flood_point AS (
 	LEFT JOIN relevant_thresholds cat
 		ON cat.lid = ff.lid
 	WHERE value >= COALESCE(cat.action, cat.minor, cat.moderate, cat.major)
-	ORDER BY lid, pe, product_time, value, units, valid_time
+	ORDER BY 
+		lid, 
+		pe, 
+		product_time, 
+		valid_time
 ),
 
 forecast_initial_values AS (
