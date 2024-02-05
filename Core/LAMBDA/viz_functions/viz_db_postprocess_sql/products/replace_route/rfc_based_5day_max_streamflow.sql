@@ -49,7 +49,7 @@ root_status_trace_reaches AS (
 		stream_length,
 		is_waterbody,
 		fcst_meta.issue_time,
-		INITCAP(rmf.max_status) as max_status
+		COALESCE(INITCAP(rmf.max_status), 'No flooding') as max_status
 	FROM max_flows_station_xwalk mf
 	LEFT JOIN fcst_meta
 		ON fcst_meta.lid = mf.nws_station_id
