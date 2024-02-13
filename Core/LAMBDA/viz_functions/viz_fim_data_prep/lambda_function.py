@@ -45,6 +45,11 @@ def setup_huc_inundation(event):
     sql_replace = event['args']['sql_rename_dict']
     one_off = event['args'].get("hucs")
     process_by = fim_config.get('process_by', ['huc'])
+
+    # If a reference service, do some table prep on the EGIS target table.
+    if configuration == 'reference':
+        target_db = database(db_type="egis")
+        setup_reference_fim_run(target_table, target_db)
     
     print(f"Running FIM for {configuration} for {reference_time}") 
     # Initilize the database class for relevant databases
@@ -52,9 +57,16 @@ def setup_huc_inundation(event):
 
     print("Determing features to be processed by HAND")
     # Query flows data from the vizprocessing database, using the SQL defined above.
-    # TODO: Update this for RFC, CatFIM, and AEP, and Catchments services by adding the creation of flows tables to postprocess_sql
-    hand_sql = open("templates_sql/hand_features.sql", 'r').read()
-    hand_sql = hand_sql.replace("{db_fim_table}", target_table)
+    hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
+    # If a SQL file exists for selecting hand features, use it.
+    if os.path.exists(hand_features_sql_file):
+        hand_sql = open(hand_features_sql_file, 'r').read()
+    # Otherwise, use the template file
+    else:
+        hand_sql = open("templates_sql/hand_features.sql", 'r').read()
+        hand_sql = hand_sql.replace("{db_fim_table}", target_table)
+    
+    # Using the sql defined above, pull features for running hand into a dataframe
     df_streamflows = viz_db.run_sql_in_db(hand_sql)
     
     # Split reaches with flows into processing groups, and write two sets of csv files to S3 (we need to write to csvs to not exceed the limit of what can be passed in the step function):
@@ -128,3 +140,15 @@ def get_branch_iteration(event):
     }
     
     return return_object
+
+#################################################################################################################################################################    
+# This function sets up the data for a reference service fim run - e.g. AEP FIM)
+# These cases typically involve FIM being written directly to the EGIS database.
+def setup_reference_fim_run(target_table, target_db):
+    with target_db.get_db_connection() as connection, connection.cursor() as cur:
+        # Truncate all records.
+        print(f"Truncating {target_table}.")
+        SQL = f"TRUNCATE TABLE {target_table};"
+        cur.execute(SQL)
+        connection.commit()
+    connection.close()
