@@ -66,6 +66,15 @@ def lambda_handler(event, context):
     
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
+
+        print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
+        try:
+            df_inundation.to_postgis(f"{db_table}", con=process_db.engine, schema=db_schema, if_exists='append')
+        except Exception as e:
+            process_db.engine.dispose()
+            raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
+        process_db.engine.dispose()
+
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
