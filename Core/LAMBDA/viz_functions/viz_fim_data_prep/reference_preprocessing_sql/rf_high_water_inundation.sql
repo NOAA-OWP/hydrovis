@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS publish.rf_high_water_inundation;
 SELECT
     crosswalk.hydro_id,
     crosswalk.hydro_id::text AS hydro_id_str,
-    gc.geom,
+    ST_Transform(gc.geom, 3857) AS geom,
     crosswalk.feature_id,
     crosswalk.feature_id::text AS feature_id_str,
     ROUND(CAST(fs.high_water_threshold as numeric), 2) AS streamflow_cfs,
