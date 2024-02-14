@@ -122,10 +122,10 @@ def setup_huc_inundation(event):
         
         print(f"Copying {publish_table} to {target_table}")
         try: # Try copying the data
-            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
         except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
             refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True) #Copy the publish table from the vizprc db to the egis db, using fdw
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
 
     return return_object
 
