@@ -3,7 +3,7 @@ import sys, os, arcpy
 # Esri end of added imports
 
 # Esri start of added variables
-g_ESRI_variable_1 = os.path.join(arcpy.env.packageWorkspace,'test\\Empty_Project.aprx')
+g_ESRI_variable_1 = os.path.join(arcpy.env.packageWorkspace,'files\\Empty_Project.aprx')
 # Esri end of added variables
 
 import arcpy
