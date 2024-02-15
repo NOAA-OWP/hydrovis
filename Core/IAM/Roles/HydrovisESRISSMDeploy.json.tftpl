@@ -362,6 +362,13 @@
       "Effect": "Allow",
       "Action": "lambda:InvokeFunction",
       "Resource": "arn:aws:lambda:*:${account_id}:function:*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": [
+            "secretsmanager:GetSecretValue"
+        ],
+        "Resource": "${egis_rds_secret_arn}"
     }
   ]
 }

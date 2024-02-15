@@ -58,6 +58,7 @@ module "iam-roles" {
   prod_account_id              = local.env.prod_account_id
   region                       = local.env.region
   nws_shared_account_s3_bucket = local.env.nws_shared_account_s3_bucket
+  egis_rds_secret_arn          = module.secrets-manager.secret_arns["egis-pg-rds-secret"]
 }
 
 # IAM Users
