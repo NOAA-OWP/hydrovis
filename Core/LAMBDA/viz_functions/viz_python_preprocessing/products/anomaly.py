@@ -4,7 +4,7 @@ import xarray as xr
 import tempfile
 import boto3
 import os
-from viz_lambda_shared_funcs import check_if_file_exists, organize_input_files
+from viz_lambda_shared_funcs import check_if_file_exists
 
 INSUFFICIENT_DATA_ERROR_CODE = -9998
 PERCENTILE_TABLE_5TH = "viz_authoritative_data/derived_data/nwm_v21_7_day_average_percentiles/final_7day_all_5th_perc.nc"
@@ -43,30 +43,31 @@ def run_anomaly(reference_time, fileset_bucket, fileset, output_file_bucket, out
         percentile_95 = check_if_file_exists(auth_data_bucket, PERCENTILE_14_TABLE_95TH, download=True, download_subfolder=download_subfolder)
     else:
         raise Exception("Anomaly config must be 7 or 14 for the appropriate percentile files")
-
-    print("Downloading NWM Data")
-    input_files = organize_input_files(fileset_bucket, fileset, download_subfolder=reference_time.strftime('%Y%m%d'))
     
     #Get NWM version from first file
-    with xr.open_dataset(input_files[0]) as first_file:
+    first_file_path = check_if_file_exists(fileset_bucket, fileset[0], download=True, download_subfolder=reference_time.strftime('%Y%m%d'))
+    with xr.open_dataset(first_file_path) as first_file:
         nwm_vers = first_file.NWM_version_number.replace("v","")
+    os.remove(first_file_path)
     
-    # Import Feature IDs
+    # Loop through filepaths, download file, and import data into pandas - we have to delete files as we go on anomaly, or else the lambda storage will fill up.
     print("-->Looping through files to get streamflow sum")
     df = pd.DataFrame()
-    for file in input_files:
-        ds_file = xr.open_dataset(file)
-        df_file = ds_file['streamflow'].to_dataframe()
-        df_file['streamflow']  = df_file['streamflow'] * 35.3147  # convert streamflow from cms to cfs
+    for file in fileset:
+        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=reference_time.strftime('%Y%m%d'))
+        
+        with xr.open_dataset(download_path) as ds_file:
+            df_file = ds_file['streamflow'].to_dataframe()
+            df_file['streamflow']  = df_file['streamflow'] * 35.3147  # convert streamflow from cms to cfs
+    
+            if df.empty:
+                df = df_file
+                df = df.rename(columns={"streamflow": "streamflow_sum"})
+            else:
+                df['streamflow_sum'] += df_file['streamflow']
+        os.remove(download_path)
 
-        if df.empty:
-            df = df_file
-            df = df.rename(columns={"streamflow": "streamflow_sum"})
-        else:
-            df['streamflow_sum'] += df_file['streamflow']
-        os.remove(file)
-
-    df[average_flow_col] = df['streamflow_sum'] / len(input_files)
+    df[average_flow_col] = df['streamflow_sum'] / len(fileset)
     df = df.drop(columns=['streamflow_sum'])
     df[average_flow_col] = df[average_flow_col].round(2)
 
