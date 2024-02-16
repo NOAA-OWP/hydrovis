@@ -59,6 +59,11 @@ resource "aws_imagebuilder_image_recipe" "arcgisenterprise_recipe" {
     component_arn = data.aws_imagebuilder_component.stig_build_windows_high.arn
   }
 
+  # run additional installs
+  component {
+    component_arn = aws_imagebuilder_component.additional_installs.arn
+  }
+
   # reboot
   component {
     component_arn = data.aws_imagebuilder_component.windows_reboot.arn

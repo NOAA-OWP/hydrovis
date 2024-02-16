@@ -37,6 +37,16 @@ data "aws_imagebuilder_component" "amazon_cloudwatch_agent_windows" {
   arn = "arn:aws:imagebuilder:${data.aws_region.current.name}:aws:component/amazon-cloudwatch-agent-windows/x.x.x"
 }
 
+# additional installs
+resource "aws_imagebuilder_component" "additional_installs" {
+  name        = "server-additional-installs"
+  description = "Install additional software that is needed"
+  platform    = "Windows"
+  data        = file("${path.module}/scripts/additional_installs.yml")
+  version     = var.image_version
+  tags        = var.tags
+}
+
 data "aws_imagebuilder_component" "windows_reboot" {
   arn = "arn:aws:imagebuilder:${data.aws_region.current.name}:aws:component/reboot-windows/x.x.x"
 }
