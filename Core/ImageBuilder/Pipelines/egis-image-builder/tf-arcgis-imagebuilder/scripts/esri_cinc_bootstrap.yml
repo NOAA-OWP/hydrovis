@@ -89,28 +89,6 @@ phases:
         action: Reboot
         onFailure: Abort
 
-      - name: InstallChrome
-        action: ExecutePowerShell
-        timeoutSeconds: 1200
-        onFailure: Ignore
-        inputs:
-          commands:
-            - |
-              # Define the download URL and the installer
-              $chromeUrl = "https://dl.google.com/chrome/install/latest/chrome_installer.exe"
-              $tempPath = $env:TEMP
-              $chromeInstaller = "chrome_installer.exe"
-              $installer = "$tempPath$chromeInstaller"
-
-              # Download Google Chrome installer
-              Invoke-WebRequest -Uri $chromeUrl -OutFile $installer
-
-              # Install Google Chrome silently
-              Start-Process -FilePath $installer -ArgumentList "/silent /install" -Wait
-
-              # Remove the installer after installation finished
-              Remove-Item $installer
-
       - name: ExtractCookbooks
         action: ExecutePowerShell
         timeoutSeconds: 600
