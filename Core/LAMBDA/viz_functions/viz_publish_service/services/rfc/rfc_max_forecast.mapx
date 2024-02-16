@@ -355,6 +355,34 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Value",
+            "fieldName" : "initial_flood_value",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Status",
+            "fieldName" : "initial_flood_status",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Value Timestep",
+            "fieldName" : "initial_flood_value_timestep",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Forecast Max Value",
             "fieldName" : "max_value",
             "numberFormat" : {
@@ -445,7 +473,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
+          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,initial_flood_value,initial_flood_status,initial_flood_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -492,6 +520,23 @@
               "name" : "min_value_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "min_value_timestep",
+              "length" : 25
+            },
+            {
+              "name" : "initial_flood_value",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "initial_flood_value"
+            },
+            {
+              "name" : "initial_flood_status",
+              "type" : "esriFieldTypeString",
+              "alias" : "initial_flood_status",
+              "length" : 15
+            },
+            {
+              "name" : "initial_flood_value_timestep",
+              "type" : "esriFieldTypeString",
+              "alias" : "initial_flood_value_timestep",
               "length" : 25
             },
             {
@@ -889,6 +934,7 @@
               {
                 "type" : "CIMVectorMarker",
                 "enable" : true,
+                "name" : "Group 13",
                 "anchorPointUnits" : "Relative",
                 "dominantSizeAxis3D" : "Z",
                 "size" : 4,
@@ -994,6 +1040,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 1",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1098,6 +1145,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 2",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1205,6 +1253,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 3",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "rotation" : 180,
@@ -1311,6 +1360,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 4",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1416,6 +1466,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 5",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1523,6 +1574,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 6",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "rotation" : 180,
@@ -1628,6 +1680,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 7",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1732,6 +1785,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 8",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 9,
@@ -1838,6 +1892,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 9",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "rotation" : 180,
@@ -1943,6 +1998,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 10",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 8,
@@ -2047,6 +2103,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 11",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "size" : 8,
@@ -2153,6 +2210,7 @@
                       {
                         "type" : "CIMVectorMarker",
                         "enable" : true,
+                        "name" : "Group 12",
                         "anchorPointUnits" : "Relative",
                         "dominantSizeAxis3D" : "Z",
                         "rotation" : 180,
@@ -2253,7 +2311,61 @@
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing",
+        "symbolLayers" : [
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 1"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 2"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 3"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 4"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 5"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 6"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 7"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 8"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 9"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 10"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 11"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Group 12"
+          }
+        ],
+        "useSymbolLayerDrawing" : true
+      }
     },
     {
       "type" : "CIMFeatureLayer",
@@ -2501,6 +2613,34 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Value",
+            "fieldName" : "initial_flood_value",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Status",
+            "fieldName" : "initial_flood_status",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Forecast Initial Flood Value Timestep",
+            "fieldName" : "initial_flood_value_timestep",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Forecast Max Value",
             "fieldName" : "max_value",
             "numberFormat" : {
@@ -2591,7 +2731,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%Maximum Status - Forecast Trend_1_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
+          "sqlQuery" : "select nws_lid,initial_value,initial_status,initial_value_timestep,min_value,min_status,min_value_timestep,initial_flood_value,initial_flood_status,initial_flood_value_timestep,max_value,max_status,max_value_timestep,forecast_trend,producer,issuer,issued_time,generation_time,usgs_site_code,feature_id::text,nws_name,usgs_name,geom,action_threshold,minor_threshold,moderate_threshold,major_threshold,CASE WHEN is_record_forecast IS true THEN 'true'::TEXT ELSE 'false'::TEXT END AS is_record_forecast,record_threshold,units,hydrograph_link,hefs_link,update_time,oid from hydrovis.services.rfc_max_forecast",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2638,6 +2778,23 @@
               "name" : "min_value_timestep",
               "type" : "esriFieldTypeString",
               "alias" : "min_value_timestep",
+              "length" : 25
+            },
+            {
+              "name" : "initial_flood_value",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "initial_flood_value"
+            },
+            {
+              "name" : "initial_flood_status",
+              "type" : "esriFieldTypeString",
+              "alias" : "initial_flood_status",
+              "length" : 15
+            },
+            {
+              "name" : "initial_flood_value_timestep",
+              "type" : "esriFieldTypeString",
+              "alias" : "initial_flood_value_timestep",
               "length" : 25
             },
             {
