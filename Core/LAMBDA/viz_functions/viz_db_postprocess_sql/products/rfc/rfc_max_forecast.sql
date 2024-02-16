@@ -200,6 +200,36 @@ flood_forecasts AS (
 		AND flood.product_time = relevant_forecasts.product_time
 ),
 
+forecast_initial_flood_point AS (
+	SELECT DISTINCT ON (lid)
+		ff.lid,
+		ff.pe,
+		ff.product_time,
+		ff.value,
+		CASE
+			WHEN cat.major IS NOT NULL AND ff.value >= cat.major
+			THEN 'major'
+			WHEN cat.moderate IS NOT NULL AND ff.value >= cat.moderate
+			THEN 'moderate'
+			WHEN cat.minor IS NOT NULL AND ff.value >= cat.minor
+			THEN 'minor'
+			WHEN cat.action IS NOT NULL AND ff.value >= cat.action
+			THEN 'action'
+			ELSE 'no_flooding'
+		END as status,
+		ff.units,
+		ff.valid_time as timestep
+	FROM flood_forecasts ff
+	LEFT JOIN relevant_thresholds cat
+		ON cat.lid = ff.lid
+	WHERE value >= COALESCE(cat.action, cat.minor, cat.moderate, cat.major)
+	ORDER BY 
+		lid, 
+		pe, 
+		product_time, 
+		valid_time
+),
+
 forecast_initial_values AS (
 	SELECT DISTINCT ON (lid, pe, product_time)
 		lid,
@@ -324,6 +354,9 @@ service_data AS (
 		to_char(initial.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_value_timestep,
 		initial.value as initial_value,
 		initial.status as initial_status,
+		to_char(flood.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_flood_value_timestep,
+		flood.value as initial_flood_value,
+		flood.status as initial_flood_status,
 		to_char(min.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') as min_value_timestep,
 		min.value as min_value,
 		min.status as min_status,
@@ -355,6 +388,8 @@ service_data AS (
 		ON xwalk.nws_station_id = base.lid
 	LEFT JOIN relevant_thresholds cats
 		ON cats.lid = base.lid AND cats.units = base.units
+	LEFT JOIN forecast_initial_flood_point flood
+		ON flood.lid = base.lid and flood.pe = base.pe
 	ORDER BY nws_lid
 )
 
