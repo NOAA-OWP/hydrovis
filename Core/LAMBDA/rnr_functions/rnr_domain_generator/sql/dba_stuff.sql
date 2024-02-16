@@ -18,20 +18,89 @@ alter table rnr.nwm_routelink add constraint fk_self foreign key ("to") referenc
 alter table rnr.nwm_lakeparm add order_index serial;
 alter table rnr.nwm_lakeparm add primary key (lake_id);
 
--- CREATE STAGGERED RATING CURVES TABLE
-WITH a AS (
-	SELECT *, row_number() over (ORDER BY rating_id, stage) as row_num FROM external.rating_curve
+-- CREATE STAGGERED USGS RATING CURVES TABLE
+DROP TABLE IF EXISTS rnr.staggered_curves_usgs;
+
+WITH valid_stations AS (
+	SELECT DISTINCT nws_station_id
+	FROM external.nws_station
+	WHERE LENGTH(TRIM(nws_station_id)) = 5
+		AND SUBSTRING(nws_station_id, 4, 1) = SUBSTRING(state, 1, 1)
+		AND LOWER(nws_station_id) NOT LIKE '%test%'
+	ORDER BY nws_station_id
+),
+
+station_gage_crosswalk AS (
+	SELECT DISTINCT ON (xwalk.nws_station_id)
+		xwalk.nws_station_id,
+		xwalk.gage_id
+	FROM external.full_crosswalk_view xwalk
+	JOIN valid_stations ON valid_stations.nws_station_id = xwalk.nws_station_id
+	WHERE xwalk.nws_station_id IS NOT NULL AND xwalk.gage_id IS NOT NULL
+	ORDER BY 
+		nws_station_id ASC,
+		nws_usgs_crosswalk_dataset_id DESC NULLS LAST,
+		location_nwm_crosswalk_dataset_id DESC NULLS LAST
+),
+
+station_usgs_curves AS (
+	SELECT 
+		xwalk.nws_station_id,
+		curve.stage,
+		curve.flow
+	FROM station_gage_crosswalk xwalk
+	JOIN external.rating rating
+		ON rating.location_id = xwalk.gage_id
+	JOIN external.rating_curve curve
+		ON curve.rating_id = rating.rating_id
+),
+
+a AS (
+	SELECT *, row_number() over (ORDER BY nws_station_id, stage) as row_num FROM station_usgs_curves
 )
+
 SELECT
-	a.rating_id,
+	a.nws_station_id,
 	a.stage,
 	b.stage as next_higher_point_stage,
 	a.flow,
 	b.flow as next_higher_point_flow
-INTO rnr.staggered_curves
+INTO rnr.staggered_curves_usgs
 FROM a
 LEFT JOIN a AS b
-	ON b.rating_id = a.rating_id
+	ON b.nws_station_id = a.nws_station_id
+	AND b.row_num = a.row_num + 1;
+
+-- CREATE STAGGERED NRLDB RATING CURVES TABLE
+DROP TABLE IF EXISTS rnr.staggered_curves_nrldb;
+
+WITH valid_stations AS (
+	SELECT nws_station_id
+	FROM external.nws_station
+	WHERE LENGTH(TRIM(nws_station_id)) = 5
+		AND SUBSTRING(nws_station_id, 4, 1) = SUBSTRING(state, 1, 1)
+		AND LOWER(nws_station_id) NOT LIKE '%test%'
+	ORDER BY nws_station_id
+),
+
+a AS (
+	SELECT 
+		*, 
+		row_number() over (ORDER BY location_id, stage) as row_num 
+	FROM external.nrldb_rating_curve curve
+	JOIN valid_stations ON valid_stations.nws_station_id = curve.location_id
+)
+
+SELECT
+	a.location_id as nws_station_id,
+	a.stage,
+	b.stage as next_higher_point_stage,
+	a.flow,
+	b.flow as next_higher_point_flow
+INTO rnr.staggered_curves_nrldb
+FROM a
+LEFT JOIN a AS b
+	ON b.location_id = a.location_id
 	AND b.row_num = a.row_num + 1;
 
 -- CREATE VIZ-OFFICIAL CROSSWALK TABLE
@@ -135,10 +204,15 @@ native_stage_thresholds AS (
 SELECT 
 	location_id AS nws_station_id,
 	action_stage as action,
+	'Native' as action_source,
 	minor_stage as minor,
+	'Native' as minor_source,
 	moderate_stage as moderate,
+	'Native' as moderate_source,
 	major_stage as major,
-	record_stage as record
+	'Native' as major_source,
+	record_stage as record,
+	'Native' as record_source,
 FROM external.threshold station
 WHERE rating_source = 'NONE' 
 	AND COALESCE(action_stage, minor_stage, moderate_stage, major_stage, record_stage) IS NOT NULL;
