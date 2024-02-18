@@ -1,0 +1,9 @@
+service: static_streamflow_aep_difference
+summary: NWM Streamflow AEP High Water Threshold Difference for CONUS
+description: Depicts the NWM Streamflow AEP High Water Threshold Difference between V3 and v2.1 for the contiguous U.S. FOR INTERNAL EVALUATION ONLY.
+tags: national water model, nwm, reference, high water threshold, streamflow aep, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: true
+public_service: false
