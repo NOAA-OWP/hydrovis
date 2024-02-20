@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.mrf_gfs_5day_max_high_water_probability;
+DROP TABLE IF EXISTS publish.mrf_gfs_5day_max_high_water_prob;
 SELECT
     channels.feature_id,
     channels.feature_id::TEXT AS feature_id_str,
@@ -16,6 +16,6 @@ SELECT
     hwp.high_water_threshold,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
     channels.geom
-INTO publish.mrf_gfs_5day_max_high_water_probability
-FROM ingest.mrf_gfs_5day_max_high_water_probability as hwp
+INTO publish.mrf_gfs_5day_max_high_water_prob
+FROM ingest.mrf_gfs_5day_max_high_water_prob as hwp
 JOIN derived.channels_conus channels ON hwp.feature_id = channels.feature_id;

@@ -1,0 +1,33 @@
+product: ana_anomaly
+configuration: analysis_assim
+product_type: "vector"
+run: true
+run_times:
+  - '00:00'
+        
+python_preprocessing:
+  - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+    file_step: 1H
+    file_window: P7D
+    product: anomaly
+    lambda_ram: 10gb
+    config: 7
+    output_file: viz_ingest/analysis_assim/{{datetime:%Y%m%d}}/{{datetime:%H}}_ana_7day_anomaly.csv
+    target_table: ingest.ana_7day_anomaly
+    target_keys: (feature_id)
+  - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/analysis_assim/nwm.t{{datetime:%H}}z.analysis_assim.channel_rt.tm00.conus.nc
+    file_step: 1H
+    file_window: P14D
+    product: anomaly
+    lambda_ram: 10gb
+    config: 14
+    output_file: viz_ingest/analysis_assim/{{datetime:%Y%m%d}}/{{datetime:%H}}_ana_14day_anomaly.csv
+    target_table: ingest.ana_14day_anomaly
+    target_keys: (feature_id)
+
+postprocess_sql:
+  - sql_file: ana_anomaly
+    target_table: publish.ana_anomaly
+
+services:
+  - ana_anomaly

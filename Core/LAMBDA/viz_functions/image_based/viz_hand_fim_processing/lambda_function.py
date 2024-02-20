@@ -51,6 +51,15 @@ def lambda_handler(event, context):
     branch = huc8_branch.split("-")[1]
     s3_path_piece = ''
     
+    # Get db table names and setup db connection
+    print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
+    db_schema = db_fim_table.split(".")[0]
+    db_table = db_fim_table.split(".")[-1]
+    if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
+        process_db = database(db_type="egis")
+    else:
+        process_db = database(db_type="viz")
+    
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
     else:
@@ -77,12 +86,19 @@ def lambda_handler(event, context):
             rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
 
             stage_lookup = pd.DataFrame()
+            df_zero_stage_records = pd.DataFrame()
             if catch_exists and hand_exists and rating_curve_exists:
                 print("->Calculating flood depth")
-                stage_lookup = calculate_stage_values(rating_curve_key, data_bucket, subsetted_data, huc8_branch)  # get stages
+                stage_lookup, df_zero_stage_records = calculate_stage_values(rating_curve_key, data_bucket, subsetted_data, huc8_branch)  # get stages
             else:
                 print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
-
+ 
+        # Upload zero_stage reaches for tracking / FIM cache
+        print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
+        df_zero_stage_records = df_zero_stage_records.reset_index()
+        df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)
+        df_zero_stage_records.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+        
         # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
         if stage_lookup.empty:
             print("No reaches with valid stages")
@@ -91,17 +107,27 @@ def lambda_handler(event, context):
         # Run the desired configuration
         df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, fim_config_name)
 
+        # Split geometry into seperate table per new schema
+        df_inundation_geo = df_inundation[['hand_id', 'rc_stage_ft', 'geom']]
+        df_inundation.drop(columns=['geom'], inplace=True)
+        
+        # If records exist in stage_lookup that don't exist in df_inundation, add those to the zero_stage table.
+        df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['hand_id'],how='left',indicator=True)
+        df_no_inundation = df_no_inundation.loc[df_no_inundation['_merge'] == 'left_only']
+        if df_no_inundation.empty == False:
+            print(f"Adding {len(df_no_inundation)} reaches with NaN inundation to zero_stage table")
+            df_no_inundation.drop(df_no_inundation.columns.difference(['hand_id','rc_discharge_cms','note']), axis=1,  inplace=True)
+            df_no_inundation['note'] = "Error - No inundation returned from hand processing."
+            df_no_inundation.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+        # If no records exist for valid inundation, stop.
+        if df_inundation.empty:
+            return
+    
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
-    db_schema = db_fim_table.split(".")[0]
-    db_table = db_fim_table.split(".")[-1]
-
     try:
-        if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
-            process_db = database(db_type="egis")
-        else:
-            process_db = database(db_type="viz")
-
-        df_inundation.to_postgis(db_table, con=process_db.engine, schema=db_schema, if_exists='append')
+        df_inundation.drop(columns=['hydro_id', 'feature_id'], inplace=True)
+        df_inundation.to_sql(db_table, con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+        df_inundation_geo.to_postgis(f"{db_table}_geo", con=process_db.engine, schema=db_schema, if_exists='append')
     except Exception as e:
         process_db.engine.dispose()
         raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
@@ -266,7 +292,9 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         catchment_nodata = int(catchment_dataset.nodata)  # get no_data value for catchment raster
         valid_catchments = stage_lookup.index.tolist() # parse lookup to get features with >0 stages  # noqa
         hydroids = stage_lookup.index.tolist()  # parse lookup to get all features
-        stages = stage_lookup['stage_m'].tolist()  # parse lookup to get all stages
+        
+        # Notable FIM Caching Change: Now using rc_stage_m (the upper value of the current hydrotable interval), instead of the interpolated stage, for inundation extent generation.
+        stages = stage_lookup['rc_stage_m'].tolist()  # parse lookup to get all stages
 
         k = np.array(hydroids)  # Create a feature numpy array from the list
         v = np.array(stages)  # Create a stage numpy array from the list
@@ -414,25 +442,30 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         print("dropping duplicates")
         df_final = df_final.drop_duplicates()
     
+    print("Converting m columns to ft")
+    df_final['rc_stage_ft'] = (df_final['rc_stage_m'] * 3.28084).astype(int)
+    df_final['rc_previous_stage_ft'] = round(df_final['rc_previous_stage_m'] * 3.28084, 2)
+    df_final['rc_discharge_cfs'] = round(df_final['rc_discharge_cms'] * 35.315, 2)
+    df_final['rc_previous_discharge_cfs'] = round(df_final['rc_previous_discharge_cms'] * 35.315, 2)
+    df_final = df_final.drop(columns=["rc_stage_m", "rc_previous_stage_m", "rc_discharge_cms", "rc_previous_discharge_cms"])
+    
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
     df_final['reference_time'] = reference_time
-    df_final['huc8'] = huc8
-    df_final['branch'] = branch
-    df_final['fim_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
-    df_final['hydro_id_str'] = df_final['hydro_id'].astype(str)
-    df_final['feature_id_str'] = df_final['feature_id'].astype(str)
+    df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
+    df_final['prc_method'] = 'HAND_Processing'
     
+    #TODO: Check with Shawn on the whole stage configuration / necessarry changes
     if input_variable == 'stage':
         drop_columns = ['stage_m', 'huc8_branch', 'huc']
     else:
         df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
         df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
-        df_final['streamflow_cfs'] = round(df_final['streamflow_cms'] * 35.315, 2)
+        df_final['forecast_discharge_cfs'] = round(df_final['discharge_cms'] * 35.315, 2)
         df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-        drop_columns = ["stage_m", "max_rc_stage_m", "streamflow_cms", "max_rc_discharge_cms"]
+        drop_columns = ["stage_m", "max_rc_stage_m", "discharge_cms", "max_rc_discharge_cms", ]
 
     df_final = df_final.drop(columns=drop_columns)
                 
@@ -451,50 +484,74 @@ def s3_csv_to_df(bucket, key):
 
 def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_streams, huc8_branch):
     """
-        Converts streamflow values to stage using the rating curve and linear interpolation because rating curve intervals
+        Converts discharge (streamflow) values to stage using the rating curve and linear interpolation because rating curve intervals
         
         Arguments:
             local_hydrotable (str): Path to local copy of the branch hydrotable
-            df_nwm (DataFrame): A pandas dataframe with columns for feature id and desired streamflow column
+            df_nwm (DataFrame): A pandas dataframe with columns for feature id and desired discharge column
             
         Returns:
             stage_dict (dict): A dictionary with the hydroid as the key and interpolated stage as the value
     """
     df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key)
     df_hydro = df_hydro[['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']]
-    
-    df_hydro_max = df_hydro.sort_values('stage').groupby('HydroID').tail(1)
-    df_hydro_max = df_hydro_max.set_index('HydroID')
-    df_hydro_max = df_hydro_max[['stage', 'discharge_cms']].rename(columns={'stage': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
+    df_hydro = df_hydro.rename(columns={'HydroID': 'hydro_id', 'stage': 'stage_m'})
+
+    df_hydro_max = df_hydro.sort_values('stage_m').groupby('hydro_id').tail(1)
+    df_hydro_max = df_hydro_max.set_index('hydro_id')
+    df_hydro_max = df_hydro_max[['stage_m', 'discharge_cms']].rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
 
     df_forecast = s3_csv_to_df(subsetted_streams_bucket, subsetted_streams)
     df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
-    df_forecast['stage_m'] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1)
+    df_forecast = df_forecast.rename(columns={'streamflow_cms': 'discharge_cms'}) #TODO: Change the output CSV to list discharge instead of streamflow for consistency?
+    df_forecast[['stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_discharge_cms', 'rc_previous_discharge_cms']] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1).apply(pd.Series)
+    
+    df_forecast.drop(columns=['huc8_branch', 'huc'], inplace=True)
+    df_forecast = df_forecast.set_index('hydro_id')
     
     print(f"Removing {len(df_forecast[df_forecast['stage_m'].isna()])} reaches with a NaN interpolated stage")
+    df_zero_stage = df_forecast[df_forecast['stage_m'].isna()].copy()
+    df_zero_stage['note'] = "NaN Stage After Hydrotable Lookup"
     df_forecast = df_forecast[~df_forecast['stage_m'].isna()]
 
     print(f"Removing {len(df_forecast[df_forecast['stage_m']==0])} reaches with a 0 interpolated stage")
+    df_zero_stage = pd.concat([df_zero_stage, df_forecast[df_forecast['stage_m']==0].copy()], axis=0)
+    df_zero_stage['note'] = np.where(df_zero_stage.note.isnull(), "0 Stage After Hydrotable Lookup", np.NaN)
     df_forecast = df_forecast[df_forecast['stage_m']!=0]
 
-    df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
-    df_forecast = df_forecast.set_index('hydro_id')
+    df_zero_stage.drop(columns=['discharge_cms', 'stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_previous_discharge_cms'], inplace=True)
+    
     df_forecast = df_forecast.join(df_hydro_max)
     print(f"{len(df_forecast)} reaches will be processed")
      
-    return df_forecast
+    return df_forecast, df_zero_stage
 
 def interpolate_stage(df_row, df_hydro):
     hydro_id = df_row['hydro_id']
-    forecast = df_row['streamflow_cms']
+    forecast = df_row['discharge_cms']
     
-    if hydro_id not in df_hydro['HydroID'].values:
+    if hydro_id not in df_hydro['hydro_id'].values:
         return np.nan
     
-    subet_hydro = df_hydro.loc[df_hydro['HydroID']==hydro_id, ['discharge_cms', 'stage']]
-    discharge = subet_hydro['discharge_cms'].values
-    stage = subet_hydro['stage'].values
+    # Filter the hydrotable to this hydroid and pull out discharge and stages into arrays
+    subset_hydro = df_hydro.loc[df_hydro['hydro_id']==hydro_id, ['discharge_cms', 'stage_m']]
+    discharges = subset_hydro['discharge_cms'].values
+    stages = subset_hydro['stage_m'].values
     
-    interpolated_stage = round(np.interp(forecast, discharge, stage), 2)
+    # Get the interpolated stage by using the discharge forecast value against the arrays
+    interpolated_stage = round(np.interp(forecast, discharges, stages), 2)
+   
+    # Get the upper and lower values of the 1-ft hydrotable array that the current forecast / interpolated stage is at
+    hydrotable_index = np.searchsorted(discharges, forecast, side='right')
+
+    # If streamflow exceeds the rating curve max, just use the max value
+    if hydrotable_index >= len(stages):
+        hydrotable_index = hydrotable_index - 1
+        
+    hydrotable_previous_index = hydrotable_index-1
+    rc_stage = stages[hydrotable_index]
+    rc_previous_stage = stages[hydrotable_previous_index]
+    rc_discharge = discharges[hydrotable_index]
+    rc_previous_discharge = discharges[hydrotable_previous_index]
     
-    return interpolated_stage
+    return interpolated_stage, rc_stage, rc_previous_stage, rc_discharge, rc_previous_discharge

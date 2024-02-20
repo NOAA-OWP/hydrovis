@@ -8,18 +8,19 @@ python_preprocessing:
     file_step: 1H
     file_window: PT7H
     product: high_water_probability
+    lambda_ram: 3gb
     output_file: viz_ingest/short_range/{{datetime:%Y%m%d}}/{{datetime:%H}}_srf_12hr_max_high_water_probability.csv
-    target_table: ingest.srf_12hr_max_high_water_probability
+    target_table: ingest.srf_12hr_max_high_water_prob
     target_keys: (feature_id)
 
 postprocess_sql:
   - sql_file: srf_12hr_max_high_water_probability
-    target_table: publish.srf_12hr_max_high_water_probability
+    target_table: publish.srf_12hr_max_high_water_prob
     
 product_summaries:
   - sql_file:  hucs
     target_table:
-      - publish.srf_12hr_max_high_water_probability_hucs
+      - publish.srf_12hr_max_high_water_prob_hucs
 
 services:
   - srf_12hr_max_high_water_probability

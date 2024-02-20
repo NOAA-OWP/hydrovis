@@ -1,6 +1,7 @@
 product: mrf_nbm_10day_max_inundation
 configuration: medium_range_blend
 product_type: "fim"
+domain: conus
 run: true
 
 ingest_files:
@@ -12,27 +13,40 @@ ingest_files:
       dependent_on: publish.mrf_gfs_max_inundation_10day_hucs # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
 
 db_max_flows:
-  - name: mrf_nbm_max_flows
-    target_table: cache.max_flows_mrf_nbm
+  - name: mrf_nbm_3day_max_flows
+    target_table: cache.max_flows_mrf_nbm_3day
     target_keys: (feature_id, streamflow)
     method: database
-    max_flows_sql_file: mrf_nbm_max_flows
+    max_flows_sql_file: mrf_nbm_3day_max_flows
+  - name: mrf_nbm_5day_max_flows
+    target_table: cache.max_flows_mrf_nbm_5day
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_nbm_5day_max_flows
+  - name: mrf_nbm_10day_max_flows
+    target_table: cache.max_flows_mrf_nbm_10day
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_nbm_10day_max_flows
 
 fim_configs:
   - name: mrf_nbm_max_inundation_3day
-    target_table: ingest.mrf_nbm_max_inundation_3day
+    flows_table: cache.max_flows_mrf_nbm_3day
+    target_table: fim_ingest.mrf_nbm_max_inundation_3day
     fim_type: hand
     postprocess:
       sql_file: mrf_nbm_max_inundation_3day
       target_table: publish.mrf_nbm_max_inundation_3day
   - name: mrf_nbm_max_inundation_5day
-    target_table: ingest.mrf_nbm_max_inundation_5day
+    flows_table: cache.max_flows_mrf_nbm_5day
+    target_table: fim_ingest.mrf_nbm_max_inundation_5day
     fim_type: hand
     postprocess:
       sql_file: mrf_nbm_max_inundation_5day
       target_table: publish.mrf_nbm_max_inundation_5day
   - name: mrf_nbm_max_inundation_10day
-    target_table: ingest.mrf_nbm_max_inundation_10day
+    flows_table: cache.max_flows_mrf_nbm_10day
+    target_table: fim_ingest.mrf_nbm_max_inundation_10day
     fim_type: hand
     postprocess:
       sql_file: mrf_nbm_max_inundation_10day

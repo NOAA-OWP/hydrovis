@@ -269,6 +269,20 @@ resource "aws_lambda_layer_version" "yaml" {
   description         = "Python yaml module"
 }
 
+################
+## Dask Layer ##
+################
+
+resource "aws_lambda_layer_version" "dask" {
+  filename         = "${path.module}/dask.zip"
+  source_code_hash = filebase64sha256("${path.module}/dask.zip")
+
+  layer_name = "hv-vpp-${var.environment}-dask"
+
+  compatible_runtimes = ["python3.9"]
+  description         = "Python dask module"
+}
+
 #############
 ## Outputs ##
 #############
@@ -315,4 +329,8 @@ output "requests" {
 
 output "yaml" {
   value = resource.aws_lambda_layer_version.yaml
+}
+
+output "dask" {
+  value = resource.aws_lambda_layer_version.dask
 }

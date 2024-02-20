@@ -1,123 +1,398 @@
+/*
+Most column names of the WRDS forecast database tables follow the SHEF Code naming conventions. These are largely clear
+and understood for those largely unfamiliar with the conventions. However, there are a few single- or double-digit
+column names that would be near impossible to discern for first-time viewers. Namely: "pe", "d", "t", "s", "e", and "p".
+These are explained below in an excerpt from the SHEF Code Manual (see 
+https://www.weather.gov/media/mdl/SHEF_CodeManual_5July2012.pdf).
+
+In SHEF messages, different types of data are keyed by a sevencharacter parameter code represented 
+by the character string “PEDTSEP.” The string is broken down as follows:
+
+PE = Physical Element (gage height, precipitation, etc.)
+D = Duration Code (instantaneous, hourly, daily, etc.)
+T = Type Code (observed, forecast, etc.)
+S = Source Code (a further refinement of type code which may indicate how data was
+created or transmitted)
+E = Extremum Code (maximum, minimum, etc.)
+P = Probability Code (90 percent, 10 percent, etc.)
+
+The parameter code string, when fully specified, contains six keys for database identification. In
+order to reduce manual entry and communications requirements, standard defaults for each key
+(except PE) reduce identification of most hydrometeorological data to a minimum key of two
+characters. The full key is used primarily in the transmission of unique hydrometeorological data.
+*/
+
 DROP TABLE IF EXISTS publish.rfc_max_forecast;
 
 WITH
-	-------- Max Stage Sub Query -------
-	max_stage AS
-		(SELECT 
-			af.nws_lid, 
-			af.stage, 
-			af.status,
-		 	MIN(af.time) AS timestep,
-		 	CASE			
-				WHEN af.status = 'action' THEN 1::integer
-				WHEN af.status = 'minor' THEN 2::integer
-				WHEN af.status = 'moderate' THEN 3::integer
-				WHEN af.status = 'major' THEN 4::integer
-				ELSE 0::integer
-			END AS status_value
-		FROM ingest.ahps_forecasts AS af
-		INNER JOIN (
-			SELECT
-				nws_lid,
-				MAX(stage) AS max_stage
-			FROM ingest.ahps_forecasts
-			GROUP BY nws_lid
-		) AS b ON af.nws_lid = b.nws_lid AND af.stage = b.max_stage
-		 LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid
-		 GROUP BY af.nws_lid, af.stage, af.status, c.record_threshold),
-	-------- Min Stage Sub Query -------
-	min_stage AS
-		(SELECT 
-			af.nws_lid,  
-			af.stage, 
-			af.status,
-		 	MIN(af.time) AS timestep,
-		 	CASE			
-				WHEN af.status = 'action' THEN 1::integer
-				WHEN af.status = 'minor' THEN 2::integer
-				WHEN af.status = 'moderate' THEN 3::integer
-				WHEN af.status = 'major' THEN 4::integer
-				ELSE 0::integer
-			END AS status_value
-		FROM ingest.ahps_forecasts AS af
-		INNER JOIN (
-			SELECT
-				nws_lid,
-				MIN(stage) AS min_stage
-			FROM ingest.ahps_forecasts
-			GROUP BY nws_lid
-		) AS b ON af.nws_lid = b.nws_lid AND af.stage = b.min_stage
-		LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid
-		GROUP BY af.nws_lid, af.stage, af.status, c.record_threshold),
-	-------- Initial Stage Sub Query -------
-	initial_stage AS
-		(SELECT 
-			af.nws_lid,
-			af.stage,
-			af.status,
-		 	af.time AS timestep,
-		 	CASE			
-				WHEN af.status = 'action' THEN 1::integer
-				WHEN af.status = 'minor' THEN 2::integer
-				WHEN af.status = 'moderate' THEN 3::integer
-				WHEN af.status = 'major' THEN 4::integer
-				ELSE 0::integer
-			END AS status_value
-		FROM ingest.ahps_forecasts AS af
-		INNER JOIN (
-			SELECT
-				nws_lid,
-				MIN(time) AS min_timestep
-			FROM ingest.ahps_forecasts
-			GROUP BY nws_lid
-		) AS b ON af.nws_lid = b.nws_lid AND af.time = b.min_timestep
-		LEFT OUTER JOIN ingest.ahps_metadata AS c on af.nws_lid = c.nws_lid)
 
--------- Main Query (Put it all together) -------
-SELECT 
-	max_stage.nws_lid,
-	initial_stage.stage AS initial_stage,
-	initial_stage.status AS initial_status,
-	to_char(initial_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_stage_timestep,
-	min_stage.stage AS min_stage,
-	min_stage.status AS min_status,
-	to_char(min_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS min_stage_timestep,
-	max_stage.stage AS max_stage,
-	max_stage.status AS max_status,
-	to_char(max_stage.timestep::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS max_stage_timestep,
+latest_forecast AS (
+	SELECT DISTINCT ON (
+		lid, 
+		pe, 
+		d, 
+		ts, 
+		e, 
+		p, 
+		product_time, 
+		start_time, 
+		valid_time
+	)
+		lid,
+		distributor AS distributor_name,
+		producer_name,
+		generation_time,
+		product_time,
+		valid_time,
+		pe,
+		d,
+		ts,
+		e,
+		p,
+		pe_priority,
+		value,
+		units
+	FROM wrds_rfcfcst.last_forecast_view
+	ORDER BY 
+		last_forecast_view.lid, 
+		last_forecast_view.pe, 
+		last_forecast_view.d, 
+		last_forecast_view.ts, 
+		last_forecast_view.e, 
+		last_forecast_view.p, 
+		last_forecast_view.product_time DESC, 
+		last_forecast_view.start_time, 
+		last_forecast_view.valid_time, 
+		last_forecast_view.generation_time DESC
+),
+
+considerable_forecast_metadata AS (
+	SELECT DISTINCT ON (lid, units)
+		lid, pe, ts, product_time, units
+	FROM latest_forecast
+	WHERE (pe LIKE 'H%' OR pe LIKE 'Q%')
+		AND pe_priority = 1
+		AND product_time >= NOW() - INTERVAL '48 hours'
+		AND valid_time >= NOW()
+		AND value > -999
+	ORDER BY lid, units, ts::forecast_ts
+),
+
+relevant_forecasts AS (
+	SELECT 
+		main.lid, 
+		main.pe,
+		main.ts,
+		main.generation_time,
+		main.product_time,
+		main.valid_time,
+	CASE 
+		WHEN main.units = 'KCFS' 
+		THEN value * 1000
+		ELSE value
+	END as value,
 	CASE
-		WHEN initial_stage.stage = 0 THEN 'increasing'::text
-		WHEN ((max_stage.stage-initial_stage.stage)/initial_stage.stage) > .05 THEN 'increasing'::text									
-		WHEN ((min_stage.stage-initial_stage.stage)/initial_stage.stage) < -.05 THEN 'decreasing'::text									
-		WHEN max_stage.status_value > initial_stage.status_value THEN 'increasing'::text								
-		WHEN max_stage.status_value < initial_stage.status_value THEN 'decreasing'::text
-		ELSE 'constant'::text
-	END AS forecast_trend,
-	CASE
-		WHEN max_stage.stage >= metadata.record_threshold THEN true
-		ELSE false
-	END AS record_forecast,
-	metadata.producer, 
-	metadata.issuer,
-	to_char(metadata."issuedTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
-	to_char(metadata."generationTime"::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
-	metadata.usgs_sitecode, 
-	metadata.feature_id, 
-	metadata.nws_name, 
-	metadata.usgs_name,
-	ST_TRANSFORM(ST_SetSRID(ST_MakePoint(metadata.longitude, metadata.latitude),4326),3857) as geom, 
-	metadata.action_threshold, 
-	metadata.minor_threshold, 
-	metadata.moderate_threshold, 
-	metadata.major_threshold, 
-	metadata.record_threshold, 
-	metadata.units,
-	CONCAT('https://water.weather.gov/resources/hydrographs/', LOWER(metadata.nws_lid), '_hg.png') AS hydrograph_link,
-	CONCAT('https://water.weather.gov/ahps2/rfc/', metadata.nws_lid, '.shortrange.hefs.png') AS hefs_link,
-	to_char(NOW()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS UPDATE_TIME
+		WHEN main.units = 'KCFS'
+		THEN 'CFS'
+		ELSE main.units
+	END AS units
+	FROM latest_forecast main
+	JOIN considerable_forecast_metadata meta
+		ON meta.lid = main.lid AND meta.pe = main.pe AND meta.ts = main.ts AND meta.product_time = main.product_time
+	WHERE valid_time >= NOW()
+	ORDER BY
+		lid, 
+		pe,
+		generation_time,
+		product_time,
+		valid_time
+),
+
+relevant_thresholds AS (
+	SELECT
+		lid,
+		CASE
+			WHEN units = 'KCFS'
+			THEN 'CFS'
+			ELSE units
+		END as units,
+		COALESCE(st.action, ft.action) AS action,
+		COALESCE(st.minor, ft.minor) AS minor,
+		COALESCE(st.moderate, ft.moderate) AS moderate,
+		COALESCE(st.major, ft.major) AS major,
+		COALESCE(st.record, ft.record) AS record
+	FROM considerable_forecast_metadata main
+	LEFT JOIN rnr.stage_thresholds st
+		ON units = 'FT' AND st.nws_station_id = main.lid
+	LEFT JOIN rnr.flow_thresholds ft
+		ON units LIKE '%CFS' AND ft.nws_station_id = main.lid
+),
+
+forecast_max_value AS (
+	SELECT DISTINCT ON (lid, pe, product_time)
+		lid,
+		pe,
+		ts,
+		product_time,
+		valid_time as max_timestep,
+		value as max_value,
+		units,
+		generation_time
+	FROM relevant_forecasts
+	ORDER BY 
+		lid, 
+		pe, 
+		product_time, 
+		value DESC
+),
+
+forecast_max_status AS (
+	SELECT 
+		fmv.lid,
+		pe,
+		ts,
+		product_time,
+		max_timestep,
+		max_value,
+		fmv.units,
+		CASE
+			WHEN major IS NOT NULL AND fmv.max_value >= major
+			THEN 'major'
+			WHEN moderate IS NOT NULL AND fmv.max_value >= moderate
+			THEN 'moderate'
+			WHEN minor IS NOT NULL AND fmv.max_value >= minor
+			THEN 'minor'
+			WHEN action IS NOT NULL AND fmv.max_value >= action
+			THEN 'action'
+			ELSE 'no_flooding'
+		END as max_status,
+		generation_time
+	FROM forecast_max_value AS fmv
+	LEFT JOIN relevant_thresholds
+		ON relevant_thresholds.lid = fmv.lid
+		AND relevant_thresholds.units = fmv.units
+),
+
+flood_data_base AS (
+    SELECT
+		lid,
+		pe,
+		ts,
+		product_time,
+		generation_time,
+		max_timestep,
+		max_value,
+		max_status,
+		units
+    FROM forecast_max_status fms
+    LEFT JOIN derived.ahps_restricted_sites restricted
+        ON restricted.nws_lid = fms.lid
+    WHERE restricted.nws_lid IS NULL 
+        AND fms.max_status != 'no_flooding'
+),
+
+flood_forecasts AS (
+	SELECT relevant_forecasts.*
+	FROM relevant_forecasts
+	JOIN flood_data_base flood
+		ON flood.lid = relevant_forecasts.lid
+		AND flood.pe = relevant_forecasts.pe
+		AND flood.product_time = relevant_forecasts.product_time
+),
+
+forecast_initial_flood_point AS (
+	SELECT DISTINCT ON (lid)
+		ff.lid,
+		ff.pe,
+		ff.product_time,
+		ff.value,
+		CASE
+			WHEN cat.major IS NOT NULL AND ff.value >= cat.major
+			THEN 'major'
+			WHEN cat.moderate IS NOT NULL AND ff.value >= cat.moderate
+			THEN 'moderate'
+			WHEN cat.minor IS NOT NULL AND ff.value >= cat.minor
+			THEN 'minor'
+			WHEN cat.action IS NOT NULL AND ff.value >= cat.action
+			THEN 'action'
+			ELSE 'no_flooding'
+		END as status,
+		ff.units,
+		ff.valid_time as timestep
+	FROM flood_forecasts ff
+	LEFT JOIN relevant_thresholds cat
+		ON cat.lid = ff.lid
+	WHERE value >= COALESCE(cat.action, cat.minor, cat.moderate, cat.major)
+	ORDER BY 
+		lid, 
+		pe, 
+		product_time, 
+		valid_time
+),
+
+forecast_initial_values AS (
+	SELECT DISTINCT ON (lid, pe, product_time)
+		lid,
+		pe,
+		product_time,
+		value,
+		units,
+		valid_time as timestep
+	FROM flood_forecasts
+	ORDER BY
+		lid,
+		pe,
+		product_time,
+		valid_time
+),
+
+forecast_initial_status AS (
+	SELECT 
+		fiv.lid,
+		pe,
+		product_time,
+		timestep,
+		value,
+		fiv.units,
+		CASE
+			WHEN major IS NOT NULL AND fiv.value >= major
+			THEN 'major'
+			WHEN moderate IS NOT NULL AND fiv.value >= moderate
+			THEN 'moderate'
+			WHEN minor IS NOT NULL AND fiv.value >= minor
+			THEN 'minor'
+			WHEN action IS NOT NULL AND fiv.value >= action
+			THEN 'action'
+			ELSE 'no_flooding'
+		END as status
+		FROM forecast_initial_values AS fiv
+		LEFT JOIN relevant_thresholds
+			ON relevant_thresholds.lid = fiv.lid
+),
+
+forecast_min_value AS (
+	SELECT DISTINCT ON (lid, pe, product_time)
+		lid,
+		pe,
+		product_time,
+		value,
+		units,
+		valid_time as timestep
+	FROM flood_forecasts
+	ORDER BY
+		lid,
+		pe,
+		product_time,
+		value
+),
+
+forecast_min_status AS (
+	SELECT 
+		fmv.lid,
+		pe,
+		product_time,
+		timestep,
+		value,
+		fmv.units,
+		CASE
+			WHEN major IS NOT NULL AND fmv.value >= major
+			THEN 'major'
+			WHEN moderate IS NOT NULL AND fmv.value >= moderate
+			THEN 'moderate'
+			WHEN minor IS NOT NULL AND fmv.value >= minor
+			THEN 'minor'
+			WHEN action IS NOT NULL AND fmv.value >= action
+			THEN 'action'
+			ELSE 'no_flooding'
+		END as status
+		FROM forecast_min_value AS fmv
+		LEFT JOIN relevant_thresholds
+			ON relevant_thresholds.lid = fmv.lid
+),
+
+forecast_point_xwalk AS (
+	SELECT 
+		station.nws_station_id, 
+		station.name as nws_name,
+		station.hsa as issuer,
+		station.rfc as producer,
+		xwalk.gage_id as usgs_site_code,
+		gage.name as usgs_name,
+		xwalk.nwm_feature_id as feature_id,
+		ST_TRANSFORM(station.geo_point, 3857) AS geom
+	FROM flood_data_base base
+	LEFT JOIN external.nws_station station
+		ON station.nws_station_id = base.lid
+	LEFT JOIN (
+		SELECT DISTINCT ON (nws_station_id) * 
+		FROM external.full_crosswalk_view 
+		ORDER BY 
+			nws_station_id,
+			nws_usgs_crosswalk_dataset_id DESC NULLS LAST,
+			location_nwm_crosswalk_dataset_id DESC NULLS LAST
+	) AS xwalk ON xwalk.nws_station_id = base.lid
+	LEFT JOIN external.usgs_gage gage
+		ON gage.usgs_gage_id = xwalk.gage_id
+),
+
+service_data AS (
+	SELECT DISTINCT
+		base.lid::text as nws_lid,
+		base.pe,  -- NOT USED IN SERVICE, BUT NEEDED FOR RNR
+		base.ts,  -- NOT USED IN SERVICE, BUT NEEDED FOR RNR
+		to_char(base.product_time, 'YYYY-MM-DD HH24:MI:SS UTC') AS issued_time,
+		to_char(base.generation_time, 'YYYY-MM-DD HH24:MI:SS UTC') AS generation_time,
+		CASE
+			WHEN initial.value = 0 THEN 'increasing'
+			WHEN ((base.max_value - initial.value) / initial.value) > .05 THEN 'increasing'
+			WHEN ((min.value - initial.value) / initial.value) < -.05 THEN 'decreasing'
+			WHEN base.max_status::flood_status > initial.status::flood_status THEN 'increasing'
+			WHEN base.max_status::flood_status < initial.status::flood_status THEN 'decreasing'
+			ELSE 'constant'
+		END AS forecast_trend,
+		cats.record IS NOT NULL AND base.max_value > cats.record AS is_record_forecast,
+		to_char(initial.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_value_timestep,
+		initial.value as initial_value,
+		initial.status as initial_status,
+		to_char(flood.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') AS initial_flood_value_timestep,
+		flood.value as initial_flood_value,
+		flood.status as initial_flood_status,
+		to_char(min.timestep, 'YYYY-MM-DD HH24:MI:SS UTC') as min_value_timestep,
+		min.value as min_value,
+		min.status as min_status,
+		to_char(base.max_timestep, 'YYYY-MM-DD HH24:MI:SS UTC') as max_value_timestep,
+		base.max_value,
+		base.max_status,
+		xwalk.usgs_site_code,
+		xwalk.feature_id,
+		xwalk.nws_name,
+		xwalk.usgs_name,
+		xwalk.producer::text,
+		xwalk.issuer::text,
+		xwalk.geom,
+		cats.action as action_threshold,
+		cats.minor as minor_threshold,
+		cats.moderate as moderate_threshold,
+		cats.major as major_threshold,
+		cats.record as record_threshold,
+		base.units,
+		'https://water.weather.gov/resources/hydrographs/' || LOWER(base.lid) || '_hg.png' AS hydrograph_link,
+		'https://water.weather.gov/ahps2/rfc/' || base.lid || '.shortrange.hefs.png' as hefs_link,
+		to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS UTC') as update_time
+	FROM flood_data_base base
+	LEFT JOIN forecast_initial_status initial
+		ON initial.lid = base.lid AND initial.pe = base.pe
+	LEFT JOIN forecast_min_status min
+		ON min.lid = base.lid AND min.pe = base.pe
+	LEFT JOIN forecast_point_xwalk xwalk
+		ON xwalk.nws_station_id = base.lid
+	LEFT JOIN relevant_thresholds cats
+		ON cats.lid = base.lid AND cats.units = base.units
+	LEFT JOIN forecast_initial_flood_point flood
+		ON flood.lid = base.lid and flood.pe = base.pe
+	ORDER BY nws_lid
+)
+
+SELECT *
 INTO publish.rfc_max_forecast
-FROM ingest.ahps_metadata as metadata
-JOIN max_stage ON max_stage.nws_lid = metadata.nws_lid
-JOIN min_stage ON min_stage.nws_lid = metadata.nws_lid
-JOIN initial_stage ON initial_stage.nws_lid = metadata.nws_lid
-WHERE metadata."issuedTime"::timestamp without time zone > ('1900-01-01 00:00:00'::timestamp without time zone - INTERVAL '26 hours') AND metadata.nws_lid NOT IN (SELECT nws_lid FROM derived.ahps_restricted_sites);
+FROM service_data;

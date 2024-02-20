@@ -4,7 +4,7 @@ WITH roi AS (
     SELECT max_srf.feature_id, thresholds.high_water_threshold
     FROM cache.max_flows_srf AS max_srf
     JOIN derived.recurrence_flows_conus thresholds ON max_srf.feature_id = thresholds.feature_id 
-        AND max_srf.maxflow_18hour_cfs >= thresholds.high_water_threshold
+        AND max_srf.discharge_cfs >= thresholds.high_water_threshold
 )
 SELECT
     channels.feature_id,
@@ -17,11 +17,11 @@ SELECT
     srf.forecast_hour,
     srf.nwm_vers,
     srf.reference_time,
-    ana.maxflow_1hour_cfs as current_flow,
+    ana.discharge_cfs as current_flow,
     round((srf.streamflow * 35.315)::numeric, 2) as forecast_flow,
     roi.high_water_threshold,
-    round(((srf.streamflow * 35.315) - ana.maxflow_1hour_cfs)::numeric, 2) as change_cfs,
-    round((((srf.streamflow * 35.315) - ana.maxflow_1hour_cfs)*100/ana.maxflow_1hour_cfs)::numeric, 2) as change_perc,
+    round(((srf.streamflow * 35.315) - ana.discharge_cfs)::numeric, 2) as change_cfs,
+    round((((srf.streamflow * 35.315) - ana.discharge_cfs)*100/ana.discharge_cfs)::numeric, 2) as change_perc,
     to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time
 INTO publish.srf_18hr_rate_of_change
 FROM ingest.nwm_channel_rt_srf as srf

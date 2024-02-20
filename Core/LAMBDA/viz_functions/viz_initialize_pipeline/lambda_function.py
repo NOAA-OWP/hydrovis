@@ -185,6 +185,8 @@ class viz_lambda_pipeline:
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
                 self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
+            elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'rfc':
+                self.configuration = configuration('rfc', reference_time=datetime.datetime.utcnow().replace(second=0, microsecond=0))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
@@ -201,6 +203,7 @@ class viz_lambda_pipeline:
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
             for word, replacement in self.sql_rename_dict.items():
                 self.configuration.configuration_data_flow = json.loads(json.dumps(self.configuration.configuration_data_flow).replace(word, replacement))
+                self.configuration.db_ingest_groups = json.loads(json.dumps(self.configuration.db_ingest_groups).replace(word, replacement))
                 self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
             self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time.strftime("%Y-%m-%d %H:%M:%S")}) #Add a reference time for placeholders in sql files
         
@@ -464,7 +467,7 @@ class configuration:
             ingest_file = target_table_metadata["s3_keys"][0]
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
-            elif "max" in ingest_file:
+            elif "viz_ingest" in ingest_file:
                 bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket
@@ -496,7 +499,9 @@ class configuration:
         python_preprocesing_ingest_sets = []
         db_ingest_sets = []
         for file_group in file_groups:
-            product = file_group['product']
+            product = file_group['product'] 
+            config = file_group['config'] if file_group.get('config') else None
+            lambda_ram = file_group['lambda_ram'] if file_group.get('lambda_ram') else None
             output_file = file_group['output_file']
             
             token_dict = get_file_tokens(output_file)
@@ -507,6 +512,8 @@ class configuration:
                 "fileset": python_preprocesing_file_set[0]['ingest_datasets'],
                 "fileset_bucket": python_preprocesing_file_set[0]['bucket'],
                 "product": product,
+                "config": config,
+                "lambda_ram": lambda_ram,
                 "output_file": formatted_output_file,
                 "output_file_bucket": os.environ['PYTHON_PREPROCESSING_BUCKET'],
             })

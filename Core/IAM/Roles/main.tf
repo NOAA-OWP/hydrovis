@@ -199,7 +199,6 @@ resource "aws_iam_role_policy" "rds_s3_export" {
   })
 }
 
-
 # data-services Role
 resource "aws_iam_role" "data_services" {
   name = "hv-vpp-${var.environment}-${var.region}-data-services"

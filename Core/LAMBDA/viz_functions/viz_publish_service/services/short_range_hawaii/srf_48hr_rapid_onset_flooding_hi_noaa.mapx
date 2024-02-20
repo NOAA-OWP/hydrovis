@@ -242,7 +242,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "18 Hours - Rapid Onset Flood Arrival Time",
+      "name" : "48 Hours - Rapid Onset Flood Arrival Time",
       "uRI" : "CIMPATH=nwm_48_hour_rapid_onset_flooding_forecast/rapid_onset_flood_arrival_time.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -9882,7 +9882,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "18 Hours - Rapid Onset Flood Duration",
+      "name" : "48 Hours - Rapid Onset Flood Duration",
       "uRI" : "CIMPATH=nwm_48_hour_rapid_onset_flooding_forecast/rapid_onset_flood_duration.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -10975,7 +10975,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "18 Hours - NWM Waterway Length Flooded",
+      "name" : "48 Hours - NWM Waterway Length Flooded",
       "uRI" : "CIMPATH=nwm_48_hour_rapid_onset_flooding_forecast/egdb_hydrovis_srf_48hr_rapid_onset_flooding_hucs.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",

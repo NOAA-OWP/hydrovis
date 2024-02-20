@@ -161,6 +161,10 @@ variable "yaml_layer" {
   type = string
 }
 
+variable "dask_layer" {
+  type = string
+}
+
 variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
@@ -259,8 +263,9 @@ resource "aws_lambda_function" "viz_wrds_api_handler" {
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
   rule      = var.five_minute_trigger.name
-  target_id = aws_lambda_function.viz_wrds_api_handler.function_name
-  arn       = aws_lambda_function.viz_wrds_api_handler.arn
+  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
+  arn       = aws_lambda_function.viz_initialize_pipeline.arn
+  input     = "{\"configuration\":\"rfc\"}"
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
@@ -389,10 +394,13 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
   source_hash = filemd5(data.archive_file.python_preprocessing_zip.output_path)
 }
 
-resource "aws_lambda_function" "viz_python_preprocessing" {
+#########################
+#### 3GB RAM Version ####
+#########################
+resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
   function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
   description   = "Lambda function to create max streamflow files for NWM data"
-  memory_size   = 2048
+  memory_size   = 3072
   ephemeral_storage {
     size = 6656
   }
@@ -406,6 +414,7 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
   environment {
     variables = {
       CACHE_DAYS            = 1
+      AUTH_DATA_BUCKET      = var.viz_authoritative_bucket
       DATA_BUCKET_UPLOAD    = var.fim_output_bucket
       VIZ_DB_DATABASE       = var.viz_db_name
       VIZ_DB_HOST           = var.viz_db_host
@@ -428,10 +437,62 @@ resource "aws_lambda_function" "viz_python_preprocessing" {
     var.psycopg2_sqlalchemy_layer,
     var.viz_lambda_shared_funcs_layer,
     var.requests_layer,
+    var.dask_layer
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
+  }
+}
+
+#########################
+#### 10GB RAM Version ####
+#########################
+resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
+  description   = "Lambda function to create max streamflow files for NWM data"
+  memory_size   = 10240
+  ephemeral_storage {
+    size = 6656
+  }
+  timeout = 900
+
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+
+  environment {
+    variables = {
+      CACHE_DAYS            = 1
+      AUTH_DATA_BUCKET      = var.viz_authoritative_bucket
+      DATA_BUCKET_UPLOAD    = var.fim_output_bucket
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
+      NWM_DATAFLOW_VERSION  = var.nwm_dataflow_version
+    }
+  }
+  s3_bucket        = aws_s3_object.python_preprocessing_zip_upload.bucket
+  s3_key           = aws_s3_object.python_preprocessing_zip_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.python_preprocessing_zip.output_path)
+
+  runtime = "python3.9"
+  handler = "lambda_function.lambda_handler"
+
+  role = var.lambda_role
+
+  layers = [
+    var.xarray_layer,
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer,
+    var.requests_layer,
+    var.dask_layer
+  ]
+
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
   }
 }
 
@@ -562,10 +623,10 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE = var.viz_db_name
-      VIZ_DB_HOST     = var.viz_db_host
-      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -940,8 +1001,12 @@ module "image-based-lambdas" {
 ########################################################################################################################################
 ########################################################################################################################################
 
-output "python_preprocessing" {
-  value = aws_lambda_function.viz_python_preprocessing
+output "python_preprocessing_3GB" {
+  value = aws_lambda_function.viz_python_preprocessing_3GB
+}
+
+output "python_preprocessing_10GB" {
+  value = aws_lambda_function.viz_python_preprocessing_10GB
 }
 
 output "initialize_pipeline" {

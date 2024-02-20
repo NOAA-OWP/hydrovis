@@ -28,20 +28,66 @@
       "Resource": "arn:aws:states:::aws-sdk:cloudwatchlogs:putLogEvents",
       "ResultPath": null
     },
-    "Python Preprocessing": {
+     "Python Preprocessing": {
       "Type": "Map",
       "ItemProcessor": {
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Python Preprocess",
+        "StartAt": "Small or Large Lambda Function",
         "States": {
-          "Python Preprocess": {
+          "Small or Large Lambda Function": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.python_preprocessing.lambda_ram",
+                "StringEquals": "10gb",
+                "Next": "Python Preprocess - 10GB"
+              }
+            ],
+            "Default": "Python Preprocess - 3GB"
+          },
+          "Python Preprocess - 3GB": {
             "Type": "Task",
             "Resource": "arn:aws:states:::lambda:invoke",
             "OutputPath": "$.Payload",
             "Parameters": {
-              "FunctionName": "${python_preprocessing_arn}",
+              "FunctionName": "${python_preprocessing_3GB_arn}",
+              "Payload": {
+                "args.$": "$",
+                "step": "python_preprocessing"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              },
+              {
+                "ErrorEquals": [
+                  "MissingS3FileException"
+                ],
+                "BackoffRate": 1,
+                "IntervalSeconds": 120,
+                "MaxAttempts": 35,
+                "Comment": "Missing S3 File"
+              }
+            ],
+            "End": true
+          },
+          "Python Preprocess - 10GB": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "FunctionName": "${python_preprocessing_10GB_arn}",
               "Payload": {
                 "args.$": "$",
                 "step": "python_preprocessing"
@@ -683,7 +729,7 @@
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
                   "Parameters": {
-                    "FunctionName": "${python_preprocessing_arn}",
+                    "FunctionName": "${python_preprocessing_3GB_arn}",
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config_max_file"
@@ -778,7 +824,7 @@
                       "Comment": "Lambda Service Errors"
                     }
                   ],
-                  "Next": "HUC Processing Map",
+                  "Next": "HAND Processing",
                   "ResultPath": "$.huc_processing_payload",
                   "ResultSelector": {
                     "hucs_to_process.$": "$.Payload.hucs_to_process",
@@ -795,7 +841,125 @@
                       "Next": "Process Coastal (SCHISM) FIM"
                     }
                   ],
-                  "Default": "FIM Data Preparation"
+                  "Default": "FIM Cache - Prepare Flows Table"
+                },
+                 "FIM Cache - Prepare FIM Config Tables": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "0_create_or_truncate_tables",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "FIM Cache - Prepare Flows Table",
+                  "ResultPath": null
+                },
+                "FIM Cache - Prepare Flows Table": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing - prepare flows",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "1_prepare_fim_config_flows_table",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz"
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "RequiredTableNotUpdated"
+                      ],
+                      "MaxAttempts": 3,
+                      "IntervalSeconds": 30,
+                      "BackoffRate": 1
+                    }
+                  ],
+                  "Next": "FIM Cache - Load Cached FIM Into FIM Config Tables",
+                  "ResultPath": null
+                },
+                "FIM Cache - Load Cached FIM Into FIM Config Tables": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_pre_processing",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "2a_query_fim_cache-ras2fim",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        },
+                        {
+                          "sql_file": "2b_query_fim_cache-hand",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
+                    },
+                    "FunctionName": "${db_postprocess_sql_arn}"
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    }
+                  ],
+                  "Next": "FIM Data Preparation",
+                  "ResultPath": null
                 },
                 "Process Coastal (SCHISM) FIM": {
                   "Type": "Task",
@@ -819,7 +983,7 @@
                     "sql_rename_dict.$": "$.Output.sql_rename_dict"
                   }
                 },
-                "HUC Processing Map": {
+                "HAND Processing": {
                   "Type": "Map",
                   "Iterator": {
                     "StartAt": "FIM HUC Processing State Machine",
@@ -845,7 +1009,7 @@
                     }
                   },
                   "ItemsPath": "$.huc_processing_payload.hucs_to_process",
-                  "Next": "Postprocess SQL - FIM Config",
+                  "Next": "FIM Cache - Add Processed FIM Back to HAND Cache",
                   "ItemSelector": {
                     "huc_branches_to_process.$": "$$.Map.Item.Value",
                     "data_bucket.$": "$.huc_processing_payload.data_bucket",
@@ -858,6 +1022,50 @@
                   "MaxConcurrency": 4,
                   "ResultPath": null
                 },
+                "FIM Cache - Add Processed FIM Back to HAND Cache": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${db_postprocess_sql_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "hand_post_processing",
+                      "folder": "fim_caching_templates",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "3_add_any_processed_hand_fim_back_to_cache",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                      ],
+                      "IntervalSeconds": 1,
+                      "MaxAttempts": 3,
+                      "BackoffRate": 2
+                    },
+                    {
+                      "ErrorEquals": [
+                        "UniqueViolation"
+                      ],
+                      "BackoffRate": 1,
+                      "MaxAttempts": 3,
+                      "Comment": "Retry if a unique violation happens - this may need a custom exception.",
+                      "IntervalSeconds": 60
+                    }
+                  ],
+                  "Next": "Postprocess SQL - FIM Config",
+                  "ResultPath": null
+                },
                 "Postprocess SQL - FIM Config": {
                   "Type": "Task",
                   "Resource": "arn:aws:states:::lambda:invoke",
@@ -866,7 +1074,21 @@
                     "Payload": {
                       "args.$": "$",
                       "step": "fim_config",
-                      "folder": "fim_configs"
+                      "folder": "fim_configs",
+                      "sql_templates_to_run": [
+                        {
+                          "sql_file": "4_create_fim_config_publish_table",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        },
+                        {
+                          "sql_file": "5_dummy_rows_for_wpod_service_monitor",
+                          "folder": "fim_caching_templates",
+                          "db_type": "viz",
+                          "check_dependencies": false
+                        }
+                      ]
                     }
                   },
                   "Retry": [

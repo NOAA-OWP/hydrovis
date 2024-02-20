@@ -18,10 +18,8 @@ aws s3 cp "s3://${deployment_bucket}/${postgis_setup_s3_key}" "$${postgres_data_
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAf "$${postgres_data_folder}/postgis_setup.sql"
 rm "$${postgres_data_folder}/postgis_setup.sql"
 
-
 echo "Setting up aws_s3..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE EXTENSION IF NOT EXISTS aws_s3 CASCADE;"
-
 
 # Adding users to Viz DB
 echo "Adding viz proc user..."
@@ -32,7 +30,10 @@ echo "Adding viz dev user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE ROLE ${viz_proc_dev_rw_username};"
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "ALTER ROLE ${viz_proc_dev_rw_username} WITH INHERIT NOCREATEROLE NOCREATEDB LOGIN NOBYPASSRLS CONNECTION LIMIT 25 ENCRYPTED PASSWORD '${viz_proc_dev_rw_password}';"
 
-
 # Add permissions for aws_s3 extension to viz user.
 echo "Adding permissions to aws_s3 extension for viz user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
+
+echo "Creating enum types for use in rfc-based services"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE TYPE flood_status AS ENUM ('no_flooding', 'action', 'minor', 'moderate', 'major');"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE TYPE forecast_ts AS ENUM ('FE', 'FF', 'FM', 'FN', 'FP', 'FQ', 'FU', 'FV', 'FW', 'FA', 'FB', 'FC', 'FD', 'FX', 'FG', 'FL', 'FZ');"

@@ -7,7 +7,7 @@ import pandas as pd
 import re
 import boto3
 import tempfile
-from viz_lambda_shared_funcs import get_db_values, check_if_file_exists
+from viz_lambda_shared_funcs import get_db_values, organize_input_files
 
 def run_high_water_probability(reference_time, fileset_bucket, fileset, output_file_bucket, output_file):
     ##### Data Prep #####
@@ -280,10 +280,3 @@ def find_nwm_file_paths(nwm_fpaths, valid_times, reference_time, discard_date):
             print(('WARNING - File given could not be opened: {0}'.format(nwm_fpath)))
 
     return working_fpaths
-
-def organize_input_files(fileset_bucket, fileset, download_subfolder):
-    local_files = []
-    for file in fileset:
-        download_path = check_if_file_exists(fileset_bucket, file, download=True, download_subfolder=download_subfolder)
-        local_files.append(download_path)
-    return local_files
