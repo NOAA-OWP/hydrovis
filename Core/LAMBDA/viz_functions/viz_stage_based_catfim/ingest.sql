@@ -69,13 +69,19 @@ sites_with_status AS (
 		moderate.stage as moderate_stage,
 		major.stage as major_stage,
 		record.stage as record_stage,
-		-- -- IF UNCOMMENTING THIS SECTION, ALSO COMMENT LINE 187
+		-- -- IF UNCOMMENTING THIS SECTION, ALSO COMMENT LINE 195
 		-- CASE
 		-- 	WHEN station.rfc_defined_fcst_point IS FALSE
 		-- 	THEN 'site is not an official RFC-defined forecast point in the WRDS database; '
 		-- 	ELSE ''
 		-- END
 		-- ||
+		CASE
+			WHEN restricted.nws_lid IS NOT NULL
+			THEN 'restricted site: ' || restricted.restricted_reason || '; '
+			ELSE ''
+		END
+		||
         CASE
             WHEN ABS(elev.dem_adj_elevation - (gage.altitude * 0.3048)) > 10
             THEN 'large discrepancy in elevation estimates from gage and HAND; '
@@ -184,6 +190,8 @@ sites_with_status AS (
 		AND record.stage_category = 'record'
     LEFT JOIN (SELECT DISTINCT ON (nws_lid) * FROM derived.usgs_elev_table ORDER BY nws_lid, levpa_id DESC) AS elev
         ON elev.nws_lid = station.nws_station_id
+	LEFT JOIN derived.ahps_restricted_sites restricted
+		ON restricted.nws_lid = station.nws_station_id
 	WHERE rfc_defined_fcst_point IS TRUE
 )
 
@@ -229,7 +237,8 @@ SELECT
         AND site.status NOT LIKE '%all threshold stages undefined%' 
         AND site.status NOT LIKE '%missing%'
         AND site.status NOT LIKE '%discrepancy%'
-		AND site.status NOT LIKE '%not an official%' AS mapped
+		AND site.status NOT LIKE '%not an official%' 
+		AND site.status NOT LIKE '%restricted%' AS mapped
 INTO ingest.stage_based_catfim_sites
 FROM sites_with_status site
 LEFT JOIN external.fips_county AS county

@@ -50,6 +50,12 @@ SELECT DISTINCT
     base.huc,
     base.geom,
     CASE
+        WHEN restricted.nws_lid IS NOT NULL
+        THEN 'restricted site: ' || restricted.restricted_reason || '; '
+        ELSE ''
+    END
+    ||
+    CASE
     WHEN base.nwm_feature_id IS NULL
     THEN 'station not crosswalked with NWM feature; '
     ELSE ''
@@ -111,10 +117,16 @@ SELECT DISTINCT
 		THEN 'no'
         WHEN action_flow_cfs IS NULL AND minor_flow_cfs IS NULL AND moderate_flow_cfs IS NULL and major_flow_cfs IS NULL and record_flow_cfs IS NULL
         THEN 'no'
+        WHEN restricted.nws_lid IS NOT NULL
+        THEN 'no'
         ELSE 'yes'
     END as mapped
 INTO publish.flow_based_catfim_sites
 FROM sites_base as base
+LEFT JOIN cache.rfc_categorical_flows flow
+    ON flow.nws_station_id = base.nws_station_id
 LEFT JOIN fim_xwalk
 	ON fim_xwalk.nwm_feature_id = base.nwm_feature_id
-	AND fim_xwalk.nws_station_id = base.nws_station_id;
+	AND fim_xwalk.nws_station_id = base.nws_station_id
+LEFT JOIN derived.ahps_restricted_sites restricted
+	ON restricted.nws_lid = base.nws_station_id

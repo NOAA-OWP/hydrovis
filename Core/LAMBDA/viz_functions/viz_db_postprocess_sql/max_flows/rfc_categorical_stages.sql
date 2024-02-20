@@ -51,7 +51,7 @@ upstream_trace AS (
 		ON iter.nwm_feature_id = upstream_trace.upstream_feature_id
 		AND iter.stream_order = upstream_trace.stream_order
 		AND upstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
-		AND upstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
+		-- AND upstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 downstream_trace AS (
@@ -81,7 +81,7 @@ downstream_trace AS (
 		ON iter.nwm_feature_id = downstream_trace.downstream_feature_id
 		AND iter.stream_order = downstream_trace.stream_order
 		AND downstream_trace.trace_length < (5 * 1609.34)  -- Miles converted to meters
-		AND downstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
+		-- AND downstream_trace.trace_length + iter.stream_length < (6 * 1609.34)  -- Miles converted to meters
 ),
 
 trace AS (

@@ -27,7 +27,7 @@ WITH one_poly_per_station AS (
 		fim_stage_ft,
 		interval_ft,
 		STRING_AGG(DISTINCT fim_version, ', ') as fim_version,
-		ST_Simplify(ST_BuildArea(ST_Union(ST_Boundary(geom))), 1) as geom
+		ST_Simplify(ST_BuildArea(ST_Collect(geom)), 1) as geom
 	FROM station_no_multi_polygons
 	GROUP BY 
 		nws_station_id,
