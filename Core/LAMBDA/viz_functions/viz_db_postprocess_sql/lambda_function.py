@@ -11,8 +11,8 @@ def lambda_handler(event, context):
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     check_dependencies = True #default value, unless specified elsewhere
     
-    # Don't run any SQL if it's a reference service
-    if step in ["products", "fim_config"]:
+    # Don't run any SQL if it's a reference service for select steps
+    if step in ["products", "fim_config", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
         if event['args']['product']['configuration'] == "reference":
             return
         

@@ -42,6 +42,7 @@ def lambda_handler(event, context):
     db_fim_table = fim_config['target_table']
     process_by = fim_config.get('process_by', ['huc'])
     input_variable = fim_config.get('input_variable', 'flow')
+    fim_run_type = 'normal'
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
@@ -56,12 +57,24 @@ def lambda_handler(event, context):
     db_schema = db_fim_table.split(".")[0]
     db_table = db_fim_table.split(".")[-1]
     if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
+        fim_run_type = 'reference'
         process_db = database(db_type="egis")
+        stage_ft_round_up = False # Don't round up to the nearest stage ft for reference services
     else:
         process_db = database(db_type="viz")
+        stage_ft_round_up = True # Round up to the nearest stage ft for reference services
     
     if "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
+
+        print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
+        try:
+            df_inundation.to_postgis(f"{db_table}", con=process_db.engine, schema=db_schema, if_exists='append')
+        except Exception as e:
+            process_db.engine.dispose()
+            raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
+        process_db.engine.dispose()
+
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
@@ -92,11 +105,12 @@ def lambda_handler(event, context):
             else:
                 print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
  
-        # Upload zero_stage reaches for tracking / FIM cache
-        print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
-        df_zero_stage_records = df_zero_stage_records.reset_index()
-        df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)
-        df_zero_stage_records.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+        # If not a reference/egis fim run, Upload zero_stage reaches for tracking / FIM cache
+        if fim_run_type != 'reference':
+            print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
+            df_zero_stage_records = df_zero_stage_records.reset_index()
+            df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)
+            df_zero_stage_records.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
         
         # If no features with above zero stages are present, then just copy an unflood raster instead of processing nothing
         if stage_lookup.empty:
@@ -104,35 +118,60 @@ def lambda_handler(event, context):
             return
 
         # Run the desired configuration
-        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable)
+        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, stage_ft_round_up=stage_ft_round_up)
 
-        # Split geometry into seperate table per new schema
-        df_inundation_geo = df_inundation[['hand_id', 'rc_stage_ft', 'geom']]
-        df_inundation.drop(columns=['geom'], inplace=True)
+        # If not a reference run, split up the geometry into a seperate table for caching, upload no-stage data, and format dataframe accordingly
+        if fim_run_type == 'normal':
+            # Split geometry into seperate table per new schema
+            df_inundation_geo = df_inundation[['hand_id', 'rc_stage_ft', 'geom']]
+            df_inundation.drop(columns=['geom'], inplace=True)
+            
+            # If records exist in stage_lookup that don't exist in df_inundation, add those to the zero_stage table.
+            df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['hand_id'],how='left',indicator=True)
+            df_no_inundation = df_no_inundation.loc[df_no_inundation['_merge'] == 'left_only']
+            if df_no_inundation.empty == False:
+                print(f"Adding {len(df_no_inundation)} reaches with NaN inundation to zero_stage table")
+                df_no_inundation.drop(df_no_inundation.columns.difference(['hand_id','rc_discharge_cms','note']), axis=1,  inplace=True)
+                df_no_inundation['note'] = "Error - No inundation returned from hand processing."
+                df_no_inundation.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+            
+            # If no records exist for valid inundation, stop.
+            if df_inundation.empty:
+                return
         
-        # If records exist in stage_lookup that don't exist in df_inundation, add those to the zero_stage table.
-        df_no_inundation = stage_lookup.merge(df_inundation.drop_duplicates(), on=['hand_id'],how='left',indicator=True)
-        df_no_inundation = df_no_inundation.loc[df_no_inundation['_merge'] == 'left_only']
-        if df_no_inundation.empty == False:
-            print(f"Adding {len(df_no_inundation)} reaches with NaN inundation to zero_stage table")
-            df_no_inundation.drop(df_no_inundation.columns.difference(['hand_id','rc_discharge_cms','note']), axis=1,  inplace=True)
-            df_no_inundation['note'] = "Error - No inundation returned from hand processing."
-            df_no_inundation.to_sql(f"{db_table}_zero_stage", con=process_db.engine, schema=db_schema, if_exists='append', index=False)
-        # If no records exist for valid inundation, stop.
-        if df_inundation.empty:
-            return
-    
-    print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
-    try:
-        df_inundation.drop(columns=['hydro_id', 'feature_id'], inplace=True)
-        df_inundation.to_sql(db_table, con=process_db.engine, schema=db_schema, if_exists='append', index=False)
-        df_inundation_geo.to_postgis(f"{db_table}_geo", con=process_db.engine, schema=db_schema, if_exists='append')
-    except Exception as e:
-        process_db.engine.dispose()
-        raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
-    
-    process_db.engine.dispose()
-    
+            print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
+            try:
+                df_inundation.drop(columns=['hydro_id', 'feature_id'], inplace=True)
+                df_inundation.to_sql(db_table, con=process_db.engine, schema=db_schema, if_exists='append', index=False)
+                df_inundation_geo.to_postgis(f"{db_table}_geo", con=process_db.engine, schema=db_schema, if_exists='append')
+            except Exception as e:
+                process_db.engine.dispose()
+                raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
+            process_db.engine.dispose()
+        
+        # If a reference configuration - do things a little diferently.
+        elif fim_run_type == 'reference':
+            # If no records exist for valid inundation, stop.
+            if df_inundation.empty:
+                return
+            
+            # Re-format data for aep tables
+            df_inundation.drop(columns=['hand_id', 'rc_stage_ft', 'rc_previous_stage_ft', 'rc_discharge_cfs', 'rc_previous_discharge_cfs', 'prc_method', ], inplace=True)
+            df_inundation = df_inundation.rename(columns={"forecast_stage_ft": "fim_stage_ft", "forecast_discharge_cfs": "streamflow_cfs"})
+            df_inundation['feature_id_str'] = df_inundation['feature_id'].astype(str)
+            df_inundation['hydro_id_str'] = df_inundation['hydro_id'].astype(str)
+            df_inundation['huc8'] = huc8
+            df_inundation['branch'] = branch
+            df_inundation = df_inundation.rename(columns={"index": "oid"})
+            
+            print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
+            try:
+                df_inundation.to_postgis(f"{db_table}", con=process_db.engine, schema=db_schema, if_exists='append')
+            except Exception as e:
+                process_db.engine.dispose()
+                raise Exception(f"Failed to add inundation data to DB for {huc8}-{branch} - ({e})")
+            process_db.engine.dispose()
+
     print(f"Successfully processed tif for HUC {huc8} and branch {branch} for {product} for {reference_time}")
 
     return
@@ -255,7 +294,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     return df_final
     
 
-def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable):
+def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, stage_ft_round_up=False):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
@@ -292,8 +331,11 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         valid_catchments = stage_lookup.index.tolist() # parse lookup to get features with >0 stages  # noqa
         hydroids = stage_lookup.index.tolist()  # parse lookup to get all features
         
-        # Notable FIM Caching Change: Now using rc_stage_m (the upper value of the current hydrotable interval), instead of the interpolated stage, for inundation extent generation.
-        stages = stage_lookup['rc_stage_m'].tolist()  # parse lookup to get all stages
+        # Notable FIM Caching Change: Use the rc_stage_m (upper rating curve table step) for extents when running normal cached workflows (default)
+        if stage_ft_round_up:
+            stages = stage_lookup['rc_stage_m'].tolist()  # uses the upper rating curve step for the extent
+        else:
+            stages = stage_lookup['stage_m'].tolist()  # uses the interpolated stage value for the extent
 
         k = np.array(hydroids)  # Create a feature numpy array from the list
         v = np.array(stages)  # Create a stage numpy array from the list
