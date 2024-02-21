@@ -402,7 +402,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 3072
   ephemeral_storage {
-    size = 6656
+    size = 10240
   }
   timeout = 900
 
@@ -453,7 +453,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 10240
   ephemeral_storage {
-    size = 6656
+    size = 10240
   }
   timeout = 900
 
