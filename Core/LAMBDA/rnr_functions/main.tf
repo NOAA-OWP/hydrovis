@@ -89,7 +89,7 @@ resource "aws_s3_object" "rnr_domain_generator_zip_upload" {
 resource "aws_lambda_function" "rnr_domain_generator" {
   function_name = "hv-vpp-${var.environment}-rnr-domain-generator"
   description   = "Lambda function to run Replace and Route model."
-  memory_size   = 128
+  memory_size   = 512
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
