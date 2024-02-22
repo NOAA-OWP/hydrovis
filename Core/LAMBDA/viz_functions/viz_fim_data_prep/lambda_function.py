@@ -53,11 +53,25 @@ def setup_huc_inundation(event):
     # Initilize the database class for relevant databases
     viz_db = database(db_type="viz") # we always need the vizprocessing database to get flows data.
 
+    # If a reference configuration, check to see if any preprocessing sql is needed (this currently does manual things, like reploading ras2fim data, which is copied to egis at the bottom of this function)
+    if configuration == 'reference':
+        preprocess_sql_file = os.path.join("reference_preprocessing_sql", fim_config_name + '.sql')
+        if os.path.exists(preprocess_sql_file):
+            print(f"Running {preprocess_sql_file} preprocess sql file.")
+            viz_db.run_sql_file_in_db(preprocess_sql_file)
+    
     print("Determing features to be processed by HAND")
     # Query flows data from the vizprocessing database, using the SQL defined above.
-    # TODO: Update this for RFC, CatFIM, and AEP, and Catchments services by adding the creation of flows tables to postprocess_sql
-    hand_sql = open("templates_sql/hand_features.sql", 'r').read()
-    hand_sql = hand_sql.replace("{db_fim_table}", target_table)
+    hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
+    # If a SQL file exists for selecting hand features, use it.
+    if os.path.exists(hand_features_sql_file):
+        hand_sql = open(hand_features_sql_file, 'r').read()
+    # Otherwise, use the template file
+    else:
+        hand_sql = open("templates_sql/hand_features.sql", 'r').read()
+        hand_sql = hand_sql.replace("{db_fim_table}", target_table)
+    
+    # Using the sql defined above, pull features for running hand into a dataframe
     df_streamflows = viz_db.run_sql_in_db(hand_sql)
     
     # Split reaches with flows into processing groups, and write two sets of csv files to S3 (we need to write to csvs to not exceed the limit of what can be passed in the step function):
@@ -97,6 +111,25 @@ def setup_huc_inundation(event):
         'data_prefix': PROCESSED_OUTPUT_PREFIX
     }
 
+    # If a reference service, copy any cached ata / setup the egis destination tables before hand processing is run.
+    if configuration == 'reference':
+        egis_db = database(db_type="egis")
+        table = target_table.split('.')[-1]
+        publish_table = f"publish.{table}"
+    
+        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+            cur.execute(f"SELECT * FROM {publish_table} LIMIT 1")
+            column_names = [desc[0] for desc in cur.description]
+            columns = ', '.join(column_names)
+        db_connection.close()
+        
+        print(f"Copying {publish_table} to {target_table}")
+        try: # Try copying the data
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+        except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
+            refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
+            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+
     return return_object
 
 #################################################################################################################################################################
@@ -131,3 +164,37 @@ def get_branch_iteration(event):
     }
     
     return return_object
+
+#################################################################################################################################################################    
+# This function sets up the data for a reference service fim run - e.g. AEP FIM - where hand processing is typically done directly against the egis database.
+# This is necessary for cases like AEP FIM because Ras2FIM features are added prior to hand processing, so that data must be copied to the target egis
+# tables before hand processing is run for the remaining features (see the hand_features sql files for aep fim)
+def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True, update_srid=None):
+    
+    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+        cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
+        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+    
+        if add_oid:
+            print(f"---> Adding an OID to the {dest_table}")
+            cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
+        if add_geom_index and "geom" in columns:
+            print(f"---> Adding an spatial index to the {dest_table}")
+            cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+            if 'geom_xy' in columns:
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
+        if update_srid and "geom" in columns:
+            print(f"---> Updating SRID to {update_srid}")
+            cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+
+#################################################################################################################################################################    
+# This function drops and recreates a foreign data wrapper schema, so that table and column names are all up-to-date.     
+def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
+    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+        sql = f"""
+        DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
+        CREATE SCHEMA {local_schema};
+        IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
+        """
+        cur.execute(sql)
+    print(f"---> Refreshed {local_schema} foreign schema.")

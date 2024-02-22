@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS cache.max_flows_mrf_mem3_gfs_5day
+CREATE TABLE IF NOT EXISTS cache.max_flows_mrf_gfs_mem3_5day
 (
     feature_id bigint,
     reference_time text,
@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS cache.max_flows_mrf_mem3_gfs_5day
     discharge_cfs numeric
 );
 
-TRUNCATE TABLE cache.max_flows_mrf_mem3_gfs_5day;
-INSERT INTO cache.max_flows_mrf_mem3_gfs_5day(feature_id, reference_time, nwm_vers, discharge_cms, discharge_cfs)
+TRUNCATE TABLE cache.max_flows_mrf_gfs_mem3_5day;
+INSERT INTO cache.max_flows_mrf_gfs_mem3_5day(feature_id, reference_time, nwm_vers, discharge_cms, discharge_cfs)
     SELECT forecasts.feature_id,
         forecasts.reference_time,
         forecasts.nwm_vers,
