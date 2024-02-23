@@ -42,7 +42,6 @@ def lambda_handler(event, context):
     db_fim_table = fim_config['target_table']
     process_by = fim_config.get('process_by', ['huc'])
     input_variable = fim_config.get('input_variable', 'flow')
-    fim_run_type = 'normal'
     
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
@@ -56,15 +55,27 @@ def lambda_handler(event, context):
     print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
     db_schema = db_fim_table.split(".")[0]
     db_table = db_fim_table.split(".")[-1]
-    if any(x in db_schema for x in ["aep", "fim_catchments", "catfim"]):
-        fim_run_type = 'reference'
+    
+    ############################## Determine the Type of FIM Run #######################################
+    # Reference Configs
+    if any(x in db_schema for x in ["aep", "fim_catchments"]):
+        fim_run_type = 'aep'
         process_db = database(db_type="egis")
         stage_ft_round_up = False # Don't round up to the nearest stage ft for reference services
+    # Catfim Configs
+    elif "catfim" in product:
+        fim_run_type = 'catfim'
+        process_db = database(db_type="viz")
+        stage_ft_round_up = False # Don't round up to the nearest stage ft for catfim services
+    # Regular Cached FIM Configs
     else:
+        fim_run_type = 'cached'
         process_db = database(db_type="viz")
         stage_ft_round_up = True # Round up to the nearest stage ft for reference services
     
-    if "catchments" in db_fim_table:
+    ####################################################################################################
+
+    if fim_run_type == 'aep' and "catchments" in db_fim_table:
         df_inundation = create_inundation_catchment_boundary(huc8, branch)
 
         print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
@@ -78,7 +89,7 @@ def lambda_handler(event, context):
     else:
         print(f"Processing FIM for huc {huc8} and branch {branch}")
 
-        s3_path_piece = '/'.join([run_values[by] for by in process_by])
+        s3_path_piece = '/'.join([str(run_values[by]) for by in process_by])
         subsetted_data = f"{data_prefix}/{product}/{fim_config_name}/workspace/{date}/{hour}/data/{s3_path_piece}_data.csv"
 
         print(f"Processing HUC {huc8} for {fim_config_name} for {date}T{hour}:00:00Z")
@@ -86,6 +97,7 @@ def lambda_handler(event, context):
         if input_variable == 'stage':
             stage_lookup = s3_csv_to_df(data_bucket, subsetted_data)
             stage_lookup = stage_lookup.set_index('hydro_id')
+            stage_lookup = stage_lookup[stage_lookup['huc8_branch']==huc8_branch]
         else:
             # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
             catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
@@ -106,7 +118,7 @@ def lambda_handler(event, context):
                 print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
  
         # If not a reference/egis fim run, Upload zero_stage reaches for tracking / FIM cache
-        if fim_run_type != 'reference':
+        if fim_run_type == 'cached':
             print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
             df_zero_stage_records = df_zero_stage_records.reset_index()
             df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)
@@ -118,10 +130,10 @@ def lambda_handler(event, context):
             return
 
         # Run the desired configuration
-        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, stage_ft_round_up=stage_ft_round_up)
+        df_inundation = create_inundation_output(huc8, branch, stage_lookup, reference_time, fim_config_name, input_variable, stage_ft_round_up=stage_ft_round_up)
 
         # If not a reference run, split up the geometry into a seperate table for caching, upload no-stage data, and format dataframe accordingly
-        if fim_run_type == 'normal':
+        if fim_run_type == 'cached':
             # Split geometry into seperate table per new schema
             df_inundation_geo = df_inundation[['hand_id', 'rc_stage_ft', 'geom']]
             df_inundation.drop(columns=['geom'], inplace=True)
@@ -150,19 +162,20 @@ def lambda_handler(event, context):
             process_db.engine.dispose()
         
         # If a reference configuration - do things a little diferently.
-        elif fim_run_type == 'reference':
+        elif fim_run_type == 'aep' or fim_run_type == 'catfim':
             # If no records exist for valid inundation, stop.
             if df_inundation.empty:
                 return
             
             # Re-format data for aep tables
-            df_inundation.drop(columns=['hand_id', 'rc_stage_ft', 'rc_previous_stage_ft', 'rc_discharge_cfs', 'rc_previous_discharge_cfs', 'prc_method', ], inplace=True)
-            df_inundation = df_inundation.rename(columns={"forecast_stage_ft": "fim_stage_ft", "forecast_discharge_cfs": "streamflow_cfs"})
-            df_inundation['feature_id_str'] = df_inundation['feature_id'].astype(str)
-            df_inundation['hydro_id_str'] = df_inundation['hydro_id'].astype(str)
-            df_inundation['huc8'] = huc8
-            df_inundation['branch'] = branch
-            df_inundation = df_inundation.rename(columns={"index": "oid"})
+            if fim_run_type == 'aep':
+                df_inundation.drop(columns=['hand_id', 'rc_stage_ft', 'rc_previous_stage_ft', 'rc_discharge_cfs', 'rc_previous_discharge_cfs', 'prc_method', ], inplace=True)
+                df_inundation = df_inundation.rename(columns={"forecast_stage_ft": "fim_stage_ft", "forecast_discharge_cfs": "streamflow_cfs"})
+                df_inundation['feature_id_str'] = df_inundation['feature_id'].astype(str)
+                df_inundation['hydro_id_str'] = df_inundation['hydro_id'].astype(str)
+                df_inundation['huc8'] = huc8
+                df_inundation['branch'] = branch
+                df_inundation = df_inundation.rename(columns={"index": "oid"})
             
             print(f"Adding data to {db_fim_table}")# Only process inundation configuration if available data
             try:
@@ -294,7 +307,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     return df_final
     
 
-def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_variable, stage_ft_round_up=False):
+def create_inundation_output(huc8, branch, stage_lookup, reference_time, fim_config_name, input_variable, stage_ft_round_up=False):
     """
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
@@ -472,7 +485,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     hydro_ids = [i['hydro_id'] for i in geoms]
     df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
-    df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
+    if 'catfim' not in fim_config_name:
+        df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
         
@@ -482,13 +496,20 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         print("dropping duplicates")
         df_final = df_final.drop_duplicates()
     
-    print("Converting m columns to ft")
-    df_final['rc_stage_ft'] = (df_final['rc_stage_m'] * 3.28084).astype(int)
-    df_final['rc_previous_stage_ft'] = round(df_final['rc_previous_stage_m'] * 3.28084, 2)
-    df_final['rc_discharge_cfs'] = round(df_final['rc_discharge_cms'] * 35.315, 2)
-    df_final['rc_previous_discharge_cfs'] = round(df_final['rc_previous_discharge_cms'] * 35.315, 2)
-    df_final = df_final.drop(columns=["rc_stage_m", "rc_previous_stage_m", "rc_discharge_cms", "rc_previous_discharge_cms"])
-    
+    print("Fomatting Final Inundation Output Dataframe")
+    if input_variable == 'stage':
+        df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
+        drop_columns = ['stage_m', 'huc8_branch', 'huc']
+    else:
+        df_final['rc_stage_ft'] = (df_final['rc_stage_m'] * 3.28084).astype(int)
+        df_final['rc_previous_stage_ft'] = round(df_final['rc_previous_stage_m'] * 3.28084, 2).astype(int)
+        df_final['rc_discharge_cfs'] = round(df_final['rc_discharge_cms'] * 35.315, 2)
+        df_final['rc_previous_discharge_cfs'] = round(df_final['rc_previous_discharge_cms'] * 35.315, 2)
+        df_final['max_rc_stage_ft'] = (df_final['max_rc_stage_m'] * 3.28084).astype(int)
+        df_final['forecast_discharge_cfs'] = round(df_final['discharge_cms'] * 35.315, 2)
+        df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
+        drop_columns = ["stage_m", "max_rc_stage_m", "discharge_cms", "max_rc_discharge_cms", "rc_stage_m", "rc_previous_stage_m", "rc_discharge_cms", "rc_previous_discharge_cms"]
+
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
@@ -496,16 +517,6 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final['reference_time'] = reference_time
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['prc_method'] = 'HAND_Processing'
-    
-    #TODO: Check with Shawn on the whole stage configuration / necessarry changes
-    if input_variable == 'stage':
-        drop_columns = ['stage_m', 'huc8_branch', 'huc']
-    else:
-        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
-        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
-        df_final['forecast_discharge_cfs'] = round(df_final['discharge_cms'] * 35.315, 2)
-        df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-        drop_columns = ["stage_m", "max_rc_stage_m", "discharge_cms", "max_rc_discharge_cms", ]
 
     df_final = df_final.drop(columns=drop_columns)
                 

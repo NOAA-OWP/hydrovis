@@ -12,8 +12,11 @@ def lambda_handler(event, context):
     check_dependencies = True #default value, unless specified elsewhere
     
     # Don't run any SQL if it's a reference service for select steps
-    if step in ["products", "fim_config", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
-        if event['args']['product']['configuration'] == "reference":
+    if step in ["products", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
+        if event['args']['product']['configuration'] in ["reference", "catfim"]:
+            return
+    elif step in ["fim_config"]:
+        if event['args']['product']['configuration'] in ["reference"]:
             return
         
     # For FIM steps that require template use, setup some other variables based on the step function inputs and provide them to the sql_replace dictionary as args/params
@@ -185,7 +188,8 @@ def run_sql(sql_path_or_str, sql_replace=None, db_type="viz"):
     # sort the replace dictionary to have longer values upfront first
     sql_replace = sorted(sql_replace.items(), key = lambda item : len(item[1]), reverse = True)
     for word, replacement in sql_replace:
-        sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(f'{{{word}}}'), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
+        sql = re.sub(re.escape(word), str(replacement), sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     db = database(db_type=db_type)
     with db.get_db_connection() as connection:
