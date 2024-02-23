@@ -26,6 +26,11 @@ variable "nws_shared_account_s3_bucket" {
   type = string
 }
 
+variable "egis_rds_secret_arn" {
+  type = string
+}
+
+
 # Autoscaling Role
 resource "aws_iam_service_linked_role" "autoscaling" {
   aws_service_name = "autoscaling.amazonaws.com"
@@ -107,9 +112,10 @@ resource "aws_iam_role_policy" "HydrovisESRISSMDeploy" {
   name   = "HydrovisESRISSMDeploy_${var.region}"
   role   = aws_iam_role.HydrovisESRISSMDeploy.id
   policy = templatefile("${path.module}/HydrovisESRISSMDeploy.json.tftpl", {
-    environment = var.environment
-    region      = var.region
-    account_id  = var.account_id
+    environment         = var.environment
+    region              = var.region
+    account_id          = var.account_id
+    egis_rds_secret_arn = var.egis_rds_secret_arn
   })
 }
 
