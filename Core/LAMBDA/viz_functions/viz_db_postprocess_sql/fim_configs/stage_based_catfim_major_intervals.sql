@@ -1,13 +1,13 @@
-DROP TABLE IF EXISTS {target_table};
+DROP TABLE IF EXISTS publish.stage_based_catfim_major_intervals_ft_from_major;
 
 WITH one_poly_per_station AS (
 	SELECT 
 		nws_station_id,
-		fim_stage_ft,
+		forecast_stage_ft AS fim_stage_ft,
 		interval_ft,
 		fim_version,
 		ST_Union(geom) as geom
-	FROM ingest.stage_based_catfim_major_intervals_{ft_from_major}
+	FROM ingest.stage_based_catfim_major_intervals_ft_from_major
 	GROUP BY 
 		nws_station_id,
 		fim_stage_ft,
@@ -48,7 +48,7 @@ SELECT
 	inun.fim_version,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	inun.geom
-INTO {target_table}
+INTO publish.stage_based_catfim_major_intervals_ft_from_major;
 FROM inun
 LEFT JOIN external.nws_station AS station
 	ON station.nws_station_id = inun.nws_station_id;

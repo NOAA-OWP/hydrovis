@@ -26,7 +26,8 @@ def lambda_handler(event, context):
 #################################################################################################################################################################
 # This function runs at the top of a hand processing workflow, after cached fim has been loaded (from ras2fim and/or hand, via SQL in the postprocess_sql lambda function), or skipped (in the cases of select reference services like aep fim and catfim)
 # Three main operations are conducted in this function:
-# 1. (Reference Services) Run some pre-processing, if needed - This is a somewhat hacky step that can pre-load Ras2FIM cached fim data for AEP and CatFIM, without running the full cached-fim workflow that happens in normal FIM runs.
+# 1. (Reference Services) Run some pre-processing, if needed - This is a somewhat hacky step that can essentially run custom SQL when not doing a normal caching workflow.
+#    e.g. pre-load Ras2FIM cached fim data for AEP and CatFIM, without running the full cached-fim workflow that happens in normal FIM runs.
 # 2. Query the vizprocessing database for hand features & flows to use for FIM
 #       - If a specific sql file is present in the hand_features_sql folder, the function will use that to query data form the RDS db. If a file is not present, it will use a template file in the templates_sql folder.
 # 3. Setup appropriate groups of HUC8s to delegate the FIM extent generation for those flows to the hand_processing step function.
@@ -57,7 +58,10 @@ def setup_huc_inundation(event):
 
     # If a reference or catfim configuration, check to see if any preprocessing sql is needed (this currently does manual things, like reploading ras2fim data, which is copied to egis at the bottom of this function)
     if configuration == 'reference' or configuration == 'catfim':
-        preprocess_sql_file = os.path.join("reference_preprocessing_sql", fim_config_name + '.sql')
+        if 'sql_file' in fim_config:
+            preprocess_sql_file = os.path.join("alternate_hand_preprocessing", fim_config['sql_file'] + '.sql')
+        else:
+            preprocess_sql_file = os.path.join("alternate_hand_preprocessing", fim_config_name + '.sql')
         if os.path.exists(preprocess_sql_file):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
             sql = open(preprocess_sql_file, 'r').read()
@@ -70,7 +74,10 @@ def setup_huc_inundation(event):
     
     print("Determing features to be processed by HAND")
     # Query flows data from the vizprocessing database, using the SQL defined above.
-    hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
+    if 'sql_file' in fim_config:
+        hand_features_sql_file = os.path.join("hand_features_sql", fim_config['sql_file'] + '.sql')
+    else:
+        hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
     # If a SQL file exists for selecting hand features, use it.
     if os.path.exists(hand_features_sql_file):
         hand_sql = open(hand_features_sql_file, 'r').read()
@@ -147,6 +154,7 @@ def setup_huc_inundation(event):
 
 #################################################################################################################################################################
 def write_flows_data_csv_file(product, fim_config_name, date, hour, identifiers, huc_data):
+    identifiers = tuple(map(str, identifiers)) # Convert any numbers to string for paths
     s3_path_piece = '/'.join(identifiers)
     # Key for the csv file that will be stored in S3
     csv_key = f"{PROCESSED_OUTPUT_PREFIX}/{product}/{fim_config_name}/workspace/{date}/{hour}/data/{s3_path_piece}_data.csv"

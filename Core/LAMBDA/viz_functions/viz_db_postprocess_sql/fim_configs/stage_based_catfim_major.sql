@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS publish.stage_based_catfim_major;
 WITH one_poly_per_station AS (
 	SELECT 
 		nws_station_id,
-		fim_stage_ft,
+		forecast_stage_ft AS fim_stage_ft,
 		fim_version,
 		ST_Union(geom) as geom
 	FROM ingest.stage_based_catfim_major

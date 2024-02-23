@@ -496,13 +496,20 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, fim_con
         print("dropping duplicates")
         df_final = df_final.drop_duplicates()
     
-    print("Converting m columns to ft")
-    df_final['rc_stage_ft'] = (df_final['rc_stage_m'] * 3.28084).astype(int)
-    df_final['rc_previous_stage_ft'] = round(df_final['rc_previous_stage_m'] * 3.28084, 2)
-    df_final['rc_discharge_cfs'] = round(df_final['rc_discharge_cms'] * 35.315, 2)
-    df_final['rc_previous_discharge_cfs'] = round(df_final['rc_previous_discharge_cms'] * 35.315, 2)
-    df_final = df_final.drop(columns=["rc_stage_m", "rc_previous_stage_m", "rc_discharge_cms", "rc_previous_discharge_cms"])
-    
+    print("Fomatting Final Inundation Output Dataframe")
+    if input_variable == 'stage':
+        df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
+        drop_columns = ['stage_m', 'huc8_branch', 'huc']
+    else:
+        df_final['rc_stage_ft'] = (df_final['rc_stage_m'] * 3.28084).astype(int)
+        df_final['rc_previous_stage_ft'] = round(df_final['rc_previous_stage_m'] * 3.28084, 2).astype(int)
+        df_final['rc_discharge_cfs'] = round(df_final['rc_discharge_cms'] * 35.315, 2)
+        df_final['rc_previous_discharge_cfs'] = round(df_final['rc_previous_discharge_cms'] * 35.315, 2)
+        df_final['max_rc_stage_ft'] = (df_final['max_rc_stage_m'] * 3.28084).astype(int)
+        df_final['forecast_discharge_cfs'] = round(df_final['discharge_cms'] * 35.315, 2)
+        df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
+        drop_columns = ["stage_m", "max_rc_stage_m", "discharge_cms", "max_rc_discharge_cms", "rc_stage_m", "rc_previous_stage_m", "rc_discharge_cms", "rc_previous_discharge_cms"]
+
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
@@ -510,16 +517,6 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, fim_con
     df_final['reference_time'] = reference_time
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['prc_method'] = 'HAND_Processing'
-    
-    #TODO: Check with Shawn on the whole stage configuration / necessarry changes
-    if input_variable == 'stage':
-        drop_columns = ['stage_m', 'huc8_branch', 'huc']
-    else:
-        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_m'] * 3.28084
-        df_final['max_rc_stage_ft'] = df_final['max_rc_stage_ft'].astype(int)
-        df_final['forecast_discharge_cfs'] = round(df_final['discharge_cms'] * 35.315, 2)
-        df_final['max_rc_discharge_cfs'] = round(df_final['max_rc_discharge_cms'] * 35.315, 2)
-        drop_columns = ["stage_m", "max_rc_stage_m", "discharge_cms", "max_rc_discharge_cms", ]
 
     df_final = df_final.drop(columns=drop_columns)
                 
