@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS publish.flow_based_catfim_action;
 WITH one_poly_per_station AS (
 	SELECT 
 		nws_station_id,
-		streamflow_cfs,
+		forecast_discharge_cfs AS streamflow_cfs,
 		fim_version,
 		ST_Union(geom) as geom
 	FROM ingest.flow_based_catfim_action

@@ -12,8 +12,11 @@ def lambda_handler(event, context):
     check_dependencies = True #default value, unless specified elsewhere
     
     # Don't run any SQL if it's a reference service for select steps
-    if step in ["products", "fim_config", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
-        if event['args']['product']['configuration'] == "reference":
+    if step in ["products", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
+        if event['args']['product']['configuration'] in ["reference", "catfim"]:
+            return
+    elif step in ["fim_config"]:
+        if event['args']['product']['configuration'] in ["reference"]:
             return
         
     # For FIM steps that require template use, setup some other variables based on the step function inputs and provide them to the sql_replace dictionary as args/params
