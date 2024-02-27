@@ -140,7 +140,7 @@ if __name__ == '__main__':
     ########## Specify your Args Here #############
     sso_profile = "prod" # The name of the AWS SSO profile you created, or set to None if you want to pull from the current environment of an EC2 machine (see notes above)
     bucket_name = 'hydrovis-prod-fim-us-east-1' # Set this based on the hydrovis environment you are pulling from, e.g. 'hydrovis-ti-fim-us-east-1', 'hydrovis-uat-fim-us-east-1', 'hydrovis-prod-fim-us-east-1'
-    include_files_with = ["ana_inundation"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
+    include_files_with = ["ana_high_flow_magnitude"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
     skip_files_with = ["counties", "hucs", "building", "_hi.csv", "_prvi", "_public", "_src_skill"] # Anything you want to be skipped when filtering S3 files e.g. ["ana_streamflow", "rapid_onset_flooding"]
     clip_to_states = [] # Provide a list of state abbreviations to clip to set states, e.g. ["AL", "GA", "MS"]
     output_format = "gpkg" # Set to gpkg or shp - Can add any OGR formats, with some tweaks to the file_format logic in the functions above. BEWARE - large FIM files can be too large for shapefiles, and results may be truncated.
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     ###############################################
     events = [
         {"start_date": date(2023, 12, 21), "end_date": date(2023, 12, 21), "reference_times": ["0900", "1000"]},
-        {"start_date": date(2023, 12, 16), "end_date": date(2023, 12, 17), "reference_times": ["1200"]},
+        {"start_date": date(2023, 12, 17), "end_date": date(2023, 12, 18), "reference_times": ["1800"]},
         {"start_date": date(2023, 12, 17), "end_date": date(2023, 12, 17), "reference_times": ["1300", "1400"]},
         {"start_date": date(2023, 12, 5), "end_date": date(2023, 12, 5), "reference_times": ["1400", "1500"]},
         {"start_date": date(2023, 12, 2), "end_date": date(2023, 12, 2), "reference_times": ["1300", "1400"]},

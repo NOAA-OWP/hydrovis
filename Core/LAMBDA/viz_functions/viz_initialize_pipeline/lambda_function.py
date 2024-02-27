@@ -74,7 +74,7 @@ def lambda_handler(event, context):
                                         "medium_range_blend.forcing.f240.alaska.nc",
                                         
                                         ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
-                                        # "medium_range.channel_rt_6.f240.conus.nc",
+                                        "medium_range.channel_rt_6.f240.conus.nc",
 
                                         ## Coastal ##
                                         "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
