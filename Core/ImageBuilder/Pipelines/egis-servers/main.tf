@@ -44,7 +44,7 @@ data "aws_default_tags" "default" {
 
 locals {
   # generate dashed-version name
-  arcgisVersionName = replace(data.aws_ssm_parameter.arcgisenterprise_version.name, ".", "-")
+  arcgisVersionName = replace(data.aws_ssm_parameter.arcgisenterprise_version.value, ".", "-")
   # role to use for image builder
   aws_role = "svc-EC2-ImageSTIG-builder"
   # prefix all builds with this
