@@ -10,7 +10,8 @@ terraform {
     key                     = "state"
     region                  = "us-east-1"
     profile                 = "prod"
-    shared_credentials_file = "/cloud/aws/credentials"
+    #shared_credentials_file = "/cloud/aws/credentials"
+    shared_credentials_file = "~/.aws/credentials"
   }
 }
 
@@ -23,8 +24,8 @@ locals {
 provider "aws" {
   region                   = local.env.region
   profile                  = local.env.environment
-  shared_credentials_files = ["/cloud/aws/credentials"]
-
+  #shared_credentials_files = ["/cloud/aws/credentials"]
+  shared_credentials_files = ["~/.aws/credentials"]
   default_tags {
     tags = merge(local.env.tags, {
       CreatedBy = "Terraform"
@@ -36,7 +37,8 @@ provider "aws" {
   alias                    = "sns"
   region                   = local.env.nws_shared_account_sns_region
   profile                  = local.env.environment
-  shared_credentials_files = ["/cloud/aws/credentials"]
+  #shared_credentials_files = ["/cloud/aws/credentials"]
+  shared_credentials_files = ["~/.aws/credentials"]
 
   default_tags {
     tags = merge(local.env.tags, {
