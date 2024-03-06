@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "start_automation_execution_policy" {
     ]
     resources = flatten (
       [
-        for region in var.destination_aws_regions : [
+        for region in local.destination_aws_regions : [
           "arn:${data.aws_partition.current.partition}:ssm:${region}:${data.aws_caller_identity.current.account_id}:parameter",
           "arn:${data.aws_partition.current.partition}:ssm:${region}:${data.aws_caller_identity.current.account_id}:parameter/*"
         ]
@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "start_automation_execution_policy" {
 
 resource "aws_cloudwatch_log_group" "start_automation_execution_handler_log_group" {
   name              = join("/", ["/aws/lambda", aws_lambda_function.ami_ssm_lambda_function.function_name])
-  retention_in_days = var.lambda_cloud_watch_log_group_retention_in_days
+  retention_in_days = local.lambda_cloud_watch_log_group_retention_in_days
 }
 
 resource "aws_iam_policy" "lambda_logging" {
@@ -123,7 +123,7 @@ resource "aws_lambda_function" "ami_ssm_lambda_function" {
   
   environment {
     variables = {
-      ssm_prefix = "${var.aws_ssm_egis_amiid_store}"
+      ssm_prefix = "${local.aws_ssm_egis_amiid_store}"
     }
   }
 }

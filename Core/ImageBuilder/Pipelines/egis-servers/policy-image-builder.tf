@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "EC2-ImageSTIG-builder" {
       "s3:PutObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.imageBuilderLogBucket}/imagebuilder/*"
+      "arn:aws:s3:::${local.imageBuilderLogBucket}/imagebuilder/*"
     ]
   }
 
@@ -144,7 +144,7 @@ data "aws_iam_policy_document" "EC2-ImageSTIG-builder" {
 }
 
 resource "aws_iam_role" "EC2-ImageSTIG-builder" {
-  name        = var.aws_role
+  name        = local.aws_role
   description = "EC2-ImageSTIG-builder role"
 
   assume_role_policy = jsonencode({
@@ -163,12 +163,12 @@ resource "aws_iam_role" "EC2-ImageSTIG-builder" {
 }
 
 resource "aws_iam_instance_profile" "EC2-ImageSTIG-builder" {
-  name = var.aws_role
+  name = local.aws_role
   role = aws_iam_role.EC2-ImageSTIG-builder.name
 }
 
 resource "aws_iam_policy" "EC2-ImageSTIG-builder" {
-  name        = var.aws_role
+  name        = local.aws_role
   description = "EC2-ImageSTIG-builder policy"
   path        = "/"
   policy      = data.aws_iam_policy_document.EC2-ImageSTIG-builder.json
