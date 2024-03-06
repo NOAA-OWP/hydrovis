@@ -80,7 +80,7 @@ locals {
         path        = "/home/ec2-user/.ssh/${local.ssh_key_filename}"
         permissions = "0400"
         owner       = "ec2-user:ec2-user"
-        content     = file("${path.root}/sensitive/DataServices/${local.ssh_key_filename}")
+        content     = file("${path.root}/sensitive/vpp/DataServices/${local.ssh_key_filename}")
       },
       {
         path        = "/wrds/apis.conf"
