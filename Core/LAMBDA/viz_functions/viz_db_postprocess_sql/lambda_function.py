@@ -11,8 +11,8 @@ def lambda_handler(event, context):
     sql_replace.update({'1900-01-01 00:00:00': reference_time}) #setup a replace dictionary, starting with the reference time of the current pipeline.
     check_dependencies = True #default value, unless specified elsewhere
     
-    # Don't run any SQL if it's a reference service
-    if step in ["products", "fim_config"]:
+    # Don't run any SQL if it's a reference service for select steps
+    if step in ["products", "fim_config", "hand_pre_processing", "hand_post_processing", "hand_pre_processing - prepare flows"]:
         if event['args']['product']['configuration'] == "reference":
             return
         
@@ -86,9 +86,8 @@ def lambda_handler(event, context):
             if os.path.exists(os.path.join("fim_configs", sql_file + '.sql')): #if there is product-specific fim_configs sql file, use it.
                 sql_files_to_run.append({"sql_file":sql_file, "folder": "fim_configs", "db_type":db_type})  
             else: # if not, use the fim_publish_template
-                folder = 'fim_caching_templates'
-                sql_file = '4_create_fim_config_publish_table'
-                sql_files_to_run.append({"sql_file":sql_file, "folder": folder, "db_type":db_type, "check_dependencies": False})  
+                sql_templates_to_run = event['sql_templates_to_run']
+                sql_files_to_run.extend(sql_templates_to_run) 
         
         ##########################################################
         

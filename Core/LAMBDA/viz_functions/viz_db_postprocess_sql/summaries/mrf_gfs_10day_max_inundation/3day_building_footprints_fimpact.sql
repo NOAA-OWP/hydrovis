@@ -1,4 +1,3 @@
---------------- Building Footprints ---------------
 -- We'll temporarily increase work_mem to 512MB, to help with performance on PostGIS spatial joins (default is 4MB)
 SET work_mem TO '512MB';
 --------------- Building Footprints ---------------
@@ -14,7 +13,6 @@ SELECT
     buildings.prod_date,
     buildings.source,
     buildings.val_method,
-    fim.hydro_id,
     flows.hydro_id,
 	flows.hydro_id::TEXT AS hydro_id_str,
 	flows.feature_id,

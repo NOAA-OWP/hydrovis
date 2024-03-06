@@ -27,7 +27,7 @@ WHERE fim.prc_method = 'Cached';
 
 -- Update the flows table prc_status column to reflect the features that were inserted from cache.
 UPDATE {db_fim_table}_flows AS flows
-SET prc_status = 'Inserted FROM HAND Cache'
+SET prc_status = 'Inserted From HAND Cache'
 FROM {db_fim_table} AS fim
 WHERE flows.hand_id = fim.hand_id
 	  AND fim.prc_method = 'Cached';

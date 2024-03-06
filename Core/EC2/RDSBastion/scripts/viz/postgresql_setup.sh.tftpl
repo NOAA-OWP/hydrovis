@@ -33,3 +33,7 @@ psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_
 # Add permissions for aws_s3 extension to viz user.
 echo "Adding permissions to aws_s3 extension for viz user..."
 psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "GRANT USAGE ON schema aws_s3 TO ${viz_proc_admin_rw_username}; GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA aws_s3 TO ${viz_proc_admin_rw_username};"
+
+echo "Creating enum types for use in rfc-based services"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE TYPE flood_status AS ENUM ('no_flooding', 'action', 'minor', 'moderate', 'major');"
+psql -h "${viz_db_host}" -U "${viz_db_username}" -p ${viz_db_port} -d "${viz_db_name}" -qtAc "CREATE TYPE forecast_ts AS ENUM ('FE', 'FF', 'FM', 'FN', 'FP', 'FQ', 'FU', 'FV', 'FW', 'FA', 'FB', 'FC', 'FD', 'FX', 'FG', 'FL', 'FZ');"

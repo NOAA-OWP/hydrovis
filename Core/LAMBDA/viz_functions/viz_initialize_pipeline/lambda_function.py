@@ -38,6 +38,7 @@ def lambda_handler(event, context):
     # (lots of false starts, but it only amounts to about $1 a month)
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
+        # pipeline_iniitializing_files = [] #Swap out this for the following list to pause all pipelines.
         pipeline_iniitializing_files = [
                                         ## ANA ##
                                         "analysis_assim.channel_rt.tm00.conus.nc",
@@ -71,6 +72,9 @@ def lambda_handler(event, context):
                                         "medium_range_blend.forcing.f240.conus.nc",
                                         "medium_range_blend.channel_rt.f240.alaska.nc",
                                         "medium_range_blend.forcing.f240.alaska.nc",
+                                        
+                                        ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
+                                        # "medium_range.channel_rt_6.f240.conus.nc",
 
                                         ## Coastal ##
                                         "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
@@ -153,10 +157,15 @@ def lambda_handler(event, context):
 class viz_lambda_pipeline:
     
     def __init__(self, start_event, print_init=True):
-        # At present, we're always initializing from a lambda event
+        
         self.start_event = start_event
+        self.start_time = datetime.datetime.fromtimestamp(time.time())
+        
+        #### Invocation Type - SNS, Lambda, Eventbridge or Manual ####
         if self.start_event.get("detail-type") == "Scheduled Event":
-            self.invocation_type = "eventbridge" 
+            self.invocation_type = "eventbridge"
+            config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
+            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
         elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
@@ -164,27 +173,31 @@ class viz_lambda_pipeline:
         else: 
             self.invocation_type = "manual"
         
+        #### Type of Pipeline - Auto, Past Event or Reference ####
         self.job_type = self.start_event.get('job_type')
         if not self.job_type:
-            self.job_type = "auto" if not self.start_event.get('reference_time') else "past_event" # We assume that the specification of a reference_time in the payload correlates to a past_event run.
+            if self.start_event.get('reference_time'):
+                 self.job_type = "past_event"  # We assume that the specification of a reference_time in the payload correlates to a past_event run.
+            elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'reference':
+                    self.job_type = "reference"
+            else:
+                self.job_type = "auto"
         
-        self.keep_raw = True if self.job_type == "past_event" and self.start_event.get('keep_raw') else False # Keep_raw will determine if a past_event run preserves the raw ingest data tables in the archive schema, or recycles them.
-        self.start_time = datetime.datetime.fromtimestamp(time.time())
-
-        if self.start_event.get("detail-type") == "Scheduled Event":
-            config, self.reference_time, bucket = s3_file.from_eventbridge(self.start_event)
-            self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         # Here is the logic that parses various invocation types / events to determine the configuration and reference time.
         # First we see if a S3 file path is what initialized the function, and use that to determine the appropriate configuration and reference_time.
-        elif self.invocation_type == "sns" or self.start_event.get('data_key'):
+        if self.invocation_type == "sns" or self.start_event.get('data_key'):
             self.start_file = s3_file.from_lambda_event(self.start_event)
             configuration_name, self.reference_time, bucket = configuration.from_s3_file(self.start_file)
             self.configuration = configuration(configuration_name, reference_time=self.reference_time, input_bucket=bucket)
-        # If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
+        # If a reference run, create a reference configuration with a generic reference time
+        elif self.job_type == 'reference':
+            self.configuration = configuration('reference', reference_time=datetime.datetime.strptime("1900-01-01 00:00:00", '%Y-%m-%d %H:%M:%S'), input_bucket=None)# If a manual invokation_type, we first look to see if a reference_time was specified and use that to determine the configuration.
         elif self.invocation_type == "manual":
             if self.start_event.get('reference_time'):
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
                 self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
+            elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'rfc':
+                self.configuration = configuration('rfc', reference_time=datetime.datetime.utcnow().replace(second=0, microsecond=0))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
@@ -194,8 +207,11 @@ class viz_lambda_pipeline:
         
         # need to figure out this get last run info stuff. Maybe change the queried field from target to configuration
         #self.most_recent_ref_time, self.most_recent_start = self.get_last_run_info()
+        
+        # Get products to run from configuration
         self.pipeline_products = self.configuration.products_to_run
         
+        # Past Events
         self.sql_rename_dict = {} # Empty dictionary for use in past events, if table renames are required. This dictionary is utilized through the pipline as key:value find:replace on SQL files to use tables in the archive schema.
         if self.job_type == "past_event":
             self.organize_rename_dict() #This method organizes input table metadata based on the admin.pipeline_data_flows db table, and updates the sql_rename_dict dictionary if/when needed for past events.
@@ -204,6 +220,11 @@ class viz_lambda_pipeline:
                 self.configuration.db_ingest_groups = json.loads(json.dumps(self.configuration.db_ingest_groups).replace(word, replacement))
                 self.pipeline_products = json.loads(json.dumps(self.pipeline_products).replace(word, replacement))      
             self.sql_rename_dict.update({'1900-01-01 00:00:00': self.reference_time.strftime("%Y-%m-%d %H:%M:%S")}) #Add a reference time for placeholders in sql files
+        
+        #### Other optional input paramaters - Use with caution, these may not be tested throughout ####
+        # This allows for specifying specific products to run on initialization
+        if self.start_event.get("products_to_run"):
+            self.pipeline_products = [product for product in self.pipeline_products if product['product'] in self.start_event.get("products_to_run")]
         
         # This allows for filtering FIM runs to a select list of States (this is passed through to FIM Data Prep labmda, where filter is applied)
         if self.start_event.get("states_to_run_fim"):
@@ -246,7 +267,6 @@ class viz_lambda_pipeline:
                 "configuration": f"ppp_{self.configuration.name}",
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
-                "keep_raw": self.keep_raw,
                 "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="lambda"],
@@ -261,7 +281,6 @@ class viz_lambda_pipeline:
                 "configuration": self.configuration.name,
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
-                "keep_raw": self.keep_raw,
                 "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "configuration_data_flow": {
                     "db_max_flows": [max_flow for max_flow in self.configuration.db_max_flows if max_flow['method']=="database"],
@@ -277,7 +296,6 @@ class viz_lambda_pipeline:
                 "configuration": self.configuration.name,
                 "job_type": self.job_type,
                 "data_type": self.configuration.data_type,
-                "keep_raw": self.keep_raw,
                 "reference_time": self.configuration.reference_time.strftime("%Y-%m-%d %H:%M:%S"),
                 "configuration_data_flow": self.configuration.configuration_data_flow,
                 "pipeline_products": self.pipeline_products,
@@ -339,7 +357,6 @@ class viz_lambda_pipeline:
           Reference Time: {self.configuration.reference_time}
           Invocation Type: {self.invocation_type}
           Job Type: {self.job_type}
-          Keep Raw Files: {self.keep_raw}
           Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         """)
 
@@ -465,7 +482,7 @@ class configuration:
             ingest_file = target_table_metadata["s3_keys"][0]
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
-            elif "viz_ingest" in ingest_file:
+            elif "max_flows" in ingest_file or "viz_ingest" in ingest_file:
                 bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket

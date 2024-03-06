@@ -952,6 +952,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Rating Curve Source",
+            "fieldName" : "rating_curve_source",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Influential Forecasts",
             "fieldName" : "influential_forecasts",
             "visible" : true,
@@ -1008,7 +1015,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,rating_curve_source,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1090,6 +1097,12 @@
               "type" : "esriFieldTypeString",
               "alias" : "Is Downstream of Waterbody",
               "length" : 3
+            },
+            {
+              "name" : "rating_curve_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "Rating Curve Source",
+              "length" : 5
             },
             {
               "name" : "influential_forecasts",
@@ -1796,6 +1809,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Rating Curve Source",
+            "fieldName" : "rating_curve_source",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Influential Forecasts",
             "fieldName" : "influential_forecasts",
             "visible" : true,
@@ -1851,7 +1871,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%rfc_based_5day_max_streamflow",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
+          "sqlQuery" : "select feature_id_str AS feature_id,nws_station_id,has_forecast_point,name,huc6,reference_time,time_of_max,streamflow,stream_order,is_waterbody,is_downstream_of_waterbody,rating_curve_source,influental_forecast_text as influential_forecasts,viz_status,update_time,geom,oid from hydrovis.services.rfc_based_5day_max_streamflow",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1933,6 +1953,12 @@
               "type" : "esriFieldTypeString",
               "alias" : "Is Downstream of Waterbody",
               "length" : 3
+            },
+            {
+              "name" : "rating_curve_source",
+              "type" : "esriFieldTypeString",
+              "alias" : "Rating Curve Source",
+              "length" : 5
             },
             {
               "name" : "influential_forecasts",
