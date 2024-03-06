@@ -60,10 +60,10 @@ locals {
   # working folder on the build machine
   # deployment scripts depend on this folder
   # don't change without updating those
-  WorkingFolder = "c:/software"  
+  WorkingFolder = "c:/software"
   # ssm parameter base path that we will store the AMI IDs for reference
   # by other applications
-  aws_ssm_egis_amiid_store = "/esri-builds"  
+  aws_ssm_egis_amiid_store = "/esri-builds"
   # default number of days for cloudwatch logs
   lambda_cloud_watch_log_group_retention_in_days = 14
   # tags that we want to apply to this whole deployment and the images
@@ -76,7 +76,7 @@ locals {
   }
   # regions to distribute the generated images to
   destination_aws_regions = ["us-east-1", "us-east-2"]
-  ti_account_id = "526904826677"
+  ti_account_id           = "526904826677"
 }
 
 resource "aws_imagebuilder_infrastructure_configuration" "arcgis_build_infrastructure" {
