@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS publish.srf_water_management;
+DROP TABLE IF EXISTS publish.srf_18hr_water_management;
 
 SELECT
     srf.feature_id,
@@ -16,6 +16,6 @@ SELECT
     srf.outflow,
     srf.water_sfc_elev,
     srf.reference_time
-INTO publish.srf_water_management
+INTO publish.srf_18hr_water_management
 FROM ingest.nwm_reservoir_srf as srf
 JOIN derived.nwm_reservoirs as reservoirs ON reservoirs.lake_id = srf.feature_id;
