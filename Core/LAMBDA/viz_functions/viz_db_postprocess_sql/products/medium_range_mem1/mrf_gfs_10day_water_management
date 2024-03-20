@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS publish.mrf_gfs_10day_water_management;
+
+SELECT
+    mrf.feature_id,
+    mrf.feature_id::text as feature_id_str,
+    CASE
+        WHEN reservoir_type_mrf = 1
+        THEN 'Level Pool'
+        WHEN reservoir_type_mrf = 2
+        THEN 'RFC'
+        WHEN reservoir_type_mrf = 3
+        THEN 'USACE'
+        WHEN reservoir_type_mrf = 4
+        THEN 'USGS'
+    END as reservoir_type,
+    mrf.outflow,
+    mrf.water_sfc_elev,
+    mrf.reference_time
+INTO publish.mrf_gfs_10day_water_management    
+FROM ingest.nwm_reservoir_mrf as mrf
+JOIN derived.nwm_reservoirs as reservoirs ON reservoirs.lake_id = mrf.feature_id;
