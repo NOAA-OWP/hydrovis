@@ -8,7 +8,7 @@ ingest_files:
       file_step: None
       file_window: None
       target_table: ingest.nwm_reservoir_srf
-      target_keys: (feature_id, water_sfc_elev, outflow)
+      target_keys: (feature_id)
 
 db_max_flows:
   - name: srf_max_flows
@@ -18,8 +18,8 @@ db_max_flows:
     max_flows_sql_file: srf_max_flows
 
 postprocess_sql:
-  - sql_file: srf_18hr_rate_of_change
-    target_table: publish.srf_18hr_rate_of_change
+  - sql_file: srf_18hr_water_management
+    target_table: publish.srf_18hr_water_management
 
 services:
-  - srf_18hr_rate_of_change_noaa
+  - srf_18hr_water_management_noaa
