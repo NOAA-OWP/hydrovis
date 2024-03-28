@@ -675,7 +675,7 @@ resource "aws_s3_object" "db_ingest_zip_upload" {
 resource "aws_lambda_function" "viz_db_ingest" {
   function_name = "hv-vpp-${var.environment}-viz-db-ingest"
   description   = "Lambda function to ingest individual files into the viz processing postgresql database."
-  memory_size   = 1280
+  memory_size   = 2560
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
