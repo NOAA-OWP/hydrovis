@@ -467,7 +467,7 @@ class configuration:
             ingest_file = target_table_metadata["s3_keys"][0]
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
-            elif "viz_ingest" in ingest_file:
+            elif "viz_ingest" in ingest_file or "max_" in ingest_file:
                 bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket
