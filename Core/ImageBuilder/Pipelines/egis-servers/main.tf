@@ -39,7 +39,6 @@ data "aws_ssm_parameter" "arcgisenterprise_version" {
 }
 
 data "aws_default_tags" "default" {
-
 }
 
 locals {
