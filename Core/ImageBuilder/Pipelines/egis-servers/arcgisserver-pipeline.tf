@@ -7,15 +7,16 @@ resource "aws_imagebuilder_image_pipeline" "arcgis_server" {
   distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.arcgisserver-distribution.arn
 
   schedule {
-    schedule_expression = "cron(0 5 ? * sun)"
-    # Schedule every Sunday at 5 AM
+    schedule_expression = "cron(0 5 ? * wed *)"
+    # Schedule every Wed at 5 AM after Patch Tuesdays
     pipeline_execution_start_condition = "EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE"
+    timezone = "Etc/UTC"
   }
 
   # Test the image after build
   image_tests_configuration {
     image_tests_enabled = true
-    timeout_minutes     = 360
+    timeout_minutes     = 1440
   }
 
   tags = merge({
@@ -104,12 +105,19 @@ resource "aws_imagebuilder_image_recipe" "arcgisserver_recipe" {
 resource "aws_imagebuilder_distribution_configuration" "arcgisserver-distribution" {
   name = "arcgisserver-${local.arcgisVersionName}-distribution"
 
-  distribution {
-    ami_distribution_configuration {
-      name = "arcgisserver-${local.arcgisVersionName}-{{ imagebuilder:buildDate }}"
-      target_account_ids = var.ami_sharing_account_ids
-      ami_tags = merge(data.aws_default_tags.default.tags, { Name = "arcgisserver-${local.arcgisVersionName}-distribution" }, local.shared_tags)
+  dynamic "distribution" {
+    for_each = local.destination_aws_regions
+    content {
+      region = distribution.value
+      ami_distribution_configuration {
+        name = "arcgisserver-${local.arcgisVersionName}-{{ imagebuilder:buildDate }}"
+        target_account_ids = var.ami_sharing_account_ids
+        ami_tags = merge(data.aws_default_tags.default.tags, { Name = "arcgisserver-${local.arcgisVersionName}-distribution" }, local.shared_tags)
+      }
     }
-    region = var.region
   }
+}
+
+output "arcgisserver" {
+  value = aws_imagebuilder_image_pipeline.arcgis_server
 }
