@@ -39,7 +39,7 @@ data "aws_iam_policy_document" "start_automation_execution_policy" {
       "ssm:GetParameters",
       "ssm:ListTagsForResource"
     ]
-    resources = flatten (
+    resources = flatten(
       [
         for region in local.destination_aws_regions : [
           "arn:${data.aws_partition.current.partition}:ssm:${region}:${data.aws_caller_identity.current.account_id}:parameter",
@@ -70,6 +70,22 @@ data "aws_iam_policy_document" "start_automation_execution_policy" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_assume_cross_account_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = flatten(
+      [
+        for account_id_distro in var.ami_sharing_account_ids : [
+          "arn:aws:iam::${account_id_distro}:role/AutomationExecutionHandlerFunctionRole"
+        ]
+      ]
+    )
+  }
+}
+
 resource "aws_cloudwatch_log_group" "start_automation_execution_handler_log_group" {
   name              = join("/", ["/aws/lambda", aws_lambda_function.ami_ssm_lambda_function.function_name])
   retention_in_days = local.lambda_cloud_watch_log_group_retention_in_days
@@ -82,16 +98,24 @@ resource "aws_iam_policy" "lambda_logging" {
   policy      = data.aws_iam_policy_document.lambda_logging.json
 }
 
-resource "aws_iam_role" "start_automation_execution_handler_lambda_role" {
-  name = "AutomationExecutionHandlerFunctionRole"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
 resource "aws_iam_policy" "start_automation_execution_handler_lambda_policy" {
   name        = "PolicyExecutionHandler"
   description = "Automation Execution Handler policy"
   path        = "/"
   policy      = data.aws_iam_policy_document.start_automation_execution_policy.json
+}
+
+resource "aws_iam_policy" "lambda_assume_cross_account" {
+  name        = "lambda_assume_cross_account"
+  description = "Lambda Cross Account Access policy"
+  path        = "/"
+  policy      = data.aws_iam_policy_document.lambda_assume_cross_account_policy.json
+
+}
+
+resource "aws_iam_role" "start_automation_execution_handler_lambda_role" {
+  name               = "AutomationExecutionHandlerFunctionRole"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy_attachment" "start_automation_execution_handler_lambda_role_attachment" {
@@ -100,8 +124,13 @@ resource "aws_iam_role_policy_attachment" "start_automation_execution_handler_la
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role = aws_iam_role.start_automation_execution_handler_lambda_role.name
+  role       = aws_iam_role.start_automation_execution_handler_lambda_role.name
   policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_assume_cross_account" {
+  role       = aws_iam_role.start_automation_execution_handler_lambda_role.name
+  policy_arn = aws_iam_policy.lambda_assume_cross_account.arn
 }
 
 data "archive_file" "python_lambda_package" {
@@ -118,9 +147,9 @@ resource "aws_lambda_function" "ami_ssm_lambda_function" {
   role             = aws_iam_role.start_automation_execution_handler_lambda_role.arn
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.9"
-  memory_size = 256
-  timeout = 300
-  
+  memory_size      = 256
+  timeout          = 300
+
   environment {
     variables = {
       ssm_prefix = "${local.aws_ssm_egis_amiid_store}"
