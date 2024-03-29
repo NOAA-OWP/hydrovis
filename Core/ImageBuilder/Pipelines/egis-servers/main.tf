@@ -76,6 +76,7 @@ locals {
   }
   # regions to distribute the generated images to
   destination_aws_regions = ["us-east-1", "us-east-2"]
+  ti_account_id = "526904826677"
 }
 
 resource "aws_imagebuilder_infrastructure_configuration" "arcgis_build_infrastructure" {
