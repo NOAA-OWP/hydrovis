@@ -27,6 +27,16 @@ data "aws_iam_policy_document" "assume_role" {
 
     actions = ["sts:AssumeRole"]
   }
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:sts::${local.ti_account_id}:assumed-role/AutomationExecutionHandlerFunctionRole/lambda_ami_distribution_function"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
 }
 
 data "aws_iam_policy_document" "start_automation_execution_policy" {
