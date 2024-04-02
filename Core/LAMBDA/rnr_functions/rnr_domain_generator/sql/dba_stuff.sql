@@ -115,6 +115,7 @@ ORDER BY
 	location_nwm_crosswalk_dataset_id DESC NULLS LAST;
 
 -- CREATE FLOW_THRESHOLDS VIEW
+-- Officially in Core\EC2\RDSBastion\scripts\utils\setup_foreign_tables.tftpl (for automatic execution on deployment), but duplicated here for reference
 DROP VIEW IF EXISTS rnr.flow_thresholds;
 CREATE VIEW rnr.flow_thresholds AS
 
@@ -184,6 +185,7 @@ SELECT * FROM main
 WHERE COALESCE(action, minor, moderate, major, record) IS NOT NULL;
 
 -- CREATE STAGE THRESHOLDS VIEW
+-- Officially in Core\EC2\RDSBastion\scripts\utils\setup_foreign_tables.tftpl (for automatic execution on deployment), but duplicated here for reference
 DROP VIEW IF EXISTS rnr.stage_thresholds;
 CREATE VIEW rnr.stage_thresholds AS
 
@@ -212,7 +214,7 @@ SELECT
 	major_stage as major,
 	'Native' as major_source,
 	record_stage as record,
-	'Native' as record_source,
+	'Native' as record_source
 FROM external.threshold station
 WHERE rating_source = 'NONE' 
 	AND COALESCE(action_stage, minor_stage, moderate_stage, major_stage, record_stage) IS NOT NULL;
