@@ -126,6 +126,7 @@ def lambda_handler(event, context):
 
     print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")
     os.remove(download_path)
+
     dump_dict = {
                         "file": file,
                         "target_table": target_table,

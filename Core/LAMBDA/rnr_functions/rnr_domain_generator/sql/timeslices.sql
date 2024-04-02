@@ -19,7 +19,7 @@ basic_output AS (
 		base.hydro_id,
 		base.nws_station_id,
 		base.time,
-		COALESCE(ana.maxflow_1hour_cms, fcst.flow_cms) as flow_cms
+		COALESCE(ana.discharge_cms, fcst.flow_cms) as flow_cms
 	FROM timeslice_base base
 	LEFT JOIN rnr.domain_forecasts fcst
 		ON fcst.valid_time = base.time
