@@ -120,6 +120,10 @@ variable "viz_proc_admin_rw_secret_string" {
   type = string
 }
 
+variable "viz_proc_admin_rw_secret_arn" {
+  type = string
+}
+
 variable "viz_proc_dev_rw_secret_string" {
   type = string
 }
@@ -316,24 +320,19 @@ data "cloudinit_config" "startup" {
 
   part {
     content_type = "text/x-shellscript"
-    filename     = "2_viz_postgresql_setup.sh"
+    filename     = "2a_viz_postgresql_setup.sh"
     content      = templatefile("${path.module}/scripts/viz/postgresql_setup.sh.tftpl", {
-      deployment_bucket          = var.data_deployment_bucket
-      postgis_setup_s3_key       = aws_s3_object.postgis_setup.key
-      viz_db_name                = local.dbs["viz"]["db_name"]
-      viz_db_host                = local.dbs["viz"]["db_host"]
-      viz_db_port                = local.dbs["viz"]["db_port"]
-      viz_db_username            = local.dbs["viz"]["db_username"]
-      viz_db_password            = local.dbs["viz"]["db_password"]
-      location_db_name           = local.dbs["location"]["db_name"]
-      location_db_host           = local.dbs["location"]["db_host"]
-      location_db_port           = local.dbs["location"]["db_port"]
-      location_db_username       = local.dbs["location"]["db_username"]
-      location_db_password       = local.dbs["location"]["db_password"]
-      viz_proc_admin_rw_username = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
-      viz_proc_admin_rw_password = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
-      viz_proc_dev_rw_username   = jsondecode(var.viz_proc_dev_rw_secret_string)["username"]
-      viz_proc_dev_rw_password   = jsondecode(var.viz_proc_dev_rw_secret_string)["password"]
+      deployment_bucket                 = var.data_deployment_bucket
+      postgis_setup_s3_key              = aws_s3_object.postgis_setup.key
+      viz_db_name                       = local.dbs["viz"]["db_name"]
+      viz_db_host                       = local.dbs["viz"]["db_host"]
+      viz_db_port                       = local.dbs["viz"]["db_port"]
+      viz_db_username                   = local.dbs["viz"]["db_username"]
+      viz_db_password                   = local.dbs["viz"]["db_password"]
+      viz_proc_admin_rw_username        = jsondecode(var.viz_proc_admin_rw_secret_string)["username"]
+      viz_proc_admin_rw_password        = jsondecode(var.viz_proc_admin_rw_secret_string)["password"]
+      viz_proc_dev_rw_username          = jsondecode(var.viz_proc_dev_rw_secret_string)["username"]
+      viz_proc_dev_rw_password          = jsondecode(var.viz_proc_dev_rw_secret_string)["password"]
     })
   }
 

@@ -192,6 +192,8 @@ resource "null_resource" "viz_raster_processing_cluster" {
     source_hash = data.archive_file.raster_processing_zip.output_md5
   }
 
+  depends_on = [ aws_s3_object.raster_processing_zip_upload ]
+
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_raster_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
@@ -313,6 +315,8 @@ resource "null_resource" "viz_optimize_rasters_cluster" {
   triggers = {
     source_hash = data.archive_file.optimize_rasters_zip.output_md5
   }
+
+  depends_on = [ aws_s3_object.optimize_rasters_zip_upload ]
 
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_optimize_raster_lambda.name} --profile ${var.environment} --region ${var.region}"
@@ -455,6 +459,8 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
     fim_version = var.fim_version
   }
 
+  depends_on = [ aws_s3_object.hand_fim_processing_zip_upload ]
+
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_hand_fim_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
   }
@@ -484,7 +490,7 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 
 data "archive_file" "schism_processing_zip" {
   type = "zip"
-  output_path = "${path.module}/temp/viz_schism_fim_processing__${var.environment}_${var.region}.zip"
+  output_path = "${path.module}/temp/viz_schism_fim_processing_${var.environment}_${var.region}.zip"
 
   dynamic "source" {
     for_each = fileset("${path.module}/viz_schism_fim_processing", "**")
@@ -592,6 +598,8 @@ resource "null_resource" "viz_schism_fim_processing_cluster" {
   triggers = {
     source_hash = data.archive_file.schism_processing_zip.output_md5
   }
+
+  depends_on = [ aws_s3_object.schism_processing_zip_upload ]
 
   provisioner "local-exec" {
     command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.environment} --region ${var.region}"

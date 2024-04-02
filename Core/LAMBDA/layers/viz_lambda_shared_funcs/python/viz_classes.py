@@ -51,7 +51,8 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     def get_db_connection(self, asynchronous=False):
         import psycopg2
         db_host, db_name, db_user, db_password = self.get_db_credentials()
-        connection = psycopg2.connect(f"host={db_host} dbname={db_name} user={db_user} password={db_password}", async_=asynchronous)
+        port = 5439 if self.type == "REDSHIFT" else 5432
+        connection = psycopg2.connect(f"host={db_host} dbname={db_name} user={db_user} password={db_password} port={port}", async_=asynchronous)
         print(f"***> Established db connection to: {db_host} from {inspect.stack()[1].function}()")
         return connection
 
@@ -99,6 +100,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 db_connection.commit()
             except Exception as e:
                 raise e
+        db_connection.close()
                 
     ###################################                
     def run_sql_in_db(self, sql, return_geodataframe=False):
@@ -134,6 +136,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 rows = cur.fetchone()[0]
             except Exception as e:
                 raise e
+        db_connection.close()
         return rows
     
     ###################################
@@ -292,6 +295,7 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 if data_reftime != reference_time: # table reference time matches current reference time
                     issues_encountered.append(f'Table {table} has unexpected reftime. Expected {reference_time} but found {data_reftime}.')
                     continue
+        connection.close()
         
         if issues_encountered:
             if raise_if_false:
@@ -387,6 +391,8 @@ class s3_file:
                 prefix = f"max_stage/ahps/{date}/"
             else:
                 nwm_dataflow_version = os.environ.get("NWM_DATAFLOW_VERSION") if os.environ.get("NWM_DATAFLOW_VERSION") else "prod"
+                if configuration_name == 'medium_range_ensemble':
+                    configuration_name == 'medium_range_mem6'
                 prefix = f"common/data/model/com/nwm/{nwm_dataflow_version}/nwm.{date}/{configuration_name}/"
                 
             return prefix

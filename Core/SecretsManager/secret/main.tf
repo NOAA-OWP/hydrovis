@@ -36,3 +36,7 @@ resource "aws_secretsmanager_secret_version" "hydrovis" {
 output "secret_string" {
   value = aws_secretsmanager_secret_version.hydrovis.secret_string
 }
+
+output "secret_arn" {
+  value = aws_secretsmanager_secret.hydrovis.arn
+}
