@@ -57,15 +57,117 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
-    name  = "idle_in_transaction_session_timeout"
-    value = "900000"
-    apply_method = "pending-reboot"
-  }
-  
-  parameter {
     name         = "rds.custom_dns_resolution"
     value        = "1"
     apply_method = "pending-reboot"
+  }
+  
+
+
+
+  parameter {
+    name  = "autovacuum"
+    value = "1"
+  }
+
+  parameter {
+    name  = "autovacuum_analyze_scale_factor"
+    value = "0.005"
+  }
+
+  parameter {
+    name  = "autovacuum_max_workers"
+    value = "4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "autovacuum_vacuum_scale_factor"
+    value = "0.05"
+  }
+
+  parameter {
+    name  = "autovacuum_work_mem"
+    value = "8388608"
+  }
+
+  parameter {
+    name  = "effective_cache_size"
+    value = "25165824"
+  }
+
+  parameter {
+    name  = "effective_io_concurrency"
+    value = "100"
+  }
+
+  parameter {
+    name  = "geqo_threshold"
+    value = "12"
+  }
+
+  parameter {
+    name  = "idle_in_transaction_session_timeout"
+    value = "3600"
+  }
+
+  parameter {
+    name  = "log_autovacuum_min_duration"
+    value = "100"
+  }
+
+  parameter {
+    name  = "max_parallel_workers_per_gather"
+    value = "4"
+  }
+
+  parameter {
+    name  = "max_replication_slots"
+    value = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "max_wal_senders"
+    value = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "max_wal_size"
+    value = "16777216"
+  }
+
+  parameter {
+    name  = "min_wal_size"
+    value = "4194304"
+  }
+
+  parameter {
+    name  = "random_page_cost"
+    value = "1.5"
+  }
+
+  parameter {
+    name  = "shared_buffers"
+    value = "28672000"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "track_wal_io_timing"
+    value = "0"
+  }
+
+  parameter {
+    name  = "wal_buffers"
+    value = "262143"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "work_mem"
+    value = "25165824"
   }
 }
 
