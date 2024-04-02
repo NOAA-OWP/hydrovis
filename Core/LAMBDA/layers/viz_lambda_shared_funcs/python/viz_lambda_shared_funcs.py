@@ -542,12 +542,11 @@ def check_if_file_exists(bucket, file, download=False, download_subfolder=None):
     import requests
     from viz_classes import s3_file
     import xarray as xr
-    import tempfile
     
     s3 = boto3.client('s3')
     file_exists = False
 
-    tempdir = tempfile.mkdtemp()
+    tempdir = "/tmp"
     if download_subfolder:
         download_folder=os.path.join(tempdir, download_subfolder)
         if not os.path.exists(download_folder):
@@ -601,6 +600,8 @@ def check_if_file_exists(bucket, file, download=False, download_subfolder=None):
 
     
     if download:
+        if os.path.isfile(download_path): return download_path
+
         if https_file:
             print(f"Downloading {https_file}")
             tries = 0
