@@ -88,6 +88,7 @@ resource "aws_db_parameter_group" "hydrovis" {
   parameter {
     name  = "checkpoint_completion_target"
     value = "0.9"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -108,12 +109,6 @@ resource "aws_db_parameter_group" "hydrovis" {
   parameter {
     name  = "geqo_threshold"
     value = "12"
-  }
-
-  parameter {
-    name  = "huge_pages"
-    value = "try"
-    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -187,7 +182,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "shared_buffers"
-    value = "8192000"
+    value = "6291456"
     apply_method = "pending-reboot"
   }
 
