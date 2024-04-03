@@ -82,7 +82,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "autovacuum_work_mem"
-    value = "8388608"
+    value = "128000"
   }
 
   parameter {
@@ -134,7 +134,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "maintenance_work_mem"
-    value = "2048"
+    value = "1026332"
   }
 
   parameter {
@@ -177,7 +177,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "min_wal_size"
-    value = "4096"
+    value = "2096"
   }
 
   parameter {
@@ -187,7 +187,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "shared_buffers"
-    value = "8040"
+    value = "8192000"
     apply_method = "pending-reboot"
   }
 
@@ -198,7 +198,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "wal_buffers"
-    value = "64"
+    value = "64192"
     apply_method = "pending-reboot"
   }
 
@@ -209,7 +209,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "work_mem"
-    value = "68"
+    value = "68000"
   }
 }
 
