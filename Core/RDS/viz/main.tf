@@ -51,21 +51,165 @@ resource "aws_db_parameter_group" "hydrovis" {
   family = "postgres15"
 
   parameter {
-    name  = "shared_buffers"
-    value = "{DBInstanceClassMemory/10923}"
+    name         = "rds.custom_dns_resolution"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+  
+
+
+
+  parameter {
+    name  = "autovacuum"
+    value = "1"
+  }
+
+  parameter {
+    name  = "autovacuum_analyze_scale_factor"
+    value = "0.005"
+  }
+
+  parameter {
+    name  = "autovacuum_max_workers"
+    value = "4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "autovacuum_vacuum_scale_factor"
+    value = "0.05"
+  }
+
+  parameter {
+    name  = "autovacuum_work_mem"
+    value = "128000"
+  }
+
+  parameter {
+    name  = "checkpoint_completion_target"
+    value = "0.9"
+  }
+
+  parameter {
+    name  = "default_statistics_target"
+    value = "100"
+  }
+
+  parameter {
+    name  = "effective_cache_size"
+    value = "24576"
+  }
+
+  parameter {
+    name  = "effective_io_concurrency"
+    value = "200"
+  }
+
+  parameter {
+    name  = "geqo_threshold"
+    value = "12"
+  }
+
+  parameter {
+    name  = "huge_pages"
+    value = "try"
     apply_method = "pending-reboot"
   }
 
   parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = "900000"
+    value = "6000"
+  }
+
+  parameter {
+    name  = "log_autovacuum_min_duration"
+    value = "100"
+  }
+
+  parameter {
+    name  = "max_connections"
+    value = "120"
     apply_method = "pending-reboot"
   }
-  
+
   parameter {
-    name         = "rds.custom_dns_resolution"
-    value        = "1"
+    name  = "maintenance_work_mem"
+    value = "1026332"
+  }
+
+  parameter {
+    name  = "max_worker_processes"
+    value = "8"
     apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "max_parallel_workers_per_gather"
+    value = "4"
+  }
+
+  parameter {
+    name  = "max_parallel_workers"
+    value = "8"
+  }
+
+  parameter {
+    name  = "max_parallel_maintenance_workers"
+    value = "4"
+  }
+
+  parameter {
+    name  = "max_replication_slots"
+    value = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "max_wal_senders"
+    value = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "max_wal_size"
+    value = "16384"
+  }
+
+  parameter {
+    name  = "min_wal_size"
+    value = "2096"
+  }
+
+  parameter {
+    name  = "random_page_cost"
+    value = "1.1"
+  }
+
+  parameter {
+    name  = "shared_buffers"
+    value = "8192000"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "track_wal_io_timing"
+    value = "0"
+  }
+
+  parameter {
+    name  = "wal_buffers"
+    value = "64192"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "wal_writer_flush_after"
+    value = "128000"
+  }
+
+  parameter {
+    name  = "work_mem"
+    value = "68000"
   }
 }
 
