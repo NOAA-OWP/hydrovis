@@ -51,12 +51,6 @@ resource "aws_db_parameter_group" "hydrovis" {
   family = "postgres15"
 
   parameter {
-    name  = "shared_buffers"
-    value = "{DBInstanceClassMemory/10923}"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
     name         = "rds.custom_dns_resolution"
     value        = "1"
     apply_method = "pending-reboot"
@@ -92,13 +86,23 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "checkpoint_completion_target"
+    value = "0.9"
+  }
+
+  parameter {
+    name  = "default_statistics_target"
+    value = "100"
+  }
+
+  parameter {
     name  = "effective_cache_size"
-    value = "25165824"
+    value = "24576"
   }
 
   parameter {
     name  = "effective_io_concurrency"
-    value = "100"
+    value = "200"
   }
 
   parameter {
@@ -107,8 +111,14 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "huge_pages"
+    value = "try"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = "3600"
+    value = "6000"
   }
 
   parameter {
@@ -117,7 +127,34 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "max_connections"
+    value = "120"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "maintenance_work_mem"
+    value = "2048"
+  }
+
+  parameter {
+    name  = "max_worker_processes"
+    value = "8"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "max_parallel_workers_per_gather"
+    value = "4"
+  }
+
+  parameter {
+    name  = "max_parallel_workers"
+    value = "8"
+  }
+
+  parameter {
+    name  = "max_parallel_maintenance_workers"
     value = "4"
   }
 
@@ -135,22 +172,22 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "max_wal_size"
-    value = "16777216"
+    value = "16384"
   }
 
   parameter {
     name  = "min_wal_size"
-    value = "4194304"
+    value = "4096"
   }
 
   parameter {
     name  = "random_page_cost"
-    value = "1.5"
+    value = "1.1"
   }
 
   parameter {
     name  = "shared_buffers"
-    value = "28672000"
+    value = "8040"
     apply_method = "pending-reboot"
   }
 
@@ -161,13 +198,18 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "wal_buffers"
-    value = "262143"
+    value = "64"
     apply_method = "pending-reboot"
   }
 
   parameter {
+    name  = "wal_writer_flush_after"
+    value = "128000"
+  }
+
+  parameter {
     name  = "work_mem"
-    value = "25165824"
+    value = "68"
   }
 }
 
