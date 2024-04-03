@@ -120,6 +120,7 @@ resource "aws_db_parameter_group" "hydrovis" {
   parameter {
     name  = "idle_in_transaction_session_timeout"
     value = "900000"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -188,7 +189,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "shared_buffers"
-    value = "6291456"
+    value = "8192000"
     apply_method = "pending-reboot"
   }
 
