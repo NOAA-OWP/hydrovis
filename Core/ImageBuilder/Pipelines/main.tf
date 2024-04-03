@@ -32,7 +32,7 @@ variable "egis_service_account_password" {
 
 
 module "linux" {
-  source   = "./linux"
+  source = "./linux"
 
   environment = var.environment
   region      = var.region
@@ -45,7 +45,7 @@ module "linux" {
 }
 
 module "windows" {
-  source   = "./windows"
+  source = "./windows"
 
   environment = var.environment
   region      = var.region
@@ -55,6 +55,21 @@ module "windows" {
   builder_sg_id                      = var.builder_sg_id
   builder_subnet_id                  = var.builder_subnet_id
   ami_sharing_account_ids            = var.ami_sharing_account_ids
+
+  egis_service_account_password = var.egis_service_account_password
+}
+
+module "egis-servers" {
+  source = "./egis-servers"
+
+  environment = var.environment
+  region      = var.region
+
+  artifact_bucket_name    = var.artifact_bucket_name
+  builder_role_instance_profile_name = var.builder_role_instance_profile_name
+  builder_sg_id           = var.builder_sg_id
+  builder_subnet_id       = var.builder_subnet_id
+  ami_sharing_account_ids = var.ami_sharing_account_ids
 
   egis_service_account_password = var.egis_service_account_password
 }

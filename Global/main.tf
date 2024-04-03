@@ -17,8 +17,8 @@ terraform {
 # See sensitive/envs/env.ENV_global.yaml to select the "active region" for the environment
 locals {
   env = merge(
-    yamldecode(file("../Core/sensitive/envs/us-east-1/env.${split("_", terraform.workspace)[0]}.yaml")),
-    yamldecode(file("../Core/sensitive/envs/env.${terraform.workspace}.yaml"))
+    yamldecode(file("../Core/sensitive/vpp/envs/us-east-1/env.${split("_", terraform.workspace)[0]}.yaml")),
+    yamldecode(file("../Core/sensitive/vpp/envs/env.${terraform.workspace}.yaml"))
   )
 
   wacky_egis_alb_names = {

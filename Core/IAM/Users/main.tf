@@ -38,7 +38,7 @@ resource "local_file" "S3ReplicationDataServiceAccount" {
   count = var.environment == "prod" ? 1 : 0
   
   content  = "ID: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].id}\nSecret: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.S3ReplicationDataServiceAccount[0].name}-${var.environment}"
+  filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.S3ReplicationDataServiceAccount[0].name}-${var.environment}"
 }
 
 
@@ -60,7 +60,7 @@ resource "aws_iam_access_key" "WRDSServiceAccount" {
 
 resource "local_file" "WRDSServiceAccount" {
   content  = "ID: ${aws_iam_access_key.WRDSServiceAccount.id}\nSecret: ${aws_iam_access_key.WRDSServiceAccount.secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.WRDSServiceAccount.name}-${var.environment}"
+  filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.WRDSServiceAccount.name}-${var.environment}"
 }
 
 
@@ -82,7 +82,7 @@ resource "aws_iam_access_key" "FIMServiceAccount" {
 
 resource "local_file" "FIMServiceAccount" {
   content  = "ID: ${aws_iam_access_key.FIMServiceAccount.id}\nSecret: ${aws_iam_access_key.FIMServiceAccount.secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.FIMServiceAccount.name}-${var.environment}"
+  filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.FIMServiceAccount.name}-${var.environment}"
 }
 
 
@@ -104,7 +104,7 @@ resource "aws_iam_access_key" "ISEDServiceAccount" {
 
 resource "local_file" "ISEDServiceAccount" {
   content  = "ID: ${aws_iam_access_key.ISEDServiceAccount.id}\nSecret: ${aws_iam_access_key.ISEDServiceAccount.secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.ISEDServiceAccount.name}-${var.environment}"
+  filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.ISEDServiceAccount.name}-${var.environment}"
 }
 
 

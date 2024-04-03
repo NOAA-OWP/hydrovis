@@ -11,20 +11,21 @@ terraform {
     region                  = "us-east-1"
     profile                 = "prod"
     shared_credentials_file = "/cloud/aws/credentials"
+    #shared_credentials_file = "~/.aws/credentials"
   }
 }
 
 
-# See ./sensitive/envs/env.ENV.yaml for list of available variables
+# See ./sensitive/vpp/envs/env.ENV.yaml for list of available variables
 locals {
-  env = yamldecode(file("./sensitive/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
+  env = yamldecode(file("./sensitive/vpp/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
 }
 
 provider "aws" {
   region                   = local.env.region
   profile                  = local.env.environment
   shared_credentials_files = ["/cloud/aws/credentials"]
-
+  #shared_credentials_files = ["~/.aws/credentials"]
   default_tags {
     tags = merge(local.env.tags, {
       CreatedBy = "Terraform"
@@ -37,6 +38,7 @@ provider "aws" {
   region                   = local.env.nws_shared_account_sns_region
   profile                  = local.env.environment
   shared_credentials_files = ["/cloud/aws/credentials"]
+  #shared_credentials_files = ["~/.aws/credentials"]
 
   default_tags {
     tags = merge(local.env.tags, {
