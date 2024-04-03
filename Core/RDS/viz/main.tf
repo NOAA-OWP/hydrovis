@@ -82,7 +82,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "autovacuum_work_mem"
-    value = "128000"
+    value = "2128000"
   }
 
   parameter {
@@ -98,7 +98,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "effective_cache_size"
-    value = "24576"
+    value = "8576"
   }
 
   parameter {
@@ -112,8 +112,14 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "huge_pages"
+    value = "off"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "idle_in_transaction_session_timeout"
-    value = "6000"
+    value = "900000"
   }
 
   parameter {
@@ -123,13 +129,13 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "max_connections"
-    value = "120"
+    value = "200"
     apply_method = "pending-reboot"
   }
 
   parameter {
     name  = "maintenance_work_mem"
-    value = "1026332"
+    value = "2526332"
   }
 
   parameter {
@@ -167,7 +173,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "max_wal_size"
-    value = "16384"
+    value = "6384"
   }
 
   parameter {
@@ -193,7 +199,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "wal_buffers"
-    value = "64192"
+    value = "262143"
     apply_method = "pending-reboot"
   }
 
@@ -204,7 +210,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 
   parameter {
     name  = "work_mem"
-    value = "68000"
+    value = "2680000"
   }
 }
 
