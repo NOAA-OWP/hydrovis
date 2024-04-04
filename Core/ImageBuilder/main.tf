@@ -63,7 +63,7 @@ module "builder-security-group" {
 }
 
 module "builder-iam-role" {
-  source   = "./BuilderIAMRole"
+  source = "./BuilderIAMRole"
 
   environment = var.environment
   region      = var.region
@@ -77,15 +77,15 @@ module "builder-iam-role" {
 module "artifact-bucket" {
   source = "./ArtifactBucket"
 
-  account_id  = var.account_id
-  region      = var.region
+  account_id = var.account_id
+  region     = var.region
 
   builder_role_arn = module.builder-iam-role.role.arn
   admin_team_arns  = var.admin_team_arns
 }
 
 module "pipelines" {
-  source   = "./Pipelines"
+  source = "./Pipelines"
 
   environment = var.environment
   region      = var.region
@@ -94,7 +94,7 @@ module "pipelines" {
   builder_role_instance_profile_name = module.builder-iam-role.profile.name
   builder_sg_id                      = module.builder-security-group.id
   builder_subnet_id                  = var.builder_subnet_id
-  ami_sharing_account_ids            = [
+  ami_sharing_account_ids = [
     var.uat_account_id,
     var.prod_account_id
   ]
