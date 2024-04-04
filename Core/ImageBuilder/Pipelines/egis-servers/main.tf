@@ -98,27 +98,3 @@ resource "aws_imagebuilder_infrastructure_configuration" "arcgis_build_infrastru
   }
   tags = local.shared_tags
 }
-
-# output "ami_ids_arns_arcgis_enterprise" {
-#     value = { for region in var.destination_aws_regions : region => aws_imagebuilder_image_pipeline.arcgis_enterprise.image_recipe_arn }
-# }
-
-# output "ami_ids_arns_arcgis_server" {
-#     value = { for region in var.destination_aws_regions : region => aws_imagebuilder_image_pipeline.arcgis_server.image_recipe_arn }
-# }
-
-# resource "aws_ssm_parameter" "previous_arcgis_enterprise" {
-#     for_each = toset(var.destination_aws_regions)
-
-#     name            = "${var.aws_ssm_egis_amiid_store}/arcgis_enterprise/PreviousAMI_id_${each.key}"
-#     description     = "SSM Parameter for the old AMI ID in ${each.key}"
-#     type            = "String"
-#     insecure_value  = " "
-
-#     provisioner "local-exec" {
-#         command = <<EOT
-#             old_ami_id=$(aws ssm get-parameter --name "${var.aws_ssm_egis_amiid_store}/arcgis_enterprise/CurrentAMI_id_${each.key}" --query 'Parameter.Value' --output text)
-#             aws ssm put-parameter --name "${var.aws_ssm_egis_amiid_store}/arcgis_enterprise/PreviousAMI_id_${each.key}" --value "$old_ami_id" --type "String" --overwrite --region ${each.value}
-#         EOT
-#     }
-# }
