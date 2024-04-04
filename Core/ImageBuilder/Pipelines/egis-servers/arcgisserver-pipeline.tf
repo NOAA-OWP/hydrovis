@@ -116,6 +116,15 @@ resource "aws_imagebuilder_distribution_configuration" "arcgisserver-distributio
       }
     }
   }
+
+  distribution {
+    region = "us-east-2"
+    ami_distribution_configuration {
+      name               = "arcgisserver-${local.arcgisVersionName}"
+      target_account_ids = var.ami_sharing_account_ids
+      ami_tags           = merge(data.aws_default_tags.default.tags, { Name = "arcgisserver-${local.arcgisVersionName}-distribution" }, local.shared_tags)
+    }
+  }
 }
 
 output "arcgisserver" {
