@@ -11,7 +11,6 @@ from datetime import date, timedelta
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days + 1)):
         yield start_date + timedelta(n)
-
 # Function to download files from a folder in S3
 def download_files_from_s3(bucket_name, folder_name, destination_dir, sso_profile, include_files_with=None, skip_files_with=None, overwrite = False, output_format = 'gpkg'):
     if os.path.exists(destination_dir) is False:
@@ -30,27 +29,29 @@ def download_files_from_s3(bucket_name, folder_name, destination_dir, sso_profil
     files_found = False
     for page in pages:
         # Iterate over each object and download it
-        for obj in page['Contents']:
-            # Extract the file name from the object key
-            file_name = os.path.basename(obj['Key'])
+        try:
+            for obj in page['Contents']:
+                # Extract the file name from the object key
+                file_name = os.path.basename(obj['Key'])
 
-            # Construct the local file path
-            local_file_path = os.path.join(destination_dir, file_name)
-            final_file_path = local_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
+                # Construct the local file path
+                local_file_path = os.path.join(destination_dir, file_name)
+                final_file_path = local_file_path.replace(".csv", f".{output_format}").replace("_publish_", "_")
 
-            if any([x in file_name for x in skip_files_with]):
-                continue
-            elif len(include_files_with) > 0 and any([x not in file_name for x in include_files_with]):
-                continue
-            else:
-                files_found = True
-                if overwrite is False and (os.path.exists(local_file_path) or os.path.exists(final_file_path)):
-                    print(f"{local_file_path} csv or {output_format} already exists and overwrite is false. Skipping.")
+                if any([x in file_name for x in skip_files_with]):
+                    continue
+                elif len(include_files_with) > 0 and any([x not in file_name for x in include_files_with]):
+                    continue
                 else:
-                    print(f"Match found. Downloading: {file_name}...", end="", flush=True)
-                    s3_client.download_file(bucket_name, obj['Key'], local_file_path)
-                    print("... Done.")
-    
+                    files_found = True
+                    if overwrite is False and (os.path.exists(local_file_path) or os.path.exists(final_file_path)):
+                        print(f"{local_file_path} csv or {output_format} already exists and overwrite is false. Skipping.")
+                    else:
+                        print(f"Match found. Downloading: {file_name}...", end="", flush=True)
+                        s3_client.download_file(bucket_name, obj['Key'], local_file_path)
+                        print("... Done.")
+        except Exception as err:
+            print(f"there was error: {err=}, {type(err)=}")
     if not files_found:
         print('No objects found on S3 matching the given criteria.')
 
@@ -138,26 +139,19 @@ if __name__ == '__main__':
     # this up, see the Configuring AWS CLI section of the Hydrovis viz Guide at https://docs.google.com/document/d/1UIbAQycG-mWw5XwDPDunkQED5O96YtsbrOA4MMZ9zmA/edit?usp=sharing 
     
     ########## Specify your Args Here #############
-    sso_profile = "prod" # The name of the AWS SSO profile you created, or set to None if you want to pull from the current environment of an EC2 machine (see notes above)
+    sso_profile = "prod-ro" # The name of the AWS SSO profile you created, or set to None if you want to pull from the current environment of an EC2 machine (see notes above)
     bucket_name = 'hydrovis-prod-fim-us-east-1' # Set this based on the hydrovis environment you are pulling from, e.g. 'hydrovis-ti-fim-us-east-1', 'hydrovis-uat-fim-us-east-1', 'hydrovis-prod-fim-us-east-1'
-    include_files_with = ["ana_inundation"] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
-    skip_files_with = ["counties", "hucs", "building", "_hi.csv", "_prvi", "_public", "_src_skill"] # Anything you want to be skipped when filtering S3 files e.g. ["ana_streamflow", "rapid_onset_flooding"]
-    clip_to_states = [] # Provide a list of state abbreviations to clip to set states, e.g. ["AL", "GA", "MS"]
+    
+    include_files_with = [] # Anything you want to be included when filtering S3 files e.g ["ana", "mrf"] or ["mrf_"]
+    skip_files_with = [] # Anything you want to be skipped when filtering S3 files e.g. ["ana_streamflow", "rapid_onset_flooding"]
+    clip_to_states = ["WA"] # Provide a list of state abbreviations to clip to set states, e.g. ["AL", "GA", "MS"]
     output_format = "gpkg" # Set to gpkg or shp - Can add any OGR formats, with some tweaks to the file_format logic in the functions above. BEWARE - large FIM files can be too large for shapefiles, and results may be truncated.
-    output_dir = r"C:\Users\arcgis\Desktop\Dev\VPP Data Requests\AEP_2_1" # Directory where you want output files saved.
+    output_dir = r"/home/user/documents/output/" # Directory where you want output files saved.
     overwrite = False # This will automatically skip files that have already been downloaded and/or converted when running the script when set to False (default).
     delete_csv = True # This will delete the csv files after conversion
     ###############################################
     events = [
-        {"start_date": date(2023, 12, 21), "end_date": date(2023, 12, 21), "reference_times": ["0900", "1000"]},
-        {"start_date": date(2023, 12, 16), "end_date": date(2023, 12, 17), "reference_times": ["1200"]},
-        {"start_date": date(2023, 12, 17), "end_date": date(2023, 12, 17), "reference_times": ["1300", "1400"]},
-        {"start_date": date(2023, 12, 5), "end_date": date(2023, 12, 5), "reference_times": ["1400", "1500"]},
-        {"start_date": date(2023, 12, 2), "end_date": date(2023, 12, 2), "reference_times": ["1300", "1400"]},
-        {"start_date": date(2023, 10, 28), "end_date": date(2023, 10, 28), "reference_times": ["0900", "1000"]},
-        {"start_date": date(2023, 10, 24), "end_date": date(2023, 10, 24), "reference_times": ["1600", "1700"]},
-        {"start_date": date(2023, 10, 4), "end_date": date(2023, 10, 4), "reference_times": ["2100", "2200"]},
-        {"start_date": date(2023, 10, 3), "end_date": date(2023, 10, 3), "reference_times": ["2200", "2300"]}
+        {"start_date": date(2023, 5, 20), "end_date": date(2023, 5, 20), "reference_times": ["1200"]}
     ]
 
     ###############################################
@@ -170,7 +164,7 @@ if __name__ == '__main__':
             ref_date = day.strftime("%Y%m%d")
             for reference_time in reference_times:
                 folder_name = f"viz_cache/{ref_date}/{reference_time}/"
-                destination_dir = fr"{output_dir}\{ref_date}\{reference_time}"
+                destination_dir = fr"{output_dir}/{ref_date}/{reference_time}"
                 # Download files from S3
                 print(f"Searching Viz Cache for /{ref_date}/{reference_time}/ with files including {include_files_with} and not including {skip_files_with}.")
                 download_files_from_s3(bucket_name, folder_name, destination_dir, sso_profile, include_files_with=include_files_with, skip_files_with=skip_files_with, overwrite=False, output_format=output_format)
