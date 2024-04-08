@@ -56,80 +56,80 @@ def lambda_handler(event, context):
         return json.dumps(dump_dict)
     
     viz_db = database(db_type="viz")
-    with viz_db.get_db_connection() as connection:
-        cursor = connection.cursor()
-        try:
-            nwm_version = 0
+    try:
+        nwm_version = 0
 
-            if file.endswith('.nc'):
-                ds = xr.open_dataset(download_path)
-                ds_vars = [var for var in ds.variables]
+        if file.endswith('.nc'):
+            ds = xr.open_dataset(download_path)
+            ds_vars = [var for var in ds.variables]
 
-                if not target_cols:
-                    target_cols = ds_vars
+            if not target_cols:
+                target_cols = ds_vars
 
-                try:
-                    if "hawaii" in file:
-                        ds['forecast_hour'] = int(int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])/100)
-                    else:
-                        ds['forecast_hour'] = int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])
-                    if 'forecast_hour' not in target_cols:
-                        target_cols.append('forecast_hour')
-                except:
-                    print("Regex pattern for the forecast hour didn't match the netcdf file")
-                
-                try:
-                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
-                    if 'nwm_vers' not in target_cols:
-                        target_cols.append('nwm_vers')
-                except:
-                    print("NWM_version_number property is not available in the netcdf file")
-
-                drop_vars = [var for var in ds_vars if var not in target_cols]
-                df = ds.to_dataframe().reset_index()
-                df = df.drop(columns=drop_vars)
-                ds.close()
-                if 'streamflow' in target_cols:
-                    df = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
-                df = df[target_cols]
-
-            elif file.endswith('.csv'):
-                df = pd.read_csv(download_path)
-                for column in df:  # Replace any 'None' strings with nulls
-                    df[column].replace('None', np.nan, inplace=True)
-                df = df.copy()
-            else:
-                print("File format not supported.")
-                exit()
-
-            print(f"--> Preparing and Importing {file}")
-            f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
-            df.to_csv(f, sep='\t', index=False, header=False)
-            f.seek(0)
             try:
-                with viz_db.get_db_connection() as connection:
-                    cursor = connection.cursor()
-                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-                    connection.commit()
-            except (UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation):
-                if not create_table:
-                    raise
+                if "hawaii" in file:
+                    ds['forecast_hour'] = int(int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])/100)
+                else:
+                    ds['forecast_hour'] = int(re.findall("(\d{8})/[a-z0-9_]*/.*t(\d{2})z.*[ftm](\d*)\.", file)[0][-1])
+                if 'forecast_hour' not in target_cols:
+                    target_cols.append('forecast_hour')
+            except:
+                print("Regex pattern for the forecast hour didn't match the netcdf file")
+            
+            try:
+                ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                if 'nwm_vers' not in target_cols:
+                    target_cols.append('nwm_vers')
+            except:
+                print("NWM_version_number property is not available in the netcdf file")
 
-                print("Error encountered. Recreating table now and retrying import...")
-                create_table_df = df.head(0)
-                schema, table = target_table.split('.')
-                create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
-                with viz_db.get_db_connection() as connection:
-                    cursor = connection.cursor()
-                    cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-                    connection.commit()
+            drop_vars = [var for var in ds_vars if var not in target_cols]
+            df = ds.to_dataframe().reset_index()
+            df = df.drop(columns=drop_vars)
+            ds.close()
+            if 'streamflow' in target_cols:
+                df = df.loc[df['streamflow'] >= keep_flows_at_or_above].round({'streamflow': 2}).copy()  # noqa
+            df = df[target_cols]
 
-            print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")
-            os.remove(download_path)
-    
-        except Exception as e:
-            print(f"Error: {e}")
-            raise e
+        elif file.endswith('.csv'):
+            df = pd.read_csv(download_path)
+            for column in df:  # Replace any 'None' strings with nulls
+                df[column].replace('None', np.nan, inplace=True)
+            df = df.copy()
+        else:
+            print("File format not supported.")
+            exit()
+
+        print(f"--> Preparing and Importing {file}")
+        f = StringIO()  # Use StringIO to store the temporary text file in memory (faster than on disk)
+        df.to_csv(f, sep='\t', index=False, header=False)
+        f.seek(0)
+        try:
+            connection = viz_db.get_db_connection()
+            with connection:
+                with connection.cursor() as cur:
+                    cur.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+            connection.close()
+        except (UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation):
+            if not create_table:
+                raise
+
+            print("Error encountered. Recreating table now and retrying import...")
+            create_table_df = df.head(0)
+            schema, table = target_table.split('.')
+            create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
+            connection = viz_db.get_db_connection()
+            with connection:
+                with connection.cursor() as cur:
+                    cur.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
+            connection.close()
+
+        print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")
+        os.remove(download_path)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise e
     
     dump_dict = {
                         "file": file,

@@ -103,13 +103,15 @@ def run_sql(sql_path_or_str, sql_replace=None):
         sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     viz_db = database(db_type="viz")
-    with viz_db.get_db_connection() as connection:
-        cur = connection.cursor()
-        cur.execute(sql)
-        try:
-            result = cur.fetchone()
-        except:
-            pass
-        connection.commit()
+    connection = viz_db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(sql)
+            try:
+                result = cur.fetchone()
+            except:
+                pass
+    connection.close()
+
     print(f"Finished executing the SQL statement above.")
     return result
