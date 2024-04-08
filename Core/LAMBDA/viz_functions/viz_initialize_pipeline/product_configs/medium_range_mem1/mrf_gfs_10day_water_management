@@ -1,5 +1,5 @@
 product: mrf_gfs_10day_water_management
-configuration: medium_range
+configuration: medium_range_mem1
 product_type: "vector"
 run: true
 
