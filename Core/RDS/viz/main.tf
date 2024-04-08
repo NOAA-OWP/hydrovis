@@ -51,15 +51,6 @@ resource "aws_db_parameter_group" "hydrovis" {
   family = "postgres15"
 
   parameter {
-    name         = "rds.custom_dns_resolution"
-    value        = "1"
-    apply_method = "pending-reboot"
-  }
-  
-
-
-
-  parameter {
     name  = "autovacuum"
     value = "1"
   }
@@ -120,6 +111,7 @@ resource "aws_db_parameter_group" "hydrovis" {
   parameter {
     name  = "idle_in_transaction_session_timeout"
     value = "900000"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -128,34 +120,28 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
-    name  = "max_connections"
-    value = "200"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
     name  = "maintenance_work_mem"
     value = "2526332"
   }
 
   parameter {
-    name  = "max_worker_processes"
-    value = "8"
+    name  = "max_connections"
+    value = "400"
     apply_method = "pending-reboot"
   }
 
   parameter {
-    name  = "max_parallel_workers_per_gather"
+    name  = "max_parallel_maintenance_workers"
     value = "4"
   }
-
+  
   parameter {
     name  = "max_parallel_workers"
     value = "8"
   }
 
   parameter {
-    name  = "max_parallel_maintenance_workers"
+    name  = "max_parallel_workers_per_gather"
     value = "4"
   }
 
@@ -177,6 +163,12 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "max_worker_processes"
+    value = "8"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "min_wal_size"
     value = "2096"
   }
@@ -187,8 +179,20 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name         = "rds.custom_dns_resolution"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "rds.rds_superuser_reserved_connections"
+    value        = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "shared_buffers"
-    value = "6291456"
+    value = "4096000"
     apply_method = "pending-reboot"
   }
 
@@ -217,7 +221,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 resource "aws_db_instance" "hydrovis" {
   identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.m6g.2xlarge"
+  instance_class               = "db.m5.4xlarge"
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"

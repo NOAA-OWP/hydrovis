@@ -186,40 +186,41 @@ def setup_db_table(db_fim_table, reference_time, viz_db, process_db, sql_replace
     db_schema = db_fim_table.split('.')[0]
 
     print(f"Setting up {db_fim_table}")
-        
-    with viz_db.get_db_connection() as connection:
-        cur = connection.cursor()
+    
+    connection = viz_db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            # Add a row to the ingest status table indicating that an import has started.
+            SQL = f"INSERT INTO admin.ingest_status (target, reference_time, status, update_time) " \
+                f"VALUES ('{db_fim_table}', '{reference_time}', 'Import Started', " \
+                f"'{datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}')"
+            cur.execute(SQL)
+    connection.close()
 
-        # Add a row to the ingest status table indicating that an import has started.
-        SQL = f"INSERT INTO admin.ingest_status (target, reference_time, status, update_time) " \
-              f"VALUES ('{db_fim_table}', '{reference_time}', 'Import Started', " \
-              f"'{datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}')"
-        cur.execute(SQL)
+    connection = process_db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            # See if the target table exists #TODO: Ensure table exists would make a good helper function
+            cur.execute(f"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = '{db_fim_table.split('.')[0]}' AND tablename = '{db_fim_table.split('.')[1]}');")
+            table_exists = cur.fetchone()[0]
+            
+            # If the target table doesn't exist, create one basd on the sql_replace dict.
+            if not table_exists:
+                print(f"--> {db_fim_table} does not exist. Creating now.")
+                original_table = list(sql_replace.keys())[list(sql_replace.values()).index(db_fim_table)] #ToDo: error handling if not in list
+                cur.execute(f"DROP TABLE IF EXISTS {db_fim_table}; CREATE TABLE {db_fim_table} (LIKE {original_table})")
+                connection.commit()
 
-    with process_db.get_db_connection() as connection:
-        cur = connection.cursor()
+            # Drop the existing index on the target table
+            print("Dropping target table index (if exists).")
+            SQL = f"DROP INDEX IF EXISTS {db_schema}.{index_name};"
+            cur.execute(SQL)
 
-         # See if the target table exists #TODO: Ensure table exists would make a good helper function
-        cur.execute(f"SELECT EXISTS (SELECT FROM pg_tables WHERE schemaname = '{db_fim_table.split('.')[0]}' AND tablename = '{db_fim_table.split('.')[1]}');")
-        table_exists = cur.fetchone()[0]
-        
-        # If the target table doesn't exist, create one basd on the sql_replace dict.
-        if not table_exists:
-            print(f"--> {db_fim_table} does not exist. Creating now.")
-            original_table = list(sql_replace.keys())[list(sql_replace.values()).index(db_fim_table)] #ToDo: error handling if not in list
-            cur.execute(f"DROP TABLE IF EXISTS {db_fim_table}; CREATE TABLE {db_fim_table} (LIKE {original_table})")
-            connection.commit()
-
-        # Drop the existing index on the target table
-        print("Dropping target table index (if exists).")
-        SQL = f"DROP INDEX IF EXISTS {db_schema}.{index_name};"
-        cur.execute(SQL)
-
-        # Truncate all records.
-        print("Truncating target table.")
-        SQL = f"TRUNCATE TABLE {db_fim_table};"
-        cur.execute(SQL)
-        connection.commit()
+            # Truncate all records.
+            print("Truncating target table.")
+            SQL = f"TRUNCATE TABLE {db_fim_table};"
+            cur.execute(SQL)
+    connection.close()
     
     return db_fim_table
 
@@ -273,16 +274,21 @@ def get_valid_ras2fim_models(streamflow_sql, db_fim_table, reference_time, viz_d
         ras_insertion_sql = ras_insertion_sql.replace(db_fim_table, publish_table)
 
     print(f"Adding ras2fim models to {db_fim_table}")
-        
-    with viz_db.get_db_connection() as connection:
-        cur = connection.cursor()
-        cur.execute(ras_insertion_sql)
+    
+    connection = viz_db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(ras_insertion_sql)
+    connection.close()
 
     if reference_service:
-        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-            cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
-            column_names = [desc[0] for desc in cur.description]
-            columns = ', '.join(column_names)
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                cur.execute(f"SELECT * FROM publish.{table} LIMIT 1")
+                column_names = [desc[0] for desc in cur.description]
+        connection.close()
+        columns = ', '.join(column_names)
         
         print(f"Copying {publish_table} to {db_fim_table}")
         try: # Try copying the data
@@ -314,29 +320,34 @@ def get_features_for_HAND_processing(streamflow_sql, db_fim_table, viz_db):
     
 
 def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True, update_srid=None):
-    
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
-        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
-    
-        if add_oid:
-            print(f"---> Adding an OID to the {dest_table}")
-            cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
-        if add_geom_index and "geom" in columns:
-            print(f"---> Adding an spatial index to the {dest_table}")
-            cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
-            if 'geom_xy' in columns:
-                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
-        if update_srid and "geom" in columns:
-            print(f"---> Updating SRID to {update_srid}")
-            cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
+            cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+        
+            if add_oid:
+                print(f"---> Adding an OID to the {dest_table}")
+                cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
+            if add_geom_index and "geom" in columns:
+                print(f"---> Adding an spatial index to the {dest_table}")
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+                if 'geom_xy' in columns:
+                    cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
+            if update_srid and "geom" in columns:
+                print(f"---> Updating SRID to {update_srid}")
+                cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection.close()
             
 def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        sql = f"""
-        DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
-        CREATE SCHEMA {local_schema};
-        IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
-        """
-        cur.execute(sql)
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            sql = f"""
+            DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
+            CREATE SCHEMA {local_schema};
+            IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
+            """
+            cur.execute(sql)
+    connection.close()
     print(f"---> Refreshed {local_schema} foreign schema.")

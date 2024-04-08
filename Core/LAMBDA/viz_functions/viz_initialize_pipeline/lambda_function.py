@@ -292,23 +292,27 @@ class viz_lambda_pipeline:
     # This method gathers information on the last pipeline run for the given configuration
     # TODO: This should totally be in the configuration class... and we should abstract a view to access this information.
     def get_last_run_info(self):
-        last_run_info = {}
         target_table = [data_flow['target_table'] for data_flow in self.configuration.configuration_data_flow['db_ingest_groups']][0]
+        last_run_info = {}
+        last_run_info[target_table] = {}
+
         viz_db = database(db_type="viz")
-        with viz_db.get_db_connection() as connection:
-            last_run_info[target_table] = {}
-            cur = connection.cursor()
-            cur.execute(f"""
-                SELECT max(reference_time) as reference_time, last_update
-                FROM (SELECT max(update_time) as last_update from admin.ingest_status a
-                        WHERE target = '{target_table}' and status = 'Import Started') as last_start
-                JOIN admin.ingest_status a ON last_start.last_update = a.update_time
-                GROUP BY last_update
-            """)
-            try:
-                return cur.fetchone()[0], ur.fetchone()[1]
-            except: #if nothing logged in db, return generic datetimes in the past
-                return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                cur.execute(f"""
+                    SELECT max(reference_time) as reference_time, last_update
+                    FROM (SELECT max(update_time) as last_update from admin.ingest_status a
+                            WHERE target = '{target_table}' and status = 'Import Started') as last_start
+                    JOIN admin.ingest_status a ON last_start.last_update = a.update_time
+                    GROUP BY last_update
+                """)
+                try:
+                    result = cur.fetchone()[0], cur.fetchone()[1]
+                except: #if nothing logged in db, return generic datetimes in the past
+                    result = datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
+        connection.close()
+        return result
     
     ###################################
     def organize_rename_dict(self):
@@ -467,7 +471,7 @@ class configuration:
             ingest_file = target_table_metadata["s3_keys"][0]
             if "rnr" in ingest_file:
                 bucket=os.environ['RNR_DATA_BUCKET']
-            elif "viz_ingest" in ingest_file:
+            elif "viz_ingest" in ingest_file or "max_" in ingest_file:
                 bucket=os.environ['PYTHON_PREPROCESSING_BUCKET']
             else:
                 bucket = self.input_bucket

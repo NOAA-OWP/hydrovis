@@ -122,10 +122,14 @@ def lambda_handler(event, context):
         egis_db = database(db_type="egis")
         
         # Get columns of the table
-        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
                 cur.execute(f"SELECT * FROM {viz_schema}.{table} LIMIT 1")
                 column_names = [desc[0] for desc in cur.description]
-                columns = ', '.join(column_names)
+        connection.close()
+
+        columns = ', '.join(column_names)
             
         if job_type == 'auto':
             # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
@@ -149,57 +153,69 @@ def cache_data_on_s3(db, schema, table, reference_time, cache_bucket, columns, r
     ref_hour = f"{reference_time.strftime('%H%M')}"
     s3_key = f"viz_cache/{ref_day}/{ref_hour}/{table}.csv"
     aws_region = os.environ['AWS_REGION']
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-            columns = columns.replace('geom', 'ST_AsText(geom) AS geom')
+    columns = columns.replace('geom', 'ST_AsText(geom) AS geom')
+
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
             cur.execute(f"SELECT * FROM aws_s3.query_export_to_s3('SELECT {columns} FROM {schema}.{table}', aws_commons.create_s3_uri('{cache_bucket}','{s3_key}','{aws_region}'), options :='format csv , HEADER true');")
+    connection.close()
+
     print(f"---> Wrote csv cache data from {schema}.{table} to {cache_bucket}/{s3_key}")
     return s3_key
 
 ###################################
 # This function stages a publish data table within a db (or across databases using foreign data wrapper)
 def stage_db_table(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True, update_srid=None):
-    
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
-        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
-    
-        if add_oid:
-            print(f"---> Adding an OID to the {dest_table}")
-            cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
-        if add_geom_index and "geom" in columns:
-            print(f"---> Adding an spatial index to the {dest_table}")
-            cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
-            if 'geom_xy' in columns:
-                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
-        if update_srid and "geom" in columns:
-            print(f"---> Updating SRID to {update_srid}")
-            cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
+            cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+        
+            if add_oid:
+                print(f"---> Adding an OID to the {dest_table}")
+                cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
+            if add_geom_index and "geom" in columns:
+                print(f"---> Adding an spatial index to the {dest_table}")
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+                if 'geom_xy' in columns:
+                    cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
+            if update_srid and "geom" in columns:
+                print(f"---> Updating SRID to {update_srid}")
+                cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection.close()
 
 ###################################
 # This function unstages a list of publish data tables within a db (or across databases using foreign data wrapper)
 def unstage_db_tables(db, dest_tables):
-    
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        
+    connection = db.get_db_connection()
+    with connection:
         for dest_table in dest_tables:
             dest_final_table = dest_table
             dest_final_table_name = dest_final_table.split(".")[1]
             dest_table = f"{dest_table}_stage"
-            
-            print(f"---> Renaming {dest_table} to {dest_final_table}")
-            cur.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
-            cur.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
+
+            with connection.cursor() as cur:
+                print(f"---> Renaming {dest_table} to {dest_final_table}")
+                cur.execute(f'DROP TABLE IF EXISTS {dest_final_table};')  # Drop the published table if it exists
+                cur.execute(f'ALTER TABLE {dest_table} RENAME TO {dest_final_table_name};')  # Rename the staged table
+            connection.commit()
+    connection.close()
         
 ###################################
 # This function drops and recreates a foreign data wrapper schema, so that table and column names are all up-to-date.     
 def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        sql = f"""
-        DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
-        CREATE SCHEMA {local_schema};
-        IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
-        """
-        cur.execute(sql)
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            sql = f"""
+            DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
+            CREATE SCHEMA {local_schema};
+            IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
+            """
+            cur.execute(sql)
+    connection.close()
     print(f"---> Refreshed {local_schema} foreign schema.")
     
 ##################################
