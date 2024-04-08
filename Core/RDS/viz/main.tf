@@ -50,11 +50,7 @@ resource "aws_db_parameter_group" "hydrovis" {
   name   = "hv-vpp-${var.environment}-viz-processing"
   family = "postgres15"
 
-  parameter {
-    name         = "rds.custom_dns_resolution"
-    value        = "1"
-    apply_method = "pending-reboot"
-  }
+
   
 
 
@@ -129,34 +125,28 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
-    name  = "max_connections"
-    value = "200"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
     name  = "maintenance_work_mem"
     value = "2526332"
   }
 
   parameter {
-    name  = "max_worker_processes"
-    value = "8"
+    name  = "max_connections"
+    value = "400"
     apply_method = "pending-reboot"
   }
 
   parameter {
-    name  = "max_parallel_workers_per_gather"
+    name  = "max_parallel_maintenance_workers"
     value = "4"
   }
-
+  
   parameter {
     name  = "max_parallel_workers"
     value = "8"
   }
 
   parameter {
-    name  = "max_parallel_maintenance_workers"
+    name  = "max_parallel_workers_per_gather"
     value = "4"
   }
 
@@ -178,6 +168,12 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name  = "max_worker_processes"
+    value = "8"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "min_wal_size"
     value = "2096"
   }
@@ -188,8 +184,20 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name         = "rds.custom_dns_resolution"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "rds.rds_superuser_reserved_connections"
+    value        = "10"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "shared_buffers"
-    value = "8192000"
+    value = "4096000"
     apply_method = "pending-reboot"
   }
 
