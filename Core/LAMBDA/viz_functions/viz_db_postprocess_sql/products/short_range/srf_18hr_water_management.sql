@@ -14,7 +14,7 @@ WITH initial_outflow AS (
             WHEN reservoir_type = 4
             THEN 'USGS'
         END as reservoir_type,
-        srf.water_sfc_elev AS init_water_sfc_elev,
+        ROUND((srf.water_sfc_elev) * 3.28084) AS init_water_sfc_elev_ft,
         srf.reference_time
     FROM ingest.nwm_reservoir_srf AS srf
     JOIN derived.nwm_reservoirs as reservoirs ON reservoirs.lake_id = srf.feature_id
@@ -25,7 +25,7 @@ WITH initial_outflow AS (
 max_outflow AS (
     SELECT DISTINCT ON (srf.feature_id)
         srf.feature_id,
-        srf.outflow AS max_outflow
+        ROUND((srf.outflow) * 35.515) AS max_outflow_cfs
     FROM ingest.nwm_reservoir_srf AS srf
     ORDER BY
         srf.feature_id,
@@ -36,8 +36,9 @@ SELECT
     init.feature_id,
     init.feature_id_str,
     init.reservoir_type,
-    init.init_water_sfc_elev,
-    max.max_outflow,
+    init.init_water_sfc_elev_ft,
+    max.max_outflow_cfs,
     init.reference_time
+INTO publish.srf_18hr_water_management
 FROM initial_outflow as init
 JOIN max_outflow as max ON max.feature_id = init.feature_id;
