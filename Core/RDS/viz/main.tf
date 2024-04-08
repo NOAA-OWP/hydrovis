@@ -50,11 +50,6 @@ resource "aws_db_parameter_group" "hydrovis" {
   name   = "hv-vpp-${var.environment}-viz-processing"
   family = "postgres15"
 
-
-  
-
-
-
   parameter {
     name  = "autovacuum"
     value = "1"
@@ -226,7 +221,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 resource "aws_db_instance" "hydrovis" {
   identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.m6g.2xlarge"
+  instance_class               = "db.m5.4xlarge"
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"
