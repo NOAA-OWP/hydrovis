@@ -51,131 +51,18 @@ resource "aws_db_parameter_group" "hydrovis" {
   family = "postgres15"
 
   parameter {
-    name  = "autovacuum"
-    value = "1"
-  }
-
-  parameter {
-    name  = "autovacuum_analyze_scale_factor"
-    value = "0.005"
-  }
-
-  parameter {
-    name  = "autovacuum_max_workers"
-    value = "4"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "autovacuum_vacuum_scale_factor"
-    value = "0.05"
-  }
-
-  parameter {
-    name  = "autovacuum_work_mem"
-    value = "2128000"
-  }
-
-  parameter {
-    name  = "checkpoint_completion_target"
-    value = "0.9"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "default_statistics_target"
-    value = "100"
-  }
-
-  parameter {
-    name  = "effective_cache_size"
-    value = "8576"
-  }
-
-  parameter {
-    name  = "effective_io_concurrency"
-    value = "200"
-  }
-
-  parameter {
-    name  = "geqo_threshold"
-    value = "12"
-  }
-
-  parameter {
-    name  = "huge_pages"
-    value = "off"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "idle_in_transaction_session_timeout"
-    value = "900000"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "log_autovacuum_min_duration"
-    value = "100"
-  }
-
-  parameter {
-    name  = "maintenance_work_mem"
-    value = "2526332"
-  }
-
-  parameter {
-    name  = "max_connections"
-    value = "400"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "max_parallel_maintenance_workers"
-    value = "4"
-  }
-  
-  parameter {
-    name  = "max_parallel_workers"
-    value = "8"
-  }
-
-  parameter {
-    name  = "max_parallel_workers_per_gather"
-    value = "4"
-  }
-
-  parameter {
-    name  = "max_replication_slots"
-    value = "10"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "max_wal_senders"
-    value = "10"
-    apply_method = "pending-reboot"
+    name  = "checkpoint_timeout"
+    value = "1800"
   }
 
   parameter {
     name  = "max_wal_size"
-    value = "6384"
-  }
-
-  parameter {
-    name  = "max_worker_processes"
-    value = "8"
-    apply_method = "pending-reboot"
+    value = var.environment == "ti" ? "4048" : "8048"
   }
 
   parameter {
     name  = "min_wal_size"
-    value = "2096"
-  }
-
-  parameter {
-    name  = "random_page_cost"
-    value = "1.1"
+    value = "2048"
   }
 
   parameter {
@@ -185,43 +72,21 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
-    name         = "rds.rds_superuser_reserved_connections"
-    value        = "10"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "shared_buffers"
-    value = "4096000"
-    apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "track_wal_io_timing"
-    value = "0"
-  }
-
-  parameter {
     name  = "wal_buffers"
-    value = "262143"
+    value = var.environment == "ti" ? "64000" : "128000"
     apply_method = "pending-reboot"
-  }
-
-  parameter {
-    name  = "wal_writer_flush_after"
-    value = "128000"
   }
 
   parameter {
     name  = "work_mem"
-    value = "2680000"
+    value = var.environment == "ti" ? "262144" : "1048576"
   }
 }
 
 resource "aws_db_instance" "hydrovis" {
   identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.m5.4xlarge"
+  instance_class               = var.environment == "ti" ? "db.m5.2xlarge" : "db.m5.4xlarge"
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"
