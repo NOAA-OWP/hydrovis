@@ -1,7 +1,9 @@
 import boto3
+from botocore.exceptions import ResponseStreamingError
 import rasterio
 import numpy as np
 import pandas as pd
+import awswrangler as wr
 import geopandas as gpd
 import os
 import time
@@ -13,8 +15,6 @@ from viz_classes import s3_file, database
 FIM_BUCKET = os.environ['FIM_BUCKET']
 FIM_PREFIX = os.environ['FIM_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
-
-s3 = boto3.client("s3")
 
 class HANDDatasetReadError(Exception):
     """ my custom exception class """
@@ -436,15 +436,19 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
                 
     return df_final
 
-def s3_csv_to_df(bucket, key):
-    basename = os.path.basename(key)
-    local_file = f"/tmp/{basename}"
+def s3_csv_to_df(bucket, key):    
+    # Allow retrying a few times before failing
+    for i in range(5):
+        try:
+            # Read S3 csv file into Pandas DataFrame
+            print(f"Reading {key} from {bucket} into DataFrame")
+            df = wr.s3.read_csv(path=f"s3://{bucket}/{key}")
+            print("DataFrame creation Successful")
+        except ResponseStreamingError:
+            if i == 4: print("Failed to read from S3")
+            continue
+        break
 
-    print(f"Downloading {key} from {bucket}")
-    s3.download_file(bucket, key, local_file)
-    df = pd.read_csv(local_file)
-    os.remove(local_file)
-    
     return df
 
 def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_streams, huc8_branch):

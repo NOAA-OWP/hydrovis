@@ -51,28 +51,42 @@ resource "aws_db_parameter_group" "hydrovis" {
   family = "postgres15"
 
   parameter {
-    name  = "shared_buffers"
-    value = "{DBInstanceClassMemory/10923}"
-    apply_method = "pending-reboot"
+    name  = "checkpoint_timeout"
+    value = "1800"
   }
 
   parameter {
-    name  = "idle_in_transaction_session_timeout"
-    value = "900000"
-    apply_method = "pending-reboot"
+    name  = "max_wal_size"
+    value = var.environment == "ti" ? "4048" : "8048"
   }
-  
+
+  parameter {
+    name  = "min_wal_size"
+    value = "2048"
+  }
+
   parameter {
     name         = "rds.custom_dns_resolution"
     value        = "1"
     apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "wal_buffers"
+    value = var.environment == "ti" ? "64000" : "128000"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "work_mem"
+    value = var.environment == "ti" ? "262144" : "1048576"
   }
 }
 
 resource "aws_db_instance" "hydrovis" {
   identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = "db.m6g.2xlarge"
+  instance_class               = var.environment == "ti" ? "db.m5.2xlarge" : "db.m5.4xlarge"
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"
