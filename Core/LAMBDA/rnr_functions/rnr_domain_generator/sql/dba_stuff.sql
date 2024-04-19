@@ -103,7 +103,7 @@ LEFT JOIN a AS b
 	ON b.location_id = a.location_id
 	AND b.row_num = a.row_num + 1;
 
--- CREATE VIZ-OFFICIAL CROSSWALK TABLE
+-- CREATE VIZ-OFFICIAL CROSSWALK TABLE AND ADD OVERRIDES
 SELECT DISTINCT ON (nwm_feature_id, nws_station_id) 
 	* 
 INTO rnr.nwm_crosswalk
@@ -113,6 +113,10 @@ ORDER BY
 	nws_station_id,
 	nws_usgs_crosswalk_dataset_id DESC NULLS LAST,
 	location_nwm_crosswalk_dataset_id DESC NULLS LAST;
+
+UPDATE rnr.nwm_crosswalk
+SET nwm_feature_id = 11050844
+WHERE nws_station_id = 'PTTP1';
 
 -- CREATE FLOW_THRESHOLDS VIEW
 -- Officially in Core\EC2\RDSBastion\scripts\utils\setup_foreign_tables.tftpl (for automatic execution on deployment), but duplicated here for reference
