@@ -1,5 +1,3 @@
--- We'll temporarily increase work_mem to 512MB, to help with performance on PostGIS spatial joins (default is 4MB)
-SET work_mem TO '512MB';
 --------------- Building Footprints ---------------
 DROP TABLE IF EXISTS publish.mrf_nbm_max_inundation_10day_building_footprints;
 SELECT

@@ -33,11 +33,12 @@ def lambda_handler(event, context):
     if step == 'domain':
         print(f'Executing {step}.sql...')
         
-        with viz_db.get_db_connection() as connection:
-            cur = connection.cursor()
-            cur.execute(sql)
-            result = cur.fetchone()
-            connection.commit()
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                cur.execute(sql)
+                result = cur.fetchone()
+        connection.close()
 
         reference_time = dt.datetime.strptime(result[0], '%Y-%m-%d %H:%M:%S UTC').strftime(DT_FORMAT)
         run_time_obj = dt.datetime.strptime(event['run_time'], '%Y-%m-%dT%H:%M:%SZ')

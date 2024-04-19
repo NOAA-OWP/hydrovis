@@ -104,10 +104,10 @@ def lambda_handler(event, context):
     df.to_csv(f, sep='\t', index=False, header=False)
     f.seek(0)
     try:
-        with viz_db.get_db_connection() as connection:
-            cursor = connection.cursor()
-            cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-            connection.commit()
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                cur.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
         connection.close()
     except (UndefinedTable, BadCopyFileFormat, InvalidTextRepresentation):
         if not create_table:
@@ -117,11 +117,11 @@ def lambda_handler(event, context):
         create_table_df = df.head(0)
         schema, table = target_table.split('.')
         create_table_df.to_sql(con=viz_db.engine, schema=schema, name=table, index=False, if_exists='replace')
-        with viz_db.get_db_connection() as connection:
-            f.seek(0)
-            cursor = connection.cursor()
-            cursor.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
-            connection.commit()
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                f.seek(0)
+                cur.copy_expert(f"COPY {target_table} FROM STDIN WITH DELIMITER E'\t' null as ''", f)
         connection.close()
 
     print(f"--> Import of {len(df)} rows Complete. Removing {download_path} and closing db connection.")

@@ -188,14 +188,14 @@ def run_sql(sql_path_or_str, sql_replace=None, db_type="viz"):
         sql = re.sub(re.escape(word), replacement, sql, flags=re.IGNORECASE).replace('utc', 'UTC')
 
     db = database(db_type=db_type)
-    with db.get_db_connection() as connection:
-        cur = connection.cursor()
-        cur.execute(sql)
-        try:
-            result = cur.fetchone()
-        except:
-            pass
-        connection.commit()
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(sql)
+            try:
+                result = cur.fetchone()
+            except:
+                pass
     connection.close()
     print(f"---> Finished.")
     return result

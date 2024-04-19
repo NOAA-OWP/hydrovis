@@ -77,14 +77,14 @@ def lambda_handler(event, context):
                                         # "medium_range.channel_rt_6.f240.conus.nc",
 
                                         ## Coastal ##
-                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
-                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
-                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
-                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
-                                        "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
-                                        "short_range_coastal.total_water.f018.atlgulf.nc",
-                                        "short_range_coastal.total_water.f048.puertorico.nc",
-                                        "short_range_coastal.total_water.f048.hawaii.nc"
+                                        # "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+                                        # "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+                                        # "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+                                        # "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        # "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
+                                        # "short_range_coastal.total_water.f018.atlgulf.nc",
+                                        # "short_range_coastal.total_water.f048.puertorico.nc",
+                                        # "short_range_coastal.total_water.f048.hawaii.nc"
                                         ]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
@@ -308,23 +308,27 @@ class viz_lambda_pipeline:
     # This method gathers information on the last pipeline run for the given configuration
     # TODO: This should totally be in the configuration class... and we should abstract a view to access this information.
     def get_last_run_info(self):
-        last_run_info = {}
         target_table = [data_flow['target_table'] for data_flow in self.configuration.configuration_data_flow['db_ingest_groups']][0]
+        last_run_info = {}
+        last_run_info[target_table] = {}
+
         viz_db = database(db_type="viz")
-        with viz_db.get_db_connection() as connection:
-            last_run_info[target_table] = {}
-            cur = connection.cursor()
-            cur.execute(f"""
-                SELECT max(reference_time) as reference_time, last_update
-                FROM (SELECT max(update_time) as last_update from admin.ingest_status a
-                        WHERE target = '{target_table}' and status = 'Import Started') as last_start
-                JOIN admin.ingest_status a ON last_start.last_update = a.update_time
-                GROUP BY last_update
-            """)
-            try:
-                return cur.fetchone()[0], ur.fetchone()[1]
-            except: #if nothing logged in db, return generic datetimes in the past
-                return datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
+        connection = viz_db.get_db_connection()
+        with connection:
+            with connection.cursor() as cur:
+                cur.execute(f"""
+                    SELECT max(reference_time) as reference_time, last_update
+                    FROM (SELECT max(update_time) as last_update from admin.ingest_status a
+                            WHERE target = '{target_table}' and status = 'Import Started') as last_start
+                    JOIN admin.ingest_status a ON last_start.last_update = a.update_time
+                    GROUP BY last_update
+                """)
+                try:
+                    result = cur.fetchone()[0], cur.fetchone()[1]
+                except: #if nothing logged in db, return generic datetimes in the past
+                    result = datetime.datetime(2000, 1, 1, 0, 0, 0), datetime.datetime(2000, 1, 1, 0, 0, 0)
+        connection.close()
+        return result
     
     ###################################
     def organize_rename_dict(self):

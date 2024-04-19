@@ -206,7 +206,10 @@
           },
           "Input Data Files": {
             "Type": "Map",
-            "Iterator": {
+            "ItemProcessor": {
+              "ProcessorConfig": {
+                "Mode": "INLINE"
+              },
               "StartAt": "Input Data Checker/Ingester",
               "States": {
                 "Input Data Checker/Ingester": {
@@ -265,6 +268,7 @@
               "keep_flows_at_or_above.$": "$.db_ingest_group.keep_flows_at_or_above",
               "iteration_index.$": "$$.Map.Item.Index"
             },
+            "MaxConcurrency": 5,
             "ItemsPath": "$.db_ingest_group.ingest_datasets"
           },
           "Postprocess SQL - Input Data Prep Finish": {
@@ -341,7 +345,10 @@
     },
     "DB Max Flows Processing": {
       "Type": "Map",
-      "Iterator": {
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
         "StartAt": "Postprocess SQL - Max Flows",
         "States": {
           "Postprocess SQL - Max Flows": {
@@ -525,7 +532,10 @@
           "Map": {
             "Type": "Map",
             "Next": "Clean Up State Input",
-            "Iterator": {
+            "ItemProcessor": {
+              "ProcessorConfig": {
+                "Mode": "INLINE"
+              },
               "StartAt": "Optimize Rasters",
               "States": {
                 "Optimize Rasters": {
@@ -985,7 +995,10 @@
                 },
                 "HAND Processing": {
                   "Type": "Map",
-                  "Iterator": {
+                  "ItemProcessor": {
+                    "ProcessorConfig": {
+                      "Mode": "INLINE"
+                    },
                     "StartAt": "FIM HUC Processing State Machine",
                     "States": {
                       "FIM HUC Processing State Machine": {
@@ -1182,7 +1195,10 @@
           "Parallelize Summaries": {
             "Type": "Map",
             "Next": "Product Summaries Finished Log",
-            "Iterator": {
+            "ItemProcessor": {
+              "ProcessorConfig": {
+                "Mode": "INLINE"
+              },
               "StartAt": "Postprocess SQL - Summary",
               "States": {
                 "Postprocess SQL - Summary": {

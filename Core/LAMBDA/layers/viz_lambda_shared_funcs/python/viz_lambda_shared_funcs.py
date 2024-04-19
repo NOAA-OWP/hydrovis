@@ -456,12 +456,14 @@ def get_service_metadata(include_ingest_sources=True, include_latest_ref_time=Fa
 		                ON a.ingest_table = b.target group by service) AS ref_times
                         on admin.services.service = ref_times.service2"""
     
+    
     connection = get_db_connection("viz")
-    with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
-        cur.execute(f"SELECT * FROM admin.services{extra_sql};")
-        column_names = [desc[0] for desc in cur.description]
-        response = cur.fetchall()
-        cur.close()
+    with connection:
+        with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+            cur.execute(f"SELECT * FROM admin.services{extra_sql};")
+            column_names = [desc[0] for desc in cur.description]
+            response = cur.fetchall()
+            # cur.close()
     connection.close()
     return list(map(lambda x: dict(zip(column_names, x)), response))
 
@@ -493,17 +495,16 @@ def load_df_into_db(table_name, db_engine, df):
 def run_sql_file_in_db(db_type, sql_file):
     print("Getting connection to run sql files")
     sql = open(sql_file, 'r').read()
-    db_connection = get_db_connection(db_type)
 
-    try:
-        cur = db_connection.cursor()
-        print(f"Running {sql_file}")
-        cur.execute(sql)
-        db_connection.commit()
-    except Exception as e:
-        raise e
-    finally:
-        db_connection.close()
+    connection = get_db_connection(db_type)
+    with connection:
+        try:
+            with connection.cursor() as cur:
+                print(f"Running {sql_file}")
+                cur.execute(sql)
+        except Exception as e:
+            raise e
+    connection.close()
 
 
 def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=True, add_oid=True,

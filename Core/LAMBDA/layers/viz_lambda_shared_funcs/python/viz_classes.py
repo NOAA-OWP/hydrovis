@@ -92,15 +92,14 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def run_sql_file_in_db(self, sql_file):
         sql = open(sql_file, 'r').read()
-        with self.connection as db_connection:
+        with self.connection:
             try:
-                cur = db_connection.cursor()
-                print(f"---> Running {sql_file}")
-                cur.execute(sql)
-                db_connection.commit()
+                with self.connection.cursor() as cur:
+                    print(f"---> Running {sql_file}")
+                    cur.execute(sql)
             except Exception as e:
                 raise e
-        db_connection.close()
+        self.connection.close()
                 
     ###################################                
     def run_sql_in_db(self, sql, return_geodataframe=False):
@@ -121,22 +120,23 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
     ###################################
     def get_est_row_count_in_table(self, table):
         print(f"Getting estimated total rows in {table}.")
-        with self.connection as db_connection:
+        with self.connection:
             try:
-                cur = db_connection.cursor()
-                sql = f"""
-                SELECT (CASE WHEN c.reltuples < 0 THEN NULL -- never vacuumed
-                            WHEN c.relpages = 0 THEN float8 '0' -- empty table
-                            ELSE c.reltuples / c.relpages END
-                    * (pg_catalog.pg_relation_size(c.oid) / pg_catalog.current_setting('block_size')::int))::bigint
-                FROM   pg_catalog.pg_class c
-                WHERE  c.oid = '{table}'::regclass; -- schema-qualified table here
-                """
-                cur.execute(sql)
-                rows = cur.fetchone()[0]
+                with self.connection.cursor() as cur:
+                    sql = f"""
+                    SELECT (CASE WHEN c.reltuples < 0 THEN NULL -- never vacuumed
+                                WHEN c.relpages = 0 THEN float8 '0' -- empty table
+                                ELSE c.reltuples / c.relpages END
+                        * (pg_catalog.pg_relation_size(c.oid) / pg_catalog.current_setting('block_size')::int))::bigint
+                    FROM   pg_catalog.pg_class c
+                    WHERE  c.oid = '{table}'::regclass; -- schema-qualified table here
+                    """
+                    cur.execute(sql)
+                    rows = cur.fetchone()[0]
             except Exception as e:
                 raise e
-        db_connection.close()
+        self.connection.close()
+
         return rows
     
     ###################################

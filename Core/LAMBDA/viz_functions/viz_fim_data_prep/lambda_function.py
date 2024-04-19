@@ -168,30 +168,36 @@ def get_branch_iteration(event):
 # tables before hand processing is run for the remaining features (see the hand_features sql files for aep fim)
 def copy_data_to_egis(db, origin_table, dest_table, columns, add_oid=True, add_geom_index=True, update_srid=None):
     
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
-        cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
-    
-        if add_oid:
-            print(f"---> Adding an OID to the {dest_table}")
-            cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
-        if add_geom_index and "geom" in columns:
-            print(f"---> Adding an spatial index to the {dest_table}")
-            cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
-            if 'geom_xy' in columns:
-                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
-        if update_srid and "geom" in columns:
-            print(f"---> Updating SRID to {update_srid}")
-            cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            cur.execute(f"DROP TABLE IF EXISTS {dest_table};")
+            cur.execute(f"SELECT {columns} INTO {dest_table} FROM {origin_table};")
+        
+            if add_oid:
+                print(f"---> Adding an OID to the {dest_table}")
+                cur.execute(f'ALTER TABLE {dest_table} ADD COLUMN OID SERIAL PRIMARY KEY;')
+            if add_geom_index and "geom" in columns:
+                print(f"---> Adding an spatial index to the {dest_table}")
+                cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom);')  # Add a spatial index
+                if 'geom_xy' in columns:
+                    cur.execute(f'CREATE INDEX ON {dest_table} USING GIST (geom_xy);')  # Add a spatial index to geometry point layer, if present.
+            if update_srid and "geom" in columns:
+                print(f"---> Updating SRID to {update_srid}")
+                cur.execute(f"SELECT UpdateGeometrySRID('{dest_table.split('.')[0]}', '{dest_table.split('.')[1]}', 'geom', {update_srid});")
+    connection.close()
 
 #################################################################################################################################################################    
 # This function drops and recreates a foreign data wrapper schema, so that table and column names are all up-to-date.     
 def refresh_fdw_schema(db, local_schema, remote_server, remote_schema):
-    with db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-        sql = f"""
-        DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
-        CREATE SCHEMA {local_schema};
-        IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
-        """
-        cur.execute(sql)
+    connection = db.get_db_connection()
+    with connection:
+        with connection.cursor() as cur:
+            sql = f"""
+            DROP SCHEMA IF EXISTS {local_schema} CASCADE; 
+            CREATE SCHEMA {local_schema};
+            IMPORT FOREIGN SCHEMA {remote_schema} FROM SERVER {remote_server} INTO {local_schema};
+            """
+            cur.execute(sql)
+    connection.close()
     print(f"---> Refreshed {local_schema} foreign schema.")
