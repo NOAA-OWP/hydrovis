@@ -77,6 +77,12 @@ resource "aws_db_parameter_group" "hydrovis" {
   }
 
   parameter {
+    name         = "rds.custom_dns_resolution"
+    value        = "1"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
     name  = "wal_buffers"
     value = var.environment == "ti" ? "64000" : "128000"
     apply_method = "pending-reboot"
