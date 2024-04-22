@@ -10,13 +10,6 @@ ingest_files:
       target_table: ingest.nwm_reservoir_srf
       target_keys: (feature_id)
 
-db_max_flows:
-  - name: srf_max_flows
-    target_table: cache.max_flows_srf
-    target_keys: (feature_id, streamflow)
-    method: database
-    max_flows_sql_file: srf_max_flows
-
 postprocess_sql:
   - sql_file: srf_18hr_water_management
     target_table: publish.srf_18hr_water_management
