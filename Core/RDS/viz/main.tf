@@ -97,7 +97,7 @@ resource "aws_db_parameter_group" "hydrovis" {
 resource "aws_db_instance" "hydrovis" {
   identifier                   = "hv-vpp-${var.environment}-viz-processing"
   db_name                      = var.viz_db_name
-  instance_class               = var.environment == "ti" ? "db.m5.2xlarge" : "db.m5.4xlarge"
+  instance_class               = var.environment == "ti" ? "db.m6g.2xlarge" : "db.m5.4xlarge"
   allocated_storage            = 1024
   storage_type                 = "gp2"
   engine                       = "postgres"
