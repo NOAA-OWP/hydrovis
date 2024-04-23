@@ -79,7 +79,13 @@ def lambda_handler(event, context):
                     print("Regex pattern for the forecast hour didn't match the netcdf file")
                 
                 try:
-                    ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    try:
+                        ds['nwm_vers'] = float(ds.NWM_version_number.replace("v",""))
+                    except:
+                        try:
+                            ds['nwm_vers'] = float(ds.model_version.replace("NWM ",""))
+                        except:
+                            raise
                     if 'nwm_vers' not in target_cols:
                         target_cols.append('nwm_vers')
                 except:
