@@ -23,8 +23,8 @@ def process_sns_event(event):
         event_message = record["Sns"]["Message"]
         logger.info(f"Event message: {event_message}")
 
-		# convert the event message to json
-		message_json = json.loads(event_message)
+        # convert the event message to json
+        message_json = json.loads(event_message)
 
         # obtain the image state
         image_state = message_json["state"]["status"]
