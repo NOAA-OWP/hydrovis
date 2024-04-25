@@ -1,0 +1,13 @@
+service: srf_18hr_water_management
+summary: Short-Range Water Management Forecast
+description: Depicts the source of reservoir forecasts from output of the operational National Water 
+  Model (NWM) short-range forecast. Reservoirs can have forecasts obtained from 1 of 4 sources: Level 
+  Pool, RFC Forecast, USACE-Persistence, or USGS-Persistence. Reservoirs that have RFC, USACE, or USGS 
+  forecasts use those in the NWM when available; otherwise, the NWM will default to using the Level 
+  Pool method. Updated hourly.
+tags: reservoirs, water management, national water model, nwm, srf, short, range, conus
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false
