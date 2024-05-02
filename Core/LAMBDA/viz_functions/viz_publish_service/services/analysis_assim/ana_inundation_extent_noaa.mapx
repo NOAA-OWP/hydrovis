@@ -5056,7 +5056,7 @@
             },
             {
               "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "fim_stage_ft"
             },
             {
@@ -6099,7 +6099,7 @@
             },
             {
               "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "fim_stage_ft"
             },
             {
