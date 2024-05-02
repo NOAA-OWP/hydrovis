@@ -10,7 +10,7 @@ resource "aws_imagebuilder_image_pipeline" "arcgis_server" {
     schedule_expression = "cron(0 5 ? * wed *)"
     # Schedule every Wed at 5 AM after Patch Tuesdays
     pipeline_execution_start_condition = "EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE"
-    timezone = "Etc/UTC"
+    timezone                           = "Etc/UTC"
   }
 
   # Test the image after build
@@ -110,9 +110,9 @@ resource "aws_imagebuilder_distribution_configuration" "arcgisserver-distributio
     content {
       region = distribution.value
       ami_distribution_configuration {
-        name = "arcgisserver-${local.arcgisVersionName}-{{ imagebuilder:buildDate }}"
+        name               = "arcgisserver-${local.arcgisVersionName}-{{ imagebuilder:buildDate }}"
         target_account_ids = var.ami_sharing_account_ids
-        ami_tags = merge(data.aws_default_tags.default.tags, { Name = "arcgisserver-${local.arcgisVersionName}-distribution" }, local.shared_tags)
+        ami_tags           = merge(data.aws_default_tags.default.tags, { Name = "arcgisserver-${local.arcgisVersionName}-distribution" }, local.shared_tags)
       }
     }
   }
