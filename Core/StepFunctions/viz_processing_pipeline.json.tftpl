@@ -976,6 +976,7 @@
                   "Resource": "arn:aws:states:::states:startExecution.sync:2",
                   "Parameters": {
                     "StateMachineArn": "${schism_fim_processing_step_function_arn}",
+                    "Name.$": "States.Format('{}_{}T{}Z', $.fim_config.name, States.ArrayGetItem(States.StringSplit($.reference_time, ' '), 0), States.ArrayGetItem(States.StringSplit(States.ArrayGetItem(States.StringSplit($.reference_time, ' '), 1), ':'), 0))",
                     "Input": {
                       "fim_config.$": "$.fim_config",
                       "reference_time.$": "$.reference_time",

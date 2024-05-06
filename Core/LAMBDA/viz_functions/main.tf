@@ -1049,8 +1049,8 @@ output "hand_fim_processing" {
   value = module.image-based-lambdas.hand_fim_processing
 }
 
-output "schism_fim_processing" {
-  value = module.image-based-lambdas.schism_fim_processing
+output "schism_fim" {
+  value = module.image-based-lambdas.schism_fim
 }
 
 output "optimize_rasters" {

@@ -1,17 +1,24 @@
 {
   "Comment": "Processes the outputs for all SCHISM FIM services.",
-  "StartAt": "Get Domain Tile Basenames",
+  "StartAt": "DB Prep",
   "States": {
-    "Get Domain Tile Basenames": {
+    "DB Prep": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "${schism_fim_processing_arn}",
+        "FunctionName": "${db_postprocess_sql_arn}"
         "Payload": {
-          "original_input.$": "$",
-          "step": "get_domain_tile_basenames",
+          "step": "ingest_prep",
+          "folder": "admin",
           "args": {
-            "fim_config.$": "$.fim_config"
+            "reference_time.$": "$.reference_time",
+            "sql_rename_dict.$": "$.sql_rename_dict",
+            "db_ingest_group": {
+              "target_table.$": "$.fim_config.target_table",
+              "index_columns": "()",
+              "index_name.$": "States.Format('idx_{}', States.ArrayGetItem(States.StringSplit($.fim_config.target_table, '.'), 1))",
+              "dependent_on": ""
+            }
           }
         }
       },
@@ -25,8 +32,22 @@
           "BackoffRate": 2
         }
       ],
+      "Next": "Get Tile Keys From S3",
+      "ResultPath": null
+    },
+    "Get Tile Keys From S3": {
+      "Type": "Task",
       "Next": "Iterate over Tiles",
-      "ResultPath": "$.result"
+      "Parameters": {
+        "Bucket": "hydrovis-ti-deployment-us-east-1",
+        "Prefix.$": "States.Format('schism_fim/dems/{}/tiles/', States.ArrayGetItem(States.StringSplit($.fim_config.sql_file, '_'), 1))"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:s3:listObjectsV2",
+      "ResultSelector": {
+        "Bucket.$": "$.Name",
+        "Keys.$": "States.ArrayPartition($.Contents[?(@.Key =~ /.*\\.tif/i)].Key, 7)"
+      },
+      "ResultPath": "$.tiles"
     },
     "Iterate over Tiles": {
       "Type": "Map",
@@ -34,45 +55,71 @@
         "ProcessorConfig": {
           "Mode": "INLINE"
         },
-        "StartAt": "Process FIM By Tile",
+        "StartAt": "Process Tile",
         "States": {
-          "Process FIM By Tile": {
+          "Process Tile": {
             "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
+            "Resource": "arn:aws:states:::batch:submitJob.sync",
             "Parameters": {
-              "FunctionName": "${schism_fim_processing_arn}",
-              "Payload.$": "$"
-            },
-            "Retry": [
-              {
-                "ErrorEquals": [
-                  "States.ALL"
-                ],
-                "IntervalSeconds": 1,
-                "MaxAttempts": 2,
-                "BackoffRate": 2
+              "JobName.$": "$.job_name",
+              "JobDefinition": "${schism_fim_job_definition_arn}",
+              "JobQueue": "${schism_fim_job_queue_arn}",
+              "Parameters": {
+                "args_as_json.$": "States.JsonToString($)"
               }
-            ],
-            "ResultSelector": {
-              "output_raster.$": "$.Payload.output_raster",
-              "output_bucket.$": "$.Payload.output_bucket"
             },
-            "End": true
+            "End": true,
+            "TimeoutSeconds": 5400
           }
         }
       },
-      "ItemsPath": "$.result.Payload.domain_tile_basenames",
+      "ItemsPath": "$.tiles.Keys",
       "ItemSelector": {
+        "tile_keys.$": "$$.Map.Item.Value",
+        "reference_time.$": "$.reference_time",
+        "product.$": "$.product.product",
+        "output_bucket.$": "$.product.raster_outputs.output_bucket",
+        "output_workspaces.$": "$.product.raster_outputs.output_raster_workspaces",
+        "fim_config.$": "$.fim_config",
         "step": "iteration",
-        "tile_basename.$": "$$.Map.Item.Value",
-        "args": {
-          "job_type.$": "$.job_type",
-          "reference_time.$": "$.reference_time",
-          "product.$": "$.product",
-          "fim_config.$": "$.fim_config",
-          "sql_rename_dict.$": "$.sql_rename_dict"
+        "job_name.$": "States.Format('{}_{}', $$.Execution.Name, $$.Map.Item.Index)"
+      },
+      "Next": "DB Finalize",
+      "ResultPath": null
+    },
+    "DB Finalize": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "${db_postprocess_sql_arn}"
+        "Payload": {
+          "step": "ingest_finish",
+          "folder": "admin",
+          "args": {
+            "reference_time.$": "$.reference_time",
+            "sql_rename_dict.$": "$.sql_rename_dict",
+            "db_ingest_group": {
+              "target_table.$": "$.fim_config.target_table",
+              "index_columns.$": "States.Format('USING GIST (geom); ALTER TABLE {} DROP COLUMN IF EXISTS huc8;', $.fim_config.target_table)",
+              "index_name.$": "States.Format('idx_{}', States.ArrayGetItem(States.StringSplit($.fim_config.target_table, '.'), 1))",
+              "dependent_on": ""
+            }
+          }
         }
       },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2
+        }
+      ],
       "Next": "Create VRT",
       "ResultPath": null
     },
