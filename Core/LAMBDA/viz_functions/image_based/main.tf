@@ -495,7 +495,9 @@ module "schism-fim" {
   account_id                  = var.account_id
   region                      = var.region
   ecr_repository_image_tag    = local.ecr_repository_image_tag
-  lambda_role                 = var.lambda_role
+  codebuild_role              = var.lambda_role
+  security_groups             = var.hand_fim_processing_sgs
+  subnets                     = var.hand_fim_processing_subnets
   deployment_bucket           = var.deployment_bucket
   profile_name                = var.environment
   viz_db_name                 = var.viz_db_name

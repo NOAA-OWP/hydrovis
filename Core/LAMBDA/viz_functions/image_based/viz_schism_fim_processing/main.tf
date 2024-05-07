@@ -15,8 +15,16 @@ variable "ecr_repository_image_tag" {
   default = "latest"
 }
 
-variable "lambda_role" {
+variable "codebuild_role" {
   type = string
+}
+
+variable "security_groups" {
+  type = list(string)
+}
+
+variable "subnets" {
+  type = list(string)
 }
 
 variable "deployment_bucket" {
@@ -40,7 +48,7 @@ variable "viz_db_user_secret_string" {
 }
 
 locals {
-  viz_schism_fim_processing_lambda_name = "hv-vpp-${var.environment}-viz-schism-fim-processing"
+  viz_schism_fim_resource_name = "hv-vpp-${var.environment}-viz-schism-fim-processing"
 }
 
 
@@ -74,7 +82,7 @@ resource "aws_s3_object" "schism_processing_zip_upload" {
 }
 
 resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
-  name                 = local.viz_schism_fim_processing_lambda_name
+  name                 = local.viz_schism_fim_resource_name
   image_tag_mutability = "MUTABLE"
 
   force_delete = true
@@ -84,11 +92,11 @@ resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
   }
 }
 
-resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
-  name          = local.viz_schism_fim_processing_lambda_name
+resource "aws_codebuild_project" "build_schism_fim_image" {
+  name          = local.viz_schism_fim_resource_name
   description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
   build_timeout = "60"
-  service_role  = var.lambda_role
+  service_role  = var.codebuild_role
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -137,7 +145,7 @@ resource "null_resource" "viz_schism_fim_processing_cluster" {
   depends_on = [ aws_s3_object.schism_processing_zip_upload ]
 
   provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.profile_name} --region ${var.region}"
+    command = "aws codebuild start-build --project-name ${aws_codebuild_project.build_schism_fim_image.name} --profile ${var.profile_name} --region ${var.region}"
   }
 }
 
@@ -154,7 +162,7 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
   compute_environment_name = "hv-vpp-${var.environment}-schism-fim-compute-env"
 
   compute_resources {
-    instance_role = aws_iam_instance_profile.ecs_instance_role.arn  # vpp-schism-execution-role
+    instance_role = "arn:aws:iam::526904826677:instance-profile/vpp-schism-execution-role"
 
     instance_type = [
       "c7g",
@@ -163,23 +171,14 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
     min_vcpus = 0
     max_vcpus = 96
 
-    security_group_ids = [
-      var.hand_fim_processing_sgs[0],
-      # hv-ti-default-security-group (sg-0210d56d96ef3ecac),
-      # ssm-session-manager-sg (sg-0874e1b42d1981b59),
-      # egis-ti-overlord (sg-061d4c39051385f9c),
-    ]
+    security_group_ids = var.security_groups
 
-    subnets = [
-      var.hand_fim_processing_subnets[0],
-      var.hand_fim_processing_subnets[1],
-      # hv-vpp-ti-prv-sn-a (subnet-071c0ac32a224297f)
-    ]
+    subnets = var.subnets
 
     type = "EC2"
   }
 
-  service_role = aws_iam_role.aws_batch_service_role.arn  # arn:aws:iam::526904826677:role/aws-service-role/batch.amazonaws.com/AWSServiceRoleForBatch
+  service_role = "arn:aws:iam::${var.account_id}:role/aws-service-role/batch.amazonaws.com/AWSServiceRoleForBatch"
   type         = "MANAGED"
   depends_on   = [aws_iam_role_policy_attachment.aws_batch_service_role]  # Not sure on this...
 }
@@ -200,7 +199,7 @@ resource "aws_batch_job_definition" "schism_fim_job_definition" {
   type = "container"
   container_properties = jsonencode({
     command = ["python3", "./process_schism_fim.py", "Ref::args_as_json"],
-    image   = "${var.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.viz_schism_fim_processing_lambda_name}:${var.ecr_repository_image_tag}"
+    image   = "${var.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.viz_schism_fim_resource_name}:${var.ecr_repository_image_tag}"
 
     resourceRequirements = [
       {
