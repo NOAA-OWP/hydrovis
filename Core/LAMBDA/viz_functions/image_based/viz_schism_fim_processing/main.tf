@@ -60,16 +60,28 @@ data "archive_file" "schism_processing_zip" {
   type = "zip"
   output_path = "${path.module}/temp/viz_schism_fim_processing.zip"
 
-  dynamic "source" {
-    for_each = fileset("${path.module}/viz_schism_fim_processing", "**")
-    content {
-      content  = file("${path.module}/viz_schism_fim_processing/${source.key}")
-      filename = source.key
-    }
+  source {
+    content  = file("${path.module}/buildspec.yml")
+    filename = "buildspec.yml"
   }
 
   source {
-    content  = file("${path.module}/../../Core/LAMBDA/layers/viz_lambda_shared_funcs/python/viz_classes.py")
+    content  = file("${path.module}/Dockerfile")
+    filename = "Dockerfile"
+  }
+
+  source {
+    content  = file("${path.module}/process_schism_fim.py")
+    filename = "process_schism_fim.py"
+  }
+
+  source {
+    content  = file("${path.module}/requirements.txt")
+    filename = "requirements.txt"
+  }
+
+  source {
+    content  = file("${path.module}/../../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
     filename = "viz_classes.py"
   }
 }
