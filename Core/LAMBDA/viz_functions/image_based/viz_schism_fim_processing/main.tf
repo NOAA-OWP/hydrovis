@@ -162,7 +162,7 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
   compute_environment_name = "hv-vpp-${var.environment}-schism-fim-compute-env"
 
   compute_resources {
-    instance_role = "arn:aws:iam::526904826677:instance-profile/vpp-schism-execution-role"
+    instance_role = "arn:aws:iam::${var.account_id}:instance-profile/vpp-schism-execution-role"
 
     instance_type = [
       "c7g",
