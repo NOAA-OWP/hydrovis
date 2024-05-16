@@ -484,152 +484,33 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 }
 
 
-##################################
-## SCHISM HUC PROCESSING LAMBDA ##
-##################################
+###########################
+## SCHISM FIM PROCESSING ##
+###########################
 
-data "archive_file" "schism_processing_zip" {
-  type = "zip"
-  output_path = "${path.module}/temp/viz_schism_fim_processing_${var.environment}_${var.region}.zip"
-
-  dynamic "source" {
-    for_each = fileset("${path.module}/viz_schism_fim_processing", "**")
-    content {
-      content  = file("${path.module}/viz_schism_fim_processing/${source.key}")
-      filename = source.key
-    }
-  }
-
-  source {
-    content  = file("${path.module}/../../layers/viz_lambda_shared_funcs/python/viz_classes.py")
-    filename = "viz_classes.py"
-  }
-
-  source {
-    content = templatefile("${path.module}/viz_schism_fim_processing/serverless.yml.tmpl", {
-      SERVICE_NAME                = replace(local.viz_schism_fim_processing_lambda_name, "_", "-")
-      LAMBDA_TAGS                 = jsonencode(merge(var.default_tags, { Name = local.viz_schism_fim_processing_lambda_name }))
-      DEPLOYMENT_BUCKET           = var.deployment_bucket
-      AWS_DEFAULT_REGION          = var.region
-      LAMBDA_NAME                 = local.viz_schism_fim_processing_lambda_name
-      AWS_ACCOUNT_ID              = var.account_id
-      IMAGE_REPO_NAME             = aws_ecr_repository.viz_schism_fim_processing_image.name
-      IMAGE_TAG                   = var.ecr_repository_image_tag
-      LAMBDA_ROLE_ARN             = var.lambda_role
-      PYTHON_PREPROCESSING_BUCKET = var.python_preprocessing_bucket
-      INPUTS_BUCKET               = var.deployment_bucket
-      INPUTS_PREFIX               = "schism_fim"
-      VIZ_DB_DATABASE             = var.viz_db_name
-      VIZ_DB_HOST                 = var.viz_db_host
-      VIZ_DB_PASSWORD             = jsondecode(var.viz_db_user_secret_string)["password"]
-      VIZ_DB_USERNAME             = jsondecode(var.viz_db_user_secret_string)["username"]
-      SECURITY_GROUP_1            = var.hand_fim_processing_sgs[0]
-      SUBNET_1                    = var.hand_fim_processing_subnets[0]
-      SUBNET_2                    = var.hand_fim_processing_subnets[1]
-    })
-    filename = "serverless.yml"
-  }
+module "schism-fim" {
+  source = "./viz_schism_fim_processing"
+  
+  environment                 = var.environment
+  account_id                  = var.account_id
+  region                      = var.region
+  ecr_repository_image_tag    = var.ecr_repository_image_tag
+  codebuild_role              = var.lambda_role
+  security_groups             = var.hand_fim_processing_sgs
+  subnets                     = var.hand_fim_processing_subnets
+  deployment_bucket           = var.deployment_bucket
+  profile_name                = var.environment
+  viz_db_name                 = var.viz_db_name
+  viz_db_host                 = var.viz_db_host
+  viz_db_user_secret_string   = var.viz_db_user_secret_string
 }
-
-resource "aws_s3_object" "schism_processing_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_schism_fim_processing.zip"
-  source      = data.archive_file.schism_processing_zip.output_path
-  source_hash = data.archive_file.schism_processing_zip.output_md5
-}
-
-resource "aws_ecr_repository" "viz_schism_fim_processing_image" {
-  name                 = local.viz_schism_fim_processing_lambda_name
-  image_tag_mutability = "MUTABLE"
-
-  force_delete = true
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_codebuild_project" "viz_schism_fim_processing_lambda" {
-  name          = local.viz_schism_fim_processing_lambda_name
-  description   = "Codebuild project that builds the lambda container based on a zip file with lambda code and dockerfile. Also deploys a lambda function using the ECR image"
-  build_timeout = "60"
-  service_role  = var.lambda_role
-
-  artifacts {
-    type = "NO_ARTIFACTS"
-  }
-
-  environment {
-    compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:6.0"
-    type                        = "LINUX_CONTAINER"
-    image_pull_credentials_type = "CODEBUILD"
-    privileged_mode             = true
-
-    environment_variable {
-      name  = "AWS_DEFAULT_REGION"
-      value = var.region
-    }
-
-    environment_variable {
-      name  = "AWS_ACCOUNT_ID"
-      value = var.account_id
-    }
-
-    environment_variable {
-      name  = "IMAGE_REPO_NAME"
-      value = aws_ecr_repository.viz_schism_fim_processing_image.name
-    }
-
-    environment_variable {
-      name  = "IMAGE_TAG"
-      value = var.ecr_repository_image_tag
-    }
-  }
-
-  source {
-    type            = "S3"
-    location        = "${aws_s3_object.schism_processing_zip_upload.bucket}/${aws_s3_object.schism_processing_zip_upload.key}"
-  }
-}
-
-resource "null_resource" "viz_schism_fim_processing_cluster" {
-  # Changes to any instance of the cluster requires re-provisioning
-  triggers = {
-    source_hash = data.archive_file.schism_processing_zip.output_md5
-  }
-
-  depends_on = [ aws_s3_object.schism_processing_zip_upload ]
-
-  provisioner "local-exec" {
-    command = "aws codebuild start-build --project-name ${aws_codebuild_project.viz_schism_fim_processing_lambda.name} --profile ${var.environment} --region ${var.region}"
-  }
-}
-
-resource "time_sleep" "wait_for_viz_schism_fim_processing_cluster" {
-  triggers = {
-    function_update = null_resource.viz_schism_fim_processing_cluster.triggers.source_hash
-  }
-  depends_on = [null_resource.viz_schism_fim_processing_cluster]
-
-  create_duration = "120s"
-}
-
-data "aws_lambda_function" "viz_schism_fim_processing" {
-  function_name = local.viz_schism_fim_processing_lambda_name
-
-  depends_on = [
-    time_sleep.wait_for_viz_schism_fim_processing_cluster
-  ]
-}
-
 
 output "hand_fim_processing" {
   value = data.aws_lambda_function.viz_hand_fim_processing
 }
 
-output "schism_fim_processing" {
-  value = data.aws_lambda_function.viz_schism_fim_processing
+output "schism_fim" {
+  value = module.schism-fim
 }
 
 output "optimize_rasters" {

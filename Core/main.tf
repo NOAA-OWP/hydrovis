@@ -139,13 +139,15 @@ module "s3" {
       module.iam-roles.role_rnr.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_sync_wrds_location_db.arn
+      module.iam-roles.role_sync_wrds_location_db.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_rds_s3_export.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "hml-backup" = [
       module.iam-roles.role_data_ingest.arn
@@ -580,18 +582,18 @@ module "viz-lambda-functions" {
     aws.sns = aws.sns
   }
 
-  environment                 = local.env.environment
-  account_id                  = local.env.account_id
-  region                      = local.env.region
-  viz_authoritative_bucket    = module.s3.buckets["deployment"].bucket
-  fim_data_bucket             = module.s3.buckets["deployment"].bucket
-  fim_output_bucket           = module.s3.buckets["fim"].bucket
-  python_preprocessing_bucket = module.s3.buckets["fim"].bucket
-  rnr_data_bucket             = module.s3.buckets["rnr"].bucket
-  deployment_bucket           = module.s3.buckets["deployment"].bucket
-  viz_cache_bucket            = module.s3.buckets["fim"].bucket
-  fim_version                 = local.env.fim_version
-  lambda_role                 = module.iam-roles.role_viz_pipeline.arn
+  environment                    = local.env.environment
+  account_id                     = local.env.account_id
+  region                         = local.env.region
+  viz_authoritative_bucket       = module.s3.buckets["deployment"].bucket
+  fim_data_bucket                = module.s3.buckets["deployment"].bucket
+  fim_output_bucket              = module.s3.buckets["fim"].bucket
+  python_preprocessing_bucket    = module.s3.buckets["fim"].bucket
+  rnr_data_bucket                = module.s3.buckets["rnr"].bucket
+  deployment_bucket              = module.s3.buckets["deployment"].bucket
+  viz_cache_bucket               = module.s3.buckets["fim"].bucket
+  fim_version                    = local.env.fim_version
+  lambda_role                    = module.iam-roles.role_viz_pipeline.arn
   # sns_topics                      = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
@@ -638,7 +640,8 @@ module "step-functions" {
   python_preprocessing_3GB_arn      = module.viz-lambda-functions.python_preprocessing_3GB.arn
   python_preprocessing_10GB_arn     = module.viz-lambda-functions.python_preprocessing_10GB.arn
   hand_fim_processing_arn           = module.viz-lambda-functions.hand_fim_processing.arn
-  schism_fim_processing_arn         = module.viz-lambda-functions.schism_fim_processing.arn
+  schism_fim_job_definition_arn     = module.viz-lambda-functions.schism_fim.job_definition.arn
+  schism_fim_job_queue_arn          = module.viz-lambda-functions.schism_fim.job_queue.arn
   initialize_pipeline_arn           = module.viz-lambda-functions.initialize_pipeline.arn
   rnr_domain_generator_arn          = module.rnr-lambda-functions.rnr_domain_generator.arn
   email_sns_topics                  = module.sns.email_sns_topics
