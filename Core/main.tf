@@ -139,13 +139,15 @@ module "s3" {
       module.iam-roles.role_rnr.arn,
       module.iam-users.user_WRDSServiceAccount.arn,
       module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_sync_wrds_location_db.arn
+      module.iam-roles.role_sync_wrds_location_db.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_rds_s3_export.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      module.iam-users.user_FIMServiceAccount.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "hml-backup" = [
       module.iam-roles.role_data_ingest.arn

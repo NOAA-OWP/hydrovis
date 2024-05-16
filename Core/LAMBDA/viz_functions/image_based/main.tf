@@ -494,7 +494,7 @@ module "schism-fim" {
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region
-  ecr_repository_image_tag    = local.ecr_repository_image_tag
+  ecr_repository_image_tag    = var.ecr_repository_image_tag
   codebuild_role              = var.lambda_role
   security_groups             = var.hand_fim_processing_sgs
   subnets                     = var.hand_fim_processing_subnets
@@ -503,7 +503,6 @@ module "schism-fim" {
   viz_db_name                 = var.viz_db_name
   viz_db_host                 = var.viz_db_host
   viz_db_user_secret_string   = var.viz_db_user_secret_string
-  default_tags                = var.default_tags
 }
 
 output "hand_fim_processing" {

@@ -58,7 +58,7 @@ locals {
 
 data "archive_file" "schism_processing_zip" {
   type = "zip"
-  output_path = "${path.module}/temp/viz_schism_fim_processing.zip"
+  output_path = "${path.module}/temp/viz_schism_fim_processing_${var.environment}_${var.region}.zip"
 
   source {
     content  = file("${path.module}/buildspec.yml")
@@ -170,11 +170,96 @@ resource "time_sleep" "wait_for_viz_schism_fim_processing_cluster" {
   create_duration = "120s"
 }
 
+data "aws_iam_policy_document" "batch_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["batch.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "aws_batch_service_role" {
+  name               = "aws_batch_service_role"
+  assume_role_policy = data.aws_iam_policy_document.batch_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "aws_batch_service_role" {
+  role       = aws_iam_role.aws_batch_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+}
+
+
+resource "aws_iam_role" "schism_execution" {
+  name = "hv-vpp-${var.environment}-${var.region}-schism-execution"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = [
+            "ecs-tasks.amazonaws.com",
+            "ec2.amazonaws.com"
+          ]
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "schism_execution" {
+  name = "hv-vpp-${var.environment}-${var.region}-schism-execution"
+  role = aws_iam_role.schism_execution.name
+}
+
+resource "aws_iam_role_policy" "schism_execution" {
+  name   = "hv-vpp-${var.environment}-${var.region}-schism_execution"
+  role   = aws_iam_role.schism_execution.id
+  policy = file("${path.module}/schism_execution.json")
+}
+
+resource "aws_iam_role_policy_attachment" "schism_execution_AmazonEC2ContainerRegistryReadOnly" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AmazonEC2ContainerServiceforEC2Role" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AmazonECSTaskExecutionRolePolicy" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AmazonRDSFullAccess" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AmazonS3FullAccess" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AWSBatchFullAccess" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSBatchFullAccess"
+}
+resource "aws_iam_role_policy_attachment" "schism_execution_AWSBatchServiceRole" {
+  role       = aws_iam_role.schism_execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole"
+}
+
 resource "aws_batch_compute_environment" "schism_fim_compute_env" {
   compute_environment_name = "hv-vpp-${var.environment}-schism-fim-compute-env"
 
   compute_resources {
-    instance_role = "arn:aws:iam::${var.account_id}:instance-profile/vpp-schism-execution-role"
+    instance_role = aws_iam_instance_profile.schism_execution.arn
 
     instance_type = [
       "c7g",
@@ -190,7 +275,7 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
     type = "EC2"
   }
 
-  service_role = "arn:aws:iam::${var.account_id}:role/aws-service-role/batch.amazonaws.com/AWSServiceRoleForBatch"
+  service_role = aws_iam_role.aws_batch_service_role.arn
   type         = "MANAGED"
   depends_on   = [aws_iam_role_policy_attachment.aws_batch_service_role]  # Not sure on this...
 }
@@ -200,10 +285,9 @@ resource "aws_batch_job_queue" "schism_fim_job_queue" {
   state    = "ENABLED"
   priority = 1
 
-  compute_environment_order {
-    order               = 1
-    compute_environment = aws_batch_compute_environment.schism_fim_compute_env.arn
-  }
+  compute_environments = [
+    aws_batch_compute_environment.schism_fim_compute_env.arn
+  ]
 }
 
 resource "aws_batch_job_definition" "schism_fim_job_definition" {
@@ -211,7 +295,7 @@ resource "aws_batch_job_definition" "schism_fim_job_definition" {
   type = "container"
   container_properties = jsonencode({
     command = ["python3", "./process_schism_fim.py", "Ref::args_as_json"],
-    image   = "${var.account_id}.dkr.ecr.us-east-1.amazonaws.com/${local.viz_schism_fim_resource_name}:${var.ecr_repository_image_tag}"
+    image   = "${var.account_id}.dkr.ecr.${var.region}.amazonaws.com/${local.viz_schism_fim_resource_name}:${var.ecr_repository_image_tag}"
 
     resourceRequirements = [
       {
@@ -253,10 +337,14 @@ resource "aws_batch_job_definition" "schism_fim_job_definition" {
   })
 }
 
-output "job_definion" {
-    value = aws_batch_job_definition.schism_fim_job_definition
+output "job_definition" {
+  value = aws_batch_job_definition.schism_fim_job_definition
 }
 
 output "job_queue" {
-    value = aws_batch_job_queue.schism_fim_job_queue
+  value = aws_batch_job_queue.schism_fim_job_queue
+}
+
+output "execution_role_arn" {
+  value = aws_iam_role.schism_execution.arn
 }
