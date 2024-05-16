@@ -1,4 +1,4 @@
-service: ana_high_flow_magnitude_ak
+service: ana_high_flow_magnitude_ak_noaa
 summary: High Flow Magnitude Analysis - Alaska
 description: Depicts the magnitude of the National Water Model (NWM) streamflow forecast where the NWM is signaling high water. This service is derived 
   from the analysis and assimilation configuration of the NWM for Alaska. Shown are reaches with flow at or above high water thresholds. 
