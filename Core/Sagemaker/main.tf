@@ -24,11 +24,13 @@ variable "kms_key_id" {
 }
 
 resource "aws_sagemaker_notebook_instance" "ni" {
-  name            = "hv-vpp-${var.environment}-viz-notebook"
-  role_arn        = var.iam_role
-  instance_type   = "ml.t2.xlarge"
-  volume_size     = 100
-  subnet_id       = var.subnet
-  security_groups = var.security_groups
-  kms_key_id      = var.kms_key_id
+  name                   = "hv-vpp-${var.environment}-viz-notebook"
+  role_arn               = var.iam_role
+  instance_type          = "ml.t2.xlarge"
+  volume_size            = 100
+  subnet_id              = var.subnet
+  security_groups        = var.security_groups
+  kms_key_id             = var.kms_key_id
+  direct_internet_access = "Disabled"
+  root_access            = "Disabled"
 }

@@ -25,6 +25,7 @@ resource "aws_mq_broker" "ingest" {
   publicly_accessible        = false
   security_groups            = var.mq_ingest_security_groups
   subnet_ids                 = var.mq_ingest_subnets
+  deployment_mode            = "CLUSTER_MULTI_AZ"
 
   logs {
     general = true

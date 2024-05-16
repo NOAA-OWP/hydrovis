@@ -161,6 +161,20 @@ resource "aws_security_group" "vpc_access" {
       self             = false
       to_port          = 0
     },
+    {
+      cidr_blocks = [
+        "18.206.107.24/29",
+        "3.16.146.0/29",
+      ]
+      description      = "EC2_INSTANCE_CONNECT"
+      from_port        = 22
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      protocol         = "tcp"
+      security_groups  = []
+      self             = false
+      to_port          = 22
+    },
   ]
 
   lifecycle {

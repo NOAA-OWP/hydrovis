@@ -103,6 +103,7 @@ resource "aws_db_instance" "hydrovis" {
   backup_retention_period      = 7
   skip_final_snapshot          = true
   auto_minor_version_upgrade   = false
+  deletion_protection          = true
   tags = {
     "hv-vpp-${var.environment}-viz-processing-rdsdbtag" : "hv-vpp-${var.environment}-viz-processing-rdsdbtag"
     "noaa:monitoring"                                   : "true"
