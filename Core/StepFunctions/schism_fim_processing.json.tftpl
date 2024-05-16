@@ -6,7 +6,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "${db_postprocess_sql_arn}"
+        "FunctionName": "${db_postprocess_sql_arn}",
         "Payload": {
           "step": "ingest_prep",
           "folder": "admin",
@@ -91,7 +91,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "Parameters": {
-        "FunctionName": "${db_postprocess_sql_arn}"
+        "FunctionName": "${db_postprocess_sql_arn}",
         "Payload": {
           "step": "ingest_finish",
           "folder": "admin",
