@@ -26,9 +26,9 @@ variable "admin_team_arns" {
   type = list(string)
 }
 
-variable "user_S3ReplicationDataServiceAccount_arn" {
-  type = string
-}
+# variable "user_S3ReplicationDataServiceAccount_arn" {
+#   type = string
+# }
 
 variable "user_data-ingest-service-user_arn" {
   type = string
@@ -88,7 +88,7 @@ module "source-bucket" {
   region      = var.region
 
   name                       = each.key
-  source_service_account_arn = var.user_S3ReplicationDataServiceAccount_arn
+  # source_service_account_arn = var.user_S3ReplicationDataServiceAccount_arn
   ti_account_id              = var.ti_account_id
   uat_account_id             = var.uat_account_id
   prod_account_id            = var.prod_account_id

@@ -137,8 +137,8 @@ module "s3" {
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_data_ingest.arn,
       module.iam-roles.role_rnr.arn,
-      module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-users.user_WRDSServiceAccount_arn,
+      # module.iam-users.user_FIMServiceAccount.arn,
       module.iam-roles.role_sync_wrds_location_db.arn,
       "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
@@ -146,7 +146,7 @@ module "s3" {
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_rds_s3_export.arn,
-      module.iam-users.user_FIMServiceAccount.arn,
+      # module.iam-users.user_FIMServiceAccount.arn,
       "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "hml-backup" = [
@@ -164,7 +164,7 @@ module "s3" {
       module.iam-roles.role_rnr.arn
     ]
     "ised" = [
-      module.iam-users.user_ISEDServiceAccount.arn
+      # module.iam-users.user_ISEDServiceAccount.arn
     ]
   }
 }
@@ -192,7 +192,7 @@ module "s3-replication" {
   ti_account_id                            = local.env.ti_account_id
   region                                   = local.env.region
   admin_team_arns                          = local.env.admin_team_arns
-  user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
+  # user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
   user_data-ingest-service-user_arn        = module.iam-roles.role_data_ingest.arn
   role_viz_pipeline_arn                    = module.iam-roles.role_viz_pipeline.arn
   role_rnr_arn                             = module.iam-roles.role_rnr.arn
