@@ -5,7 +5,7 @@
   "mapDefinition" : {
     "type" : "CIMMap",
     "name" : "Map",
-    "uRI" : "CIMPATH=map1/map1.xml",
+    "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant"
     },
@@ -25,7 +25,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=map/vizprocessing_publish_mrf_gfs_10day_water_management.xml"
+      "CIMPATH=map/vizprocessing_publish_srf_18hr_water_management.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -119,15 +119,15 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "MRF GFS 10-Day Water Management Forecast",
-      "uRI" : "CIMPATH=map/vizprocessing_publish_mrf_gfs_10day_water_management.xml",
+      "name" : "SRF 18-Hour Water Management Forecast",
+      "uRI" : "CIMPATH=map/vizprocessing_publish_srf_18hr_water_management.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/59fef0d747a7c9d3ccc1a346120dd823.xml",
+      "metadataURI" : "CIMPATH=Metadata/185baf77a8e6d140222dd4568524efc6.xml",
       "useSourceMetadata" : true,
-      "description" : "vizprocessing.publish.mrf_gfs_10day_water_management",
+      "description" : "vizprocessing.publish.srf_18hr_water_management",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface"
       },
@@ -179,6 +179,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -250,9 +251,9 @@
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e683033387a5a78415334462b6b4e4d734147704d782b686a614a6b396f66642f6c6d456575745275594f7930316d4b734554316a6b313848527a70386c6e3441712a00;SERVER=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
-          "dataset" : "vizprocessing.publish.%mrf_gfs_10day_water_management_2",
+          "dataset" : "vizprocessing.publish.%srf_18hr_water_management_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,reservoir_type,init_water_sfc_elev_ft,max_outflow_cfs,reference_time,geom from vizprocessing.publish.mrf_gfs_10day_water_management",
+          "sqlQuery" : "select oid,feature_id_str AS feature_id,reservoir_type,init_water_sfc_elev_ft,max_outflow_cfs,reference_time,geom from vizprocessing.publish.srf_18hr_water_management",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -824,8 +825,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/59fef0d747a7c9d3ccc1a346120dd823.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240422</CreaDate><CreaTime>17371300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/185baf77a8e6d140222dd4568524efc6.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240422</CreaDate><CreaTime>15391800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     },
     {
       "type" : "CIMBinaryReference",
