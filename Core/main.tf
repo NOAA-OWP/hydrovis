@@ -642,6 +642,7 @@ module "step-functions" {
   hand_fim_processing_arn           = module.viz-lambda-functions.hand_fim_processing.arn
   schism_fim_job_definition_arn     = module.viz-lambda-functions.schism_fim.job_definition.arn
   schism_fim_job_queue_arn          = module.viz-lambda-functions.schism_fim.job_queue.arn
+  schism_fim_datasets_bucket        = module.s3.buckets["deployment"].bucket
   initialize_pipeline_arn           = module.viz-lambda-functions.initialize_pipeline.arn
   rnr_domain_generator_arn          = module.rnr-lambda-functions.rnr_domain_generator.arn
   email_sns_topics                  = module.sns.email_sns_topics
