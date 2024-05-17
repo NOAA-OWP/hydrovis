@@ -42,6 +42,6 @@ SELECT channels.feature_id,
 	high_flow_mag.flow_50yr,
 	to_char(now()::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS update_time,
 	channels.geom
-INTO publish.ana_high_flow_magnitude
+INTO publish.ana_high_flow_magnitude_ak
 FROM derived.channels_CONUS channels
 JOIN high_flow_mag ON channels.feature_id = high_flow_mag.feature_id;
