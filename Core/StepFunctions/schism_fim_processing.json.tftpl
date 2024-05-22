@@ -39,7 +39,7 @@
       "Type": "Task",
       "Next": "Iterate over Tiles",
       "Parameters": {
-        "Bucket": "hydrovis-ti-deployment-us-east-1",
+        "Bucket": "${schism_fim_datasets_bucket}",
         "Prefix.$": "States.Format('schism_fim/dems/{}/tiles/', States.ArrayGetItem(States.StringSplit($.fim_config.sql_file, '_'), 1))"
       },
       "Resource": "arn:aws:states:::aws-sdk:s3:listObjectsV2",
