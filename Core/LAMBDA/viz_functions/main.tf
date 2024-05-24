@@ -398,7 +398,7 @@ resource "aws_s3_object" "python_preprocessing_zip_upload" {
 #### 3GB RAM Version ####
 #########################
 resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
-  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
+  function_name = "hv-vpp-${var.environment}-viz-python-preprocessing"
   description   = "Lambda function to create max streamflow files for NWM data"
   memory_size   = 3072
   ephemeral_storage {
@@ -441,7 +441,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_3GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_3GB"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-3GB"
   }
 }
 
@@ -492,7 +492,7 @@ resource "aws_lambda_function" "viz_python_preprocessing_10GB" {
   ]
 
   tags = {
-    "Name" = "hv-vpp-${var.environment}-viz_python_preprocessing_10GB"
+    "Name" = "hv-vpp-${var.environment}-viz-python-preprocessing-10GB"
   }
 }
 
@@ -623,10 +623,10 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
   }
   environment {
     variables = {
-      VIZ_DB_DATABASE = var.viz_db_name
-      VIZ_DB_HOST     = var.viz_db_host
-      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE       = var.viz_db_name
+      VIZ_DB_HOST           = var.viz_db_host
+      VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
+      VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -675,7 +675,7 @@ resource "aws_s3_object" "db_ingest_zip_upload" {
 resource "aws_lambda_function" "viz_db_ingest" {
   function_name = "hv-vpp-${var.environment}-viz-db-ingest"
   description   = "Lambda function to ingest individual files into the viz processing postgresql database."
-  memory_size   = 1280
+  memory_size   = 2560
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
@@ -1049,8 +1049,8 @@ output "hand_fim_processing" {
   value = module.image-based-lambdas.hand_fim_processing
 }
 
-output "schism_fim_processing" {
-  value = module.image-based-lambdas.schism_fim_processing
+output "schism_fim" {
+  value = module.image-based-lambdas.schism_fim
 }
 
 output "optimize_rasters" {

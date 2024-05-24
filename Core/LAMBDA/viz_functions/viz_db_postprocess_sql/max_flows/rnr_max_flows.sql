@@ -6,8 +6,8 @@ FROM (
 	SELECT
 		a.station_id as feature_id,
 		a.reference_time,
-		ROUND(b.max_streamflow::numeric, 2) AS maxflow_5day_cms,
-		ROUND((b.max_streamflow * 35.315)::numeric, 2) AS maxflow_5day_cfs,
+		ROUND(b.max_streamflow::numeric, 2) AS discharge_cms,
+		ROUND((b.max_streamflow * 35.315)::numeric, 2) AS discharge_cfs,
 		a.time as time_of_max
 	FROM ingest.rnr_wrf_hydro_outputs a
 	JOIN (SELECT station_id, MAX(streamflow) AS max_streamflow FROM ingest.rnr_wrf_hydro_outputs GROUP BY station_id) b

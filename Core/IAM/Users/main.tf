@@ -38,7 +38,7 @@ variable "region" {
 #   count = var.environment == "prod" ? 1 : 0
   
 #   content  = "ID: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].id}\nSecret: ${aws_iam_access_key.S3ReplicationDataServiceAccount[0].secret}"
-#   filename = "${path.root}/sensitive/Certs/${aws_iam_user.S3ReplicationDataServiceAccount[0].name}-${var.environment}"
+#   filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.S3ReplicationDataServiceAccount[0].name}-${var.environment}"
 # }
 
 
@@ -51,20 +51,20 @@ resource "aws_iam_user" "WRDSServiceAccount" {
 resource "aws_iam_user_policy" "WRDSServiceAccount" {
   count = var.environment == "ti" ? 1 : 0
   name = "wrds-service-account_${var.region}"
-  user = aws_iam_user.WRDSServiceAccount.name
+  user = aws_iam_user.WRDSServiceAccount[0].name
 
   policy = templatefile("${path.module}/wrds-service-account-policy.json.tftpl", {})
 }
 
 resource "aws_iam_access_key" "WRDSServiceAccount" {
   count = var.environment == "ti" ? 1 : 0
-  user = aws_iam_user.WRDSServiceAccount.name
+  user = aws_iam_user.WRDSServiceAccount[0].name
 }
 
 resource "local_file" "WRDSServiceAccount" {
   count = var.environment == "ti" ? 1 : 0
-  content  = "ID: ${aws_iam_access_key.WRDSServiceAccount.id}\nSecret: ${aws_iam_access_key.WRDSServiceAccount.secret}"
-  filename = "${path.root}/sensitive/Certs/${aws_iam_user.WRDSServiceAccount.name}-${var.environment}"
+  content  = "ID: ${aws_iam_access_key.WRDSServiceAccount[0].id}\nSecret: ${aws_iam_access_key.WRDSServiceAccount[0].secret}"
+  filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.WRDSServiceAccount[0].name}-${var.environment}"
 }
 
 
@@ -86,7 +86,7 @@ resource "local_file" "WRDSServiceAccount" {
 
 # resource "local_file" "FIMServiceAccount" {
 #   content  = "ID: ${aws_iam_access_key.FIMServiceAccount.id}\nSecret: ${aws_iam_access_key.FIMServiceAccount.secret}"
-#   filename = "${path.root}/sensitive/Certs/${aws_iam_user.FIMServiceAccount.name}-${var.environment}"
+#   filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.FIMServiceAccount.name}-${var.environment}"
 # }
 
 
@@ -108,12 +108,12 @@ resource "local_file" "WRDSServiceAccount" {
 
 # resource "local_file" "ISEDServiceAccount" {
 #   content  = "ID: ${aws_iam_access_key.ISEDServiceAccount.id}\nSecret: ${aws_iam_access_key.ISEDServiceAccount.secret}"
-#   filename = "${path.root}/sensitive/Certs/${aws_iam_user.ISEDServiceAccount.name}-${var.environment}"
+#   filename = "${path.root}/sensitive/vpp/Certs/${aws_iam_user.ISEDServiceAccount.name}-${var.environment}"
 # }
 
 
-output "user_WRDSServiceAccount" {
-  value = aws_iam_user.WRDSServiceAccount
+output "user_WRDSServiceAccount_arn" {
+  value = var.environment == "ti" ? aws_iam_user.WRDSServiceAccount[0].arn : ""
 }
 
 # output "user_S3ReplicationDataServiceAccount" {

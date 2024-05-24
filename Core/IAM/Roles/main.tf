@@ -60,6 +60,14 @@ resource "aws_iam_role" "EC2ImageBuilderDistributionCrossAccountRole" {
           ]
         }
       },
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          AWS     = "arn:aws:sts::${var.ti_account_id}:assumed-role/AWSServiceRoleForImageBuilder/Ec2ImageBuilderIntegrationService"
+        }
+      },
     ]
   })
 }
@@ -198,7 +206,6 @@ resource "aws_iam_role_policy" "rds_s3_export" {
     region      = var.region
   })
 }
-
 
 # data-services Role
 resource "aws_iam_role" "data_services" {

@@ -1,28 +1,30 @@
 product: static_nwm_aep_inundation_extent_library
 configuration: reference
-product_type: "fim"
+domain: conus
+product_type: fim
 run: true
 
-# UNCOMMENT THE LINES BELOW TO RECREATE DATA. DO 2 AT A TIME TO NOT OVERLOAD DB
-# fim_configs:
-#   - name: rf_2_inundation
-#     target_table: aep_fim.rf_2_inundation
-#     fim_type: hand
-#   - name: rf_5_inundation
-#     target_table: aep_fim.rf_5_inundation
-#     fim_type: hand
-#   - name: rf_10_inundation
-#     target_table: aep_fim.rf_10_inundation
-#     fim_type: hand
-#   - name: rf_25_inundation
-#     target_table: aep_fim.rf_25_inundation
-#     fim_type: hand
-#   - name: rf_50_inundation
-#     target_table: aep_fim.rf_50_inundation
-#     fim_type: hand
-#   - name: rf_high_water_inundation
-#     target_table: aep_fim.rf_high_water_inundation
-#     fim_type: hand
+# Uncomment the FIM Configs below, 1 or 2 at a time, to re-create data.
+# You need to temporarily increase RAM on FIM Data Prep Function for this to work (to ~4,500mb)
+fim_configs:
+  # - name: rf_2_inundation
+  #   target_table: aep_fim.rf_2_inundation
+  #   fim_type: hand
+  # - name: rf_5_inundation
+  #   target_table: aep_fim.rf_5_inundation
+  #   fim_type: hand
+  # - name: rf_10_inundation
+  #   target_table: aep_fim.rf_10_inundation
+  #   fim_type: hand
+  # - name: rf_25_inundation
+  #   target_table: aep_fim.rf_25_inundation
+  #   fim_type: hand
+  # - name: rf_50_inundation
+  #   target_table: aep_fim.rf_50_inundation
+  #   fim_type: hand
+  # - name: rf_high_water_inundation
+  #   target_table: aep_fim.rf_high_water_inundation
+  #   fim_type: hand
 
 services:
   - static_nwm_aep_inundation_extent_library_noaa

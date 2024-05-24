@@ -14,9 +14,9 @@ variable "account_id" {
   type = string
 }
 
-variable "source_service_account_arn" {
-  type = string
-}
+# variable "source_service_account_arn" {
+#   type = string
+# }
 
 variable "ti_account_id" {
   type = string
@@ -91,7 +91,7 @@ resource "aws_kms_key" "hydrovis" {
           Condition = {
             "StringEqualsIfExists" = {
               "aws:PrincipalArn" = concat(var.admin_team_arns, [
-                var.source_service_account_arn,
+                # var.source_service_account_arn,
                 "arn:aws:iam::${var.prod_account_id}:role/hydrovis-prod-${var.name}-replication-${var.region}",
               ])
             }

@@ -376,8 +376,8 @@ service_data AS (
 		cats.major as major_threshold,
 		cats.record as record_threshold,
 		base.units,
-		'https://water.weather.gov/resources/hydrographs/' || LOWER(base.lid) || '_hg.png' AS hydrograph_link,
-		'https://water.weather.gov/ahps2/rfc/' || base.lid || '.shortrange.hefs.png' as hefs_link,
+		'https://water.noaa.gov/resources/hydrographs/' || LOWER(base.lid) || '_hg.png' AS hydrograph_link,
+		'https://water.noaa.gov/resources/probabilistic/short_term/' || base.lid || '.shortrange.hefs.png' as hefs_link,
 		to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS UTC') as update_time
 	FROM flood_data_base base
 	LEFT JOIN forecast_initial_status initial

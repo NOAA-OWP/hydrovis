@@ -33,7 +33,7 @@ module "bucket" {
   region      = var.region
 
   name                  = each.key
-  access_principal_arns = each.value
+  access_principal_arns = compact(each.value)
   admin_team_arns       = var.admin_team_arns
 }
 

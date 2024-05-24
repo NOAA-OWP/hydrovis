@@ -207,7 +207,7 @@ data "cloudinit_config" "pipeline_setup" {
       Fileshare_IP           = "\\\\${aws_route53_record.viz_fileshare.name}"
       EGIS_HOST              = local.egis_host
       VIZ_ENVIRONMENT        = var.environment
-      GITHUB_SSH_KEY_CONTENT = file("${path.root}/sensitive/viz/github")
+      GITHUB_SSH_KEY_CONTENT = file("${path.root}/sensitive/vpp/viz/github")
       LICENSE_REG_CONTENT = templatefile("${path.module}/templates/pro_license.reg.tftpl", {
         LICENSE_SERVER = var.license_server_host
         PIPELINE_USER  = jsondecode(var.pipeline_user_secret_string)["username"]

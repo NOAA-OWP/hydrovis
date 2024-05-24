@@ -17,14 +17,13 @@ terraform {
 
 # See ./sensitive/envs/env.ENV.yaml for list of available variables
 locals {
-  env = yamldecode(file("./sensitive/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
+  env = yamldecode(file("./sensitive/vpp/envs/${split("_", terraform.workspace)[1]}/env.${split("_", terraform.workspace)[0]}.yaml"))
 }
 
 provider "aws" {
   region                   = local.env.region
   profile                  = local.env.environment
   shared_credentials_files = ["/cloud/aws/credentials"]
-
   default_tags {
     tags = merge(local.env.tags, {
       CreatedBy = "Terraform"
@@ -138,15 +137,17 @@ module "s3" {
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_data_ingest.arn,
       module.iam-roles.role_rnr.arn,
-      module.iam-users.user_WRDSServiceAccount.arn,
-      module.iam-users.user_FIMServiceAccount.arn,
-      module.iam-roles.role_sync_wrds_location_db.arn
+      module.iam-users.user_WRDSServiceAccount_arn,
+      # module.iam-users.user_FIMServiceAccount.arn,
+      module.iam-roles.role_sync_wrds_location_db.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "fim" = [
       module.iam-roles.role_HydrovisESRISSMDeploy.arn,
       module.iam-roles.role_viz_pipeline.arn,
       module.iam-roles.role_rds_s3_export.arn,
-      module.iam-users.user_FIMServiceAccount.arn
+      # module.iam-users.user_FIMServiceAccount.arn,
+      "arn:aws:iam::${local.env.account_id}:role/hv-vpp-${local.env.environment}-${local.env.region}-schism-execution"
     ]
     "hml-backup" = [
       module.iam-roles.role_data_ingest.arn
@@ -163,7 +164,7 @@ module "s3" {
       module.iam-roles.role_rnr.arn
     ]
     "ised" = [
-      module.iam-users.user_ISEDServiceAccount.arn
+      # module.iam-users.user_ISEDServiceAccount.arn
     ]
   }
 }
@@ -191,7 +192,7 @@ module "s3-replication" {
   ti_account_id                            = local.env.ti_account_id
   region                                   = local.env.region
   admin_team_arns                          = local.env.admin_team_arns
-  user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
+  # user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
   user_data-ingest-service-user_arn        = module.iam-roles.role_data_ingest.arn
   role_viz_pipeline_arn                    = module.iam-roles.role_viz_pipeline.arn
   role_rnr_arn                             = module.iam-roles.role_rnr.arn
@@ -271,33 +272,33 @@ module "image-builder" {
 module "sns" {
   source = "./SNS"
 
-  environment                = local.env.environment
-  region                     = local.env.region
-  rnr_data_bucket            = module.s3.buckets["rnr"].bucket
-  error_email_list           = local.env.sns_email_lists
+  environment      = local.env.environment
+  region           = local.env.region
+  rnr_data_bucket  = module.s3.buckets["rnr"].bucket
+  error_email_list = local.env.sns_email_lists
 }
 
 module "sagemaker" {
   source = "./Sagemaker"
 
-  environment     = local.env.environment
-  iam_role        = module.iam-roles.role_viz_pipeline.arn
-  subnet          = module.vpc.subnet_private_a.id
+  environment = local.env.environment
+  iam_role    = module.iam-roles.role_viz_pipeline.arn
+  subnet      = module.vpc.subnet_private_a.id
   security_groups = [
     module.security-groups.rds.id,
     module.security-groups.egis_overlord.id
   ]
-  kms_key_id      = module.kms.key_arns["encrypt-ec2"]
+  kms_key_id = module.kms.key_arns["encrypt-ec2"]
 }
 
 # Lambda Layers
 module "lambda-layers" {
   source = "./LAMBDA/layers"
 
-  environment        = local.env.environment
-  region             = local.env.region
-  viz_environment    = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
-  deployment_bucket  = module.s3.buckets["deployment"].bucket
+  environment       = local.env.environment
+  region            = local.env.region
+  viz_environment   = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
+  deployment_bucket = module.s3.buckets["deployment"].bucket
 }
 
 # MQ
@@ -368,12 +369,12 @@ module "rds-bastion" {
   ec2_instance_profile_name      = module.iam-roles.profile_data_ingest.name
   ec2_instance_subnet            = module.vpc.subnet_private_a.id
   ec2_instance_availability_zone = module.vpc.subnet_private_a.availability_zone
-  ec2_instance_sgs               = [
+  ec2_instance_sgs = [
     module.security-groups.rds.id,
     module.security-groups.rabbitmq.id,
     module.security-groups.vpc_access.id
   ]
-  kms_key_arn                    = module.kms.key_arns["encrypt-ec2"]
+  kms_key_arn = module.kms.key_arns["encrypt-ec2"]
 
   data_deployment_bucket = module.s3.buckets["deployment"].bucket
 
@@ -392,6 +393,7 @@ module "rds-bastion" {
   ingest_mq_endpoint      = module.mq-ingest.mq-ingest.instances.0.endpoints.0
 
   viz_proc_admin_rw_secret_string = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+  viz_proc_admin_rw_secret_arn    = module.secrets-manager.secret_arns["viz-proc-admin-rw-user"]
   viz_proc_dev_rw_secret_string   = module.secrets-manager.secret_strings["viz-proc-dev-rw-user"]
   viz_db_secret_string            = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   viz_db_address                  = module.rds-viz.instance.address
@@ -435,7 +437,7 @@ module "data-services" {
 module "ingest-lambda-functions" {
   source = "./LAMBDA/ingest_functions"
   providers = {
-    aws = aws
+    aws     = aws
     aws.sns = aws.sns
   }
 
@@ -502,30 +504,30 @@ module "rnr" {
   dataservices_host              = module.data-services.dns_name
   nomads_url                     = local.env.nwm_dataflow_version == "para" ? local.env.rnr_para_nomads_url : local.env.rnr_prod_nomads_url
   s3_url                         = local.env.nwm_dataflow_version == "para" ? local.env.rnr_para_s3_url : local.env.rnr_prod_s3_url
-  rnr_versions                   = local.env.rnr_versions 
+  rnr_versions                   = local.env.rnr_versions
 }
 
 # RnR Lambda Functions
 module "rnr-lambda-functions" {
   source = "./LAMBDA/rnr_functions"
   providers = {
-    aws = aws
+    aws     = aws
     aws.sns = aws.sns
   }
 
-  environment                    = local.env.environment
-  region                         = local.env.region
-  rnr_data_bucket                = module.s3.buckets["rnr"].bucket
-  deployment_bucket              = module.s3.buckets["deployment"].bucket
-  lambda_role                    = module.iam-roles.role_viz_pipeline.arn
-  xarray_layer                   = module.lambda-layers.xarray.arn
-  psycopg2_sqlalchemy_layer      = module.lambda-layers.psycopg2_sqlalchemy.arn
-  viz_lambda_shared_funcs_layer  = module.lambda-layers.viz_lambda_shared_funcs.arn
-  db_lambda_security_groups      = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
-  db_lambda_subnets              = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
-  viz_db_host                    = module.rds-viz.dns_name
-  viz_db_name                    = local.env.viz_db_name
-  viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+  environment                   = local.env.environment
+  region                        = local.env.region
+  rnr_data_bucket               = module.s3.buckets["rnr"].bucket
+  deployment_bucket             = module.s3.buckets["deployment"].bucket
+  lambda_role                   = module.iam-roles.role_viz_pipeline.arn
+  xarray_layer                  = module.lambda-layers.xarray.arn
+  psycopg2_sqlalchemy_layer     = module.lambda-layers.psycopg2_sqlalchemy.arn
+  viz_lambda_shared_funcs_layer = module.lambda-layers.viz_lambda_shared_funcs.arn
+  db_lambda_security_groups     = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
+  db_lambda_subnets             = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
+  viz_db_host                   = module.rds-viz.dns_name
+  viz_db_name                   = local.env.viz_db_name
+  viz_db_user_secret_string     = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
 }
 
 module "egis-license-manager" {
@@ -565,9 +567,9 @@ module "egis-monitor" {
 module "cloudwatch" {
   source = "./CloudWatch"
 
-  environment                    = local.env.environment
-  account_id                     = local.env.account_id
-  region                         = local.env.region
+  environment = local.env.environment
+  account_id  = local.env.account_id
+  region      = local.env.region
 }
 
 ###################### STAGE 4 ###################### (Wait till all other EC2 are initialized and running)
@@ -576,7 +578,7 @@ module "cloudwatch" {
 module "viz-lambda-functions" {
   source = "./LAMBDA/viz_functions"
   providers = {
-    aws = aws
+    aws     = aws
     aws.sns = aws.sns
   }
 
@@ -592,7 +594,7 @@ module "viz-lambda-functions" {
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
-  # sns_topics                   = module.sns.sns_topics
+  # sns_topics                      = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda-layers.es_logging.arn
@@ -638,7 +640,9 @@ module "step-functions" {
   python_preprocessing_3GB_arn      = module.viz-lambda-functions.python_preprocessing_3GB.arn
   python_preprocessing_10GB_arn     = module.viz-lambda-functions.python_preprocessing_10GB.arn
   hand_fim_processing_arn           = module.viz-lambda-functions.hand_fim_processing.arn
-  schism_fim_processing_arn         = module.viz-lambda-functions.schism_fim_processing.arn
+  schism_fim_job_definition_arn     = module.viz-lambda-functions.schism_fim.job_definition.arn
+  schism_fim_job_queue_arn          = module.viz-lambda-functions.schism_fim.job_queue.arn
+  schism_fim_datasets_bucket        = module.s3.buckets["deployment"].bucket
   initialize_pipeline_arn           = module.viz-lambda-functions.initialize_pipeline.arn
   rnr_domain_generator_arn          = module.rnr-lambda-functions.rnr_domain_generator.arn
   email_sns_topics                  = module.sns.email_sns_topics
@@ -692,14 +696,14 @@ module "viz-ec2" {
 module "sync-wrds-location-db" {
   source = "./SyncWrdsLocationDB"
 
-  environment               = local.env.environment
-  region                    = local.env.region
-  iam_role_arn              = module.iam-roles.role_sync_wrds_location_db.arn
-  email_sns_topics          = module.sns.email_sns_topics
-  requests_lambda_layer     = module.lambda-layers.requests.arn
-  rds_bastion_id            = module.rds-bastion.instance-id
-  test_data_services_id     = module.data-services.dataservices-test-instance-id
-  lambda_security_groups    = [module.security-groups.rds.id]
-  lambda_subnets            = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
-  db_dumps_bucket           = module.s3.buckets["deployment"].bucket
+  environment            = local.env.environment
+  region                 = local.env.region
+  iam_role_arn           = module.iam-roles.role_sync_wrds_location_db.arn
+  email_sns_topics       = module.sns.email_sns_topics
+  requests_lambda_layer  = module.lambda-layers.requests.arn
+  rds_bastion_id         = module.rds-bastion.instance-id
+  test_data_services_id  = module.data-services.dataservices-test-instance-id
+  lambda_security_groups = [module.security-groups.rds.id]
+  lambda_subnets         = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
+  db_dumps_bucket        = module.s3.buckets["deployment"].bucket
 }

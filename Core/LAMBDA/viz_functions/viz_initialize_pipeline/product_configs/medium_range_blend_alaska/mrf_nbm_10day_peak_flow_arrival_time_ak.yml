@@ -11,13 +11,12 @@ ingest_files:
       target_keys: (feature_id, streamflow)
       dependent_on: publish.mrf_gfs_10day_peak_flow_arrival_time_alaska # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
 
-
 db_max_flows:
-  - name: mrf_nbm_max_flows_ak
-    target_table: cache.mrf_nbm_max_flows_ak
+  - name: mrf_nbm_10day_max_flows_ak
+    target_table: cache.max_flows_mrf_nbm_10day_ak
     target_keys: (feature_id, streamflow)
     method: database
-    max_flows_sql_file: mrf_nbm_max_flows_ak
+    max_flows_sql_file: mrf_nbm_10day_max_flows_ak
 
 postprocess_sql:
   - sql_file: mrf_nbm_10day_peak_flow_arrival_time_alaska

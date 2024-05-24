@@ -18,7 +18,15 @@ variable "python_preprocessing_10GB_arn" {
   type        = string
 }
 
-variable "schism_fim_processing_arn" {
+variable "schism_fim_job_definition_arn" {
+  type        = string
+}
+
+variable "schism_fim_job_queue_arn" {
+  type        = string
+}
+
+variable "schism_fim_datasets_bucket" {
   type        = string
 }
 
@@ -141,9 +149,11 @@ resource "aws_sfn_state_machine" "schism_fim_processing_step_function" {
     role_arn = var.viz_lambda_role
 
     definition = templatefile("${path.module}/schism_fim_processing.json.tftpl", {
-        schism_fim_processing_arn = var.schism_fim_processing_arn
-        optimize_rasters_arn      = var.optimize_rasters_arn
-        update_egis_data_arn  = var.update_egis_data_arn
+        db_postprocess_sql_arn          = var.db_postprocess_sql_arn
+        schism_fim_job_definition_arn   = var.schism_fim_job_definition_arn
+        schism_fim_job_queue_arn        = var.schism_fim_job_queue_arn
+        optimize_rasters_arn            = var.optimize_rasters_arn
+        schism_fim_datasets_bucket      = var.schism_fim_datasets_bucket
     })
 }
 
