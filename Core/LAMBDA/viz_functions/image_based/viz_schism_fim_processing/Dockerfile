@@ -1,5 +1,7 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux
 
+USER schism
+
 RUN dnf -y install gcc-c++ cpp sqlite-devel libtiff cmake python3 python3-pip \
 python3-setuptools python3-devel openssl-devel tcl libtiff-devel libcurl-devel \
 swig libpng-devel libjpeg-turbo-devel expat-devel wget tar gzip

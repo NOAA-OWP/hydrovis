@@ -29,6 +29,7 @@ variable "access_principal_arns" {
 resource "aws_kms_key" "hydrovis-s3" {
   description         = "Used for hydrovis-${var.environment}-egis-${var.region}${var.name_suffix != "none" ? format("-%s", var.name_suffix) : ""} bucket encryption"
   enable_key_rotation = true
+  rotation_period_in_days = 365
   policy = jsonencode(
     {
       Statement = concat([

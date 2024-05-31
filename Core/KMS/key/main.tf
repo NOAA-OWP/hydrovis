@@ -25,6 +25,7 @@ variable "access_principal_arns" {
 resource "aws_kms_key" "hydrovis" {
   description         = "Used for ${var.name}"
   enable_key_rotation = true
+  rotation_period_in_days = 365
   policy = jsonencode(
     {
       Statement = concat([
