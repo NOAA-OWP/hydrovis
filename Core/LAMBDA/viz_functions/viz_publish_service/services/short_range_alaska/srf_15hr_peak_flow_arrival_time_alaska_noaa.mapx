@@ -4,7 +4,7 @@
   "build" : 26828,
   "mapDefinition" : {
     "type" : "CIMMap",
-    "name" : "NWM Short-Range Peak Flow Arrival Time Forecast",
+    "name" : "NWM Short-Range Peak Flow Arrival Time Forecast - Alaska",
     "uRI" : "CIMPATH=map/map.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant",
@@ -30,41 +30,11 @@
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
-    "customFullExtent" : {
-      "rings" : [
-        [
-          [
-            -13589833.4802,
-            2899208.2322999984
-          ],
-          [
-            -13589833.4802,
-            6270464.96760000288
-          ],
-          [
-            -7497492.26109999977,
-            6270464.96760000288
-          ],
-          [
-            -7497492.26109999977,
-            2899208.2322999984
-          ],
-          [
-            -13589833.4802,
-            2899208.2322999984
-          ]
-        ]
-      ],
-      "spatialReference" : {
-        "wkid" : 102100,
-        "latestWkid" : 3857
-      }
-    },
     "defaultExtent" : {
-      "xmin" : -16569743.1832300052,
-      "ymin" : 1286330.39455244644,
-      "xmax" : -4571685.37351884041,
-      "ymax" : 7576221.30691617727,
+      "xmin" : -17717863.5166896209,
+      "ymin" : 7585915.40711952,
+      "xmax" : -15161629.9254895523,
+      "ymax" : 9473876.50233442709,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -218,7 +188,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "15 Hours - Peak Flow Arrival Time",
+      "name" : "15 Hours - Peak Flow Arrival Time - Alaska",
       "uRI" : "CIMPATH=map/bankfull_arrival_time2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -396,56 +366,74 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "oid",
+            "fieldName" : "oid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "feature_id_str",
+            "fieldName" : "feature_id_str",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "ESRI_OID",
+            "fieldName" : "ESRI_OID",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "readOnly" : true,
+            "visible" : true,
+            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
-          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68634631645553736a6b4252536832356a466c32505953655a5a436a6f70377349356331617a6866365565364e414a74776d6757344f4b456741663279746751412a00;SERVER=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hydrovis-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_dev_rw_user;AUTHENTICATION_MODE=DBMS",
+          "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e68646f724232385053684c685a5931744e2b376332392f7130636b6f713167774c6852624a50543347416f626b58596a654769706d38624a6e6834616e2f5955642a00;SERVER=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id_str AS feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,peak_flow_arrival_hour,peak_flow_arrival_time,below_bank_return_hour,below_bank_return_time,max_flow_cfs,high_water_threshold,update_time,geom from hydrovis.services.srf_15hr_peak_flow_arrival_time_alaska",
+          "sqlQuery" : "select oid,feature_id,feature_id_str,nwm_vers,reference_time,peak_flow_arrival_hour,peak_flow_arrival_time,below_bank_return_hour,below_bank_return_time,max_flow_cfs,update_time,strm_order,name,huc6,state,high_water_threshold,geom from vizprocessing.publish.srf_15hr_peak_flow_arrival_time_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "oid",
+          "oIDFields" : "feature_id_str",
           "geometryType" : "esriGeometryPolyline",
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeString",
-              "alias" : "feature_id",
-              "length" : 12
+              "type" : "esriFieldTypeDouble",
+              "alias" : "feature_id"
             },
             {
-              "name" : "name",
+              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 100
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "huc6",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc6",
-              "length" : 6
-            },
-            {
-              "name" : "state",
-              "type" : "esriFieldTypeString",
-              "alias" : "state",
-              "length" : 2
+              "alias" : "feature_id_str",
+              "length" : 60000
             },
             {
               "name" : "nwm_vers",
@@ -456,7 +444,7 @@
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
               "alias" : "reference_time",
-              "length" : 25
+              "length" : 60000
             },
             {
               "name" : "peak_flow_arrival_hour",
@@ -467,7 +455,7 @@
               "name" : "peak_flow_arrival_time",
               "type" : "esriFieldTypeString",
               "alias" : "peak_flow_arrival_time",
-              "length" : 25
+              "length" : 60000
             },
             {
               "name" : "below_bank_return_hour",
@@ -478,7 +466,7 @@
               "name" : "below_bank_return_time",
               "type" : "esriFieldTypeString",
               "alias" : "below_bank_return_time",
-              "length" : 25
+              "length" : 60000
             },
             {
               "name" : "max_flow_cfs",
@@ -486,15 +474,38 @@
               "alias" : "max_flow_cfs"
             },
             {
-              "name" : "high_water_threshold",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "high_water_threshold"
-            },
-            {
               "name" : "update_time",
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
-              "length" : 25
+              "length" : 60000
+            },
+            {
+              "name" : "strm_order",
+              "type" : "esriFieldTypeInteger",
+              "alias" : "strm_order"
+            },
+            {
+              "name" : "name",
+              "type" : "esriFieldTypeString",
+              "alias" : "name",
+              "length" : 60000
+            },
+            {
+              "name" : "huc6",
+              "type" : "esriFieldTypeString",
+              "alias" : "huc6",
+              "length" : 60000
+            },
+            {
+              "name" : "state",
+              "type" : "esriFieldTypeString",
+              "alias" : "state",
+              "length" : 60000
+            },
+            {
+              "name" : "high_water_threshold",
+              "type" : "esriFieldTypeDouble",
+              "alias" : "high_water_threshold"
             },
             {
               "name" : "geom",
@@ -960,7 +971,7 @@
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "14 - 15 hours or Beyond Forecast",
+            "label" : "14 - 15 hours",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -988,7 +999,7 @@
                 ]
               }
             },
-            "upperBound" : 18
+            "upperBound" : 15
           }
         ],
         "classBreakType" : "GraduatedColor",
@@ -1031,7 +1042,7 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : true,
-        "heading" : "Peak Flow Arrival Hour",
+        "heading" : "peak_flow_arrival_hour",
         "sampleSize" : 10000,
         "useDefaultSymbol" : true,
         "defaultSymbolPatch" : "Default",
