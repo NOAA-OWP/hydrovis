@@ -32,9 +32,9 @@
     "mapType" : "Map",
     "defaultExtent" : {
       "xmin" : -17717863.5166896209,
-      "ymin" : 7585915.40711952,
+      "ymin" : 7453255.69833482616,
       "xmax" : -15161629.9254895523,
-      "ymax" : 9473876.50233442709,
+      "ymax" : 9606536.21111912094,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -223,6 +223,13 @@
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
             "fieldName" : "feature_id",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -326,7 +333,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Max Flow (cfs)",
+            "alias" : "Max Streamflow (cfs)",
             "fieldName" : "max_flow_cfs",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
