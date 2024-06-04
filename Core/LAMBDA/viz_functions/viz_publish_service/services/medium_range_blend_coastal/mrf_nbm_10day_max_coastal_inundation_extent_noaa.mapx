@@ -278,16 +278,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -331,7 +324,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_3day_max_coastal_inundation",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_3day_max_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -350,12 +343,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -403,7 +390,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -688,16 +675,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -741,7 +721,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism_3_psurge",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_3day_max_coastal_inundation_atlgulf_psurge",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_3day_max_coastal_inundation_atlgulf_psurge",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -760,12 +740,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -813,7 +787,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1098,16 +1072,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -1151,7 +1118,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_5day_max_coastal_inundation",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_5day_max_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1170,12 +1137,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -1223,7 +1184,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1508,16 +1469,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -1561,7 +1515,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism_psurge",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_5day_max_coastal_inundation_atlgulf_psurge",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_5day_max_coastal_inundation_atlgulf_psurge",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1580,12 +1534,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -1633,7 +1581,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1918,16 +1866,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -1971,7 +1912,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_10day_max_coastal_inundation",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_10day_max_coastal_inundation",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1990,12 +1931,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -2043,7 +1978,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -2328,16 +2263,9 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "huc8",
+        "displayField" : "oid",
         "editable" : true,
         "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Reference Time",
@@ -2381,7 +2309,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.hydrovis.%analysis_assim_inundation_extent_schism_3_psurge",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select huc8,reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_10day_max_coastal_inundation_atlgulf_psurge",
+          "sqlQuery" : "select reference_time,geom,update_time,oid from hydrovis.services.mrf_nbm_10day_max_coastal_inundation_atlgulf_psurge",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2400,12 +2328,6 @@
             }
           },
           "queryFields" : [
-            {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 60000
-            },
             {
               "name" : "reference_time",
               "type" : "esriFieldTypeString",
@@ -2453,7 +2375,7 @@
         {
           "type" : "CIMLabelClass",
           "expressionTitle" : "Custom",
-          "expression" : "$feature.huc8",
+          "expression" : "$feature.oid",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
