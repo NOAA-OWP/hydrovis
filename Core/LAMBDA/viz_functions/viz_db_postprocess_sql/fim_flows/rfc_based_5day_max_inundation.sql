@@ -13,11 +13,8 @@ SELECT
     max_forecast.streamflow AS discharge_cfs,
     'Pending' AS prc_status
 FROM publish.rfc_based_5day_max_streamflow max_forecast
-JOIN derived.recurrence_flows_conus rf ON rf.feature_id=max_forecast.feature_id
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON max_forecast.feature_id = crosswalk.feature_id
 WHERE 
-    max_forecast.streamflow >= rf.high_water_threshold AND 
-    rf.high_water_threshold > 0::double precision AND
     crosswalk.huc8 IS NOT NULL AND 
     crosswalk.lake_id = -999 AND
 	max_forecast.is_waterbody = 'no' AND
