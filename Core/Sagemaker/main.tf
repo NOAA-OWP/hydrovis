@@ -31,6 +31,6 @@ resource "aws_sagemaker_notebook_instance" "ni" {
   subnet_id              = var.subnet
   security_groups        = var.security_groups
   kms_key_id             = var.kms_key_id
-  direct_internet_access = "Disabled"
-  root_access            = "Disabled"
+  # direct_internet_access = "Disabled"
+  # root_access            = "Disabled"
 }
