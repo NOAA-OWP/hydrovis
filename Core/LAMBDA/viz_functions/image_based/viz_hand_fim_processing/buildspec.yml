@@ -17,5 +17,5 @@ phases:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Updating lambda
-      - npm install -g serverless
+      - npm install -g serverless@3.38.0
       - sls deploy
