@@ -1,7 +1,7 @@
 service: mrf_gfs_10day_snow_water_equivalent_change_noaa
-summary: MRF 10-Day Snow Water Equivalent Change
-description: Depicts snow water equivalent change forecasts for the next 3, 5, and 10 
-  days derived from the operational National Water Model (NWM) medium-range forecasts. 
+summary: MRF 10-Day Snow Water Equivalent Change Forecast
+description: Depicts forecast snow water equivalent change for the next 3, 5, and 10 
+  days derived from the operational National Water Model (NWM) medium-range GFS configuration. 
   Data for each interval can be seen by using a filter to select the name of the 
   desired layer. Updated hourly.
 tags: national, water, model, nwm, snow, water, equvalent, mrf
