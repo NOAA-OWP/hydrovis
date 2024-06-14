@@ -34,7 +34,7 @@ locals {
 resource "aws_imagebuilder_image_pipeline" "linux" {
   image_recipe_arn                 = aws_imagebuilder_image_recipe.linux.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.linux.arn
-  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn 
+  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.linux.arn
   name                             = local.name
 
   schedule {
@@ -78,7 +78,7 @@ resource "aws_imagebuilder_image_recipe" "linux" {
   component {
     component_arn = aws_imagebuilder_component.docker-compose_setup.arn
   }
-  
+
   component {
     component_arn = aws_imagebuilder_component.logging_setup.arn
   }
@@ -97,7 +97,7 @@ resource "aws_imagebuilder_component" "postgres_setup" {
   description = "Install and configure Postgres"
   platform    = "Linux"
   version     = "1.0.0"
-  
+
   data = yamlencode({
     schemaVersion = 1.0
     phases = [
@@ -105,7 +105,7 @@ resource "aws_imagebuilder_component" "postgres_setup" {
         name = "build"
         steps = [
           {
-            name = "add_repo"
+            name   = "add_repo"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
@@ -122,7 +122,7 @@ resource "aws_imagebuilder_component" "postgres_setup" {
             }
           },
           {
-            name = "install_postgres"
+            name   = "install_postgres"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -142,7 +142,7 @@ resource "aws_imagebuilder_component" "git_setup" {
   description = "Install and configure git"
   platform    = "Linux"
   version     = "1.0.0"
-  
+
   data = yamlencode({
     schemaVersion = 1.0
     phases = [
@@ -150,7 +150,7 @@ resource "aws_imagebuilder_component" "git_setup" {
         name = "build"
         steps = [
           {
-            name = "install_git"
+            name   = "install_git"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -170,7 +170,7 @@ resource "aws_imagebuilder_component" "docker-compose_setup" {
   description = "Install and configure docker-compose"
   platform    = "Linux"
   version     = "1.0.0"
-  
+
   data = yamlencode({
     schemaVersion = 1.0
     phases = [
@@ -178,7 +178,7 @@ resource "aws_imagebuilder_component" "docker-compose_setup" {
         name = "build"
         steps = [
           {
-            name = "grab_docker-compose"
+            name   = "grab_docker-compose"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -200,12 +200,12 @@ resource "aws_imagebuilder_component" "logging_setup" {
   description = "Configure Docker and Rsyslog to send logs to Logstash"
   platform    = "Linux"
   version     = "1.0.0"
-  
+
   data = yamlencode({
     schemaVersion = 1.0
     constants = [{
       "Name" = {
-        type = "string"
+        type  = "string"
         value = "{{.Name}}"
       }
     }]
@@ -214,7 +214,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
         name = "build"
         steps = [
           {
-            name = "upgrade_rsyslog"
+            name   = "upgrade_rsyslog"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -236,7 +236,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "add_docker_log_driver"
+            name   = "add_docker_log_driver"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
@@ -255,7 +255,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "add_rsyslog_log_destination"
+            name   = "add_rsyslog_log_destination"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
@@ -288,7 +288,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "add_cloudwatch_agent_config"
+            name   = "add_cloudwatch_agent_config"
             action = "ExecuteBash"
             inputs = {
               commands = [<<-EOT
@@ -306,9 +306,27 @@ resource "aws_imagebuilder_component" "logging_setup" {
                           {
                             "file_path": "/var/log/docker-containers-json.log",
                             "log_group_name": "/aws/ec2/linux",
-                            "log_stream_name": "{instance_id}/docker",
+                            "log_stream_name": "{instance_id}/docker-json",
                             "timezone": "UTC"
                           },
+                          {
+                            "file_path": "/var/log/docker-containers.log",
+                            "log_group_name": "/aws/ec2/linux",
+                            "log_stream_name": "{instance_id}/docker",
+                            "timezone": "UTC"
+                          },      
+                          {
+                            "file_path": "/var/log/important-json.log",
+                            "log_group_name": "/aws/ec2/linux",
+                            "log_stream_name": "{instance_id}/important-json",
+                            "timezone": "UTC"
+                          },
+                          {
+                            "file_path": "/var/log/important.log",
+                            "log_group_name": "/aws/ec2/linux",
+                            "log_stream_name": "{instance_id}/important",
+                            "timezone": "UTC"
+                          },                                               
                           {
                             "file_path": "/var/log/cloud-init-output.log",
                             "log_group_name": "/aws/ec2/linux",
@@ -328,7 +346,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "restart_docker_and_rsyslog"
+            name   = "restart_docker_and_rsyslog"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -340,7 +358,7 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
-            name = "start_cloudwatch_agent"
+            name   = "start_cloudwatch_agent"
             action = "ExecuteBash"
             inputs = {
               commands = [
@@ -378,7 +396,7 @@ resource "aws_imagebuilder_infrastructure_configuration" "linux" {
     }
   }
 
-  resource_tags = { for k, v in data.aws_default_tags.default.tags: k => v if k != "CreatedBy" }
+  resource_tags = { for k, v in data.aws_default_tags.default.tags : k => v if k != "CreatedBy" }
 }
 
 resource "aws_imagebuilder_distribution_configuration" "linux" {
@@ -386,9 +404,9 @@ resource "aws_imagebuilder_distribution_configuration" "linux" {
 
   distribution {
     ami_distribution_configuration {
-      name = "${local.name}-{{ imagebuilder:buildDate }}"
+      name               = "${local.name}-{{ imagebuilder:buildDate }}"
       target_account_ids = var.ami_sharing_account_ids
-      ami_tags = merge(data.aws_default_tags.default.tags, { Name = local.name })
+      ami_tags           = merge(data.aws_default_tags.default.tags, { Name = local.name })
     }
 
     region = var.region
