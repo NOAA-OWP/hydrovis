@@ -346,6 +346,34 @@ resource "aws_imagebuilder_component" "logging_setup" {
             }
           },
           {
+            name   = "add_logrotate_config_for_docker_logs"
+            action = "ExecuteBash"
+            inputs = {
+              commands = [<<-EOT
+                echo "Adding Logrotate Configs for docker logs"
+                sudo tee /etc/logrotate.d/ingest<<EOF
+                /var/log/docker-containers-json.log
+                /var/log/docker-containers.log
+                /var/log/important-json.log
+                /var/log/important.log
+                {
+                    daily
+                    rotate 6
+                    compress
+                    missingok
+                    notifempty
+                    create 0600 root root
+                    sharedscripts
+                    postrotate
+                        /usr/bin/systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
+                    endscript
+                }
+                EOF
+                EOT
+              ]
+            }
+          },
+          {
             name   = "restart_docker_and_rsyslog"
             action = "ExecuteBash"
             inputs = {
