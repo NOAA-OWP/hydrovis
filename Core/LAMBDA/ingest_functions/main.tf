@@ -56,15 +56,15 @@ variable "db_ingest_port" {
   type = string
 }
 
-variable "primary_hml_bucket_name" {
-  type        = string
-  description = "Primary S3 bucket that is used for the Lambda event notification"
-}
+# variable "primary_hml_bucket_name" {
+#   type        = string
+#   description = "Primary S3 bucket that is used for the Lambda event notification"
+# }
 
-variable "primary_hml_bucket_arn" {
-  type        = string
-  description = "Primary S3 bucket that is used for the Lambda event notification"
-}
+# variable "primary_hml_bucket_arn" {
+#   type        = string
+#   description = "Primary S3 bucket that is used for the Lambda event notification"
+# }
 
 variable "backup_hml_bucket_name" {
   type        = string
