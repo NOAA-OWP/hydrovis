@@ -163,9 +163,9 @@ module "s3" {
       module.iam-roles.role_data_ingest.arn,
       module.iam-roles.role_rnr.arn
     ]
-    "ised" = [
-      # module.iam-users.user_ISEDServiceAccount.arn
-    ]
+    # "ised" = [
+    #   # module.iam-users.user_ISEDServiceAccount.arn
+    # ]
   }
 }
 
@@ -181,22 +181,22 @@ module "egis" {
   role_autoscaling_arn           = module.iam-roles.role_autoscaling.arn
 }
 
-# S3 Replication
-module "s3-replication" {
-  source = "./S3Replication"
+# # S3 Replication
+# module "s3-replication" {
+#   source = "./S3Replication"
 
-  environment                              = local.env.environment
-  account_id                               = local.env.account_id
-  prod_account_id                          = local.env.prod_account_id
-  uat_account_id                           = local.env.uat_account_id
-  ti_account_id                            = local.env.ti_account_id
-  region                                   = local.env.region
-  admin_team_arns                          = local.env.admin_team_arns
-  # user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
-  user_data-ingest-service-user_arn        = module.iam-roles.role_data_ingest.arn
-  role_viz_pipeline_arn                    = module.iam-roles.role_viz_pipeline.arn
-  role_rnr_arn                             = module.iam-roles.role_rnr.arn
-}
+#   environment                              = local.env.environment
+#   account_id                               = local.env.account_id
+#   prod_account_id                          = local.env.prod_account_id
+#   uat_account_id                           = local.env.uat_account_id
+#   ti_account_id                            = local.env.ti_account_id
+#   region                                   = local.env.region
+#   admin_team_arns                          = local.env.admin_team_arns
+#   # user_S3ReplicationDataServiceAccount_arn = module.iam-users.user_S3ReplicationDataServiceAccount.arn
+#   user_data-ingest-service-user_arn        = module.iam-roles.role_data_ingest.arn
+#   role_viz_pipeline_arn                    = module.iam-roles.role_viz_pipeline.arn
+#   role_rnr_arn                             = module.iam-roles.role_rnr.arn
+# }
 
 # ###################### STAGE 2 ######################
 
@@ -453,8 +453,8 @@ module "ingest-lambda-functions" {
   db_ingest_host              = module.rds-ingest.dns_name
   mq_ingest_port              = split(":", module.mq-ingest.mq-ingest.instances.0.endpoints.0)[2]
   db_ingest_port              = module.rds-ingest.instance.port
-  primary_hml_bucket_name     = module.s3-replication.buckets["hml"].bucket
-  primary_hml_bucket_arn      = module.s3-replication.buckets["hml"].arn
+  # primary_hml_bucket_name     = module.s3-replication.buckets["hml"].bucket
+  # primary_hml_bucket_arn      = module.s3-replication.buckets["hml"].arn
   backup_hml_bucket_name      = module.s3.buckets["hml-backup"].bucket
   backup_hml_bucket_arn       = module.s3.buckets["hml-backup"].arn
   lambda_subnet_ids           = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
