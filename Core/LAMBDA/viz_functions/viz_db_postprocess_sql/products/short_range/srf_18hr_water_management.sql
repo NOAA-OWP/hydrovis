@@ -8,11 +8,11 @@ WITH initial_outflow AS (
             WHEN reservoir_type = 1
             THEN 'Level Pool'
             WHEN reservoir_type = 2
-            THEN 'RFC'
+            THEN 'USGS'
             WHEN reservoir_type = 3
             THEN 'USACE'
             WHEN reservoir_type = 4
-            THEN 'USGS'
+            THEN 'RFC'
         END as reservoir_type,
         ROUND((srf.water_sfc_elev) * 3.28084) AS init_water_sfc_elev_ft,
         srf.reference_time,
