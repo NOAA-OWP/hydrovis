@@ -1,4 +1,4 @@
-service: srf_15hr_rapid_onset_flooding_alaska
+service: srf_15hr_rapid_onset_flooding_alaska_noaa
 summary: Short-Range 15 Hour Rapid Onset Flooding Forecast - Alaska
 description: Depicts forecast rapid onset flooding using the short-range configuration 
   of the National Water Model (NWM) in Alaska. Shown are reaches 
@@ -13,4 +13,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false

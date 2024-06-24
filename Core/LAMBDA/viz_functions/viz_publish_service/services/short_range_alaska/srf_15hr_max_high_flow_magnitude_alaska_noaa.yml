@@ -1,4 +1,4 @@
-service: srf_15hr_max_high_flow_magnitude_alaska
+service: srf_15hr_max_high_flow_magnitude_alaska_noaa
 summary: Short-Range 15 Hour Maximum High Flow Magnitude Forecast - Alaska
 description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast 
   over the next 15 hours where the NWM is signaling high water in Alaska. This service is derived from 
@@ -11,4 +11,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false
