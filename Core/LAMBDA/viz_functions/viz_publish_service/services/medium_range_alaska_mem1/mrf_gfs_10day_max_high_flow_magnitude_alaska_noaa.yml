@@ -1,4 +1,4 @@
-service: mrf_gfs_10day_max_high_flow_magnitude_alaska
+service: mrf_gfs_10day_max_high_flow_magnitude_alaska_noaa
 summary: Medium-Range GFS 10 Day Maximum High Flow Magnitude Forecast - Alaska
 description: Depicts the magnitude of the peak National Water Model (NWM) streamflow forecast over the next 
   3, 5 and 10 days where the NWM is signaling high water. This service is derived from the medium-range GFS 
@@ -11,4 +11,4 @@ credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
 feature_service: false
-public_service: true
+public_service: false
