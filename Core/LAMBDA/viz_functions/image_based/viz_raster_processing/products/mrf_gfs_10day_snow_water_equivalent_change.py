@@ -13,8 +13,6 @@ def main(product_name, data_bucket, input_files, reference_time, output_bucket, 
     variable = "SNEQV"
     days = [1, 2, 3]  # defining loop for input files
     change = {1:3,2:5,3:10}  # defining dictionary for naming purposes
-    
-    print('Opening latest NWM output...')
     swe_present, crs = open_raster(data_bucket, reversed_input_files[0], variable)
     swe_present = swe_present.sel(time = swe_present.time[0])
     for day in days:
