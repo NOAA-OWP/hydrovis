@@ -5,7 +5,7 @@ description: Depicts the inundation depth of the National Water Model (NWM) tota
   Updated hourly.
 tags: national water model, nwm, ana, schism, coastal, fim, inundation, depth, prvi, puertorico
 credits: National Water Model, NOAA/NWS National Water Center
-egis_server: server
+egis_server: image
 egis_folder: nwm
 feature_service: false
 public_service: false

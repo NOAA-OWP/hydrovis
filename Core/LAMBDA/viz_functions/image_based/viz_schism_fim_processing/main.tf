@@ -266,7 +266,7 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
     ]
 
     min_vcpus = 0
-    max_vcpus = 96
+    max_vcpus = 108
 
     security_group_ids = var.security_groups
 
