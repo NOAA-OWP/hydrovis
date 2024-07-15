@@ -1,7 +1,7 @@
 CREATE INDEX IF NOT EXISTS {index_name} ON {target_table} {index_columns};
 
-ALTER TABLE {target_table}
-ADD COLUMN reference_time TEXT DEFAULT '1900-01-01 00:00:00 UTC';
+ALTER TABLE {target_table} ADD COLUMN IF NOT EXISTS reference_time TEXT DEFAULT '1900-01-01 00:00:00 UTC';
+UPDATE {target_table} SET reference_time = '1900-01-01 00:00:00 UTC' WHERE reference_time != '1900-01-01 00:00:00 UTC';
 
 -- Checks to see if feature_id is a column in the target table
 SELECT EXISTS (SELECT 1 

@@ -5,7 +5,7 @@ description: Depicts the inundation depth of the peak National Water Model (NWM)
   over the contiguous U.S. Updated every 6 hours.
 tags: national water model, nwm, mrf, medium, range, conus, schism, coastal, fim, inundation, depth
 credits: National Water Model, NOAA/NWS National Water Center
-egis_server: server
+egis_server: image
 egis_folder: nwm
 feature_service: false
 public_service: false
