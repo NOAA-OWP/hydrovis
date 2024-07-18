@@ -214,28 +214,6 @@ resource "aws_imagebuilder_component" "logging_setup" {
         name = "build"
         steps = [
           {
-            name   = "upgrade_rsyslog"
-            action = "ExecuteBash"
-            inputs = {
-              commands = [
-                "echo \"Upgrading Rsyslog\"",
-                <<-EOT
-                sudo tee /etc/yum.repos.d/rsyslog-daily-epel.repo<<EOF
-                [rsyslog_v8_daily]
-                name=Adiscon CentOS-7 - daily packages for x86_64
-                baseurl=http://rpms.adiscon.com/v8-stable-daily/epel-7/x86_64
-                enabled=1
-                gpgcheck=0
-                gpgkey=https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon
-                protect=1
-                EOF
-                EOT
-                ,
-                "yum upgrade rsyslog --disablerepo=amzn2-core -y",
-              ]
-            }
-          },
-          {
             name   = "add_docker_log_driver"
             action = "ExecuteBash"
             inputs = {
