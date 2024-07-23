@@ -26,17 +26,45 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=m_medium_range_max_high_flow_magnitude_forecast___alaska/cessing_publish_mrf_nbm_10day_max_high_flow_magnitude_ak.xml",
-      "CIMPATH=a7a7e5acdce24b3aad73fea99b42a991.xml",
-      "CIMPATH=cb33ac4dcd774573b4046a4f005991cf.xml"
+      "CIMPATH=m_medium_range_max_high_flow_magnitude_forecast___alaska/cessing_publish_mrf_nbm_10day_max_high_flow_magnitude_ak.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
+    "customFullExtent" : {
+      "rings" : [
+        [
+          [
+            -18220779.0807083361,
+            7141868.51211696956
+          ],
+          [
+            -18220779.0807083361,
+            9856498.94137782976
+          ],
+          [
+            -14379021.39719297,
+            9856498.94137782976
+          ],
+          [
+            -14379021.39719297,
+            7141868.51211696956
+          ],
+          [
+            -18220779.0807083361,
+            7141868.51211696956
+          ]
+        ]
+      ],
+      "spatialReference" : {
+        "wkid" : 102100,
+        "latestWkid" : 3857
+      }
+    },
     "defaultExtent" : {
-      "xmin" : -18368946.0437089317,
-      "ymin" : 7215951.99361726176,
-      "xmax" : -14527188.3601935655,
-      "ymax" : 9930582.42287812009,
+      "xmin" : -18220779.0807083361,
+      "ymin" : 7141868.51211696956,
+      "xmax" : -14379021.39719297,
+      "ymax" : 9856498.94137782976,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -644,7 +672,7 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "recur_cat"
+          "recur_cat_10day"
         ],
         "groups" : [
           {
@@ -652,8 +680,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "editable" : true,
-                "label" : "2%   ",
+                "label" : "2",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -693,8 +720,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "editable" : true,
-                "label" : "4% ",
+                "label" : "4",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -734,7 +760,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "10%  ",
+                "label" : "10",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -774,7 +800,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "20%   ",
+                "label" : "20",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -814,8 +840,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "editable" : true,
-                "label" : "> 50% (High Water Threshold)",
+                "label" : "50",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -833,9 +858,9 @@
                         "color" : {
                           "type" : "CIMHSVColor",
                           "values" : [
-                            169.59999999999999,
-                            29.41,
-                            100,
+                            248.27000000000001,
+                            24.649999999999999,
+                            99.549999999999997,
                             100
                           ]
                         }
@@ -847,48 +872,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      ">50"
-                    ]
-                  }
-                ],
-                "visible" : true
-              },
-              {
-                "type" : "CIMUniqueValueClass",
-                "editable" : true,
-                "label" : "Insufficient Data",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMLineSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 1,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            189,
-                            194,
-                            187,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Not Availa"
+                      "50"
                     ]
                   }
                 ],
@@ -902,102 +886,9 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    },
-    {
-      "type" : "CIMVectorTileLayer",
-      "name" : "World Topographic Map",
-      "uRI" : "CIMPATH=a7a7e5acdce24b3aad73fea99b42a991.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/3653fc77a061c458483e68a6efe9b6fb.xml",
-      "useSourceMetadata" : true,
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{252FDDD5-FFE1-4445-B6DE-42B26FEDFF6E}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : true,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "dataConnection" : {
-        "type" : "CIMVectorTileDataConnection",
-        "uRI" : "https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json"
-      }
-    },
-    {
-      "type" : "CIMTiledServiceLayer",
-      "name" : "World Hillshade",
-      "uRI" : "CIMPATH=cb33ac4dcd774573b4046a4f005991cf.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/7adcd64312e8ca0c17942d3be9dde084.xml",
-      "useSourceMetadata" : true,
-      "description" : "Elevation/World_Hillshade",
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{252FDDD5-FFE1-4445-B6DE-42B26FEDFF6E}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : true,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "serviceConnection" : {
-        "type" : "CIMAGSServiceConnection",
-        "objectName" : "Elevation/World_Hillshade",
-        "objectType" : "MapServer",
-        "url" : "https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
-        "serverConnection" : {
-          "type" : "CIMInternetServerConnection",
-          "anonymous" : true,
-          "hideUserProperty" : true,
-          "url" : "https://services.arcgisonline.com/arcgis/services"
-        }
-      },
-      "transparentColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      },
-      "backgroundColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      }
     }
   ],
   "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/3653fc77a061c458483e68a6efe9b6fb.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240722</CreaDate><CreaTime>22593500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Topographic Map</resTitle></idCitation><idAbs></idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/7adcd64312e8ca0c17942d3be9dde084.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240722</CreaDate><CreaTime>22593500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Hillshade</resTitle></idCitation><idAbs>Elevation/World_Hillshade</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/7ba4bd30be7a13d31d7129121cc9508c.xml",
