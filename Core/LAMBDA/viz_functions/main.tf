@@ -72,10 +72,6 @@ variable "db_lambda_security_groups" {
   type        = list(any)
 }
 
-variable "nat_sg_group" {
-  type = string
-}
-
 variable "db_lambda_subnets" {
   description = "Subnets to use for the db-pipeline lambdas."
   type        = list(any)
@@ -119,8 +115,23 @@ variable "viz_db_user_secret_string" {
   type        = string
 }
 
+variable "viz_db_suser_seceret_string" {
+  description = "The secret string of the viz_processing data base superuser to write/read data as."
+  type        = string
+}
+
 variable "egis_db_user_secret_string" {
   description = "The secret string for the egis rds database."
+  type        = string
+}
+
+variable "wrds_db_host" {
+  description = "Hostname of the viz processing RDS instance."
+  type        = string
+}
+
+variable "wrds_db_user_secret_string" {
+  description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
 
@@ -169,10 +180,6 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
-variable "dataservices_host" {
-  type = string
-}
-
 variable "viz_pipeline_step_function_arn" {
   type = string
 }
@@ -205,85 +212,6 @@ locals {
   initialize_pipeline_subscriptions = toset([
     "rnr_wrf_hydro_output"
   ])
-}
-
-########################################################################################################################################
-########################################################################################################################################
-
-###############################
-## WRDS API Handler Function ##
-###############################
-data "archive_file" "wrds_api_handler_zip" {
-  type = "zip"
-
-  source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
-
-  output_path = "${path.module}/temp/viz_wrds_api_handler_${var.environment}_${var.region}.zip"
-}
-
-resource "aws_s3_object" "wrds_api_handler_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_wrds_api_handler.zip"
-  source      = data.archive_file.wrds_api_handler_zip.output_path
-  source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
-}
-
-resource "aws_lambda_function" "viz_wrds_api_handler" {
-  function_name = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  description   = "Lambda function to ping WRDS API and format outputs for processing."
-  memory_size   = 512
-  timeout       = 900
-  vpc_config {
-    security_group_ids = [var.nat_sg_group]
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      DATASERVICES_HOST            = var.dataservices_host
-      PYTHON_PREPROCESSING_BUCKET              = var.python_preprocessing_bucket
-      PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-    }
-  }
-  s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
-  s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.wrds_api_handler_zip.output_path)
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.arcgis_python_api_layer,
-    var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  }
-}
-
-resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
-  rule      = var.five_minute_trigger.name
-  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
-  arn       = aws_lambda_function.viz_initialize_pipeline.arn
-  input     = "{\"configuration\":\"rfc\"}"
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.viz_wrds_api_handler.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = var.five_minute_trigger.arn
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
-  function_name          = resource.aws_lambda_function.viz_wrds_api_handler.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
 }
 
 ##################################
@@ -970,6 +898,72 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
   }
 }
 
+
+######################
+## VIZ TEST WRDS DB ##
+######################
+data "archive_file" "viz_test_wrds_db_zip" {
+  type = "zip"
+  output_path = "${path.module}/temp/test_sql_${var.environment}_${var.region}.zip"
+
+  source {
+    content  = file("${path.module}/viz_test_wrds_db/lambda_function.py")
+    filename = "lambda_function.py"
+  }
+
+  dynamic "source" {
+    for_each = fileset("${path.module}", "**/*.sql")
+    content {
+      content  = file("${path.module}/${source.key}")
+      filename = basename(source.key)
+    }
+  }
+}
+
+resource "aws_s3_object" "viz_test_wrds_db_upload" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
+  source      = data.archive_file.viz_test_wrds_db_zip.output_path
+  source_hash = filemd5(data.archive_file.viz_test_wrds_db_zip.output_path)
+}
+
+resource "aws_lambda_function" "viz_test_wrds_db" {
+  function_name = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  description   = "Lambda function to test the wrds_location3_ondeck db before it is swapped for the live version"
+  timeout       = 900
+  memory_size   = 5000
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      WRDS_DB_HOST      = var.wrds_db_host
+      WRDS_DB_USERNAME  = jsondecode(var.wrds_db_user_secret_string)["username"]
+      WRDS_DB_PASSWORD  = jsondecode(var.wrds_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE   = var.viz_db_name
+      VIZ_DB_HOST       = var.viz_db_host
+      VIZ_DB_USERNAME   = jsondecode(var.viz_db_suser_seceret_string)["username"]
+      VIZ_DB_PASSWORD   = jsondecode(var.viz_db_suser_seceret_string)["password"]
+    }
+  }
+  s3_bucket        = aws_s3_object.viz_test_wrds_db_upload.bucket
+  s3_key           = aws_s3_object.viz_test_wrds_db_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.viz_test_wrds_db_zip.output_path)
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  }
+}
+
+
+
 #########################
 ## Image Based Lambdas ##
 #########################
@@ -1037,8 +1031,8 @@ output "publish_service" {
   value = aws_lambda_function.viz_publish_service
 }
 
-output "wrds_api_handler" {
-  value = aws_lambda_function.viz_wrds_api_handler
+output "test_wrds_db" {
+  value = aws_lambda_function.viz_test_wrds_db
 }
 
 output "egis_health_checker" {

@@ -1,0 +1,87 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Deploy wrds_location3_ondeck DB",
+  "States": {
+    "Deploy wrds_location3_ondeck DB": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${restore_db_dump_from_s3_step_function_arn}",
+        "Input": {
+          "db_instance_tag": "ingest",
+          "s3_uri.$": "States.Format('s3://{}/{}', $.detail.bucket.name, $.detail.object.key)",
+          "db_name": "wrds_location3_ondeck"
+        }
+      },
+      "Next": "Run DB Tests"
+    },
+    "Run DB Tests": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "FunctionName": "${test_wrds_db_lambda_arn}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Swap DBs and Cleanup"
+    },
+    "Swap DBs and Cleanup": {
+      "Type": "Task",
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": [
+          "${rds_bastion_id}"
+        ],
+        "Parameters": {
+          "commands.$": "States.Array(States.Format('. /deploy_files/swap_dbs.sh ingest wrds_location3 {} ${region}', $$.Task.Token))"
+        },
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/sendcommand",
+          "CloudWatchOutputEnabled": true
+        }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+      "Next": "Shutdown Deploy and Test Machines"
+    },
+    "Shutdown Deploy and Test Machines": {
+      "Type": "Task",
+      "Parameters": {
+        "InstanceIds": [
+          "${rds_bastion_id}"
+        ]
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:stopInstances",
+      "ResultPath": "$.result",
+      "Next": "Choice"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.error",
+          "IsPresent": true,
+          "Next": "Fail"
+        }
+      ],
+      "Default": "Success"
+    },
+    "Fail": {
+      "Type": "Fail"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

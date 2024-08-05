@@ -608,16 +608,17 @@ module "viz-lambda-functions" {
   dask_layer                     = module.lambda-layers.dask.arn
   viz_lambda_shared_funcs_layer  = module.lambda-layers.viz_lambda_shared_funcs.arn
   db_lambda_security_groups      = [module.security-groups.rds.id, module.security-groups.egis_overlord.id]
-  nat_sg_group                   = module.security-groups.vpc_access.id
   db_lambda_subnets              = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
   viz_db_host                    = module.rds-viz.dns_name
   viz_db_name                    = local.env.viz_db_name
   viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
+  viz_db_suser_seceret_string    = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  wrds_db_host                   = module.rds-ingest.dns_name
+  wrds_db_user_secret_string     = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
   egis_db_host                   = module.rds-egis.dns_name
   egis_db_name                   = local.env.egis_db_name
   egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
-  dataservices_host              = module.data-services.dns_name
   viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
@@ -649,6 +650,8 @@ module "step-functions" {
   aws_instances_to_reboot           = [module.rnr.ec2.id]
   fifteen_minute_trigger            = module.eventbridge.fifteen_minute_eventbridge
   viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
+  rds_bastion_id                    = module.rds-bastion.instance-id
+  test_wrds_db_lambda_arn           = module.viz-lambda-functions.test_wrds_db.arn
 }
 
 # Event Bridge
@@ -691,19 +694,4 @@ module "viz-ec2" {
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   private_route_53_zone       = module.private-route53.zone
   nwm_dataflow_version        = local.env.nwm_dataflow_version
-}
-
-module "sync-wrds-location-db" {
-  source = "./SyncWrdsLocationDB"
-
-  environment            = local.env.environment
-  region                 = local.env.region
-  iam_role_arn           = module.iam-roles.role_sync_wrds_location_db.arn
-  email_sns_topics       = module.sns.email_sns_topics
-  requests_lambda_layer  = module.lambda-layers.requests.arn
-  rds_bastion_id         = module.rds-bastion.instance-id
-  test_data_services_id  = module.data-services.dataservices-test-instance-id
-  lambda_security_groups = [module.security-groups.rds.id]
-  lambda_subnets         = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
-  db_dumps_bucket        = module.s3.buckets["deployment"].bucket
 }
