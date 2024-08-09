@@ -1,0 +1,31 @@
+product: mrf_gfs_10day_rapid_onset_flooding_ak
+configuration: medium_range_alaska_mem1
+product_type: "vector"
+run: true
+
+ingest_files:
+    - file_format: common/data/model/com/nwm/{{variable:NWM_DATAFLOW_VERSION}}/nwm.{{datetime:%Y%m%d}}/medium_range_alaska_mem1/nwm.t{{datetime:%H}}z.medium_range_blend.channel_rt.f{{range:3,243,3,%03d}}.alaska.nc
+      file_step: None
+      file_window: None
+      target_table: ingest.nwm_channel_rt_mrf_gfs_ak
+      target_keys: (feature_id, streamflow)
+      #dependent_on: publish.mrf_gfs_max_inundation_10day_hucs_alaska # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
+
+db_max_flows:
+  - name: mrf_gfs_10day_max_flows_ak
+    target_table: cache.max_flows_mrf_gfs_10day_ak
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_gfs_10day_max_flows_ak
+
+postprocess_sql:
+  - sql_file: mrf_gfs_10day_rapid_onset_flooding_alaska
+    target_table: publish.mrf_gfs_10day_rapid_onset_flooding_alaska
+  
+product_summaries:
+  - sql_file:  hucs
+    target_table:
+      - publish.mrf_gfs_10day_rapid_onset_flooding_hucs_alaska
+
+services:
+  - mrf_gfs_10day_rapid_onset_flooding_alaska_noaa
