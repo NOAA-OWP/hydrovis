@@ -34,4 +34,5 @@ product_summaries:
       - publish.srf_48hr_max_inundation_counties_prvi
 
 services:
+  - srf_48hr_max_inundation_extent_prvi
   - srf_48hr_max_inundation_extent_prvi_noaa

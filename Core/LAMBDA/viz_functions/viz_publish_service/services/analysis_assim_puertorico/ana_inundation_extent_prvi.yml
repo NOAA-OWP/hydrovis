@@ -1,12 +1,12 @@
-service: mrf_gfs_5day_max_inundation_extent
-summary: Medium-Range GFS 5 Day Max Inundation Extent Forecast (EXPERIMENTAL)
+service: ana_inundation_extent_prvi
+summary: Inundation Extent Analysis for Puerto Rico and Virgin Islands (EXPERIMENTAL)
 description: '
 <br><br>
 *****THIS IS AN EXPERIMENTAL SERVICE*****
 <br><br>
-This experimental map represents the National Weather Service''s best approximation of inundation extent based upon modeled river discharge.
+This experimental map represents the National Weather Service''s best approximation of current inundation extent based upon modeled river discharge.
 <br><br>
-The map depicts the maximum inundation extent of the National Water Model (NWM) streamflow forecast over the next 5 days where the NWM is signaling high water. This service is derived from the medium-range configuration of the NWM leveraging precipitation forecasts from the National Weather Service''s Global Forecast System (GFS), for an area that includes 30% of the U.S. population but will be expanded later as described in the Story Map below.
+The map depicts the inundation extent of the National Water Model (NWM) streamflow current conditions model for Puerto Rico and the U.S. Virgin Islands where the NWM is signaling high water. This area is a subset of the current public FIM domain that includes 30% of the U.S. population. This domain will be expanded later as described in the Story Map below.
 <br><br>
 <a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
 <br><br>
@@ -14,7 +14,7 @@ Boundary of 30% Area: <a>https://maps.water.noaa.gov/server/rest/services/refere
 <br><br>
 Shown are sections of river with flow at or above a predetermined high water threshold as depicted in the following service:
 <br><br>
-<a>https://maps.water.noaa.gov/server/rest/services/nwm/mrf_gfs_10day_max_high_flow_magnitude/MapServer/1</a>
+<a>https://maps.water.noaa.gov/server/rest/services/nwm/ana_high_flow_magnitude_prvi/MapServer</a>
 <br><br>
 High water thresholds (regionally varied) and Annual Exceedance Probabilities (AEPs) are derived using the 40-year NWM reanalysis simulation which is available via the NOAA Open Data Dissemination Program (NODD). Forecast inundation extents do not fully capture coastal processes. The service below depicts the boundary of this coastal area.
 <br><br>
@@ -25,8 +25,8 @@ This service is updated hourly.
 For more information on the expansion of National Weather Service (NWS) flood inundation mapping capabilities, please visit <a>https://www.weather.gov/owp/operations</a>. For information about the NWM, please visit <a>https://water.noaa.gov</a>.
 <br><br>
 The NWS is accepting comments and feedback on the expansion of NWS flood inundation mapping capabilities. Please visit <a>https://www.surveymonkey.com/r/ExpFIMServices_2023</a> to provide feedback.
-'
-tags: national water model, nwm, mrf, medium, range, conus, fim, inundation, extent
+' 
+tags: national water model, nwm, ana, puertorico, prvi, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm

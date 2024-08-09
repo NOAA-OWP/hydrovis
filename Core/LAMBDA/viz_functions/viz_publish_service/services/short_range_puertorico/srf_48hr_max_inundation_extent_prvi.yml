@@ -1,0 +1,50 @@
+service: srf_48hr_max_inundation_extent_prvi
+summary: Short-Range 48 Hour Maximum Inundation Extent Forecast for Puerto Rico and Virgin Islands (EXPERIMENTAL)
+description: '
+<br><br>
+*****THIS IS AN EXPERIMENTAL SERVICE*****
+<br><br>
+This experimental map represents the National Weather Service''s best approximation of maximum inundation extent over the next 48 hours based upon modeled river discharge.
+<br><br>
+The map depicts the inundation extent of the National Water Model (NWM) streamflow forecast over the next 48 hours for Puerto Rico and the U.S. Virgin Islands where the NWM is signaling high water. This area is a subset of the current public FIM domain that includes 30% of the U.S. population. This domain will be expanded later as described in the Story Map below.
+<br><br>
+<a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
+<br><br>
+Boundary of 30% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
+<br><br>
+Shown are sections of river with flow at or above a predetermined high water threshold as depicted in the following service:
+<br><br>
+<a>https://maps.water.noaa.gov/server/rest/services/nwm/ana_high_flow_magnitude_prvi/MapServer</a>
+<br><br>
+High water thresholds (regionally varied) and Annual Exceedance Probabilities (AEPs) are derived using the 40-year NWM reanalysis simulation which is available via the NOAA Open Data Dissemination Program (NODD). Forecast inundation extents do not fully capture coastal processes. The service below depicts the boundary of this coastal area.
+<br><br>
+<a>https://maps.water.noaa.gov/server/rest/services/reference/static_nwm_coastal_domain_noaa/MapServer</a>
+<br><br>
+This service is updated hourly.
+<br><br>
+For more information on the expansion of National Weather Service (NWS) flood inundation mapping capabilities, please visit <a>https://www.weather.gov/owp/operations</a>. For information about the NWM, please visit <a>https://water.noaa.gov</a>.
+<br><br>
+The NWS is accepting comments and feedback on the expansion of NWS flood inundation mapping capabilities. Please visit <a>https://www.surveymonkey.com/r/ExpFIMServices_2023</a> to provide feedback.
+' 
+
+
+'Depicts the inundation extent of the peak National Water Model (NWM) 
+  streamflow forecast over the next 48 hours where the NWM is signaling high water. 
+  This service is derived from the short-range configuration of the NWM over Puerto 
+  Rico and the U.S. Virgin Islands. Shown are reaches with peak flow at or above high 
+  water thresholds. High water thresholds and AEPs were derived from USGS regression 
+  equations found at https://pubs.usgs.gov/wri/wri994142/pdf/wri99-4142.pdf. 
+  Updated every 12 hours.
+
+  Estimated Impacted Buildings: Depicts building footprints that intersect inundation 
+  extents. The source of the building data is the FEMA USA Structures dataset: 
+  https://gis-fema.hub.arcgis.com/pages/usa-structures (as of August, 2022). Occupancy 
+  type data is only available for AL, CA, FL, GA, LA, MS, NC, SC, TX, and VA at this 
+  time. Also shown are a relative density heatmap of potentially impacted buildings 
+  (based on extent), and county level summary layers.'
+tags: national water model, nwm, srf, short, range, puertorico, prvi, fim, inundation, extent
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: true
+public_service: true
