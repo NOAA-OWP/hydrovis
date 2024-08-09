@@ -9,7 +9,7 @@ ingest_files:
       file_window: None
       target_table: ingest.nwm_channel_rt_mrf_nbm_ak
       target_keys: (feature_id, streamflow)
-      #dependent_on: publish.mrf_gfs_max_inundation_10day_hucs_alaska # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
+      dependent_on: publish.mrf_gfs_max_inundation_10day_hucs_alaska # this will pause the pipeline until this table is updated, causing nbm to run after gfs (instead of at the same time)
 
 db_max_flows:
   - name: mrf_nbm_10day_max_flows_ak
@@ -22,10 +22,10 @@ postprocess_sql:
   - sql_file: mrf_nbm_10day_rapid_onset_flooding_alaska
     target_table: publish.mrf_nbm_10day_rapid_onset_flooding_alaska
   
-#product_summaries:
-#  - sql_file:  hucs
-#    target_table:
-#      - publish.mrf_nbm_10day_rapid_onset_flooding_hucs
+product_summaries:
+  - sql_file:  hucs
+    target_table:
+      - publish.mrf_nbm_10day_rapid_onset_flooding_hucs_alaska
 
 services:
   - mrf_nbm_10day_rapid_onset_flooding_alaska_noaa
