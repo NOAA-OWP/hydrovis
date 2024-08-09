@@ -65,10 +65,10 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -17391868.93894159,
-      "ymin" : 8050091.42174767889,
-      "xmax" : -15666094.3969584145,
-      "ymax" : 9269543.68075232022,
+      "xmin" : -17521420.8845863342,
+      "ymin" : 8078616.62078872137,
+      "xmax" : -15023088.8685748782,
+      "ymax" : 9298068.87979336269,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -20418,7 +20418,7 @@
       },
       "layerType" : "BasemapBackground",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -20447,7 +20447,7 @@
       },
       "layerType" : "BasemapBackground",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
