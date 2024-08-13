@@ -9,12 +9,14 @@ import os
 import time
 import datetime
 import re
+from math import floor, ceil
 
 from viz_classes import s3_file, database
 
 FIM_BUCKET = os.environ['FIM_BUCKET']
 FIM_PREFIX = os.environ['FIM_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+CACHE_FIM_RESOLUTION_FT = 0.25
 
 class HANDDatasetReadError(Exception):
     """ my custom exception class """
@@ -570,7 +572,27 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
      
     return df_forecast, df_zero_stage
 
+
+def round_m_to_nearest_ft_resolution(value_m, resolution_ft, method="nearest", decimals=4):
+    valid_methods = ['up', 'down', 'nearest']
+    method = method.lower()
+    if method not in valid_methods:
+        raise ValueError(f"The method argument must be one of: {', '.join(valid_methods)}")
+    value_ft = value_m * 3.28084
+    method_func = {
+        'up': ceil,
+        'down': floor,
+        'nearest': round
+    }[method]
+    rounded_ft = method_func(value_ft / resolution_ft) * resolution_ft
+    rounded_m = round(rounded_ft / 3.28084, decimals)
+    return rounded_m
+
 def interpolate_stage(df_row, df_hydro):
+    ''' 
+    Yields both an exactly interpolated stage and a rounded stage based on the CACHE_FIM_RESOLUTION_FT variable.
+    The rounded stage is "rounded_stage" here, but ends up being used as "rc_stage_m" everywhere else after being returned.
+    '''
     hydro_id = df_row['hydro_id']
     forecast = df_row['discharge_cms']
     
@@ -593,9 +615,12 @@ def interpolate_stage(df_row, df_hydro):
         hydrotable_index = hydrotable_index - 1
         
     hydrotable_previous_index = hydrotable_index-1
-    rc_stage = stages[hydrotable_index]
+    if CACHE_FIM_RESOLUTION_FT == 1:
+        rounded_stage = stages[hydrotable_index]
+    else:
+        rounded_stage = round_m_to_nearest_ft_resolution(interpolated_stage, CACHE_FIM_RESOLUTION_FT, "up")
     rc_previous_stage = stages[hydrotable_previous_index]
     rc_discharge = discharges[hydrotable_index]
     rc_previous_discharge = discharges[hydrotable_previous_index]
     
-    return interpolated_stage, rc_stage, rc_previous_stage, rc_discharge, rc_previous_discharge
+    return interpolated_stage, rounded_stage, rc_previous_stage, rc_discharge, rc_previous_discharge
