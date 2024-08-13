@@ -16,7 +16,9 @@ from viz_classes import s3_file, database
 FIM_BUCKET = os.environ['FIM_BUCKET']
 FIM_PREFIX = os.environ['FIM_PREFIX']
 FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+
 CACHE_FIM_RESOLUTION_FT = 0.25
+CACHE_FIM_RESOLUTION_ROUNDING = 'up'
 
 class HANDDatasetReadError(Exception):
     """ my custom exception class """
@@ -618,7 +620,7 @@ def interpolate_stage(df_row, df_hydro):
     if CACHE_FIM_RESOLUTION_FT == 1:
         rounded_stage = stages[hydrotable_index]
     else:
-        rounded_stage = round_m_to_nearest_ft_resolution(interpolated_stage, CACHE_FIM_RESOLUTION_FT, "up")
+        rounded_stage = round_m_to_nearest_ft_resolution(interpolated_stage, CACHE_FIM_RESOLUTION_FT, CACHE_FIM_RESOLUTION_ROUNDING)
     rc_previous_stage = stages[hydrotable_previous_index]
     rc_discharge = discharges[hydrotable_index]
     rc_previous_discharge = discharges[hydrotable_previous_index]
