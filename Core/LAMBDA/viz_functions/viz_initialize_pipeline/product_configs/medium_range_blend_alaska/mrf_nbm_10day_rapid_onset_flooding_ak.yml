@@ -28,4 +28,4 @@ product_summaries:
       - publish.mrf_nbm_10day_rapid_onset_flooding_hucs_alaska
 
 services:
-  - mrf_nbm_10day_rapid_onset_flooding_alaska_noaa
+  - mrf_nbm_10day_rapid_onset_flooding_ak_noaa
