@@ -2,11 +2,11 @@ DROP TABLE IF EXISTS publish.mrf_nbm_5day_max_high_flow_magnitude_public;
 
 SELECT
     feature_id_str,
-    strm_order,
-    name,
-    huc6,
-    state,
-    nwm_vers,
+    channels.strm_order,
+    channels.name,
+    channels.huc6,
+    channels.state,
+    main.nwm_vers,
     reference_time,
     maxflow_5day_cfs,
     recur_cat_5day,
@@ -17,7 +17,7 @@ SELECT
     flow_25yr,
     flow_50yr,
     update_time,
-    geom
+    channels.geom
 INTO publish.mrf_nbm_5day_max_high_flow_magnitude_public
 FROM publish.mrf_nbm_10day_max_high_flow_magnitude AS main
 JOIN derived.channels_conus AS channels ON main.feature_id = channels.feature_id

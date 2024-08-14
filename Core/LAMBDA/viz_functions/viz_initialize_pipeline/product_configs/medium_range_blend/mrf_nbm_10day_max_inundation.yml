@@ -53,7 +53,7 @@ fim_configs:
       target_table: publish.mrf_nbm_max_inundation_10day
   
 product_summaries:
-- sql_file:  5day_public_subset
+  - sql_file:  5day_public_subset
     target_table:
       - publish.mrf_nbm_max_inundation_5day_public
   - sql_file:  3day_src_skill

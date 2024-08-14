@@ -33,7 +33,7 @@ postprocess_sql:
     target_table: publish.mrf_nbm_10day_max_high_flow_magnitude
 
 product_summaries:
-- sql_file:  5day_public_subset
+  - sql_file:  5day_public_subset
     target_table:
       - publish.mrf_nbm_5day_max_high_flow_magnitude_public
 

@@ -26,7 +26,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_medium_range_max_fim/3_day_inundation.xml",
+      "CIMPATH=nwm_medium_range_max_fim/3_day_inundation.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -288,55 +288,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Name",
-            "fieldName" : "name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydro ID",
-            "fieldName" : "hydro_id",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Stream Order",
-            "fieldName" : "strm_order",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "USGS HUC8",
-            "fieldName" : "huc8",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "State",
-            "fieldName" : "state",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Reference Time",
-            "fieldName" : "reference_time",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Streamflow (cfs)",
             "fieldName" : "streamflow_cfs",
             "numberFormat" : {
@@ -352,60 +303,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Stage (ft)",
-            "fieldName" : "fim_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Version",
-            "fieldName" : "fim_version",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "FIM Branch ID",
-            "fieldName" : "branch",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Max Rating Curve Stage (ft)",
-            "fieldName" : "max_rc_stage_ft",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Max Rating Curve Streamflow (cfs)",
-            "fieldName" : "max_rc_discharge_cfs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true
-            },
+            "alias" : "Reference Time",
+            "fieldName" : "reference_time",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -445,7 +344,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_3_4_5_6_7_8_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.mrf_nbm_max_inundation_5day_public",
+          "sqlQuery" : "select streamflow_cfs,feature_id_str AS feature_id,reference_time,update_time,geom,oid from hydrovis.services.mrf_nbm_max_inundation_5day_public",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -465,32 +364,15 @@
           },
           "queryFields" : [
             {
-              "name" : "hydro_id",
-              "type" : "esriFieldTypeString",
-              "alias" : "hydro_id",
-              "length" : 10
-            },
-            {
               "name" : "streamflow_cfs",
               "type" : "esriFieldTypeDouble",
               "alias" : "streamflow_cfs"
-            },
-            {
-              "name" : "fim_stage_ft",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "fim_stage_ft"
             },
             {
               "name" : "feature_id",
               "type" : "esriFieldTypeString",
               "alias" : "feature_id",
               "length" : 12
-            },
-            {
-              "name" : "fim_version",
-              "type" : "esriFieldTypeString",
-              "alias" : "fim_version",
-              "length" : 10
             },
             {
               "name" : "reference_time",
@@ -503,22 +385,6 @@
               "type" : "esriFieldTypeString",
               "alias" : "update_time",
               "length" : 25
-            },
-            {
-              "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
-            },
-            {
-              "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_stage_ft"
-            },
-            {
-              "name" : "max_rc_discharge_cfs",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "max_rc_discharge_cfs"
             },
             {
               "name" : "geom",
@@ -536,29 +402,6 @@
               }
             },
             {
-              "name" : "huc8",
-              "type" : "esriFieldTypeString",
-              "alias" : "huc8",
-              "length" : 8
-            },
-            {
-              "name" : "strm_order",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "strm_order"
-            },
-            {
-              "name" : "name",
-              "type" : "esriFieldTypeString",
-              "alias" : "name",
-              "length" : 60
-            },
-            {
-              "name" : "state",
-              "type" : "esriFieldTypeString",
-              "alias" : "state",
-              "length" : 2
-            },
-            {
               "name" : "oid",
               "type" : "esriFieldTypeInteger",
               "alias" : "oid"
@@ -573,34 +416,7 @@
       "selectable" : true,
       "featureCacheType" : "Session",
       "enableDisplayFilters" : true,
-      "displayFilters" : [
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Large Streams",
-          "whereClause" : "strm_order >= 4",
-          "maxScale" : 5000000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Medium Streams",
-          "whereClause" : "strm_order >= 3",
-          "minScale" : 5000000,
-          "maxScale" : 2500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Small Streams",
-          "whereClause" : "strm_order >= 2",
-          "minScale" : 2500000,
-          "maxScale" : 500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 500000
-        }
-      ],
+      "displayFilters" : [],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
@@ -860,7 +676,7 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    },
+    }
   ],
   "binaryReferences" : [
     {
