@@ -15,7 +15,7 @@ export PGPASSWORD=${db_password}
 
 # Get DB and Schema name from s3_key
 # (filepath)/(dump date in YYYYmmddTHHMM)_(DB Name)DB_("table" or "schema")_(Schema Name).(optional table name)_vX_X_X.dump)
-RE='^(.+)\/[0-9]{8}T[0-9]{4}_(([a-z].+)DB_(schema|table)_(.+)_v[0-9]+_.+\.dump)$'
+RE='^(.+)\/(([a-z]+)DB_[0-9]{8}T[0-9]{4}_(schema|table)_(.+)_v[0-9]+_.+\.dump)$'
 [[ ${s3_key} =~ $RE ]]
 
 # Drop old schema and restore from S3 object
