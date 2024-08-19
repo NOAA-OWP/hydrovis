@@ -10,7 +10,7 @@ terraform {
     key                     = "state"
     region                  = "us-east-1"
     profile                 = "prod"
-    shared_credentials_file = "/cloud/aws/credentials"
+    shared_credentials_files = ["/cloud/aws/credentials"]
   }
 }
 
