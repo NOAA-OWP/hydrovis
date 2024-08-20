@@ -1,5 +1,5 @@
 product: mrf_gfs_10day_high_water_arrival_time_ak
-configuration: medium_range_mem1
+configuration: medium_range_alaska_mem1
 product_type: "vector"
 run: true
 
