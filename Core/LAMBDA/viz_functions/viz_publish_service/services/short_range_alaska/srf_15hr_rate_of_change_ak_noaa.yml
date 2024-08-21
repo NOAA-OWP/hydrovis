@@ -1,4 +1,4 @@
-service: srf_15hr_rate_of_change_noaa
+service: srf_15hr_rate_of_change_ak_noaa
 summary: Short-Range 15 Hour Rate of Change Forecast - Alaska
 description: Depicts expected change in discharge derived from the operational National Water 
   Model (NWM) short-range forecast over the Alaska domain. Change is computed between the current streamflow and that 
