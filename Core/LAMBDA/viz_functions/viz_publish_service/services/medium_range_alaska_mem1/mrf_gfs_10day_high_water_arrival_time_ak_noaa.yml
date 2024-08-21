@@ -1,4 +1,4 @@
-service: mrf_gfs_10day_high_water_arrival_time_ak
+service: mrf_gfs_10day_high_water_arrival_time_ak_noaa
 summary: Medium-Range GFS 10 Day High Water Arrival Time Forecast - Alaska
 description: Depicts the forecast arrival time of high water over the next 10 days. This service is derived from the 
   medium-range GFS configuration of the National Water Model (NWM) over the Alaska domain. Shown are reaches that are 
