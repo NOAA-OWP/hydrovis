@@ -9,6 +9,7 @@ services:
       - "8000:8000"
     environment:
       - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
       - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@mock_db/{}
       - REDIS_URL=redis
       - SUBSET_URL=http://hfsubset:8000/api/v1
@@ -18,11 +19,16 @@ services:
         source: ./data
         target: /app/data
     depends_on:
-      - rabbitmq
-      - mock_db
-      - redis
-      - hfsubset
-      - troute
+      redis:
+        condition: service_started
+      hfsubset:
+        condition: service_healthy
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mock_db:
+        condition: service_started
     command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.app.main:app --host 0.0.0.0 --port 8000"
     healthcheck:
       test: curl --fail -I http://localhost:8000/health || exit 1
@@ -31,6 +37,34 @@ services:
       retries: 3
       start_period: 5s
 
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    restart: always
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@mock_db/{}
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    command: sh -c ". /app/.venv/bin/activate && python src/rnr/app/consumer_manager.py"
+    depends_on:
+      redis:
+        condition: service_started
+      hfsubset:
+        condition: service_healthy
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mock_db:
+        condition: service_started
 
   frontend:
     build: 
@@ -54,11 +88,16 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   mock_db:
-    build: 
-      context: mock_db
-      dockerfile: Dockerfile.mock_db
+    # build: 
+    #   context: mock_db
+    #   dockerfile: Dockerfile.mock_db
     image: ghcr.io/taddyb33/hydrovis/mock_database:0.0.1
     environment:
       - POSTGRES_PASSWORD=pass123

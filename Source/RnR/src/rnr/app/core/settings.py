@@ -54,7 +54,16 @@ class Settings(BaseSettings):
 
     sqlalchemy_database_url: str = "postgresql://{}:{}@localhost/{}"
 
+    rate_limit: int = 12
+
     pika_url: str = "localhost"
+
+    rabbitmq_default_username: str = "guest"
+    rabbitmq_default_password: str = "guest"
+    rabbitmq_default_host: str = "localhost"
+    rabbitmq_default_port: int = 5672
+
+    aio_pika_url: str = "ampq://{}:{}@{}:{}/"
     redis_url: str = "localhost"
     base_subset_url: str = "http://localhost:8008/api/v1"
     base_troute_url: str = "http://localhost:8004/api/v1"
@@ -69,6 +78,8 @@ class Settings(BaseSettings):
         super(Settings, self).__init__(**data)
         if os.getenv("SQLALCHEMY_DATABASE_URL") is not None:
             self.sqlalchemy_database_url = os.getenv("SQLALCHEMY_DATABASE_URL")
+        if os.getenv("RABBITMQ_HOST") is not None:
+            self.rabbitmq_default_host = os.getenv("RABBITMQ_HOST")
 
         try:
             config = read_config("config.ini")
@@ -79,10 +90,15 @@ class Settings(BaseSettings):
             )
         except FileNotFoundError:
             self.sqlalchemy_database_url = self.sqlalchemy_database_url.format(
-                os.getenv("USER"),
-                os.getenv("PASSWORD"),
-                os.getenv("DBNAME")
+                os.getenv("USER"), os.getenv("PASSWORD"), os.getenv("DBNAME")
             )
+
+        self.aio_pika_url = self.aio_pika_url.format(
+            self.rabbitmq_default_username,
+            self.rabbitmq_default_password,
+            self.rabbitmq_default_host,
+            self.rabbitmq_default_port,
+        )
 
         if os.getenv("PIKA_URL") is not None:
             self.pika_url = os.getenv("PIKA_URL")

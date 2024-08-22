@@ -8,6 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import redis
+from aio_pika.abc import AbstractIncomingMessage
 
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.core.exceptions import ManyToOneError
@@ -23,10 +24,10 @@ class ReplaceAndRoute:
     """
 
     def read_message(self, body: str) -> Dict[str, Any]:
-        message_string = body.decode()
-        json_start = message_string.find("{")
-        json_end = message_string.rfind("}")
-        json_string = message_string[json_start : json_end + 1].replace("\\", "")
+        message_str = body.decode()
+        json_start = message_str.find("{")
+        json_end = message_str.rfind("}")
+        json_string = message_str[json_start : json_end + 1].replace("\\", "")
         json_data = json.loads(json_string)
         return json_data
 
@@ -110,9 +111,8 @@ class ReplaceAndRoute:
             )
         return {"status": "OK", "domain_files": domain_files}
 
-    def process_request(self, ch, method, properties, body):
-        print(body)
-        json_data = self.read_message(body)
+    async def process_request(self, message: AbstractIncomingMessage):
+        json_data = self.read_message(message.body)
         lid = json_data["lid"]
         feature_id = json_data["feature_id"]
         output_forcing_path = settings.csv_forcing_path
@@ -137,7 +137,7 @@ class ReplaceAndRoute:
         else:
             print(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
 
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        await message.ack()
 
     def map_feature_id(self, feature_id: str, lid: str, _r_cache, gpkg_file) -> str:
         if gpkg_file.exists():

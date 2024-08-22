@@ -1,7 +1,7 @@
 import time
 
-import pika
 import pytest
+import sqlalchemy
 from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
@@ -44,7 +44,7 @@ async def test_single_message_passing(rfc_table_identifier: str) -> None:
     ) as ac:
         try:
             response = await ac.post(f"/api/v1/publish/start/{rfc_table_identifier}")
-        except pika.exceptions.AMQPConnectionError:
+        except sqlalchemy.exc.OperationalError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
@@ -68,7 +68,7 @@ async def test_single_no_forecast_passing(no_rfc_forecast_identifier: str) -> No
             response = await ac.post(
                 f"/api/v1/publish/start/{no_rfc_forecast_identifier}"
             )
-        except pika.exceptions.AMQPConnectionError:
+        except sqlalchemy.exc.OperationalError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
@@ -92,7 +92,7 @@ async def test_single_error_passing(no_gauge_identifier: str) -> None:
     ) as ac:
         try:
             response = await ac.post(f"/api/v1/publish/start/{no_gauge_identifier}")
-        except pika.exceptions.AMQPConnectionError:
+        except sqlalchemy.exc.OperationalError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()

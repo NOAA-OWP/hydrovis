@@ -1,17 +1,20 @@
 import json
 from typing import Dict
 
-import pika
 import redis
 from pydantic import ValidationError
 
-from src.rnr.app.api.client.pika import publish_error, publish_messages
 from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.core.exceptions import NoForecastError, NWPSAPIError
+from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.core.settings import Settings
-from src.rnr.app.schemas import (GaugeData, GaugeForecast, ProcessedData,
-                                 RFCDatabaseEntry)
+from src.rnr.app.schemas import (
+    GaugeData,
+    GaugeForecast,
+    ProcessedData,
+    RFCDatabaseEntry,
+)
 
 _settings = get_settings()
 
@@ -36,7 +39,7 @@ class MessagePublisherService:
     @staticmethod
     async def process_rfc_entry(
         rfc_entry: RFCDatabaseEntry,
-        channel: pika.BlockingConnection.channel,
+        # channel: pika.BlockingConnection.channel,
         settings: Settings,
     ) -> Dict[str, str]:
         """
@@ -59,8 +62,12 @@ class MessagePublisherService:
         try:
             gauge_data = await NWPSService.get_gauge_data(rfc_entry.nws_lid, settings)
         except NWPSAPIError as e:
-            message = f"NWPSAPIError for reading {rfc_entry.nws_lid}: {str(e)}"
-            publish_error(channel, settings.error_queue, message=message)
+            message = {
+                "message": f"NWPSAPIError for reading {rfc_entry.nws_lid}: {str(e)}"
+            }
+            await rabbit_connection.send_message(
+                message=message, routing_key=settings.error_queue
+            )
             return {
                 "status": "api_error",
                 "lid": rfc_entry.nws_lid,
@@ -84,8 +91,10 @@ class MessagePublisherService:
             }
 
         except NWPSAPIError as e:
-            message = f"NWPSAPIError for {rfc_entry.nws_lid}: {str(e)}"
-            publish_error(channel, settings.error_queue, message=message)
+            message = {"message": f"NWPSAPIError for {rfc_entry.nws_lid}: {str(e)}"}
+            await rabbit_connection.send_message(
+                message=message, routing_key=settings.error_queue
+            )
             return {
                 "status": "api_error",
                 "lid": rfc_entry.nws_lid,
@@ -97,21 +106,21 @@ class MessagePublisherService:
         formatted_time = gauge_forecast.times[0].strftime("%Y%m%d%H%M")
         cache_key = rfc_entry.nws_lid + "_" + formatted_time
         cache_value = hash(json.dumps(gauge_forecast.secondary_forecast))
-        # print('cache_key: ' + cache_key)
-        # print('cache_value: ' + str(cache_value))
-        # print('key exists: ' + str(r_cache.exists(cache_key)))
-        # print('key value in cache: ' + str(r_cache.get(cache_key)))
         if not r_cache.exists(cache_key) or str(r_cache.get(cache_key)) != str(
             cache_value
         ):
             # print('value not in cache')
             try:
-                MessagePublisherService.process_and_publish_messages(
-                    gauge_data, gauge_forecast, rfc_entry, channel, settings
+                await MessagePublisherService.process_and_publish_messages(
+                    gauge_data, gauge_forecast, rfc_entry, settings
                 )
             except ValidationError as e:
-                message = f"Pydantic data validation error for LID: {GaugeData.lid}"
-                publish_error(channel, settings.error_queue, message)
+                message = {
+                    "message": f"Pydantic data validation error for LID: {GaugeData.lid}"
+                }
+                await rabbit_connection.send_message(
+                    message=message, routing_key=settings.error_queue
+                )
                 return {
                     "status": "validation_error",
                     "lid": rfc_entry.nws_lid,
@@ -120,17 +129,15 @@ class MessagePublisherService:
                     "status_code": getattr(e, "status_code", None),
                 }
         else:
-            # print('value already in cache')
             return {"status": "cached", "lid": rfc_entry.nws_lid}
 
         return {"status": "success", "lid": rfc_entry.nws_lid}
 
     @staticmethod
-    def process_and_publish_messages(
+    async def process_and_publish_messages(
         gauge_data: GaugeData,
         gauge_forecast: GaugeForecast,
         rfc_entry: RFCDatabaseEntry,
-        channel: pika.BlockingConnection.channel,
         settings: Settings,
     ) -> None:
         """
@@ -176,6 +183,10 @@ class MessagePublisherService:
 
         message = json.dumps(processed_data.model_dump_json())
         if is_flood_observed or is_flood_forecasted:
-            publish_messages(message, channel, settings.priority_queue)
+            await rabbit_connection.send_message(
+                message=message, routing_key=settings.priority_queue
+            )
         else:
-            publish_messages(message, channel, settings.base_queue)
+            await rabbit_connection.send_message(
+                message=message, routing_key=settings.base_queue
+            )
