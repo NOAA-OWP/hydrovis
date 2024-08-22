@@ -1,9 +1,13 @@
 from pathlib import Path
 from typing import Any, Dict
 
+import os, sys
 import pandas as pd
 
 from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
+
+from src.rnr.app.core.cache import get_settings
+settings = get_settings()
 
 rnr = ReplaceAndRoute()
 
@@ -55,3 +59,11 @@ def test_create_troute_domains(tmp_path, sample_rfc_forecast):
         df[dt].values[0] == domain_file["secondary_forecast"]
     ), "secondary forecast not correctly written"
     assert dt == "202408211800", "datetime incorrect"
+
+
+def test_create_plot_and_rnr_files(sample_rfc_forecast):
+    json_data = sample_rfc_forecast
+    mapped_feature_id = 1074884
+    plot_and_rnr_files_json = rnr.create_plot_and_rnr_files(json_data["lid"], mapped_feature_id, json_data, settings.plot_path, settings.rnr_output_path)
+    assert plot_and_rnr_files_json["status"] == "OK"
+    print(plot_and_rnr_files_json)
