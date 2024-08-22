@@ -19,3 +19,4 @@
 *.tgz binary
 *.tar.gz binary
 *.gz binary
+*.gpkg binary

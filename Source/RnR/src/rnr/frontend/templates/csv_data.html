@@ -1,0 +1,97 @@
+<html>
+<head>
+    <title>RNR CVS Data Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div class="m-4">
+        <form id="CSVSearchForm" method="get" action="./">
+            <div>
+                LID: 
+                <select name="lid" id="lid">
+                    <option value=""{% if lid == '' %} selected{% endif %}>Show All</option>
+                    {% for lid_option in lids %}
+                        <option value="{{ lid_option }}"{% if lid_option == lid %} selected{% endif %}>{{ lid_option }}</option>
+                    {% endfor %}
+                </select>
+                {% if 'lid' in errors %}
+                    <b style="color: red;">ERROR: {{ errors['lid'] }}</b>
+                {% endif %}
+            </div>
+            <div>
+                Start Date: <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+                {% if 'start_date' in errors %}
+                    <b style="color: red;">ERROR: {{ errors['start_date'] }}</b>
+                {% endif %}
+            </div>
+            <div>
+                End Date: <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+                {% if 'end_date' in errors %}
+                    <b style="color: red;">ERROR: {{ errors['end_date'] }}</b>
+                {% endif %}
+            </div>
+            <div>
+                <input type="button" value="Submit" onclick="document.getElementById('CSVSearchForm').action = './'; document.getElementById('CSVSearchForm').submit();">
+                <input type="button" value="Reset" onclick="window.location.href='./';">
+                <input type="button" value="Download Zip" onclick="document.getElementById('CSVSearchForm').action = './download/'; document.getElementById('CSVSearchForm').submit();">
+            </div>
+        </form>
+        
+        <ul class="mt-4 nav nav-tabs" id="myTab" role="tablist">
+            {% for lid_key in forecast_results %}
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-tab-pane" aria-selected="true">{{ lid_key }}</button>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            {% for lid_key in forecast_results %}
+                <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-tab" tabindex="0">
+
+                    <div>
+                        <a id="{{ lid_key }}-files-button" class="btn btn-primary" data-bs-toggle="collapse" href="#{{ lid_key }}-files" role="button" aria-expanded="false" aria-controls="{{ lid_key }}-files">[Show Files]</a>
+                        <a class="btn btn-primary" href="./download/?lid={{ lid_key }}&start_date={{ start_date }}&end_date={{ end_date }}">[Download Zip]</a>
+                    </div>
+
+                    <div class="collapse" id="{{ lid_key }}-files">
+                        <ul>
+                            {% for file in forecast_results[lid_key]['files'] %}
+                                <li><a href="/{{ file.name }}">{{ file.name.split('\\')[-1] }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <script>
+                        document.getElementById('{{ lid_key }}-files').addEventListener('show.bs.collapse', function () {
+                            document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Hide Files]';
+                        })
+                        document.getElementById('{{ lid_key }}-files').addEventListener('hide.bs.collapse', function () {
+                            document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Show Files]';
+                        })
+                    </script>
+
+                    <div class="d-flex flex-wrap">
+                        {% for date_key in forecast_results[lid_key]['forecasts'] %}
+                            <div class="p-2" style="width: 300px;">
+                                {% for forecast in forecast_results[lid_key]['forecasts'][date_key] %}
+                                    {% if loop.first %}
+                                        <p><b>Forecast for {{ forecast['time'].strftime('%Y-%m-%d') }}:</b></p>
+                                    {% endif %}
+                                    <p>
+                                        Time: {{ forecast['time'].strftime('%H:%M') }}<br/>
+                                        Feature ID: {{ forecast['feature_id'] }}<br/>
+                                        Measurement: {{ forecast['measurement'] }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="/static/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

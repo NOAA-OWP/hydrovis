@@ -1,0 +1,119 @@
+services:
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
+    ports:
+      - "8000:8000"
+    environment:
+      - PIKA_URL=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@mock_db/{}
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    depends_on:
+      - rabbitmq
+      - mock_db
+      - redis
+      - hfsubset
+      - troute
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: bind
+        source: ./static
+        target: /app/static
+        read_only: true
+    ports:
+      - "8001:8000"
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.frontend.main:app --host 0.0.0.0 --port 8000"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  mock_db:
+    build: 
+      context: mock_db
+      dockerfile: Dockerfile.mock_db
+    image: ghcr.io/taddyb33/hydrovis/mock_database:0.0.1
+    environment:
+      - POSTGRES_PASSWORD=pass123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=vizprocessing
+    ports:
+      - "5432:5432"
+
+  hfsubset:
+    image: ghcr.io/taddyb33/hfsubset-legacy:0.0.1
+    ports:
+      - "8008:8000"
+    volumes:
+      - type: bind
+        source: ./data/rfc_geopackage_data
+        target: /app/data
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.hfsubset.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  redis:
+    image: redis:7.2.5
+    ports:
+      - "6379:6379"
+
+  troute:
+    image: ghcr.io/taddyb33/t-route-dev:0.0.1
+    ports:
+      - "8004:8000"
+    volumes:
+      - type: bind
+        source: ./data/troute_output
+        target: /t-route/output
+      - type: bind
+        source: ./data
+        target: /t-route/data
+    command: sh -c ". /t-route/.venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # mkdocs:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile.docs
+  #   ports:
+  #     - "8888:8000"
+  #   entrypoint: ["/bin/sh", "-c"]
+  #   command: >
+  #     ". /app/.venv/bin/activate
+  #       mkdocs serve --dev-addr=0.0.0.0:8000"

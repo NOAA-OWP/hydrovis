@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY src/ /app/src
+COPY requirements.txt ./
+COPY pyproject.toml ./
+COPY README.md ./
+COPY docs/ ./docs
+COPY mkdocs.yml ./
+
+RUN pip install uv==0.2.5
+RUN uv venv
+RUN uv pip install --no-cache-dir -r requirements.txt
