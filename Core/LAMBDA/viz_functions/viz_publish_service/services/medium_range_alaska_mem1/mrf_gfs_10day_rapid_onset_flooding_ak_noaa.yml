@@ -1,4 +1,4 @@
-service: mrf_gfs_10day_rapid_onset_flooding_alaska_noaa
+service: mrf_gfs_10day_rapid_onset_flooding_ak_noaa
 summary: Medium-Range GFS 10 Day Rapid Onset Flooding Forecast - Alaska
 description: Depicts forecast rapid onset flooding using the medium-range GFS configuration of the 
   National Water Model (NWM) over the Alaska domain. Shown are reaches (stream order 4 and below) 
