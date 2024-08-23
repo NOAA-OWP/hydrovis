@@ -108,24 +108,31 @@ def setup_huc_inundation(event):
         'data_prefix': PROCESSED_OUTPUT_PREFIX
     }
 
-    # If a reference service, copy any cached ata / setup the egis destination tables before hand processing is run.
+    # If a reference service, copy any cached data / setup the egis destination tables before hand processing is run.
     if configuration == 'reference':
         egis_db = database(db_type="egis")
         table = target_table.split('.')[-1]
         publish_table = f"publish.{table}"
-    
-        with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
-            cur.execute(f"SELECT * FROM {publish_table} LIMIT 1")
-            column_names = [desc[0] for desc in cur.description]
-            columns = ', '.join(column_names)
-        db_connection.close()
+        columns = None
         
-        print(f"Copying {publish_table} to {target_table}")
-        try: # Try copying the data
-            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-        except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
-            refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
-            copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+        try:
+            with viz_db.get_db_connection() as db_connection, db_connection.cursor() as cur:
+                cur.execute(f"SELECT * FROM {publish_table} LIMIT 1")
+                column_names = [desc[0] for desc in cur.description]
+                columns = ', '.join(column_names)
+            db_connection.close()
+        except:
+            pass
+        
+        if columns:
+            print(f"Copying {publish_table} to {target_table}")
+            try: # Try copying the data
+                copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+            except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
+                refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema="publish") #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
+                copy_data_to_egis(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=target_table, columns=columns, add_oid=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
+        else:
+            print("WARNING: Unable to copy {publish_table} to {target_table} because {publish_table} does not exist")
 
     return return_object
 
