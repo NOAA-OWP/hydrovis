@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict
 
@@ -9,8 +9,10 @@ import numpy as np
 import pandas as pd
 import redis
 from aio_pika.abc import AbstractIncomingMessage
+import xarray as xr
 
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.api.client.troute import run_troute
 from src.rnr.app.core.exceptions import ManyToOneError
 from src.rnr.app.api.services.plot_data import get_fid_data
 
@@ -216,7 +218,10 @@ class ReplaceAndRoute:
             'rnr_file_location': rnr_file_location,
         }
     
-    async def process_request(self, message: AbstractIncomingMessage):
+    async def process_flood_request(self, message: AbstractIncomingMessage):
+        await self.process_request(message, is_flooding=True)
+    
+    async def process_request(self, message: AbstractIncomingMessage, is_flooding = False):
         json_data = self.read_message(message.body)
         lid = json_data["lid"]
         feature_id = json_data["feature_id"]
@@ -242,14 +247,97 @@ class ReplaceAndRoute:
         else:
             print(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
 		
-        # Plot data from both messages and T-Route
-        plot_file_json = self.create_plot_and_rnr_files(lid, mapped_feature_id, json_data, settings.plot_path,  settings.rnr_output_path)
+        troute_response = self.troute(lid, feature_id, json_data)
 
-        if plot_file_json["status"] == "OK":
-            print(" [x] Plot file created:")
-            print("   - " + plot_file_json['file_location'])
-        else:
-            print(f"STATUS: {plot_file_json['status']}: {plot_file_json['msg']}")
+        # DAVID TODO this is not working and the FAKE data needs to be removed
+        # plot_file_json = self.create_plot_and_rnr_files(lid, mapped_feature_id, json_data, settings.plot_path,  settings.rnr_output_path)
+    
+        self.post_process(json_data, mapped_feature_id, is_flooding)
 
-        # Acknowledge message delivery only when all of the above steps are completed
+        # if plot_file_json["status"] == "OK":
+        #     print(" [x] Plot file created:")
+        #     print("   - " + plot_file_json['file_location'])
+
         await message.ack()
+
+    def post_process(
+            self, 
+            json_data: Dict[str, Any], 
+            mapped_feature_id: int, 
+            is_flooding: bool,
+            troute_file_dir: str = settings.troute_output_format, 
+            rnr_dir: str = settings.rnr_output_path
+        ):
+        rnr_output_path = Path(rnr_dir.format(json_data["lid"]))
+        rnr_output_path.mkdir(exist_ok=True)
+        try:
+            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
+            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%SZ")
+            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ") for time in json_data["times"]]
+
+        except Exception:
+            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%S")
+            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%S")
+            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%S") for time in json_data["times"]]
+
+        formatted_timestamps = []
+        json_data["formatted_times"] = []
+        t = t0
+        while t <= t_n:
+            formatted_timestamp = t.strftime("%Y%m%d%H%M")
+            formatted_timestamps.append(formatted_timestamp)
+            t += timedelta(hours=1)
+        
+        dataset_names = [troute_file_dir.format(json_data["lid"], formatted_timestamp) for formatted_timestamp in formatted_timestamps]
+        stage_idx = 0
+        for idx, file_name in enumerate(dataset_names):
+            ds = xr.open_dataset(file_name, engine="netcdf4").copy(deep=True)
+            formatted_timestamp = formatted_timestamps[idx]
+            if formatted_timestamp in json_data["formatted_times"]:
+                primary_forecast_values = np.zeros_like(ds.depth.values)
+                mask = ds.feature_id.values == mapped_feature_id
+                primary_forecast_values[:, 0][mask] = json_data["primary_forecast"][stage_idx]
+                x = xr.Dataset(
+                    {
+                        json_data["primary_name"]: (("feature_id", "time"), primary_forecast_values),
+                    },
+                    coords={"feature_id": ds.feature_id.values, "time": ds.time.values},
+                )
+                ds = ds.merge(x)
+                ds = ds[json_data["primary_name"]].assign_attrs(units=json_data["primary_unit"])
+                stage_idx = stage_idx + 1
+            assimilated_point = "True" if is_flooding else "False"
+            ds = ds.assign_attrs(assimilated_rfc_point=assimilated_point)
+            ds = ds.assign_attrs(observed_flood_status=json_data["status"]["observed"]["floodCategory"])
+            ds = ds.assign_attrs(forecasted_flood_status=json_data["status"]["forecast"]["floodCategory"])
+            ds = ds.assign_attrs(RFC_location_id=json_data["lid"])
+            ds = ds.assign_attrs(upstream_RFC_location_id=json_data["upstream_lid"])
+            ds = ds.assign_attrs(downstream_RFC_location_id=json_data["downstream_lid"])
+            ds = ds.assign_attrs(RFC=json_data["rfc"]["abbreviation"])
+            ds = ds.assign_attrs(WFO=json_data["wfo"]["abbreviation"])
+            ds = ds.assign_attrs(USGS=json_data["usgs_id"])
+            ds = ds.assign_attrs(county=json_data["county"])
+            ds = ds.assign_attrs(state=json_data["state"]["abbreviation"])
+            ds = ds.assign_attrs(Latitude=json_data["latitude"])
+            ds = ds.assign_attrs(Longitude=json_data["longitude"])
+            ds = ds.assign_attrs(Last_Forecast_Time=json_data["times"][stage_idx])
+            ds.to_netcdf(rnr_output_path / settings.rnr_output_file.format(str(formatted_timestamp)))
+        return {"status": "OK"}
+            
+
+    def troute(self, lid: str, feature_id: str, json_data: Dict[str, Any]):
+        unique_dates = set()
+        for time_str in json_data["times"]:
+            date = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
+            unique_dates.add(date.date())
+
+        num_forecast_days = len(unique_dates) - 1 # the set ending is inclusive, we want exclusive
+
+        response = run_troute(
+            lid=lid,
+            feature_id=feature_id,
+            start_time=json_data["times"][0],
+            num_forecast_days=num_forecast_days,
+            base_url=settings.base_troute_url
+        )
+        return response

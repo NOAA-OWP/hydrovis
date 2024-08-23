@@ -157,16 +157,19 @@ class MessagePublisherService:
             The application settings.
         """
         is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
-        is_flood_forecasted = gauge_data.status.observed.floodCategory != "no_flooding"
+        is_flood_forecasted = gauge_data.status.forecast.floodCategory != "no_flooding"
 
         processed_data = ProcessedData(
             lid=gauge_data.lid,
+            upstream_lid=gauge_data.upstreamLid,
+            downstream_lid=gauge_data.downstreamLid,
             usgs_id=gauge_data.usgsId,
             feature_id=rfc_entry.feature_id,
             reach_id=gauge_data.reachId,
             name=gauge_data.name,
             rfc=gauge_data.rfc,
             wfo=gauge_data.wfo,
+            state=gauge_data.state,
             county=gauge_data.county,
             timeZone=gauge_data.timeZone,
             latitude=gauge_data.latitude,

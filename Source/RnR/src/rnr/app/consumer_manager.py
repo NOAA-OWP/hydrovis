@@ -31,7 +31,7 @@ async def main(settings: Settings) -> None:
 
         print("Consumer started")
 
-        await priority_queue.consume(rnr.process_request)
+        await priority_queue.consume(rnr.process_flood_request)
         await base_queue.consume(rnr.process_request)
 
         try:

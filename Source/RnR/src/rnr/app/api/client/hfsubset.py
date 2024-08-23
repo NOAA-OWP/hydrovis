@@ -28,7 +28,6 @@ def _get(
     """
     client = httpx.Client(timeout=60.0)  # Use a default 10s timeout everywhere.
     try:
-        print(endpoint)
         if params is not None:
             response = client.get(endpoint, params=params, timeout=None)
         response.raise_for_status()

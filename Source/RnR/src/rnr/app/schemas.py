@@ -927,6 +927,10 @@ class ProcessedData(BaseModel):
         Current observed and forecast status of the gauge.
     lid : str
         Location identifier for the gauge.
+    upstream_lid:
+        The upstream location identifier
+    downstream_lid: str
+        The downstream location identifier
     usgs_id : str
         USGS identifier for the gauge.
     feature_id : Optional[int]
@@ -959,12 +963,15 @@ class ProcessedData(BaseModel):
     secondary_unit: str
     status: Status
     lid: str
+    upstream_lid: str
+    downstream_lid: str
     usgs_id: str
     feature_id: Optional[int]
     reach_id: str
     name: str
     rfc: RFC
     wfo: WFO
+    state: State
     county: str
     timeZone: str
     latitude: float

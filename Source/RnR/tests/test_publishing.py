@@ -8,6 +8,7 @@ from httpx import ASGITransport, AsyncClient
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
+from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.main import app
 
 
@@ -42,6 +43,7 @@ async def test_single_message_passing(rfc_table_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
+        await rabbit_connection.connect()
         try:
             response = await ac.post(f"/api/v1/publish/start/{rfc_table_identifier}")
         except sqlalchemy.exc.OperationalError:
@@ -50,6 +52,7 @@ async def test_single_message_passing(rfc_table_identifier: str) -> None:
         data = response.json()
         assert data["summary"]["success"] == 1, "Problem with your request"
         assert data["results"][0]["status"] == "success", "Problem with your request"
+        await rabbit_connection.disconnect()
 
 
 @pytest.mark.asyncio
@@ -78,6 +81,7 @@ async def test_single_no_forecast_passing(no_rfc_forecast_identifier: str) -> No
         ), "Not picking up the API error"
 
 
+
 @pytest.mark.asyncio
 async def test_single_error_passing(no_gauge_identifier: str) -> None:
     """Testing a single passed message that does not exist in the API
@@ -90,6 +94,7 @@ async def test_single_error_passing(no_gauge_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
+        await rabbit_connection.connect()
         try:
             response = await ac.post(f"/api/v1/publish/start/{no_gauge_identifier}")
         except sqlalchemy.exc.OperationalError:
@@ -100,6 +105,7 @@ async def test_single_error_passing(no_gauge_identifier: str) -> None:
         assert (
             data["results"][0]["error_type"] == "NWPSAPIError"
         ), "Not picking up the API error"
+        await rabbit_connection.disconnect()
 
 
 # @pytest.mark.asyncio
