@@ -74,10 +74,10 @@ def test_troute(sample_rfc_forecast, feature_id: int = 2930769, lid: str = "CAGM
     assert isinstance(response, dict)
 
 
-def test_post_processing(tmp_dir, sample_rfc_forecast):
+def test_post_processing(sample_rfc_forecast):
     mapped_feature_id = 1074884
     troute_output_dir = Path(__file__).parent.absolute() / "test_data/troute_output/{}/troute_output_{}.nc"
-    rnr_output_dir = tmp_dir / "data/replace_and_route/{}/"
+    rnr_output_dir = Path(__file__).parent.absolute() / "test_data/replace_and_route/{}/"
     response = rnr.post_process(
         sample_rfc_forecast, 
         mapped_feature_id, 
@@ -88,12 +88,18 @@ def test_post_processing(tmp_dir, sample_rfc_forecast):
     assert response["status"] == "OK"
 
 
-# Commenting out so code passes GITHUB tests. Uncomment when plotting is fixed
-# def test_create_plot_and_rnr_files(sample_rfc_forecast):
-#     try:
-#         mapped_feature_id = 1074884
-#         plot_and_rnr_files_json = rnr.create_plot_and_rnr_files(sample_rfc_forecast["lid"], mapped_feature_id, sample_rfc_forecast, settings.plot_path, settings.rnr_output_path)
-#         assert plot_and_rnr_files_json["status"] == "OK"
-#         print(plot_and_rnr_files_json)
-#     except Exception:
-#         pytest.skip("Cannot test visual plots on web at this moment")
+def test_create_plot_file(sample_rfc_forecast):
+    try:
+        mapped_feature_id = 1074884
+        troute_output_dir = Path(__file__).parent.absolute() / "test_data/troute_output/{}/troute_output_{}.nc"
+        plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/"
+        response = rnr.create_plot_file(
+            sample_rfc_forecast, 
+            mapped_feature_id, 
+            troute_file_dir=troute_output_dir.__str__(),
+            plot_dir=plot_output_dir.__str__()
+        )
+        assert response["status"] == "OK"
+        print(response)
+    except Exception:
+        pytest.skip("Cannot test visual plots on web at this moment")
