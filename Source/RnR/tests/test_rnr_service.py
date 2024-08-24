@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 import pandas as pd
 import pytest
+import httpx
 
 from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
 
@@ -62,15 +63,17 @@ def test_create_troute_domains(tmp_path, sample_rfc_forecast):
     assert dt == "202408211800", "datetime incorrect"
 
 
-def test_troute(sample_rfc_forecast, feature_id: int = 2930769, lid: str = "CAGM7"):
+def test_troute(sample_rfc_forecast, feature_id: int = 2930769, mapped_feature_id = 1074884, initial_start: float = 0.0, lid: str = "CAGM7"):
     try:
         response = rnr.troute(
             lid,
+            mapped_feature_id,
             feature_id,
+            initial_start,
             sample_rfc_forecast
         )
-    except Exception:
-        pytest.skip("Can't test troute as docker compose is not up.")
+    except httpx.ConnectError: 
+        pytest.skip("Skipping test. Docker is not")
     assert isinstance(response, dict)
 
 
@@ -89,17 +92,14 @@ def test_post_processing(sample_rfc_forecast):
 
 
 def test_create_plot_file(sample_rfc_forecast):
-    try:
-        mapped_feature_id = 1074884
-        troute_output_dir = Path(__file__).parent.absolute() / "test_data/troute_output/{}/troute_output_{}.nc"
-        plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/"
-        response = rnr.create_plot_file(
-            sample_rfc_forecast, 
-            mapped_feature_id, 
-            troute_file_dir=troute_output_dir.__str__(),
-            plot_dir=plot_output_dir.__str__()
-        )
-        assert response["status"] == "OK"
-        print(response)
-    except Exception:
-        pytest.skip("Cannot test visual plots on web at this moment")
+    mapped_feature_id = 1074884
+    troute_output_dir = Path(__file__).parent.absolute() / "test_data/troute_output/{}/troute_output_{}.nc"
+    plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/"
+    response = rnr.create_plot_file(
+        sample_rfc_forecast, 
+        mapped_feature_id, 
+        troute_file_dir=troute_output_dir.__str__(),
+        plot_dir=plot_output_dir.__str__()
+    )
+    assert response["status"] == "OK"
+    print(response)

@@ -31,8 +31,11 @@ async def main(settings: Settings) -> None:
 
         print("Consumer started")
 
+        # try:
         await priority_queue.consume(rnr.process_flood_request)
         await base_queue.consume(rnr.process_request)
+        # except Exception as e:
+        #     print(f"Exception thrown during message processing: {e.__str__()}")
 
         try:
             await asyncio.Future()

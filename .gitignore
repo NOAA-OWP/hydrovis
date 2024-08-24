@@ -59,6 +59,8 @@ Source/RnR/.venv
 Source/RnR/src/rnr/app/core/config.ini
 Source/RnR/mock_db/rnr_schema_dump_20240612.dump
 Source/RnR/data
+Source/RnR/output
+Source/RnR/dist
 
 *.ruff_cache
 *.pytest_cache

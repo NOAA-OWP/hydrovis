@@ -10,6 +10,7 @@ import pandas as pd
 import redis
 from aio_pika.abc import AbstractIncomingMessage
 import xarray as xr
+import matplotlib.pyplot as plt
 
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.api.client.troute import run_troute
@@ -19,8 +20,6 @@ settings = get_settings()
 
 r_cache = redis.Redis(host=settings.redis_url, port=6379, decode_responses=True)
 
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
 
 class ReplaceAndRoute:
     """
@@ -135,87 +134,68 @@ class ReplaceAndRoute:
             )
         return {"status": "OK", "domain_files": domain_files}
     
-
-    def troute(self, lid: str, feature_id: str, json_data: Dict[str, Any]):
-        unique_dates = set()
-        for time_str in json_data["times"]:
-            date = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
-            unique_dates.add(date.date())
-
-        num_forecast_days = len(unique_dates) - 1 # the set ending is inclusive, we want exclusive
-
-        response = run_troute(
-            lid=lid,
-            feature_id=feature_id,
-            start_time=json_data["times"][0],
-            num_forecast_days=num_forecast_days,
-            base_url=settings.base_troute_url
-        )
-        return response
-	
+    async def process_flood_request(self, message: AbstractIncomingMessage):
+        await self.process_request(message, is_flooding=True)
     
-    def create_plot_file(
-            self, 
-            json_data: Dict[str, Any], 
-            mapped_feature_id: int, 
-            troute_file_dir: str = settings.troute_output_format, 
-            plot_dir: str = settings.plot_path
-        ):
-        
+    async def process_request(self, message: AbstractIncomingMessage, is_flooding = False):
+        json_data = self.read_message(message.body)
+        lid = json_data["lid"]
+        feature_id = json_data["feature_id"]
+        output_forcing_path = settings.csv_forcing_path
+        subset_gpkg_file = Path(settings.domain_path.format(feature_id))
         try:
-            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
-            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%SZ")
-            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ") for time in json_data["times"]]
+            mapped_feature_id = self.map_feature_id(feature_id, lid, r_cache, subset_gpkg_file)
+        except Exception as e:
+            print(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
+            await message.ack()
+            return
 
-        except Exception:
-            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%S")
-            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%S")
-            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%S") for time in json_data["times"]]
+        domain_files_json = self.create_troute_domains(
+            mapped_feature_id, json_data, output_forcing_path
+        )
 
-        message_time_delta = json_data["formatted_times"]
-        message_flow_cfs = [float(flow_value) * 35.3147 for flow_value in json_data['secondary_forecast']]  # converting to cfs
+        if domain_files_json["status"] == "OK":
+            try:
+                dt = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
+            except Exception:
+                dt = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%S")
+            formatted_time = dt.strftime("%Y%m%d%H%M")
+            cache_key = json_data["lid"] + "_" + formatted_time
+            cache_value = hash(json.dumps(json_data["secondary_forecast"]))
+            r_cache.set(cache_key, cache_value)
+            print(" [x] Done. Files created:")
+            for file in domain_files_json["domain_files"]:
+                print("   - " + file["file_location"])
+        else:
+            print(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
+		
+        if json_data["latest_observation"] is not None:
+            initial_start = json_data["latest_observation"]
+        else:
+            initial_start = json_data["secondary_forecast"][0]  # Using t0 as initial start since no obs
 
-        formatted_timestamps = []
-        t = t0
-        while t <= t_n:
-            formatted_timestamp = t.strftime("%Y%m%d%H%M")
-            formatted_timestamps.append(formatted_timestamp)
-            t += timedelta(hours=1)
-        
-        troute_flow = []
-        troute_time_delta = []
-        dataset_names = [troute_file_dir.format(json_data["lid"], timestamp) for timestamp in formatted_timestamps]
-        for idx, file_name in enumerate(dataset_names):
-            ds = xr.open_dataset(file_name, engine="netcdf4").copy(deep=True)
-            troute_flow.append(ds.sel(feature_id=mapped_feature_id).flow.values[0])
-            troute_time_delta.append(datetime.strptime(Path(file_name).stem.split("_")[-1], "%Y%m%d%H%M"))
+        try:
+            _ = self.troute(
+                lid=lid, 
+                mapped_feature_id=mapped_feature_id,
+                feature_id=feature_id, 
+                initial_start=initial_start, 
+                json_data=json_data
+            )  # Using feature_id to reference the gpkg file
+        except Exception as e:
+            print(f"Error using T-Route: {feature_id}. {e.__str__()}")
+            await message.ack()
 
-        troute_flow_cfs = [float(flow_value) * 35.3147 for flow_value in troute_flow]  # converting to cfs
-
-        plot_file_name = "RFC_plot_output_" + json_data["lid"] + "_"
-        dt_start_formatted = message_time_delta[0].strftime("%Y%m%d")
-        dt_end_formatted = message_time_delta[-1].strftime("%Y%m%d")
-        if dt_start_formatted != dt_end_formatted:
-            plot_file_name += dt_start_formatted + "_"
-        plot_file_name += dt_end_formatted + ".png"
-        plot_file_dir = Path(os.path.join(plot_dir, json_data["lid"]))
-        plot_file_location = Path(os.path.join(plot_dir, json_data["lid"], plot_file_name))
-
-        plt.plot(troute_time_delta, troute_flow_cfs, c="k", label="LowerColorado Test NHDPlus")
-        plt.plot(message_time_delta, message_flow_cfs, c="tab:blue", label=f"{json_data['lid']} Routed Flow")
-        plt.xlabel("timedelta64[ns]")
-        plt.ylabel("discharge cfs")
-        plt.legend()
-
-        if not os.path.exists(plot_file_dir):
-            os.makedirs(plot_file_dir)
-        plt.savefig(plot_file_location)
-
-        return {
-            'status': 'OK',
-            'plot_file_location': plot_file_location
-        }
+        plot_file_json = self.create_plot_file(json_data=json_data, mapped_feature_id=mapped_feature_id)
     
+        self.post_process(json_data, mapped_feature_id, is_flooding)
+
+        if plot_file_json["status"] == "OK":
+            print(" [x] Plot file created:")
+            print(f"Plot Location: {plot_file_json['plot_file_location']}")
+
+        await message.ack()
+
     def post_process(
             self, 
             json_data: Dict[str, Any], 
@@ -224,11 +204,8 @@ class ReplaceAndRoute:
             troute_file_dir: str = settings.troute_output_format, 
             rnr_dir: str = settings.rnr_output_path
         ):
-        
         rnr_output_path = Path(rnr_dir.format(json_data["lid"]))
-        if not os.path.exists(rnr_output_path):
-            os.makedirs(rnr_output_path)
-        
+        rnr_output_path.mkdir(exist_ok=True)
         try:
             t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
             t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%SZ")
@@ -282,44 +259,90 @@ class ReplaceAndRoute:
             ds = ds.assign_attrs(Last_Forecast_Time=json_data["times"][stage_idx])
             ds.to_netcdf(rnr_output_path / settings.rnr_output_file.format(str(formatted_timestamp)))
         return {"status": "OK"}
-    
-    async def process_flood_request(self, message: AbstractIncomingMessage):
-        await self.process_request(message, is_flooding=True)
-    
-    async def process_request(self, message: AbstractIncomingMessage, is_flooding = False):
-        json_data = self.read_message(message.body)
-        lid = json_data["lid"]
-        feature_id = json_data["feature_id"]
-        output_forcing_path = settings.csv_forcing_path
-        gpkg_file = Path(settings.domain_path.format(feature_id))
-        mapped_feature_id = self.map_feature_id(feature_id, lid, r_cache, gpkg_file)
-        domain_files_json = self.create_troute_domains(
-            mapped_feature_id, json_data, output_forcing_path
+            
+
+    def troute(
+        self, 
+        lid: str, 
+        mapped_feature_id: str, 
+        feature_id: str, 
+        initial_start: float, 
+        json_data: Dict[str, Any]
+    ):
+        unique_dates = set()
+        for time_str in json_data["times"]:
+            date = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
+            unique_dates.add(date.date())
+
+        num_forecast_days = len(unique_dates) - 1 # the set ending is inclusive, we want exclusive
+
+        response = run_troute(
+            lid=lid,
+            feature_id=feature_id,
+            mapped_feature_id=mapped_feature_id,
+            initial_start=initial_start,
+            start_time=json_data["times"][0],
+            num_forecast_days=num_forecast_days,
+            base_url=settings.base_troute_url
         )
-
-        if domain_files_json["status"] == "OK":
-            try:
-                dt = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
-            except Exception:
-                dt = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%S")
-            formatted_time = dt.strftime("%Y%m%d%H%M")
-            cache_key = json_data["lid"] + "_" + formatted_time
-            cache_value = hash(json.dumps(json_data["secondary_forecast"]))
-            r_cache.set(cache_key, cache_value)
-            print(" [x] Done. Files created:")
-            for file in domain_files_json["domain_files"]:
-                print("   - " + file["file_location"])
-        else:
-            print(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
-		
-        troute_response = self.troute(lid, feature_id, json_data)
-
-        plot_file_json = self.create_plot_file(json_data, mapped_feature_id)
+        return response
     
-        self.post_process(json_data, mapped_feature_id, is_flooding)
+    def create_plot_file(
+            self, 
+            json_data: Dict[str, Any], 
+            mapped_feature_id: int, 
+            troute_file_dir: str = settings.troute_output_format, 
+            plot_dir: str = settings.plot_path
+        ):
+        
+        try:
+            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%SZ")
+            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%SZ")
+            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%SZ") for time in json_data["times"]]
 
-        if plot_file_json["status"] == "OK":
-            print(" [x] Plot file created:")
-            print("   - " + plot_file_json['file_location'])
+        except Exception:
+            t0 = datetime.strptime(json_data["times"][0], "%Y-%m-%dT%H:%M:%S")
+            t_n = datetime.strptime(json_data["times"][-1], "%Y-%m-%dT%H:%M:%S")
+            json_data["formatted_times"] = [datetime.strptime(time, "%Y-%m-%dT%H:%M:%S") for time in json_data["times"]]
 
-        await message.ack()
+        message_time_delta = json_data["formatted_times"]
+        message_flow_cfs = [float(flow_value) * 35.3147 for flow_value in json_data['secondary_forecast']]  # converting to cfs
+
+        formatted_timestamps = []
+        t = t0
+        while t <= t_n:
+            formatted_timestamp = t.strftime("%Y%m%d%H%M")
+            formatted_timestamps.append(formatted_timestamp)
+            t += timedelta(hours=1)
+        
+        troute_flow = []
+        troute_time_delta = []
+        dataset_names = [troute_file_dir.format(json_data["lid"], timestamp) for timestamp in formatted_timestamps]
+        for idx, file_name in enumerate(dataset_names):
+            ds = xr.open_dataset(file_name, engine="netcdf4").copy(deep=True)
+            troute_flow.append(ds.sel(feature_id=int(mapped_feature_id)).flow.values[0])
+            troute_time_delta.append(datetime.strptime(Path(file_name).stem.split("_")[-1], "%Y%m%d%H%M"))
+
+        troute_flow_cfs = [float(flow_value) * 35.3147 for flow_value in troute_flow]  # converting to cfs
+
+        dt_start_formatted = message_time_delta[0].strftime("%Y%m%d")
+        dt_end_formatted = message_time_delta[-1].strftime("%Y%m%d")
+        # if dt_start_formatted != dt_end_formatted:
+        #     plot_file_name += dt_start_formatted + "_"
+        plot_file_name = f"RFC_plot_output_{json_data['lid']}_{dt_start_formatted}_{dt_end_formatted}.png"
+        plot_file_dir = Path(plot_dir.format(json_data["lid"]))
+        plot_file_location = plot_file_dir / plot_file_name
+
+        plt.plot(troute_time_delta, troute_flow_cfs, c="k", label="LowerColorado Test NHDPlus")
+        plt.plot(message_time_delta, message_flow_cfs, c="tab:blue", label=f"{json_data['lid']} Routed Flow")
+        plt.xlabel("timedelta64[ns]")
+        plt.ylabel("discharge cfs")
+        plt.legend()
+
+        plot_file_dir.mkdir(exist_ok=True)
+        plt.savefig(plot_file_location)
+
+        return {
+            'status': 'OK',
+            'plot_file_location': plot_file_location
+        }

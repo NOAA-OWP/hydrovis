@@ -39,7 +39,6 @@ class MessagePublisherService:
     @staticmethod
     async def process_rfc_entry(
         rfc_entry: RFCDatabaseEntry,
-        # channel: pika.BlockingConnection.channel,
         settings: Settings,
     ) -> Dict[str, str]:
         """
@@ -109,7 +108,6 @@ class MessagePublisherService:
         if not r_cache.exists(cache_key) or str(r_cache.get(cache_key)) != str(
             cache_value
         ):
-            # print('value not in cache')
             try:
                 await MessagePublisherService.process_and_publish_messages(
                     gauge_data, gauge_forecast, rfc_entry, settings
@@ -158,7 +156,6 @@ class MessagePublisherService:
         """
         is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
         is_flood_forecasted = gauge_data.status.forecast.floodCategory != "no_flooding"
-
         processed_data = ProcessedData(
             lid=gauge_data.lid,
             upstream_lid=gauge_data.upstreamLid,
@@ -174,6 +171,8 @@ class MessagePublisherService:
             timeZone=gauge_data.timeZone,
             latitude=gauge_data.latitude,
             longitude=gauge_data.longitude,
+            latest_observation=gauge_forecast.latest_observation,
+            latest_obs_units=gauge_forecast.latest_obs_units,
             status=gauge_data.status,
             times=gauge_forecast.times,
             primary_name=gauge_forecast.primary_name,

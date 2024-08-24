@@ -43,10 +43,12 @@ async def test_single_message_passing(rfc_table_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        await rabbit_connection.connect()
         try:
+            await rabbit_connection.connect()
             response = await ac.post(f"/api/v1/publish/start/{rfc_table_identifier}")
         except sqlalchemy.exc.OperationalError:
+            pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
@@ -73,6 +75,8 @@ async def test_single_no_forecast_passing(no_rfc_forecast_identifier: str) -> No
             )
         except sqlalchemy.exc.OperationalError:
             pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
+            pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
         assert data["summary"]["no_forecast"] == 1, "Not picking up the API error"
@@ -94,10 +98,12 @@ async def test_single_error_passing(no_gauge_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        await rabbit_connection.connect()
         try:
+            await rabbit_connection.connect()
             response = await ac.post(f"/api/v1/publish/start/{no_gauge_identifier}")
         except sqlalchemy.exc.OperationalError:
+            pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()

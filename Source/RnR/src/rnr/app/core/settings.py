@@ -50,7 +50,8 @@ class Settings(BaseSettings):
     output_file: str = "{}_output.gpkg"
     csv_forcing_path: Path = Path("/app/data/rfc_channel_forcings/")
     domain_path: str = "/app/data/rfc_geopackage_data/{}/subset.gpkg"
-    plot_path: str  = "/app/data/plots/"
+    downstream_domain_path: str = "/app/data/rfc_geopackage_data/{}/downstream.gpkg"
+    plot_path: str  = "/app/data/plots/{}"
     troute_output_path: str = "/app/data/troute_output/"
     rnr_output_path: str = "/app/data/replace_and_route/{}"
     rnr_output_file: str = "replace_route.t{}z.medium_range.channel_rt.nc"
