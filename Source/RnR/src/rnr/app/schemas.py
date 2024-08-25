@@ -888,6 +888,10 @@ class GaugeForecast(BaseModel):
         Unit of measurement for primary forecast.
     secondary_name : str
         Name of the secondary forecast parameter.
+    latest_obervation: List[float]
+        The latest observation from NWPS
+    latest_obs_units: str
+        The latest observation units
     secondary_forecast : List[float]
         List of secondary forecast values.
     secondary_unit : str
@@ -898,6 +902,8 @@ class GaugeForecast(BaseModel):
     primary_name: str
     primary_forecast: List[float]
     primary_unit: str
+    latest_observation: List[float]
+    latest_obs_units: str
     secondary_name: str
     secondary_forecast: List[float]
     secondary_unit: str
@@ -935,6 +941,8 @@ class ProcessedData(BaseModel):
         USGS identifier for the gauge.
     feature_id : Optional[int]
         Optional feature identifier.
+    downstream_feature_id: Optional[int]
+        The downstream feature identifier
     reach_id : str
         Identifier for the river reach where the gauge is located.
     name : str
@@ -967,6 +975,9 @@ class ProcessedData(BaseModel):
     downstream_lid: str
     usgs_id: str
     feature_id: Optional[int]
+    downstream_feature_id: Optional[int]
+    latest_observation: Union[List[float], None]
+    latest_obs_units: str
     reach_id: str
     name: str
     rfc: RFC

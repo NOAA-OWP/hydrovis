@@ -56,7 +56,9 @@ class RabbitConnection:
         """
         await self._clear()
 
-    async def send_message(self, message: Union[List[Any], Dict[str, Any]], routing_key: str) -> None:
+    async def send_message(
+        self, message: Union[List[Any], Dict[str, Any]], routing_key: str
+    ) -> None:
         """
         Public message or messages to the RabbitMQ queue.
 

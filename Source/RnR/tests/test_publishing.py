@@ -6,9 +6,9 @@ from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
-from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.main import app
 
 
@@ -43,10 +43,12 @@ async def test_single_message_passing(rfc_table_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        await rabbit_connection.connect()
         try:
+            await rabbit_connection.connect()
             response = await ac.post(f"/api/v1/publish/start/{rfc_table_identifier}")
         except sqlalchemy.exc.OperationalError:
+            pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
@@ -73,13 +75,14 @@ async def test_single_no_forecast_passing(no_rfc_forecast_identifier: str) -> No
             )
         except sqlalchemy.exc.OperationalError:
             pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
+            pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()
         assert data["summary"]["no_forecast"] == 1, "Not picking up the API error"
         assert (
             data["results"][0]["error_type"] == "NoForecastError"
         ), "Not picking up the API error"
-
 
 
 @pytest.mark.asyncio
@@ -94,10 +97,12 @@ async def test_single_error_passing(no_gauge_identifier: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as ac:
-        await rabbit_connection.connect()
         try:
+            await rabbit_connection.connect()
             response = await ac.post(f"/api/v1/publish/start/{no_gauge_identifier}")
         except sqlalchemy.exc.OperationalError:
+            pytest.skip("Cannot test this as docker compose is not up")
+        except AttributeError:
             pytest.skip("Cannot test this as docker compose is not up")
         assert response.status_code == 200, "Invalid route"
         data = response.json()

@@ -107,7 +107,7 @@ services:
       - "5432:5432"
 
   hfsubset:
-    image: ghcr.io/taddyb33/hfsubset-legacy:0.0.1
+    image: ghcr.io/taddyb33/hfsubset-legacy:0.0.4
     ports:
       - "8008:8000"
     volumes:
@@ -128,7 +128,7 @@ services:
       - "6379:6379"
 
   troute:
-    image: ghcr.io/taddyb33/t-route-dev:0.0.1
+    image: ghcr.io/taddyb33/t-route-dev:0.0.2
     ports:
       - "8004:8000"
     volumes:

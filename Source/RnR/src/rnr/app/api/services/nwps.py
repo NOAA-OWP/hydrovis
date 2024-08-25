@@ -68,6 +68,11 @@ class NWPSService:
         """
         api_url = settings.base_url
         gauge_forecast = await gauge_product(identifier, api_url, "forecast")
+        gauge_observations = await gauge_product(identifier, api_url, "observed")
+
+        latest_observation_units = gauge_observations["secondaryUnits"]
+        latest_observation_flow = [gauge_observations["data"][-1]["secondary"]]
+
         times = [
             datetime.fromisoformat(entry["validTime"].rstrip("Z"))
             for entry in gauge_forecast["data"]
@@ -82,11 +87,17 @@ class NWPSService:
             secondary_forecast, gauge_forecast["secondaryUnits"]
         )
 
+        latest_observation_m3, latest_obs_units = convert_to_m3_per_sec(
+            latest_observation_flow, latest_observation_units
+        )
+
         return GaugeForecast(
             times=times,
             primary_name=gauge_forecast["primaryName"],
             primary_forecast=primary_forecast,
             primary_unit=gauge_forecast["primaryUnits"],
+            latest_observation=latest_observation_m3,
+            latest_obs_units=latest_obs_units,
             secondary_name=gauge_forecast["secondaryName"],
             secondary_forecast=secondary_m3_forecast,
             secondary_unit=secondary_units,

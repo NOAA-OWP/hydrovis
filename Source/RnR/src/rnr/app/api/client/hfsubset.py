@@ -93,7 +93,29 @@ async def async_subset(
 ) -> Dict[str, Any]:
     endpoint = f"{base_url}/subset/"
     params = {
-        "comid": feature_id,
+        "feature_id": feature_id,
+        "lyrs": [
+            "divides",
+            "nexus",
+            "flowpaths",
+            "lakes",
+            "flowpath_attributes",
+            "network",
+            "layer_styles",
+        ],
+    }
+    return await async_get(endpoint, params)
+
+
+async def async_downstream(
+    feature_id: str,
+    ds_feature_id: str,
+    base_url: str,
+) -> Dict[str, Any]:
+    endpoint = f"{base_url}/downstream/"
+    params = {
+        "feature_id": feature_id,
+        "downstream_feature_id": ds_feature_id,
         "lyrs": [
             "divides",
             "nexus",

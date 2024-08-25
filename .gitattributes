@@ -20,3 +20,4 @@
 *.tar.gz binary
 *.gz binary
 *.gpkg binary
+*.nc binary

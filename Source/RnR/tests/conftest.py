@@ -363,6 +363,8 @@ def sample_rfc_forecast() -> Dict[str, str]:
             15.3,
             15.3,
         ],
+        "latest_observation": 2690,
+        "latest_obs_units": "m3 s-1",
         "primary_unit": "ft",
         "secondary_name": "Flow",
         "secondary_forecast": [
@@ -445,6 +447,7 @@ def sample_rfc_forecast() -> Dict[str, str]:
         "lid": "CAGM7",
         "upstream_lid": "MOZI2",
         "downstream_lid": "GRFI2",
+        "downstream_feature_id": 880478,
         "usgs_id": "05513675",
         "feature_id": 2930769,
         "reach_id": "2930769",

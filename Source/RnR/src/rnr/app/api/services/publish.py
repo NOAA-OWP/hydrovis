@@ -3,8 +3,10 @@ from typing import Dict
 
 import redis
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 from src.rnr.app.api.services.nwps import NWPSService
+from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.core.exceptions import NoForecastError, NWPSAPIError
 from src.rnr.app.core.rabbit_connection import rabbit_connection
@@ -39,7 +41,7 @@ class MessagePublisherService:
     @staticmethod
     async def process_rfc_entry(
         rfc_entry: RFCDatabaseEntry,
-        # channel: pika.BlockingConnection.channel,
+        db: Session,
         settings: Settings,
     ) -> Dict[str, str]:
         """
@@ -61,6 +63,9 @@ class MessagePublisherService:
         """
         try:
             gauge_data = await NWPSService.get_gauge_data(rfc_entry.nws_lid, settings)
+            rfc_ds_entry = RFCReaderService.get_rfc_data(
+                db, identifier=gauge_data.downstreamLid
+            ).entries[0]
         except NWPSAPIError as e:
             message = {
                 "message": f"NWPSAPIError for reading {rfc_entry.nws_lid}: {str(e)}"
@@ -109,10 +114,13 @@ class MessagePublisherService:
         if not r_cache.exists(cache_key) or str(r_cache.get(cache_key)) != str(
             cache_value
         ):
-            # print('value not in cache')
             try:
                 await MessagePublisherService.process_and_publish_messages(
-                    gauge_data, gauge_forecast, rfc_entry, settings
+                    gauge_data=gauge_data,
+                    gauge_forecast=gauge_forecast,
+                    rfc_entry=rfc_entry,
+                    rfc_ds_entry=rfc_ds_entry,
+                    settings=settings,
                 )
             except ValidationError as e:
                 message = {
@@ -138,6 +146,7 @@ class MessagePublisherService:
         gauge_data: GaugeData,
         gauge_forecast: GaugeForecast,
         rfc_entry: RFCDatabaseEntry,
+        rfc_ds_entry: RFCDatabaseEntry,
         settings: Settings,
     ) -> None:
         """
@@ -158,13 +167,13 @@ class MessagePublisherService:
         """
         is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
         is_flood_forecasted = gauge_data.status.forecast.floodCategory != "no_flooding"
-
         processed_data = ProcessedData(
             lid=gauge_data.lid,
             upstream_lid=gauge_data.upstreamLid,
             downstream_lid=gauge_data.downstreamLid,
             usgs_id=gauge_data.usgsId,
             feature_id=rfc_entry.feature_id,
+            downstream_feature_id=rfc_ds_entry.feature_id,
             reach_id=gauge_data.reachId,
             name=gauge_data.name,
             rfc=gauge_data.rfc,
@@ -174,6 +183,8 @@ class MessagePublisherService:
             timeZone=gauge_data.timeZone,
             latitude=gauge_data.latitude,
             longitude=gauge_data.longitude,
+            latest_observation=gauge_forecast.latest_observation,
+            latest_obs_units=gauge_forecast.latest_obs_units,
             status=gauge_data.status,
             times=gauge_forecast.times,
             primary_name=gauge_forecast.primary_name,
