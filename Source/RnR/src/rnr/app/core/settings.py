@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     csv_forcing_path: Path = Path("/app/data/rfc_channel_forcings/")
     domain_path: str = "/app/data/rfc_geopackage_data/{}/subset.gpkg"
     downstream_domain_path: str = "/app/data/rfc_geopackage_data/{}/downstream.gpkg"
-    plot_path: str  = "/app/data/plots/{}"
+    plot_path: str = "/app/data/plots/{}"
     troute_output_path: str = "/app/data/troute_output/"
     rnr_output_path: str = "/app/data/replace_and_route/{}"
     rnr_output_file: str = "replace_route.t{}z.medium_range.channel_rt.nc"
@@ -77,17 +77,15 @@ class Settings(BaseSettings):
     base_queue: str = "non_flooded_data_queue"
     error_queue: str = "error_queue"
 
-    troute_output_format: str = '/app/data/troute_output/{}/troute_output_{}.nc'
-    processed_output_form: str = 'nwc.{0}'
-    forcing_regex: str = '\d{12}\.CHRTOUT_DOMAIN1'
-    hydro_rst_datetime_format: str = '%Y-%m-%d_%H:00'
+    troute_output_format: str = "/app/data/troute_output/{}/troute_output_{}.nc"
+    processed_output_form: str = "nwc.{0}"
+    forcing_regex: str = "\d{12}\.CHRTOUT_DOMAIN1"
+    hydro_rst_datetime_format: str = "%Y-%m-%d_%H:00"
     # forecast_output = f'replace_route/{ana_datetime_str[:-4]}/forecasts/{ana_datetime_str[-4:-2]}Z_run_issue_times.csv'
     # troute_output = f'replace_route/{ana_datetime_str[:-4]}/wrf_hydro/{os.path.basename(f)}'
-    forecast_output: str = 'replace_route/{}/forecasts/{}Z_run_issue_times.csv'
-
+    forecast_output: str = "replace_route/{}/forecasts/{}Z_run_issue_times.csv"
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
-
 
     def __init__(self, **data):
         super(Settings, self).__init__(**data)

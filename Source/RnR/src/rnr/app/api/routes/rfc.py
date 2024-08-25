@@ -1,16 +1,16 @@
 from typing import Annotated
 
-from src.rnr.app.core.exceptions import NWPSAPIError
-from src.rnr.app.api.services.nwps import NWPSService
+import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import BaseModel, ValidationError
 from sqlalchemy.orm import Session
-import httpx
 
-from src.rnr.app.api.client.hfsubset import async_subset, subset, async_downstream
+from src.rnr.app.api.client.hfsubset import async_downstream, async_subset, subset
 from src.rnr.app.api.database import get_db
+from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.exceptions import NWPSAPIError
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
 from src.rnr.app.schemas import RFCDatabaseEntries, Subset, SubsetLocations
@@ -117,7 +117,7 @@ async def build_rfc_domain(
     db: Session = Depends(get_db),
 ) -> SubsetLocations:
     """Builds a subset geopackage to learn the mapped feature_id (HY_ID) for a feature id. Then, gets the downstream RFC point's geofabric
-    
+
     Parameters:
     -----------
     background_tasks: BackgroundTasks
@@ -144,18 +144,30 @@ async def build_rfc_domain(
         async with limiter:
             if entry.feature_id is not None:
                 try:
-                    gauge_data = await NWPSService.get_gauge_data(entry.nws_lid, settings)
-                    rfc_ds = RFCReaderService.get_rfc_data(db, identifier=gauge_data.downstreamLid).entries[0]
+                    gauge_data = await NWPSService.get_gauge_data(
+                        entry.nws_lid, settings
+                    )
+                    rfc_ds = RFCReaderService.get_rfc_data(
+                        db, identifier=gauge_data.downstreamLid
+                    ).entries[0]
                     _ = await async_subset(entry.feature_id, settings.base_subset_url)
-                    return await async_downstream(entry.feature_id, rfc_ds.feature_id, settings.base_subset_url)
+                    return await async_downstream(
+                        entry.feature_id, rfc_ds.feature_id, settings.base_subset_url
+                    )
                 except ValidationError:
-                    print(f"{entry.nws_lid} is not within the RFC Database. Cannot route")
+                    print(
+                        f"{entry.nws_lid} is not within the RFC Database. Cannot route"
+                    )
                     return None
-                except httpx.HTTPStatusError: 
-                    print(f"Unprocessable lid: {entry.nws_lid}, downstream lid: {rfc_ds.nws_lid} 422 Error")
+                except httpx.HTTPStatusError:
+                    print(
+                        f"Unprocessable lid: {entry.nws_lid}, downstream lid: {rfc_ds.nws_lid} 422 Error"
+                    )
                     return None
                 except NWPSAPIError as e:
-                    print(f"NWPSAPIError Unprocessable lid: {entry.nws_lid}, verify there is a downstream RFC station. {e.__str__()}")
+                    print(
+                        f"NWPSAPIError Unprocessable lid: {entry.nws_lid}, verify there is a downstream RFC station. {e.__str__()}"
+                    )
                     return None
 
             else:

@@ -897,6 +897,7 @@ class GaugeForecast(BaseModel):
     secondary_unit : str
         Unit of measurement for secondary forecast.
     """
+
     times: List[datetime]
     primary_name: str
     primary_forecast: List[float]
@@ -940,6 +941,8 @@ class ProcessedData(BaseModel):
         USGS identifier for the gauge.
     feature_id : Optional[int]
         Optional feature identifier.
+    downstream_feature_id: Optional[int]
+        The downstream feature identifier
     reach_id : str
         Identifier for the river reach where the gauge is located.
     name : str
@@ -972,6 +975,7 @@ class ProcessedData(BaseModel):
     downstream_lid: str
     usgs_id: str
     feature_id: Optional[int]
+    downstream_feature_id: Optional[int]
     latest_observation: Union[List[float], None]
     latest_obs_units: str
     reach_id: str

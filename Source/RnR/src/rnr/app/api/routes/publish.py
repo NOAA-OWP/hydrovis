@@ -49,7 +49,7 @@ async def publish_single_message(
         0
     ]  # An RFCDatabaseEntries obj is always returned
 
-    tasks = [MessagePublisherService.process_rfc_entry(rfc_entry, settings)]
+    tasks = [MessagePublisherService.process_rfc_entry(rfc_entry, db, settings)]
     results = await asyncio.gather(*tasks)
 
     summary = Summary(
@@ -103,7 +103,7 @@ async def publish_messages(
 
     async def limited_process(entry):
         async with limiter:
-            return await MessagePublisherService.process_rfc_entry(entry, settings)
+            return await MessagePublisherService.process_rfc_entry(entry, db, settings)
 
     tasks = [limited_process(rfc_entry) for rfc_entry in rfc_entries]
     results = await asyncio.gather(*tasks)

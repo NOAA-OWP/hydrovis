@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import httpx
 
@@ -34,16 +34,16 @@ def _get(
         return response.json()
     except httpx.HTTPStatusError as exc:
         raise exc
-    
+
 
 def run_troute(
     lid: str,
     feature_id: str,
-    mapped_feature_id: str, 
+    mapped_feature_id: str,
     start_time: str,
     initial_start: float,
     num_forecast_days: int,
-    base_url: str
+    base_url: str,
 ) -> Dict[str, Any]:
     endpoint = f"{base_url}/flow_routing/v4/"
     params = {
@@ -52,6 +52,6 @@ def run_troute(
         "hy_id": mapped_feature_id,
         "initial_start": initial_start,
         "start_time": start_time,
-        "num_forecast_days": num_forecast_days
+        "num_forecast_days": num_forecast_days,
     }
     return _get(endpoint, params)

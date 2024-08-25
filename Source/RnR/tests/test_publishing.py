@@ -6,9 +6,9 @@ from fastapi.testclient import TestClient
 from httpx import ASGITransport, AsyncClient
 
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
-from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.main import app
 
 
@@ -83,7 +83,6 @@ async def test_single_no_forecast_passing(no_rfc_forecast_identifier: str) -> No
         assert (
             data["results"][0]["error_type"] == "NoForecastError"
         ), "Not picking up the API error"
-
 
 
 @pytest.mark.asyncio
