@@ -1,0 +1,9 @@
+service: static_nwm_flowlines_ak
+summary: NWM Flowlines for Alaska
+description: Depicts the NWM flowlines within Alaska
+tags: national water model, nwm, reference, flowlines, alaska
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: reference
+feature_service: false
+public_service: false
