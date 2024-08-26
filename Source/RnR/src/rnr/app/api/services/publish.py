@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import NoForecastError, NWPSAPIError
 from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.core.settings import Settings
@@ -17,6 +18,8 @@ from src.rnr.app.schemas import (
     ProcessedData,
     RFCDatabaseEntry,
 )
+
+log = setup_logger('default', 'consumer.log')
 
 _settings = get_settings()
 
@@ -63,6 +66,19 @@ class MessagePublisherService:
         """
         try:
             gauge_data = await NWPSService.get_gauge_data(rfc_entry.nws_lid, settings)
+            if gauge_data.downstreamLid is None:
+                message=f"No downstream LID for {rfc_entry.nws_lid}" 
+                log.error(message)
+                await rabbit_connection.send_message(
+                    message=message, routing_key=settings.error_queue
+                )
+                return {
+                    "status": "api_error",
+                    "lid": rfc_entry.nws_lid,
+                    "error_type": "RFC Not Found",
+                    "error_message": message,
+                    "status_code": 404,
+                }
             rfc_ds_entry = RFCReaderService.get_rfc_data(
                 db, identifier=gauge_data.downstreamLid
             ).entries[0]
@@ -70,6 +86,7 @@ class MessagePublisherService:
             message = {
                 "message": f"NWPSAPIError for reading {rfc_entry.nws_lid}: {str(e)}"
             }
+            log.error(message["message"])
             await rabbit_connection.send_message(
                 message=message, routing_key=settings.error_queue
             )
@@ -87,6 +104,7 @@ class MessagePublisherService:
             )
         except NoForecastError as e:
             message = f"NoForecastError for {rfc_entry.nws_lid}: {str(e)}"
+            log.error(message)
             return {
                 "status": "no_forecast",
                 "lid": rfc_entry.nws_lid,
@@ -97,6 +115,7 @@ class MessagePublisherService:
 
         except NWPSAPIError as e:
             message = {"message": f"NWPSAPIError for {rfc_entry.nws_lid}: {str(e)}"}
+            log.error(message)
             await rabbit_connection.send_message(
                 message=message, routing_key=settings.error_queue
             )
@@ -126,6 +145,7 @@ class MessagePublisherService:
                 message = {
                     "message": f"Pydantic data validation error for LID: {GaugeData.lid}"
                 }
+                log.error(message["message"])
                 await rabbit_connection.send_message(
                     message=message, routing_key=settings.error_queue
                 )
@@ -196,6 +216,7 @@ class MessagePublisherService:
         )
 
         message = json.dumps(processed_data.model_dump_json())
+        log.info(f"Sending message for LID: {gauge_data.lid}")
         if is_flood_observed or is_flood_forecasted:
             await rabbit_connection.send_message(
                 message=message, routing_key=settings.priority_queue

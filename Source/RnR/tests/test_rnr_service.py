@@ -6,8 +6,21 @@ import pytest
 
 from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.settings import Settings
 
-settings = get_settings()
+def get_settings_override() -> Settings:
+    """Overriding the BaseSettings for testing
+
+    Returns
+    -------
+    Settings
+        The test settings
+    """
+    return Settings(
+        log_path="./logs/"
+    )
+
+settings = get_settings_override()
 
 rnr = ReplaceAndRoute()
 
@@ -41,6 +54,12 @@ def test_mapped_feature_id(feature_id: int = 2930769, lid: str = "CAGM7") -> Non
     gpkg_file = Path(__file__).parent.absolute() / "test_data/2930769/subset.gpkg"
     mapped_feature_id = rnr.map_feature_id(feature_id, lid, mock_cache(), gpkg_file)
     assert mapped_feature_id == "1074884", "mapping function giving the wrong divide id"
+
+
+def test_assimilation_mapping(feature_id: int = 2930769, lid: str = "CAGM7") -> None:
+    gpkg_file = Path(__file__).parent.absolute() / "test_data/2930769/subset.gpkg"
+    mapped_feature_id = rnr.get_assimilation_id(feature_id, lid, mock_cache(), gpkg_file)
+    # assert mapped_feature_id == "1074884", "mapping function giving the wrong divide id"
 
 
 def test_create_troute_domains(tmp_path, sample_rfc_forecast):

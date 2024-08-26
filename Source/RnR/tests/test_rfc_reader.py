@@ -19,7 +19,7 @@ def get_settings_override() -> Settings:
     Settings
         The test settings
     """
-    return Settings(testing_queue="testing")
+    return Settings(testing_queue="testing", log_path="./logs/")
 
 
 app.dependency_overrides[get_settings] = get_settings_override

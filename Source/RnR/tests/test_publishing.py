@@ -24,6 +24,7 @@ def get_settings_override() -> Settings:
         priority_queue="testing_floods",
         base_queue="testing_non_floods",
         error_queue="testing_errors",
+        log_path="./logs/"
     )
 
 

@@ -10,12 +10,15 @@ from src.rnr.app.api.database import get_db
 from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import NWPSAPIError
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
 from src.rnr.app.schemas import RFCDatabaseEntries, Subset, SubsetLocations
 
 router = APIRouter()
+
+log = setup_logger('default', 'app.log')
 
 
 class Message(BaseModel):
@@ -78,7 +81,7 @@ def build_single_rfc_location(
     """
     response = subset(feature_id, settings.base_subset_url)
     subsets = [Subset(**response)]
-    print(subsets)
+    log.info(subsets)
     subset_locations = SubsetLocations(subset_locations=subsets)
     return subset_locations
 
@@ -155,23 +158,23 @@ async def build_rfc_domain(
                         entry.feature_id, rfc_ds.feature_id, settings.base_subset_url
                     )
                 except ValidationError:
-                    print(
+                    log.error(
                         f"{entry.nws_lid} is not within the RFC Database. Cannot route"
                     )
                     return None
                 except httpx.HTTPStatusError:
-                    print(
+                    log.error(
                         f"Unprocessable lid: {entry.nws_lid}, downstream lid: {rfc_ds.nws_lid} 422 Error"
                     )
                     return None
                 except NWPSAPIError as e:
-                    print(
+                    log.error(
                         f"NWPSAPIError Unprocessable lid: {entry.nws_lid}, verify there is a downstream RFC station. {e.__str__()}"
                     )
                     return None
 
             else:
-                print(
+                log.error(
                     f"{entry.nws_lid} does not have an attached feature ID. Cannot route"
                 )
                 return None
