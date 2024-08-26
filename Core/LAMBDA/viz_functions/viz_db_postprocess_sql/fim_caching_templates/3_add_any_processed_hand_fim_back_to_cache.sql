@@ -28,7 +28,11 @@ LEFT OUTER JOIN fim_cache.hand_hydrotable_cached AS hc ON fim.hand_id = hc.hand_
 WHERE fim.prc_method = 'HAND_Processing' AND
 hc.rc_stage_ft IS NULL;
 
--- 3. Add records for each geometry to hydrotable_cached_geo table
+-- 3a. Remove invalid geometries
+DELETE FROM {db_fim_table}_geo
+WHERE NOT ST_IsValid(geom);
+
+-- 3b. Add records for each geometry to hydrotable_cached_geo table
 INSERT INTO fim_cache.hand_hydrotable_cached_geo (hand_id, rc_stage_ft, geom)
 SELECT
     fim_geo.hand_id,
