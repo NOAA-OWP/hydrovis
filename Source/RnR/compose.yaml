@@ -63,8 +63,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      mock_db:
-        condition: service_started
 
   frontend:
     build: 

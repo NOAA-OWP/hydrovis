@@ -14,11 +14,14 @@ from aio_pika.abc import AbstractIncomingMessage
 
 from src.rnr.app.api.client.troute import run_troute
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import ManyToOneError
 
 settings = get_settings()
 
 r_cache = redis.Redis(host=settings.redis_url, port=6379, decode_responses=True)
+
+log = setup_logger('default', 'consumer.log')
 
 
 class ReplaceAndRoute:
@@ -34,32 +37,53 @@ class ReplaceAndRoute:
         json_data = json.loads(json_string)
         return json_data
 
-    def map_feature_id(self, feature_id: str, lid: str, _r_cache, gpkg_file) -> str:
+    def map_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
         if gpkg_file.exists():
-            cache_key = f"{lid}_mapped_feature_id"
+            cache_key = f"{feature_id}_mapped_feature_id"
             if not _r_cache.exists(cache_key):
                 gdf = gpd.read_file(gpkg_file, layer="network")
                 _divide_ids = gdf[gdf["hf_id"] == int(feature_id)]["divide_id"].values
                 if np.all(_divide_ids == _divide_ids[0]):
-                    mapped_feature_id = _divide_ids[0][
-                        4:
-                    ]  # removing the cat- from in front of the ID
+                    mapped_feature_id = _divide_ids[0].split("-")[0]
                 else:
+                    log.error("Error in Mapping. There is a many to one relationship")
                     raise ManyToOneError
                 cache_value = mapped_feature_id
                 _r_cache.set(cache_key, cache_value)
             else:
                 mapped_feature_id = _r_cache.get(cache_key)
         else:
+            log.error("Geopackage mapping file not found")
             raise FileNotFoundError
         return mapped_feature_id
+    
 
+    def map_ds_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
+        if gpkg_file.exists():
+            cache_key = f"{feature_id}_mapped_ds_feature_id"
+            if not _r_cache.exists(cache_key):
+                gdf = gpd.read_file(gpkg_file, layer="network")
+                _toids = gdf[gdf["hf_id"] == int(feature_id)]["toid"].values
+                if np.all(_toids == _toids[0]):
+                    mapped_feature_id = _toids[0].split("-")[1]  #Using downstream confluence point
+                else:
+                    log.error("Error in Mapping. There is a many to one relationship")
+                    raise ManyToOneError
+                cache_value = mapped_feature_id
+                _r_cache.set(cache_key, cache_value)
+            else:
+                mapped_feature_id = _r_cache.get(cache_key)
+        else:
+            log.error("Geopackage mapping file not found")
+            raise FileNotFoundError
+        return mapped_feature_id
+    
     def create_troute_domains(self, mapped_feature_id, json_data, output_forcing_path):
         rfc_data = {}
 
         lid = json_data["lid"]
         if mapped_feature_id is None:
-            print(f"Skipping {lid} as there is no defined feature_id")
+            log.error(f"Skipping {lid} as there is no defined feature_id")
             domain_files_json = {
                 "status": "ERROR",
                 "domain_files": [],
@@ -146,20 +170,32 @@ class ReplaceAndRoute:
         output_forcing_path = settings.csv_forcing_path
         subset_gpkg_file = Path(settings.domain_path.format(feature_id))
         downstream_gpkg_file = Path(settings.downstream_domain_path.format(feature_id))
-        try:
-            mapped_feature_id = self.map_feature_id(
-                feature_id, lid, r_cache, subset_gpkg_file
-            )
-        except Exception as e:
-            print(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
-            await message.ack()
-            return
+        if is_flooding:
+            # Meets assimilation criteria. Routing from upstream catchment from RFC
+            try:
+                mapped_feature_id = self.map_feature_id(
+                    feature_id, r_cache, subset_gpkg_file
+                )
+            except Exception as e:
+                log.error(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
+                await message.ack()
+                return
+        else:
+            # Routing from downstream of RFC point
+            try:
+                mapped_feature_id = self.map_ds_feature_id(
+                    feature_id, r_cache, subset_gpkg_file
+                )
+            except Exception as e:
+                log.error(f"Cannot find DS Point fron reference fabric for ID: {feature_id}. {e.__str__()}")
+                await message.ack()
+                return
         try:
             mapped_ds_feature_id = self.map_feature_id(
-                json_data["downstream_feature_id"], lid, r_cache, downstream_gpkg_file
+                json_data["downstream_feature_id"], r_cache, downstream_gpkg_file
             )
         except Exception as e:
-            print(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
+            log.error(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
             await message.ack()
             return
 
@@ -176,11 +212,11 @@ class ReplaceAndRoute:
             cache_key = json_data["lid"] + "_" + formatted_time
             cache_value = hash(json.dumps(json_data["secondary_forecast"]))
             r_cache.set(cache_key, cache_value)
-            print(" [x] Done. Files created:")
-            for file in domain_files_json["domain_files"]:
-                print("   - " + file["file_location"])
+            log.info(f"[x] Domain files created. Example: {domain_files_json['domain_files'][0]['file_location']}")
+            # for file in domain_files_json["domain_files"]:
+            #     print("   - " + file["file_location"])
         else:
-            print(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
+            log.error(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
 
         if json_data["latest_observation"] is not None:
             initial_start = json_data["latest_observation"]
@@ -198,7 +234,7 @@ class ReplaceAndRoute:
                 json_data=json_data,
             )  # Using feature_id to reference the gpkg file
         except Exception as e:
-            print(f"Error using T-Route: {feature_id}. {e.__str__()}")
+            log.error(f"Error using T-Route: {feature_id}. {e.__str__()}")
             await message.ack()
 
         plot_file_json = self.create_plot_file(
@@ -210,9 +246,7 @@ class ReplaceAndRoute:
         self.post_process(json_data, mapped_feature_id, is_flooding)
 
         if plot_file_json["status"] == "OK":
-            print(" [x] Plot file created:")
-            print(f"Plot Location: {plot_file_json['plot_file_location']}")
-
+            log.info(f" [x] Plot file created: {plot_file_json['plot_file_location']}")
         await message.ack()
 
     def post_process(

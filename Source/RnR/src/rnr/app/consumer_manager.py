@@ -1,12 +1,24 @@
 import asyncio
 
 import aio_pika
+# import uvicorn
+# from fastapi import FastAPI, status
+# from fastapi.responses import Response
 
 from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.cache import get_settings
 from src.rnr.app.core.settings import Settings
 
 PARALLEL_TASKS = 10
+
+log = setup_logger('default', 'consumer.log')
+
+# app = FastAPI(title="Consumer")
+
+# @app.head("/health")
+# async def health_check():
+#     return Response(status_code=status.HTTP_200_OK)
 
 
 async def main(settings: Settings) -> None:
@@ -29,7 +41,7 @@ async def main(settings: Settings) -> None:
         #     durable=True,
         # )
 
-        print("Consumer started")
+        log.info("Consumer started")
 
         # try:
         await priority_queue.consume(rnr.process_flood_request)
@@ -44,5 +56,6 @@ async def main(settings: Settings) -> None:
 
 
 if __name__ == "__main__":
-    print("Starting consumer...")
+    log.info("Starting Consumer")
     asyncio.run(main(get_settings()))
+    # uvicorn.run(app, host="0.0.0.0", port=8080)

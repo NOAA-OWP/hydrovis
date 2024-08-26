@@ -77,6 +77,8 @@ class Settings(BaseSettings):
     base_queue: str = "non_flooded_data_queue"
     error_queue: str = "error_queue"
 
+    log_path: str = "/app/data/logs"
+
     troute_output_format: str = "/app/data/troute_output/{}/troute_output_{}.nc"
     processed_output_form: str = "nwc.{0}"
     forcing_regex: str = "\d{12}\.CHRTOUT_DOMAIN1"

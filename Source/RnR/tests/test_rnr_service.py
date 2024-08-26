@@ -43,6 +43,12 @@ def test_mapped_feature_id(feature_id: int = 2930769, lid: str = "CAGM7") -> Non
     assert mapped_feature_id == "1074884", "mapping function giving the wrong divide id"
 
 
+def test_assimilation_mapping(feature_id: int = 2930769, lid: str = "CAGM7") -> None:
+    gpkg_file = Path(__file__).parent.absolute() / "test_data/2930769/subset.gpkg"
+    mapped_feature_id = rnr.get_assimilation_id(feature_id, lid, mock_cache(), gpkg_file)
+    # assert mapped_feature_id == "1074884", "mapping function giving the wrong divide id"
+
+
 def test_create_troute_domains(tmp_path, sample_rfc_forecast):
     mapped_feature_id = 1074884
     output_forcing_path = tmp_path / "rfc_channel_forcings/"
