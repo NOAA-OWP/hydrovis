@@ -36,18 +36,17 @@ async def main(settings: Settings) -> None:
             settings.base_queue,
             durable=True,
         )
-        # error_queue = await channel.declare_queue(
-        #     settings.error_queue,
-        #     durable=True,
-        # )
+        error_queue = await channel.declare_queue(
+            settings.error_queue,
+            durable=True,
+        )
 
         log.info("Consumer started")
 
         # try:
         await priority_queue.consume(rnr.process_flood_request)
         await base_queue.consume(rnr.process_request)
-        # except Exception as e:
-        #     print(f"Exception thrown during message processing: {e.__str__()}")
+        await error_queue.consume(rnr.process_error)
 
         try:
             await asyncio.Future()

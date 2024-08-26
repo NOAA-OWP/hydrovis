@@ -44,7 +44,7 @@ class ReplaceAndRoute:
                 gdf = gpd.read_file(gpkg_file, layer="network")
                 _divide_ids = gdf[gdf["hf_id"] == int(feature_id)]["divide_id"].values
                 if np.all(_divide_ids == _divide_ids[0]):
-                    mapped_feature_id = _divide_ids[0].split("-")[0]
+                    mapped_feature_id = _divide_ids[0].split("-")[1]  # Removing "cat"
                 else:
                     log.error("Error in Mapping. There is a many to one relationship")
                     raise ManyToOneError
@@ -65,7 +65,7 @@ class ReplaceAndRoute:
                 gdf = gpd.read_file(gpkg_file, layer="network")
                 _toids = gdf[gdf["hf_id"] == int(feature_id)]["toid"].values
                 if np.all(_toids == _toids[0]):
-                    mapped_feature_id = _toids[0].split("-")[1]  #Using downstream confluence point
+                    mapped_feature_id = _toids[0].split("-")[1]  # Using downstream confluence point
                 else:
                     log.error("Error in Mapping. There is a many to one relationship")
                     raise ManyToOneError
@@ -477,3 +477,8 @@ class ReplaceAndRoute:
         plt.close(fig)
 
         return {"status": "OK", "plot_file_location": plot_file_location}
+
+
+    async def process_error(self, message: AbstractIncomingMessage):
+        # json_data = self.read_message(message.body)
+        log.error("ERROR QUEUE TRIGGERED")
