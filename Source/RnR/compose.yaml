@@ -98,9 +98,6 @@ services:
       dockerfile: Dockerfile.notebook
     volumes:
       - type: bind
-        source: ./data
-        target: /app/data
-      - type: bind
         source: ./tests
         target: /app/tests
     environment:
@@ -112,7 +109,7 @@ services:
       - TROUTE_URL=http://troute:8000/api/v1
     ports:
       - "8888:8888"
-    command: sh -c ". /app/.venv/bin/activate && jupyter-lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token='' --NotebookApp.password=''"
+    command: start-notebook.py --NotebookApp.token='my-token'
     working_dir: /app/tests/notebooks
     depends_on:
       redis:

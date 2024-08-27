@@ -62,6 +62,7 @@ Source/RnR/data
 Source/RnR/output
 Source/RnR/dist
 Source/RnR/tests/notebooks/historical_flood_event
+Source/RnR/tests/.Trash*
 
 *.ruff_cache
 *.pytest_cache
