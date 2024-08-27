@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>RNR CSV Data Search</title>
+    <title>RNR Plot Data Search</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
@@ -38,17 +38,55 @@
             </div>
         </form>
         
-        <ul class="mt-4 nav nav-tabs" id="myTab" role="tablist">
+        <ul class="mt-4 nav nav-tabs" id="lidTab" role="tablist">
             {% for lid_key in forecast_results %}
                 <li class="nav-item" role="presentation">
                     <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-tab-pane" aria-selected="true">{{ lid_key }}</button>
                 </li>
             {% endfor %}
         </ul>
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content" id="lidTabContent">
             {% for lid_key in forecast_results %}
                 <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-tab" tabindex="0">
+                    <div class="row">
+                        <div class="col p-2" style="max-width: 400px;">
+                            {% for file in forecast_results[lid_key]['png_files'] %}
+                                <div style="text-align: center;">
+                                    <b>RFC {{lid_key}} Forecasted Flows,<br/>
+                                    {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}</b><br/>
+                                    <a href="/{{ file.name }}" target="_blank"><img src="/{{ file.name }}" alt="Lower Colorado Test NHDPlus vs. {{lid_key}} Routed Flow, {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}" style="max-width: 100%;"></a>
+                                </div>
+                            {% endfor %}
+                        </div>
 
+                        <div class="col p-2 d-flex flex-wrap">
+                            {% for feature_id in forecast_results[lid_key]['forecasts'] %}
+                                <div class="px-2 pb-4">
+                                    <p><b>Forecast for Feature ID {{ feature_id }}:</b></p>
+
+                                    <ul class="mt-4 nav nav-tabs" id="lid-{{ lid_key }}-{{ feature_id }}-Tab" role="tablist">
+                                        {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" aria-selected="true">{{ date_key }}</button>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+
+                                    <div class="tab-content" id="lid-{{ lid_key }}-{{ feature_id }}-TabContent">
+                                        {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
+                                            <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" tabindex="0">
+                                                {% for forecast_day in forecast_results[lid_key]['forecasts'][feature_id][date_key] %}
+                                                    {{ forecast_day['time'].strftime('%H:%M') }} - {{ forecast_day['flow_value'] }} cfs<br/>
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    {# Disabling Show Files / Download Zip for a specific LID
                     <div>
                         <a id="{{ lid_key }}-files-button" class="btn btn-primary" data-bs-toggle="collapse" href="#{{ lid_key }}-files" role="button" aria-expanded="false" aria-controls="{{ lid_key }}-files">[Show Files]</a>
                         <a class="btn btn-primary" href="./download/?lid={{ lid_key }}&start_date={{ start_date }}&end_date={{ end_date }}">[Download Zip]</a>
@@ -56,7 +94,7 @@
 
                     <div class="collapse" id="{{ lid_key }}-files">
                         <ul>
-                            {% for file in forecast_results[lid_key]['files'] %}
+                            {% for file in forecast_results[lid_key]['nc_files'] %}
                                 <li><a href="/{{ file.name }}">{{ file.name.split('\\')[-1] }}</a></li>
                             {% endfor %}
                         </ul>
@@ -70,23 +108,7 @@
                             document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Show Files]';
                         })
                     </script>
-
-                    <div class="d-flex flex-wrap">
-                        {% for date_key in forecast_results[lid_key]['forecasts'] %}
-                            <div class="p-2" style="width: 300px;">
-                                {% for forecast in forecast_results[lid_key]['forecasts'][date_key] %}
-                                    {% if loop.first %}
-                                        <p><b>Forecast for {{ forecast['time'].strftime('%Y-%m-%d') }}:</b></p>
-                                    {% endif %}
-                                    <p>
-                                        Time: {{ forecast['time'].strftime('%H:%M') }}<br/>
-                                        Feature ID: {{ forecast['feature_id'] }}<br/>
-                                        Flow Value: {{ forecast['flow_value'] }}
-                                    </p>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                    </div>
+                    End disabled code #}
                 </div>
             {% endfor %}
         </div>
