@@ -32,7 +32,7 @@ services:
     command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.app.main:app --host 0.0.0.0 --port 8000"
     healthcheck:
       test: curl --fail -I http://localhost:8000/health || exit 1
-      interval: 30s
+      interval: 90s
       timeout: 5s
       retries: 3
       start_period: 5s
@@ -91,6 +91,38 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile.notebook
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: bind
+        source: ./tests
+        target: /app/tests
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@mock_db/{}
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    ports:
+      - "8888:8888"
+    command: sh -c ". /app/.venv/bin/activate && jupyter-lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token='' --NotebookApp.password=''"
+    working_dir: /app/tests/notebooks
+    depends_on:
+      redis:
+        condition: service_started
+      hfsubset:
+        condition: service_healthy
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   mock_db:
     # build: 
