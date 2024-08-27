@@ -61,6 +61,7 @@ Source/RnR/mock_db/rnr_schema_dump_20240612.dump
 Source/RnR/data
 Source/RnR/output
 Source/RnR/dist
+Source/RnR/tests/notebooks/historical_flood_event
 
 *.ruff_cache
 *.pytest_cache
