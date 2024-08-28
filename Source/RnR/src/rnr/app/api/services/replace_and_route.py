@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -38,6 +38,22 @@ class ReplaceAndRoute:
         return json_data
 
     def map_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
+        """A function to map a feature ID to the catchment which includes the point (upstream catchment)
+
+        Parameters
+        ----------
+        feature_id: str
+            The COMID for the RFC point
+        _r_cache: Callable
+            The R Cache for saving existing IDs
+        gpkg_file: Path
+            The gpkg file to read from
+
+        Returns
+        -------
+        str:
+            The mapped upstream HY_ID
+        """
         if gpkg_file.exists():
             cache_key = f"{feature_id}_mapped_feature_id"
             if not _r_cache.exists(cache_key):
@@ -58,7 +74,23 @@ class ReplaceAndRoute:
         return mapped_feature_id
     
 
-    def map_ds_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
+    def map_ds_feature_id(self, feature_id: str, _r_cache: Callable, gpkg_file: Path) -> str:
+        """A function to map a feature ID to the downstream catchment of the point
+
+        Parameters
+        ----------
+        feature_id: str
+            The COMID for the RFC point
+        _r_cache: Callable
+            The R Cache for saving existing IDs
+        gpkg_file: Path
+            The gpkg file to read from
+
+        Returns
+        -------
+        str:
+            The mapped upstream HY_ID
+        """
         if gpkg_file.exists():
             cache_key = f"{feature_id}_mapped_ds_feature_id"
             if not _r_cache.exists(cache_key):
@@ -404,6 +436,8 @@ class ReplaceAndRoute:
         troute_flow = []
         troute_time_delta = []
         troute_ds_flow = []
+        depth_upstream = []
+        depth_downstream = []
         dataset_names = [
             troute_file_dir.format(json_data["lid"], timestamp)
             for timestamp in formatted_timestamps
@@ -413,6 +447,10 @@ class ReplaceAndRoute:
             troute_flow.append(ds.sel(feature_id=int(mapped_feature_id)).flow.values[0])
             troute_ds_flow.append(
                 ds.sel(feature_id=int(mapped_ds_feature_id)).flow.values[0]
+            )
+            depth_upstream.append(ds.sel(feature_id=int(mapped_feature_id)).depth.values[0])
+            depth_downstream.append(
+                ds.sel(feature_id=int(mapped_ds_feature_id)).depth.values[0]
             )
             troute_time_delta.append(
                 datetime.strptime(Path(file_name).stem.split("_")[-1], "%Y%m%d%H%M")
@@ -425,6 +463,9 @@ class ReplaceAndRoute:
         troute_ds_flow_cfs = [
             float(flow_value) * 35.3147 for flow_value in troute_ds_flow
         ]  # converting to cfs
+
+        depth_upstream_feet = [float(depth_value) * 3.28084 for depth_value in depth_upstream]
+        depth_downstream_feet = [float(depth_value) * 3.28084 for depth_value in depth_downstream]
 
         dt_start_formatted = rfc_forecast_time_delta[0].strftime("%Y%m%d")
         dt_end_formatted = rfc_forecast_time_delta[-1].strftime("%Y%m%d")
@@ -440,37 +481,51 @@ class ReplaceAndRoute:
         # plt.ylabel("discharge cfs")
         # plt.legend()
 
-        fig, ax = plt.subplots(1, 1, figsize=(16, 8), sharex=True)
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 6), sharex=True)
 
         # Plot on the first subplot
-        ax.scatter(
+        ax1.scatter(
             rfc_forecast_time_delta,
             rfc_forecast_cfs,
             c="k",
             label=f"RFC {json_data['lid']} Forecasted flows",
         )
-        ax.set_title(
-            f"Comparing RFC forecast to outputted T-Route flows at {json_data['lid']}"
-        )
-
-        # Plot on the second subplot
-        ax.plot(
+        ax1.plot(
             troute_time_delta,
             troute_flow_cfs,
             c="blue",
             label="Upstream T-Routed Output at RFC point",
         )
-        ax.plot(
+        ax1.plot(
             troute_time_delta,
             troute_ds_flow_cfs,
             c="tab:blue",
             label="Downstream T-Routed Output",
         )
-        ax.set_xlabel("Time (Hours)")
-        ax.set_ylabel(r"discharge $f^3/s$")
-        ax.legend()
+        ax1.set_xlabel("Time (Hours)")
+        ax1.set_ylabel(r"Discharge $f^3/s$")
+        ax1.legend()
+        ax1.set_title(
+            f"Comparing RFC forecast to outputted T-Route flows at {json_data['lid']}"
+        )
 
-        # Adjust layout to prevent overlap
+        ax2.plot(
+            troute_time_delta,
+            depth_upstream_feet,
+            c="blue",
+            label="Upstream T-Route Flow Height at RFC point",
+        )
+        ax2.plot(
+            troute_time_delta,
+            depth_downstream_feet,
+            c="tab:blue",
+            label="Downstream T-Route Flow Height",
+        )
+        ax2.set_xlabel("Time (Hours)")
+        ax2.set_ylabel(r"Depth (Feet)")
+        ax2.legend()
+        ax2.set_title("Flow Height Comparison")
+
         plt.tight_layout()
         plot_file_dir.mkdir(exist_ok=True)
         plt.savefig(plot_file_location)

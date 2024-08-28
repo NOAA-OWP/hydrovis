@@ -9,6 +9,6 @@ COPY README.md ./
 COPY docs/ ./docs
 COPY mkdocs.yml ./
 
-RUN pip install uv==0.2.5
+RUN pip install uv
 RUN uv venv
 RUN uv pip install --no-cache-dir -r requirements.txt

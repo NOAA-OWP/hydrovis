@@ -8,7 +8,7 @@ COPY requirements.txt ./
 COPY pyproject.toml ./
 COPY README.md ./
 
-RUN pip install uv==0.2.5
+RUN pip install uv
 RUN uv venv
 RUN uv pip install --no-cache-dir -r requirements.txt
 

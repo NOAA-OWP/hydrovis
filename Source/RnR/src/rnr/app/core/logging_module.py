@@ -11,7 +11,12 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
 
     # Create logs directory if it doesn't exist
     log_dir = Path(settings.log_path)
-    log_dir.mkdir(parents=True, exist_ok=True)
+    try: 
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        file_dir = Path(__file__).resolve().parents[4]  # going to the root dir
+        log_dir = Path(file_dir / "data/logs")
+        log_dir.mkdir(parents=True, exist_ok=True)
 
     formatter = logging.Formatter('%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 

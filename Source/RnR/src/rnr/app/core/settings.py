@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     rnr_output_path: str = "/app/data/replace_and_route/{}"
     rnr_output_file: str = "replace_route.t{}z.medium_range.channel_rt.nc"
 
-    sqlalchemy_database_url: str = "postgresql://{}:{}@localhost/{}"
+    sqlalchemy_database_url: str = "postgresql://{}:{}@{}/{}"
 
     rate_limit: int = 12
 
@@ -79,6 +79,8 @@ class Settings(BaseSettings):
 
     log_path: str = "/app/data/logs"
 
+    db_host: str = "localhost"
+
     troute_output_format: str = "/app/data/troute_output/{}/troute_output_{}.nc"
     processed_output_form: str = "nwc.{0}"
     forcing_regex: str = "\d{12}\.CHRTOUT_DOMAIN1"
@@ -95,17 +97,20 @@ class Settings(BaseSettings):
             self.sqlalchemy_database_url = os.getenv("SQLALCHEMY_DATABASE_URL")
         if os.getenv("RABBITMQ_HOST") is not None:
             self.rabbitmq_default_host = os.getenv("RABBITMQ_HOST")
+        if os.getenv("DB_HOST") is not None:
+            self.db_host = os.getenv("DB_HOST")
 
         try:
             config = read_config("config.ini")
             self.sqlalchemy_database_url = self.sqlalchemy_database_url.format(
                 config.get("Database", "user"),
                 config.get("Database", "password"),
+                self.db_host,
                 config.get("Database", "dbname"),
             )
         except FileNotFoundError:
             self.sqlalchemy_database_url = self.sqlalchemy_database_url.format(
-                os.getenv("USER"), os.getenv("PASSWORD"), os.getenv("DBNAME")
+                os.getenv("USER"), os.getenv("PASSWORD"), self.db_host, os.getenv("DBNAME")
             )
 
         self.aio_pika_url = self.aio_pika_url.format(
