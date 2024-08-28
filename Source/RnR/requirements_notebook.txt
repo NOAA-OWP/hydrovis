@@ -1,1 +1,7 @@
-jupyterlab==3.6.7
+matplotlib 
+xarray 
+netcdf4 
+geopandas 
+pandas 
+numpy 
+contextily==1.6.1

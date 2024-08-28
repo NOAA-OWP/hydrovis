@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -38,6 +38,22 @@ class ReplaceAndRoute:
         return json_data
 
     def map_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
+        """A function to map a feature ID to the catchment which includes the point (upstream catchment)
+
+        Parameters
+        ----------
+        feature_id: str
+            The COMID for the RFC point
+        _r_cache: Callable
+            The R Cache for saving existing IDs
+        gpkg_file: Path
+            The gpkg file to read from
+
+        Returns
+        -------
+        str:
+            The mapped upstream HY_ID
+        """
         if gpkg_file.exists():
             cache_key = f"{feature_id}_mapped_feature_id"
             if not _r_cache.exists(cache_key):
@@ -58,7 +74,23 @@ class ReplaceAndRoute:
         return mapped_feature_id
     
 
-    def map_ds_feature_id(self, feature_id: str, _r_cache, gpkg_file) -> str:
+    def map_ds_feature_id(self, feature_id: str, _r_cache: Callable, gpkg_file: Path) -> str:
+        """A function to map a feature ID to the downstream catchment of the point
+
+        Parameters
+        ----------
+        feature_id: str
+            The COMID for the RFC point
+        _r_cache: Callable
+            The R Cache for saving existing IDs
+        gpkg_file: Path
+            The gpkg file to read from
+
+        Returns
+        -------
+        str:
+            The mapped upstream HY_ID
+        """
         if gpkg_file.exists():
             cache_key = f"{feature_id}_mapped_ds_feature_id"
             if not _r_cache.exists(cache_key):
