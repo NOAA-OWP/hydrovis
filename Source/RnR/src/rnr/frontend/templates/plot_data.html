@@ -6,112 +6,121 @@
 </head>
 <body>
     <div class="m-4">
-        <form id="CSVSearchForm" method="get" action="./">
-            <div>
-                LID: 
-                <select name="lid" id="lid">
-                    <option value=""{% if lid == '' %} selected{% endif %}>Show All</option>
-                    {% for lid_option in lids %}
-                        <option value="{{ lid_option }}"{% if lid_option == lid %} selected{% endif %}>{{ lid_option }}</option>
-                    {% endfor %}
-                </select>
-                {% if 'lid' in errors %}
-                    <b style="color: red;">ERROR: {{ errors['lid'] }}</b>
-                {% endif %}
-            </div>
-            <div>
-                Start Date: <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
-                {% if 'start_date' in errors %}
-                    <b style="color: red;">ERROR: {{ errors['start_date'] }}</b>
-                {% endif %}
-            </div>
-            <div>
-                End Date: <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
-                {% if 'end_date' in errors %}
-                    <b style="color: red;">ERROR: {{ errors['end_date'] }}</b>
-                {% endif %}
-            </div>
-            <div>
-                <input type="button" value="Submit" onclick="document.getElementById('CSVSearchForm').action = './'; document.getElementById('CSVSearchForm').submit();">
-                <input type="button" value="Reset" onclick="window.location.href='./';">
-                <input type="button" value="Download Zip" onclick="document.getElementById('CSVSearchForm').action = './download/'; document.getElementById('CSVSearchForm').submit();">
-            </div>
-        </form>
-        
         <ul class="mt-4 nav nav-tabs" id="lidTab" role="tablist">
-            {% for lid_key in forecast_results %}
+            {% for lid_option in lids %}
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-tab-pane" aria-selected="true">{{ lid_key }}</button>
+                    <button class="nav-link{% if lid_option == lid %} active{% endif %}" id="{{ lid_option }}-tab" type="button" role="tab"><a href="{% if lid %}../{% endif %}{{ lid_option }}/" class="link-underline-light link-underline-primary-hover"><b>{{ lid_option }}</b></a></button>
                 </li>
             {% endfor %}
         </ul>
-        <div class="tab-content" id="lidTabContent">
-            {% for lid_key in forecast_results %}
-                <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-tab" tabindex="0">
-                    <div class="row">
-                        <div class="col p-2" style="max-width: 400px;">
-                            {% for file in forecast_results[lid_key]['png_files'] %}
-                                <div style="text-align: center;">
-                                    <b>RFC {{lid_key}} Forecasted Flows,<br/>
-                                    {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}</b><br/>
-                                    <a href="/{{ file.name }}" target="_blank"><img src="/{{ file.name }}" alt="Lower Colorado Test NHDPlus vs. {{lid_key}} Routed Flow, {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}" style="max-width: 100%;"></a>
-                                </div>
-                            {% endfor %}
-                        </div>
+        
+        {% if not forecast_results %}
+            <p><b>Select a LID to continue.</b></p>
+        {% else %}
+            <form id="PlotSearchForm" method="get" action="./">
+                <div>
+                    Start Date: <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
+                    {% if 'start_date' in errors %}
+                        <b style="color: red;">ERROR: {{ errors['start_date'] }}</b>
+                    {% endif %}
+                </div>
+                <div>
+                    End Date: <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
+                    {% if 'end_date' in errors %}
+                        <b style="color: red;">ERROR: {{ errors['end_date'] }}</b>
+                    {% endif %}
+                </div>
+                <div>
+                    <input type="button" value="Submit" onclick="document.getElementById('PlotSearchForm').action = './'; document.getElementById('PlotSearchForm').submit();">
+                    <input type="button" value="Reset" onclick="window.location.href='./';">
+                    <input type="button" value="Download Zip" onclick="document.getElementById('PlotSearchForm').action = './download/'; document.getElementById('PlotSearchForm').submit();">
+                </div>
+            </form>
 
-                        <div class="col p-2 d-flex flex-wrap">
-                            {% for feature_id in forecast_results[lid_key]['forecasts'] %}
-                                <div class="px-2 pb-4">
-                                    <p><b>Forecast for Feature ID {{ feature_id }}:</b></p>
+            <div class="tab-content" id="lidTabContent">
+                {% for lid_key in forecast_results %}
+                    <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-tab-pane" role="tabpanel" tabindex="0">
+                        <div class="row">
+                            <div class="col p-2" style="max-width: 400px;">
+                                {% for file in forecast_results[lid_key]['png_files'] %}
+                                    <div style="text-align: center;">
+                                        <b>RFC {{lid_key}} Forecasted Flows,<br/>
+                                        {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}</b><br/>
+                                        <a href="/{{ file.name }}" target="_blank"><img src="/{{ file.name }}" alt="Lower Colorado Test NHDPlus vs. {{lid_key}} Routed Flow, {{ file.start_date.strftime('%Y-%m-%d') }} - {{ file.end_date.strftime('%Y-%m-%d') }}" style="max-width: 100%;"></a>
+                                    </div>
+                                {% endfor %}
+                            </div>
 
-                                    <ul class="mt-4 nav nav-tabs" id="lid-{{ lid_key }}-{{ feature_id }}-Tab" role="tablist">
-                                        {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" aria-selected="true">{{ date_key }}</button>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
+                            <div class="col p-2">
+                                {% if forecast_results[lid_key]['forecasts']|length > 1 %}
+                                   <p><b>Choose a Feature ID:</b></p>
+                                {% endif %}
 
-                                    <div class="tab-content" id="lid-{{ lid_key }}-{{ feature_id }}-TabContent">
-                                        {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
-                                            <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" tabindex="0">
-                                                {% for forecast_day in forecast_results[lid_key]['forecasts'][feature_id][date_key] %}
-                                                    {{ forecast_day['time'].strftime('%H:%M') }} - {{ forecast_day['flow_value'] }} cfs<br/>
+                                <ul class="mt-4 nav nav-tabs" id="lid-{{ lid_key }}-Tab" role="tablist">
+                                    {% for feature_id in forecast_results[lid_key]['forecasts'] %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-{{ feature_id }}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-{{ feature_id }}-tab-pane" aria-selected="true" onclick="document.getElementById('{{ lid_key }}-{{ feature_id }}-tab-pane').scrollIntoViewIfNeeded({ behavior: 'smooth'});"><b>{{ feature_id }}</b></button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <div class="tab-content" id="lid-{{ lid_key }}-TabContent">
+                                    {% for feature_id in forecast_results[lid_key]['forecasts'] %}
+                                        <div class="px-2 mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-{{ feature_id }}-tab" tabindex="0">
+                                            {% if forecast_results[lid_key]['forecasts'][feature_id]|length > 1 %}
+                                               <p><b>Choose a Forecast Date:</b></p>
+                                            {% endif %}
+
+                                            <ul class="mt-4 nav nav-tabs" id="lid-{{ lid_key }}-{{ feature_id }}-Tab" role="tablist">
+                                                {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
+                                                    <li class="nav-item" role="presentation">
+                                                        <button class="nav-link{% if loop.first %} active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" data-bs-toggle="tab" data-bs-target="#{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" type="button" role="tab" aria-controls="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" aria-selected="true">{{ date_key }}</button>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+
+                                            <div class="tab-content" id="lid-{{ lid_key }}-{{ feature_id }}-TabContent">
+                                                {% for date_key in forecast_results[lid_key]['forecasts'][feature_id] %}
+                                                    <div class="mt-2 tab-pane fade{% if loop.first %} show active{% endif %}" id="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab-pane" role="tabpanel" aria-labelledby="{{ lid_key }}-{{ feature_id }}-{{ date_key}}-tab" tabindex="0">
+                                                        {% for forecast_day in forecast_results[lid_key]['forecasts'][feature_id][date_key] %}
+                                                            {{ forecast_day['time'].strftime('%H:%M') }} - {{ forecast_day['flow_value'] }} cfs<br/>
+                                                        {% endfor %}
+                                                    </div>
                                                 {% endfor %}
                                             </div>
-                                        {% endfor %}
-                                    </div>
+                                        </div>
+                                    {% endfor %}
                                 </div>
-                            {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                    
-                    {# Disabling Show Files / Download Zip for a specific LID
-                    <div>
-                        <a id="{{ lid_key }}-files-button" class="btn btn-primary" data-bs-toggle="collapse" href="#{{ lid_key }}-files" role="button" aria-expanded="false" aria-controls="{{ lid_key }}-files">[Show Files]</a>
-                        <a class="btn btn-primary" href="./download/?lid={{ lid_key }}&start_date={{ start_date }}&end_date={{ end_date }}">[Download Zip]</a>
-                    </div>
+                        
+                        {# Disabling Show Files / Download Zip for a specific LID
+                        <div>
+                            <a id="{{ lid_key }}-files-button" class="btn btn-primary" data-bs-toggle="collapse" href="#{{ lid_key }}-files" role="button" aria-expanded="false" aria-controls="{{ lid_key }}-files">[Show Files]</a>
+                            <a class="btn btn-primary" href="./download/?lid={{ lid_key }}&start_date={{ start_date }}&end_date={{ end_date }}">[Download Zip]</a>
+                        </div>
 
-                    <div class="collapse" id="{{ lid_key }}-files">
-                        <ul>
-                            {% for file in forecast_results[lid_key]['nc_files'] %}
-                                <li><a href="/{{ file.name }}">{{ file.name.split('\\')[-1] }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                        <div class="collapse" id="{{ lid_key }}-files">
+                            <ul>
+                                {% for file in forecast_results[lid_key]['nc_files'] %}
+                                    <li><a href="/{{ file.name }}">{{ file.name.split('\\')[-1] }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
 
-                    <script>
-                        document.getElementById('{{ lid_key }}-files').addEventListener('show.bs.collapse', function () {
-                            document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Hide Files]';
-                        })
-                        document.getElementById('{{ lid_key }}-files').addEventListener('hide.bs.collapse', function () {
-                            document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Show Files]';
-                        })
-                    </script>
-                    End disabled code #}
-                </div>
-            {% endfor %}
-        </div>
+                        <script>
+                            document.getElementById('{{ lid_key }}-files').addEventListener('show.bs.collapse', function () {
+                                document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Hide Files]';
+                            })
+                            document.getElementById('{{ lid_key }}-files').addEventListener('hide.bs.collapse', function () {
+                                document.getElementById('{{ lid_key }}-files-button').innerHTML = '[Show Files]';
+                            })
+                        </script>
+                        End disabled code #}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 
     <script src="/static/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
