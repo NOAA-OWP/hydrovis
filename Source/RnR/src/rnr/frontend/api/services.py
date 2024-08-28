@@ -156,11 +156,38 @@ class DataSearchService:
         return csv_search_context
     
     @staticmethod
+    async def search_lids(
+        request: Request
+    ):
+        """
+        Returns a dataset of all available LIDS.
+
+        Parameters
+        ----------
+        request: Request
+            A Request object passed in by the router.
+        """
+
+        plot_lids = [
+            f.name
+            for f in os.scandir(os.path.normpath(settings.plots_location))
+            if f.is_dir()
+        ]
+        troute_lids = [
+            f.name
+            for f in os.scandir(os.path.normpath(settings.rnr_output_path))
+            if f.is_dir()
+        ]
+        lid_search_context = {"lids": sorted(list(set(plot_lids) | set(troute_lids)))}
+
+        return lid_search_context
+    
+    @staticmethod
     async def search_plot_data(
         request: Request, lid: str, start_date: str, end_date: str
     ):
         """
-        Returns a dataset of all matching forecasts, including related CSV and plot files.
+        Returns a dataset of all matching forecasts, including related plot and NetCDF files.
 
         Parameters
         ----------
@@ -183,6 +210,8 @@ class DataSearchService:
             key: request.query_params[key] for key in request.query_params
         }
 
+        plot_search_context["lid"] = lid
+        
         plot_search_context["errors"] = {}
 
         plot_lids = [
@@ -197,10 +226,9 @@ class DataSearchService:
         ]
         plot_search_context["lids"] = sorted(list(set(plot_lids) | set(troute_lids)))
         
-
-        if lid != "" and lid not in plot_search_context["lids"]:
+        if lid == "" or lid not in plot_search_context["lids"]:
             plot_search_context["errors"]["lid"] = "Invalid LID"
-            lid = ""
+            return plot_search_context
 
         try:
             plot_search_context["start_date"] = start_date

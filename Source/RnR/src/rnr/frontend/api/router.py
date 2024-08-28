@@ -3,7 +3,7 @@ from datetime import datetime
 from zipfile import ZipFile
 
 from fastapi import APIRouter, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from .services import DataSearchService
@@ -89,7 +89,24 @@ async def get_csv_data_download(
     return FileResponse(path=zip_file_name, filename=zip_file_name)
 
 @frontend_router.get("/plot/", response_class=HTMLResponse)
-async def plot_data(request: Request, lid: str = '', start_date: str = datetime.now().strftime("%Y-%m-%d"), end_date: str = ''):
+async def lid_data(request: Request):
+    """ A route to display the available LIDs for searching plot data
+    
+    Parameters
+
+    Parameters
+    ----------
+    request: Request
+        The Request object from the browser.
+    """
+    context = await DataSearchService.search_lids(request)
+
+    return templates.TemplateResponse(
+        request=request, name="plot_data.html", context=context
+    )
+
+@frontend_router.get("/plot/{lid}/", response_class=HTMLResponse)
+async def plot_data(request: Request, lid: str, start_date: str = datetime.now().strftime("%Y-%m-%d"), end_date: str = ''):
     """ A route to display/search the plot data
 
     Parameters
@@ -110,12 +127,15 @@ async def plot_data(request: Request, lid: str = '', start_date: str = datetime.
     """
     context = await DataSearchService.search_plot_data(request, lid, start_date, end_date)
 
+    if 'errors' in context and 'lid' in context['errors']:
+        return RedirectResponse(url="../")
+    
     return templates.TemplateResponse(
         request=request, name="plot_data.html", context=context
     )
 
 
-@frontend_router.get("/plot/download/", response_class=FileResponse)
+@frontend_router.get("/plot/{lid}/download/", response_class=FileResponse)
 async def get_plot_data_download(request: Request, lid: str = '', start_date: str = datetime.now().strftime("%Y-%m-%d"), end_date: str = ''):
     """ A route to download a plot data result set as a zip file
 
