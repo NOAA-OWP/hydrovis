@@ -103,13 +103,11 @@ services:
       - type: bind
         source: ./data
         target: /app/data
-
-
     environment:
       - PIKA_URL=rabbitmq
       - RABBITMQ_HOST=rabbitmq
       - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
-      - CONTAINER_NAME=mockdb
+      - DB_HOST=mock_db
       - REDIS_URL=redis
       - SUBSET_URL=http://hfsubset:8000/api/v1
       - TROUTE_URL=http://troute:8000/api/v1

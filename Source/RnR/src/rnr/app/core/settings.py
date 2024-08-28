@@ -58,7 +58,7 @@ class Settings(BaseSettings):
 
     sqlalchemy_database_url: str = "postgresql://{}:{}@{}/{}"
 
-    rate_limit: int = 12
+    rate_limit: int = 8
 
     pika_url: str = "localhost"
 

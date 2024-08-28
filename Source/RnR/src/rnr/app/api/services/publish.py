@@ -70,7 +70,7 @@ class MessagePublisherService:
                 message=f"No downstream LID for {rfc_entry.nws_lid}" 
                 log.error(message)
                 await rabbit_connection.send_message(
-                    message=message, routing_key=settings.error_queue
+                    message=json.dumps(message), routing_key=settings.error_queue
                 )
                 return {
                     "status": "api_error",
@@ -79,16 +79,25 @@ class MessagePublisherService:
                     "error_message": message,
                     "status_code": 404,
                 }
-            rfc_ds_entry = RFCReaderService.get_rfc_data(
-                db, identifier=gauge_data.downstreamLid
-            ).entries[0]
+            try:
+                rfc_ds_entry = RFCReaderService.get_rfc_data(
+                    db, identifier=gauge_data.downstreamLid
+                ).entries[0]
+            except ValidationError:
+                message = {
+                    "message": f"Pydantic data validation error for downtream LID from LID: {gauge_data.lid}. Downstream LID not found"
+                }
+                log.error(message["message"])
+                await rabbit_connection.send_message(
+                    message=json.dumps(message), routing_key=settings.error_queue
+                )
         except NWPSAPIError as e:
             message = {
                 "message": f"NWPSAPIError for reading {rfc_entry.nws_lid}: {str(e)}"
             }
             log.error(message["message"])
             await rabbit_connection.send_message(
-                message=message, routing_key=settings.error_queue
+                message=json.dumps(message), routing_key=settings.error_queue
             )
             return {
                 "status": "api_error",
@@ -117,7 +126,7 @@ class MessagePublisherService:
             message = {"message": f"NWPSAPIError for {rfc_entry.nws_lid}: {str(e)}"}
             log.error(message)
             await rabbit_connection.send_message(
-                message=message, routing_key=settings.error_queue
+                message=json.dumps(message), routing_key=settings.error_queue
             )
             return {
                 "status": "api_error",
@@ -147,7 +156,7 @@ class MessagePublisherService:
                 }
                 log.error(message["message"])
                 await rabbit_connection.send_message(
-                    message=message, routing_key=settings.error_queue
+                    message=json.dumps(message), routing_key=settings.error_queue
                 )
                 return {
                     "status": "validation_error",
@@ -155,6 +164,21 @@ class MessagePublisherService:
                     "error_type": "NWPSAPIError",
                     "error_message": str(e),
                     "status_code": getattr(e, "status_code", None),
+                }
+            except UnboundLocalError:
+                message = {
+                    "message": f"No RFC DS Entry for: {gauge_data.lid}"
+                }
+                log.error(message["message"])
+                await rabbit_connection.send_message(
+                    message=json.dumps(message), routing_key=settings.error_queue
+                )
+                return {
+                    "status": "validation_error",
+                    "lid": gauge_data.lid,
+                    "error_type": "UnboundLocalError",
+                    "error_message": message,
+                    "status_code": 500,
                 }
         else:
             return {"status": "cached", "lid": rfc_entry.nws_lid}

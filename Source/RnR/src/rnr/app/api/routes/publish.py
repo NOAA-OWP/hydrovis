@@ -1,8 +1,9 @@
 import asyncio
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 from src.rnr.app.api.database import get_db
 from src.rnr.app.api.services.publish import MessagePublisherService
@@ -14,6 +15,9 @@ from src.rnr.app.schemas import PublishMessagesResponse, ResultItem, Summary
 
 router = APIRouter()
 
+
+class Message(BaseModel):
+    message: str = "Starting Replace and Route Workflow. Message being sent to RabbitMQ, Consumer running T-Route and populating data/ directories and data/replace_and_route/ outputs"
 
 @router.post("/start/{lid}", response_model=PublishMessagesResponse)
 async def publish_single_message(
@@ -67,10 +71,12 @@ async def publish_single_message(
     )
 
 
-@router.post("/start", response_model=PublishMessagesResponse)
+@router.post("/start", response_model=Message)
 async def publish_messages(
-    settings: Annotated[Settings, Depends(get_settings)], db: Session = Depends(get_db)
-) -> PublishMessagesResponse:
+    background_tasks: BackgroundTasks,
+    settings: Annotated[Settings, Depends(get_settings)], 
+    db: Session = Depends(get_db)
+) -> Message:
     """
     Publish messages based on RFC data and NWPS forecasts.
 
@@ -99,25 +105,25 @@ async def publish_messages(
 
     limiter = AsyncRateLimiter(
         rate_limit=settings.rate_limit, time_period=1
-    )  # Setting a Rate Limit for Async Requests at 15 stations per second
+    )  # Setting a Rate Limit for Async Requests at the rate limit stations per second
 
     async def limited_process(entry):
         async with limiter:
             return await MessagePublisherService.process_rfc_entry(entry, db, settings)
 
-    tasks = [limited_process(rfc_entry) for rfc_entry in rfc_entries]
-    results = await asyncio.gather(*tasks)
+    [background_tasks.add_task(limited_process, rfc_entry) for rfc_entry in rfc_entries]
+    return Message()
 
-    summary = Summary(
-        total=len(results),
-        success=sum(1 for r in results if r.get("status") == "success"),
-        no_forecast=sum(1 for r in results if r.get("status") == "no_forecast"),
-        api_error=sum(1 for r in results if r.get("status") == "api_error"),
-        validation_error=sum(
-            1 for r in results if r.get("status") == "validation_error"
-        ),
-    )
+    # summary = Summary(
+    #     total=len(results),
+    #     success=sum(1 for r in results if r.get("status") == "success"),
+    #     no_forecast=sum(1 for r in results if r.get("status") == "no_forecast"),
+    #     api_error=sum(1 for r in results if r.get("status") == "api_error"),
+    #     validation_error=sum(
+    #         1 for r in results if r.get("status") == "validation_error"
+    #     ),
+    # )
 
-    return PublishMessagesResponse(
-        status=200, summary=summary, results=[ResultItem(**r) for r in results]
-    )
+    # return PublishMessagesResponse(
+    #     status=200, summary=summary, results=[ResultItem(**r) for r in results]
+    # )
