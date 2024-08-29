@@ -49,11 +49,11 @@ locals {
   # prefix all builds with this
   ami_name_prefix = "hydrovis-egis-windows-stig"
   # pipeline internal versioning
-  image_version = "1.5.0"
+  image_version = "1.6.2"
   # where pipeline logs will get written
-  imageBuilderLogBucket = "hydrovis-11-1-deployment"
+  imageBuilderLogBucket = "hydrovis-11-3-deployment"
   # where software/chef configs get downloaded
-  deploymentS3Source = "s3://hydrovis-11-1-deployment/software/v11-1"
+  deploymentS3Source = "s3://hydrovis-11-3-deployment/software/v11-3"
   # chef configs to be used
   arcgisenterpriseConfig = "install-arcgis-enterprise-base.json"
   arcgisServerConfig     = "install-arcgis-server.json"
