@@ -1,4 +1,4 @@
-service: static_nwm_flowlines_ak
+service: static_nwm_flowlines_ak_noaa
 summary: NWM Flowlines for Alaska
 description: Depicts the NWM flowlines within Alaska
 tags: national water model, nwm, reference, flowlines, alaska
