@@ -209,7 +209,7 @@ class MessagePublisherService:
         settings : Settings
             The application settings.
         """
-        is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
+        # is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
         is_flood_forecasted = gauge_data.status.forecast.floodCategory != "no_flooding"
         processed_data = ProcessedData(
             lid=gauge_data.lid,
@@ -241,7 +241,7 @@ class MessagePublisherService:
 
         message = json.dumps(processed_data.model_dump_json())
         log.info(f"Sending message for LID: {gauge_data.lid}")
-        if is_flood_observed or is_flood_forecasted:
+        if is_flood_forecasted:
             await rabbit_connection.send_message(
                 message=message, routing_key=settings.priority_queue
             )

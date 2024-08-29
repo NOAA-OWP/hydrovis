@@ -55,19 +55,19 @@ class ReplaceAndRoute:
             The mapped upstream HY_ID
         """
         if gpkg_file.exists():
-            cache_key = f"{feature_id}_mapped_feature_id"
-            if not _r_cache.exists(cache_key):
-                gdf = gpd.read_file(gpkg_file, layer="network")
-                _divide_ids = gdf[gdf["hf_id"] == int(feature_id)]["divide_id"].values
-                if np.all(_divide_ids == _divide_ids[0]):
-                    mapped_feature_id = _divide_ids[0].split("-")[1]  # Removing "cat"
-                else:
-                    log.error("Error in Mapping. There is a many to one relationship")
-                    raise ManyToOneError
-                cache_value = mapped_feature_id
-                _r_cache.set(cache_key, cache_value)
+            # cache_key = f"{feature_id}_mapped_feature_id"
+            # if not _r_cache.exists(cache_key):
+            gdf = gpd.read_file(gpkg_file, layer="network")
+            _divide_ids = gdf[gdf["hf_id"] == int(feature_id)]["divide_id"].values
+            if np.all(_divide_ids == _divide_ids[0]):
+                mapped_feature_id = _divide_ids[0].split("-")[1]  # Removing "cat"
             else:
-                mapped_feature_id = _r_cache.get(cache_key)
+                log.error("Error in Mapping. There is a many to one relationship")
+                raise ManyToOneError
+            #     cache_value = mapped_feature_id
+            #     _r_cache.set(cache_key, cache_value)
+            # else:
+            #     mapped_feature_id = _r_cache.get(cache_key)
         else:
             log.error("Geopackage mapping file not found")
             raise FileNotFoundError
@@ -92,19 +92,19 @@ class ReplaceAndRoute:
             The mapped upstream HY_ID
         """
         if gpkg_file.exists():
-            cache_key = f"{feature_id}_mapped_ds_feature_id"
-            if not _r_cache.exists(cache_key):
-                gdf = gpd.read_file(gpkg_file, layer="network")
-                _toids = gdf[gdf["hf_id"] == int(feature_id)]["toid"].values
-                if np.all(_toids == _toids[0]):
-                    mapped_feature_id = _toids[0].split("-")[1]  # Using downstream confluence point
-                else:
-                    log.error("Error in Mapping. There is a many to one relationship")
-                    raise ManyToOneError
-                cache_value = mapped_feature_id
-                _r_cache.set(cache_key, cache_value)
+            # cache_key = f"{feature_id}_mapped_ds_feature_id"
+            # if not _r_cache.exists(cache_key):
+            gdf = gpd.read_file(gpkg_file, layer="network")
+            _toids = gdf[gdf["hf_id"] == int(feature_id)]["toid"].values
+            if np.all(_toids == _toids[0]):
+                mapped_feature_id = _toids[0].split("-")[1]  # Using downstream confluence point
             else:
-                mapped_feature_id = _r_cache.get(cache_key)
+                log.error("Error in Mapping. There is a many to one relationship")
+                raise ManyToOneError
+                # cache_value = mapped_feature_id
+            #     _r_cache.set(cache_key, cache_value)
+            # else:
+            #     mapped_feature_id = _r_cache.get(cache_key)
         else:
             log.error("Geopackage mapping file not found")
             raise FileNotFoundError
@@ -421,10 +421,11 @@ class ReplaceAndRoute:
             ]
 
         rfc_forecast_time_delta = json_data["formatted_times"]
-        rfc_forecast_cfs = [
-            float(flow_value) * 35.3147
+        rfc_forecast_kcfs = [
+            float(flow_value) * 35.3147 / 1000
             for flow_value in json_data["secondary_forecast"]
         ]  # converting to cfs
+        # rfc_forecast_cfs = [float(flow_value) for flow_value in json_data["secondary_forecast"]]
 
         formatted_timestamps = []
         t = t0
@@ -457,15 +458,15 @@ class ReplaceAndRoute:
             )
             ds.close()
 
-        troute_flow_cfs = [
-            float(flow_value) * 35.3147 for flow_value in troute_flow
-        ]  # converting to cfs
-        troute_ds_flow_cfs = [
-            float(flow_value) * 35.3147 for flow_value in troute_ds_flow
-        ]  # converting to cfs
+        troute_flow_kcfs = [
+            float(flow_value) * 35.3147 / 1000 for flow_value in troute_flow
+        ]  # converting to kcfs
+        troute_ds_flow_kcfs = [
+            float(flow_value) * 35.3147 / 1000 for flow_value in troute_ds_flow
+        ]  # converting to kcfs
 
-        depth_upstream_feet = [float(depth_value) * 3.28084 for depth_value in depth_upstream]
-        depth_downstream_feet = [float(depth_value) * 3.28084 for depth_value in depth_downstream]
+        depth_upstream_feet = [float(depth_value) / 3.28084 for depth_value in depth_upstream]
+        depth_downstream_feet = [float(depth_value) / 3.28084 for depth_value in depth_downstream]
 
         dt_start_formatted = rfc_forecast_time_delta[0].strftime("%Y%m%d")
         dt_end_formatted = rfc_forecast_time_delta[-1].strftime("%Y%m%d")
@@ -486,24 +487,24 @@ class ReplaceAndRoute:
         # Plot on the first subplot
         ax1.scatter(
             rfc_forecast_time_delta,
-            rfc_forecast_cfs,
+            rfc_forecast_kcfs,
             c="k",
             label=f"RFC {json_data['lid']} Forecasted flows",
         )
         ax1.plot(
             troute_time_delta,
-            troute_flow_cfs,
+            troute_flow_kcfs,
             c="blue",
             label="Upstream T-Routed Output at RFC point",
         )
         ax1.plot(
             troute_time_delta,
-            troute_ds_flow_cfs,
+            troute_ds_flow_kcfs,
             c="tab:blue",
             label="Downstream T-Routed Output",
         )
         ax1.set_xlabel("Time (Hours)")
-        ax1.set_ylabel(r"Discharge $f^3/s$")
+        ax1.set_ylabel(r"Discharge (kcfs)")
         ax1.legend()
         ax1.set_title(
             f"Comparing RFC forecast to outputted T-Route flows at {json_data['lid']}"

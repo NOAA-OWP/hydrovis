@@ -33,7 +33,7 @@ client = TestClient(app)
 
 
 @pytest.mark.asyncio
-async def test_single_message_passing(rfc_table_identifier: str) -> None:
+async def test_single_message_passing(rfc_table_identifier: str = "CAGM7") -> None:
     """Testing a single, successful passed message
 
     Parameters
