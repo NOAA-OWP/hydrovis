@@ -214,28 +214,6 @@ resource "aws_imagebuilder_component" "logging_setup" {
         name = "build"
         steps = [
           {
-            name   = "upgrade_rsyslog"
-            action = "ExecuteBash"
-            inputs = {
-              commands = [
-                "echo \"Upgrading Rsyslog\"",
-                <<-EOT
-                sudo tee /etc/yum.repos.d/rsyslog-daily-epel.repo<<EOF
-                [rsyslog_v8_daily]
-                name=Adiscon CentOS-7 - daily packages for x86_64
-                baseurl=http://rpms.adiscon.com/v8-stable-daily/epel-7/x86_64
-                enabled=1
-                gpgcheck=0
-                gpgkey=https://rpms.adiscon.com/RPM-GPG-KEY-Adiscon
-                protect=1
-                EOF
-                EOT
-                ,
-                "yum upgrade rsyslog --disablerepo=amzn2-core -y",
-              ]
-            }
-          },
-          {
             name   = "add_docker_log_driver"
             action = "ExecuteBash"
             inputs = {
@@ -262,12 +240,14 @@ resource "aws_imagebuilder_component" "logging_setup" {
                 echo "Adding Rsyslog Destination Config"
                 sudo tee /etc/rsyslog.d/01-docker-logs.conf<<'EOF'
 
+                set $.app_name=getenv("HYDROVIS_APPLICATION");
+
                 template(name="dockerjson" type="list") {
                   constant(value="{")
                     constant(value="\"@timestamp\":\"")        property(name="timereported" dateFormat="rfc3339")
                     constant(value="\",\"host\":\"")           property(name="hostname")
                     constant(value="\",\"programname\":\"")    property(name="programname")
-                    constant(value="\",\"application\":\"")    constant(value=`echo $HYDROVIS_APPLICATION`)
+                    constant(value="\",\"application\":\"")    property(name="$.app_name")
                     constant(value="\",\"container_name\":\"") property(name="syslogtag" regex.type="ERE" regex.submatch="1" regex.expression="docker\\/(.+)\\[[0-9]+]")
                     constant(value="\",\"message\":\"")        property(name="msg" format="json")
                   constant(value="\"}\n")

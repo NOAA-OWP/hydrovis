@@ -1,0 +1,13 @@
+service: srf_15hr_high_water_arrival_time_alaska_noaa
+summary: Short-Range 15 Hour High Water Arrival Time Forecast for Alaska
+description: Depicts the forecast arrival time of high water over the next 15 hours for Alaska. This service is 
+  derived from the short-range configuration of the National Water Model (NWM) for the Alaska domain. 
+  Shown are reaches that are expected to have flow at or above the high water threshold over the next 
+  15 hours. Reaches are colored by the time at which they are forecast to reach high water. High water 
+  thresholds (regionally varied) were derived using the 43-year NWM v3.0 reanalysis simulation. Updated hourly.
+tags: arrival time, national water model, nwm, srf, short, range, Alaska
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

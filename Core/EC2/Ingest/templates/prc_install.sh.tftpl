@@ -20,6 +20,6 @@ echo "Setting up HML Ingester Environment"
 (echo "${r_host}"; echo "${r_password}"; echo "${db_host}"; echo "${db_password}") | sudo ./update_configs.sh hydrovis.${environment}
 
 echo "Building HML Ingester Docker"
-sudo docker-compose -f docker-compose_hydrovis_${environment}.yml up --build -d
+sudo DOCKER_BUILDKIT=0 docker-compose -f docker-compose_hydrovis_${environment}.yml up --build -d
 
 echo "Finished Setup"
