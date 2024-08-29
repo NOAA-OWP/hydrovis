@@ -4,4 +4,4 @@ product_type: "vector"
 run: true
 
 services:
-  - static_nwm_flowlines_ak
+  - static_nwm_flowlines_ak_noaa
