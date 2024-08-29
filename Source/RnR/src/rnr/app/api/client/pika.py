@@ -12,14 +12,15 @@ def start_work_queues(
     Parameters
     ----------
     connection : pika.BlockingConnection
-        The RabbitMQ connection.
+    - The RabbitMQ connection.
+    
     settings : Settings
-        The application settings.
+    - The application settings.
 
     Returns
     -------
     pika.BlockingConnection.channel
-        The initialized channel with declared queues.
+    - The initialized channel with declared queues.
     """
     channel = connection.channel()
     channel.queue_declare(queue=settings.priority_queue, durable=True)
@@ -35,12 +36,12 @@ def start_connection(url: str) -> pika.BlockingConnection:
     Parameters
     ----------
     url : str
-        The URL for the RabbitMQ server.
+    - The URL for the RabbitMQ server.
 
     Returns
     -------
     pika.BlockingConnection
-        The established RabbitMQ connection.
+    - The established RabbitMQ connection.
     """
     connection = pika.BlockingConnection(pika.ConnectionParameters(url))
     return connection
@@ -53,7 +54,7 @@ def close_connection(connection: pika.BlockingConnection) -> None:
     Parameters
     ----------
     connection : pika.BlockingConnection
-        The RabbitMQ connection to close.
+    - The RabbitMQ connection to close.
     """
     connection.close()
 
@@ -67,11 +68,13 @@ def publish_messages(
     Parameters
     ----------
     processed_data : ProcessedData
-        The processed data to be published.
+    - The processed data to be published.
+    
     channel : pika.BlockingConnection.channel
-        The RabbitMQ channel for publishing.
+    - The RabbitMQ channel for publishing.
+    
     queue : str
-        The name of the queue to publish to.
+    - The name of the queue to publish to.
     """
     channel.basic_publish(
         exchange="",
@@ -92,11 +95,13 @@ def publish_error(
     Parameters
     ----------
     channel : pika.BlockingConnection.channel
-        The RabbitMQ channel for publishing.
+    - The RabbitMQ channel for publishing.
+    
     error_queue : str
-        The name of the error queue to publish to.
+    - The name of the error queue to publish to.
+    
     message : str, optional
-        The error message to be published. Defaults to "Default error message".
+    - The error message to be published. Defaults to "Default error message".
     """
     channel.basic_publish(
         exchange="",

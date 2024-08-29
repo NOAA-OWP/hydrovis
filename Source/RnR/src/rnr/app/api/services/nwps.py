@@ -18,9 +18,10 @@ class NWPSService:
     Methods
     -------
     get_gauge_data(identifier: str, settings: Settings) -> GaugeData
-        Asynchronously get gauge metadata.
+    - Asynchronously get gauge metadata.
+    
     get_gauge_product_forecast(identifier: str, settings: Settings) -> GaugeForecast
-        Asynchronously get gauge forecast data.
+    - Asynchronously get gauge forecast data.
     """
 
     @staticmethod
@@ -30,14 +31,15 @@ class NWPSService:
         Parameters
         ----------
         identifier : str
-            The identifier for the API endpoint.
+        - The identifier for the API endpoint.
+        
         settings : Settings
-            The application settings.
+        - The application settings.
 
         Returns
         -------
         GaugeData
-            Validated outputs based on the API docs.
+        - Validated outputs based on the API docs.
         """
         api_url = settings.base_url
         data = await gauge_data(identifier, api_url)
@@ -52,19 +54,20 @@ class NWPSService:
         Parameters
         ----------
         identifier : str
-            The identifier for the API endpoint.
+        - The identifier for the API endpoint.
+        
         settings : Settings
-            The application settings.
+        - The application settings.
 
         Returns
         -------
         GaugeForecast
-            Validated outputs based on the API docs.
+        - Validated outputs based on the API docs.
 
         Raises
         ------
         NoForecastError
-            If no forecast data is available for the given identifier.
+        - If no forecast data is available for the given identifier.
         """
         api_url = settings.base_url
         gauge_forecast = await gauge_product(identifier, api_url, "forecast")

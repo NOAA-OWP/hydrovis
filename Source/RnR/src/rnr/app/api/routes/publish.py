@@ -35,11 +35,13 @@ async def publish_single_message(
     Parameters
     ----------
     identifier: str
-        The LID that we want to process
+    - The LID that we want to process
+
     settings: Settings
-        The BaseSettings config object
+    - The BaseSettings config object
+
     db : Session
-        The database session from the config URL.
+    - The database session from the config URL.
 
     Returns
     -------
@@ -87,14 +89,15 @@ async def publish_messages(
     Parameters
     ----------
     settings: Settings
-        The BaseSettings config object
+    - The BaseSettings config object
+    
     db : Session
-        The database session from the config URL.
+    - The database session from the config URL.
 
     Returns
     -------
-    PublishMessagesResponse
-        A response object containing:
+    PublishMessagesResponse<br>
+    A response object containing:
         - status: HTTP status code
         - summary: Summary of processing results
         - results: Detailed results for each RFC entry

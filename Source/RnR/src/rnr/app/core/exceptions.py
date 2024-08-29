@@ -4,18 +4,21 @@ class NWPSAPIError(Exception):
     Parameters
     ----------
     status_code : int
-        HTTP status code of the failed request.
+    - HTTP status code of the failed request.
+    
     endpoint : str
-        The API endpoint that was called.
+    - The API endpoint that was called.
 
     Attributes
     ----------
     status_code : int
-        HTTP status code of the failed request.
+    - HTTP status code of the failed request.
+    
     endpoint : str
-        The API endpoint that was called.
+    - The API endpoint that was called.
+    
     message : str
-        Explanation of the error.
+    - Explanation of the error.
     """
 
     def __init__(self, status_code: int, endpoint: str) -> None:
@@ -36,12 +39,12 @@ class NoForecastError(Exception):
     Parameters
     ----------
     identifier : str
-        The location identifier of the RFC
+    - The location identifier of the RFC
 
     Attributes
     ----------
     message : str
-        Explanation of the error.
+    - Explanation of the error.
     """
 
     def __init__(self, identifier: str) -> None:
@@ -58,7 +61,7 @@ class ManyToOneError(Exception):
     Attributes
     ----------
     message : str
-        Explanation of the error.
+    - Explanation of the error.
     """
 
     def __init__(self) -> None:

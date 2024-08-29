@@ -12,19 +12,20 @@ def _get(
     Parameters
     ----------
     endpoint : str
-        The URL we're hitting.
+    - The URL we're hitting.
+    
     params : Optional[Dict[str, Any]], optional
-        The parameters passed to the API endpoint.
+    - The parameters passed to the API endpoint.
 
     Returns
     -------
     Dict[str, Any]
-        The JSON response from the API.
+    - The JSON response from the API.
 
     Raises
     ------
     NWPSAPIError
-        If the request fails or returns a non-200 status code.
+    - If the request fails or returns a non-200 status code.
     """
     client = httpx.Client(timeout=60.0)  # Use a default 10s timeout everywhere.
     try:
@@ -44,19 +45,20 @@ async def async_get(
     Parameters
     ----------
     endpoint : str
-        The URL we're hitting.
+    - The URL we're hitting.
+    
     params : Optional[Dict[str, Any]], optional
-        The parameters passed to the API endpoint.
+    - The parameters passed to the API endpoint.
 
     Returns
     -------
     Dict[str, Any]
-        The JSON response from the API.
+    - The JSON response from the API.
 
     Raises
     ------
     HTTPStatusError
-        If the request fails or returns a non-200 status code.
+    - If the request fails or returns a non-200 status code.
     """
     async with httpx.AsyncClient() as client:
         try:

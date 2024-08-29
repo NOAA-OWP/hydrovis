@@ -19,14 +19,15 @@ async def get_gauge_data(
     Parameters
     ----------
     lid: str
-        The identifier for the API endpoint
+    - The identifier for the API endpoint
+    
     settings: Settings
-        The BaseSettings config object
+    - The BaseSettings config object
 
     Returns
     -------
     GaugeData
-        The validated gauge metadata
+    - The validated gauge metadata
     """
     return await NWPSService.get_gauge_data(lid, settings)
 
@@ -35,18 +36,19 @@ async def get_gauge_data(
 async def get_gauge_product_forecast(
     lid: str, settings: Annotated[Settings, Depends(get_settings)]
 ) -> GaugeForecast:
-    """ "A route to get the gauge forecast
+    """ A route to get the gauge forecast
 
     Parameters
     ----------
     lid: str
-        The identifier for the API endpoint
+    - The identifier for the API endpoint
+    
     settings: Settings
-        The BaseSettings config object
+    - The BaseSettings config object
 
     Returns
     -------
     GaugeForecast
-        The validated gauge forecast
+    - The validated gauge forecast
     """
     return await NWPSService.get_gauge_product_forecast(lid, settings)

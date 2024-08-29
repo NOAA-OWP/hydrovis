@@ -43,16 +43,18 @@ class ReplaceAndRoute:
         Parameters
         ----------
         feature_id: str
-            The COMID for the RFC point
-        _r_cache: Callable
-            The R Cache for saving existing IDs
-        gpkg_file: Path
-            The gpkg file to read from
+        - The COMID for the RFC point
+        
+		_r_cache: Callable
+        - The R Cache for saving existing IDs
+        
+		gpkg_file: Path
+        - The gpkg file to read from
 
         Returns
         -------
         str:
-            The mapped upstream HY_ID
+        - The mapped upstream HY_ID
         """
         if gpkg_file.exists():
             # cache_key = f"{feature_id}_mapped_feature_id"
@@ -80,16 +82,18 @@ class ReplaceAndRoute:
         Parameters
         ----------
         feature_id: str
-            The COMID for the RFC point
-        _r_cache: Callable
-            The R Cache for saving existing IDs
-        gpkg_file: Path
-            The gpkg file to read from
+        - The COMID for the RFC point
+        
+		_r_cache: Callable
+        - The R Cache for saving existing IDs
+        
+		gpkg_file: Path
+        - The gpkg file to read from
 
         Returns
         -------
         str:
-            The mapped upstream HY_ID
+        - The mapped upstream HY_ID
         """
         if gpkg_file.exists():
             # cache_key = f"{feature_id}_mapped_ds_feature_id"

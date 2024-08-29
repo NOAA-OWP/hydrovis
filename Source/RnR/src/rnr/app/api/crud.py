@@ -11,14 +11,15 @@ def get_rfc_entry(db: Session, identifier: str) -> Optional[RFCForecast]:
     Parameters
     ----------
     db: Session
-        The database session
+    - The database session
+    
     identifier: str
-        The nws lid identifier
+    - The nws lid identifier
 
     Returns
     -------
     Optional[RFCForecast]
-        The ORM object
+    - The ORM object
     """
     return db.query(RFCForecast).filter(RFCForecast.nws_lid == identifier).first()
 
@@ -29,11 +30,11 @@ def get_rfc_entries(db: Session) -> List[RFCForecast]:
     Parameters
     ----------
     db: Session
-        The database session
+    - The database session
 
     Returns
     -------
     List[RFCForecast]
-        The List of many ORM objects
+    - The List of many ORM objects
     """
     return db.query(RFCForecast).all()

@@ -18,22 +18,27 @@ class Settings(BaseSettings):
     Parameters
     ----------
     **data : dict
-        Additional keyword arguments to be passed to the parent class.
+    - Additional keyword arguments to be passed to the parent class.
 
     Attributes
     ----------
     base_url : str
-        The base URL for the NWPS API containing RFC informational data.
+    - The base URL for the NWPS API containing RFC informational data.
+    
     sqlalchemy_database_url : str
-        SQLAlchemy connection string for the main database.
+    - SQLAlchemy connection string for the main database.
+    
     pika_url : str
-        The URL for connecting to RabbitMQ.
+    - The URL for connecting to RabbitMQ.
+    
     flooded_queue : str
-        Queue name for sending data regarding flooded RFC locations.
+    - Queue name for sending data regarding flooded RFC locations.
+    
     nonflooded_queue : str
-        Queue name for sending data regarding non-flooded RFC locations.
+    - Queue name for sending data regarding non-flooded RFC locations.
+    
     error_queue : str
-        Queue name for sending any RFC locations that error out.
+    - Queue name for sending any RFC locations that error out.
 
     Notes
     -----

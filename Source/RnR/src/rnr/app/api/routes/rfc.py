@@ -32,12 +32,12 @@ async def read_rfc_domain_data(db: Session = Depends(get_db)) -> RFCDatabaseEntr
     Parameters
     ----------
     db: Session
-        The database session from the localhost
+    - The database session from the localhost
 
     Returns
     -------
     RFCDatabaseEntries
-        An object with many RFCDatabaseEntry points
+    - An object with many RFCDatabaseEntry points
     """
     return RFCReaderService.get_rfc_data(db)
 
@@ -51,12 +51,12 @@ async def read_single_rfc_domain_data(
     Parameters
     ----------
     db: Session
-        The database session from the localhost
+    - The database session from the localhost
 
     Returns
     -------
     RFCDatabaseEntries
-        An object with many RFCDatabaseEntry points
+    - An object with many RFCDatabaseEntry points
     """
     return RFCReaderService.get_rfc_data(db, identifier=lid)
 
@@ -72,12 +72,12 @@ def build_single_rfc_location(
     Parameters
     ----------
     db: Session
-        The database session from the localhost
+    - The database session from the localhost
 
     Returns
     -------
     RFCDatabaseEntries
-        An object with many RFCDatabaseEntry points
+    - An object with many RFCDatabaseEntry points
     """
     response = subset(feature_id, settings.base_subset_url)
     subsets = [Subset(**response)]
@@ -124,16 +124,18 @@ async def build_rfc_domain(
     Parameters:
     -----------
     background_tasks: BackgroundTasks
-        FastAPI background tasks
+    - FastAPI background tasks
+    
     settings: Annotated[Settings, Depends(get_settings)]
-        pydantic settings
+    - pydantic settings
+    
     db: Session = Depends(get_db),
-        The database connection
+    - The database connection
 
     Returns:
     --------
     Message:
-        BaseModel
+    - BaseModel
     """
     rfc_entries = RFCReaderService.get_rfc_data(
         db

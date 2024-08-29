@@ -13,12 +13,12 @@ def parse_datetime(date_string: str) -> datetime:
     Parameters
     ----------
     data_string: str
-        The date that we are parsing into a datetime
+    - The date that we are parsing into a datetime
 
     Returns
     -------
     datetime
-        The string passed in, but in datetime form with it's timezone accounted for
+    - The string passed in, but in datetime form with it's timezone accounted for
     """
     dt = datetime.fromisoformat(date_string.replace(" UTC", ""))
     return dt.replace(tzinfo=timezone.utc)
@@ -30,14 +30,15 @@ def convert_to_m3_per_sec(forecast: List[float], unit: str) -> Tuple[List[float]
     Parameters
     ----------
     forecast: List[float]
-        The list of forecasts to convert
+    - The list of forecasts to convert
+    
     unit: str
-        The units of the forecast
+    - The units of the forecast
 
     Returns
     -------
     Tuple[List[float], str]:
-        The forecast, and the units str
+    - The forecast, and the units str
     """
     if unit == "kcfs":
         forecast = [flow * 1000 * 0.028316846592 for flow in forecast]
@@ -52,12 +53,12 @@ def read_config(config_file_name: str) -> configparser.ConfigParser:
     Returns
     -------
     configparser.ConfigParser
-        The configuration parser object
+    - The configuration parser object
 
     Raises
     ------
     FileNotFoundError:
-        If there is no config file found
+    - If there is no config file found
     """
     cwd = Path(__file__).resolve().parent
     config = configparser.ConfigParser()
@@ -79,22 +80,27 @@ class AsyncRateLimiter:
     Parameters
     ----------
     rate_limit : float
-        The maximum number of operations allowed per time period.
+    - The maximum number of operations allowed per time period.
+    
     time_period : float
-        The time period (in seconds) over which the rate limit applies.
+    - The time period (in seconds) over which the rate limit applies.
 
     Attributes
     ----------
     rate_limit : float
-        The maximum number of operations allowed per time period.
+    - The maximum number of operations allowed per time period.
+    
     time_period : float
-        The time period (in seconds) over which the rate limit applies.
+    - The time period (in seconds) over which the rate limit applies.
+    
     tokens : float
-        The current number of available tokens.
+    - The current number of available tokens.
+    
     last_refill_time : float
-        The last time the token bucket was refilled.
+    - The last time the token bucket was refilled.
+    
     lock : asyncio.Lock
-        A lock to ensure thread-safe operations.
+    - A lock to ensure thread-safe operations.
     """
 
     def __init__(self, rate_limit: int, time_period: int) -> None:
@@ -138,12 +144,12 @@ def setup_logging(log_level: str) -> logging.Logger:
     Parameters
     ----------
     log_level: str
-        The logging level(DEBUG, INFO, etc)
+    - The logging level(DEBUG, INFO, etc)
 
     Returns
     -------
     logging.Logger
-        The logging object
+    - The logging object
     """
     log_path = Path(__file__).resolve().parents[1] / "logs"
     log_path.mkdir(parents=True, exist_ok=True)

@@ -36,9 +36,10 @@ class MessagePublisherService:
     Methods
     -------
     process_rfc_entry(rfc_entry: RFCDatabaseEntry, channel: pika.BlockingConnection.channel, settings: Settings) -> Dict[str, str]
-        Process an RFC entry and publish related messages.
+    - Process an RFC entry and publish related messages.
+    
     process_and_publish_messages(gauge_data: GaugeData, gauge_forecast: GaugeForecast, rfc_entry: RFCDatabaseEntry, channel: pika.BlockingConnection.channel, settings: Settings) -> None
-        Process gauge data and forecast, and publish messages to appropriate queues.
+    - Process gauge data and forecast, and publish messages to appropriate queues.
     """
 
     @staticmethod
@@ -53,16 +54,18 @@ class MessagePublisherService:
         Parameters
         ----------
         rfc_entry : RFCDatabaseEntry
-            The RFC table entry.
+        - The RFC table entry.
+        
         channel : pika.BlockingConnection.channel
-            The RabbitMQ channel.
+        - The RabbitMQ channel.
+        
         settings : Settings
-            The application settings.
+        - The application settings.
 
         Returns
         -------
         Dict[str, str]
-            A dictionary containing the status of the processing operation.
+        - A dictionary containing the status of the processing operation.
         """
         try:
             gauge_data = await NWPSService.get_gauge_data(rfc_entry.nws_lid, settings)
@@ -199,15 +202,19 @@ class MessagePublisherService:
         Parameters
         ----------
         gauge_data : GaugeData
-            The gauge metadata.
+        - The gauge metadata.
+        
         gauge_forecast : GaugeForecast
-            The gauge forecast data.
+        - The gauge forecast data.
+        
         rfc_entry : RFCDatabaseEntry
-            The RFC database entry.
+        - The RFC database entry.
+        
         channel : pika.BlockingConnection.channel
-            The RabbitMQ channel.
+        - The RabbitMQ channel.
+        
         settings : Settings
-            The application settings.
+        - The application settings.
         """
         # is_flood_observed = gauge_data.status.observed.floodCategory != "no_flooding"
         is_flood_forecasted = gauge_data.status.forecast.floodCategory != "no_flooding"

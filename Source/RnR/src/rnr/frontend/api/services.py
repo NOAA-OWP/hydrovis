@@ -1,4 +1,4 @@
-import os, sys
+import os
 from csv import DictReader
 from datetime import datetime
 
@@ -6,8 +6,6 @@ from fastapi import Request
 from src.rnr.frontend.core import get_settings
 
 import xarray as xr
-
-from pprint import pprint
 
 settings = get_settings()
 
@@ -19,10 +17,10 @@ class DataSearchService:
     Methods
     -------
     search_csv_data()
-        Takes input parameters and returns a dataset of all matching forecasts, including related CSV files.
+    - Takes input parameters and returns a dataset of all matching forecasts, including related CSV files.
     
     search_plot_data()
-        Takes input parameters and returns a dataset of all matching forecasts, including related CSV and plot files.
+    - Takes input parameters and returns a dataset of all matching forecasts, including related CSV and plot files.
     """
 
     @staticmethod
@@ -34,19 +32,22 @@ class DataSearchService:
 
         Parameters
         ----------
-        request: Request
-            A Request object passed in by the router.
+        request : Request
+        - A Request object passed in by the router.
+        
         lid : str
-            The Location ID.
+        - The Location ID.
+        
         start_date : str
-            The earliest date to search on, formatted as YYYY-MM-DD.
+        - The earliest date to search on, formatted as YYYY-MM-DD.
+        
         end_date : str
-            The latest date to search on, formatted as YYYY-MM-DD.
+        - The latest date to search on, formatted as YYYY-MM-DD.
 
         Returns
         -------
         Dict
-            A dictionary containing the search results, with each LID as a key.
+        - A dictionary containing the search results, with each LID as a key.
         """
 
         csv_search_context = {
@@ -70,7 +71,7 @@ class DataSearchService:
             csv_search_context["start_date_formatted"] = datetime.strptime(
                 start_date, "%Y-%m-%d"
             ).strftime("%Y%m%d")
-        except Exception:  # TODO make this more specific
+        except Exception:
             if start_date != "":
                 csv_search_context["errors"]["start_date"] = "Invalid Start Date"
             csv_search_context["start_date"] = ""
@@ -81,7 +82,7 @@ class DataSearchService:
             csv_search_context["end_date_formatted"] = datetime.strptime(
                 end_date, "%Y-%m-%d"
             ).strftime("%Y%m%d")
-        except Exception:  # TODO make this more specific
+        except Exception:
             if end_date != "":
                 csv_search_context["errors"]["end_date"] = "Invalid End Date"
             csv_search_context["end_date"] = ""
@@ -127,7 +128,7 @@ class DataSearchService:
                         if key != "feature_id":
                             try:
                                 file_date = datetime.strptime(key, "%Y%m%d%H%M")
-                            except Exception:  # TODO make this more specific
+                            except Exception:
                                 file_date = None
                             if file_date:
                                 file_date_string = file_date.strftime("%Y%m%d")
@@ -164,8 +165,13 @@ class DataSearchService:
 
         Parameters
         ----------
-        request: Request
-            A Request object passed in by the router.
+        request : Request
+        - A Request object passed in by the router.
+
+        Returns
+        -------
+        Dict
+        - A dictionary containing a list of all available LIDs.
         """
 
         plot_lids = [
@@ -191,14 +197,17 @@ class DataSearchService:
 
         Parameters
         ----------
-        request: Request
-            A Request object passed in by the router.
+        request : Request
+        - A Request object passed in by the router.
+        
         lid : str
-            The Location ID.
+        - The Location ID.
+        
         start_date : str
-            The earliest date to search on, formatted as YYYY-MM-DD.
+        - The earliest date to search on, formatted as YYYY-MM-DD.
+        
         end_date : str
-            The latest date to search on, formatted as YYYY-MM-DD.
+        - The latest date to search on, formatted as YYYY-MM-DD.
 
         Returns
         -------
@@ -211,7 +220,7 @@ class DataSearchService:
         }
 
         plot_search_context["lid"] = lid
-        
+
         plot_search_context["errors"] = {}
 
         plot_lids = [
@@ -235,7 +244,7 @@ class DataSearchService:
             plot_search_context["start_date_formatted"] = datetime.strptime(
                 start_date, "%Y-%m-%d"
             ).strftime("%Y%m%d")
-        except Exception:  # TODO make this more specific
+        except Exception:
             if start_date != "":
                 plot_search_context["errors"]["start_date"] = "Invalid Start Date"
             plot_search_context["start_date"] = ""
@@ -246,7 +255,7 @@ class DataSearchService:
             plot_search_context["end_date_formatted"] = datetime.strptime(
                 end_date, "%Y-%m-%d"
             ).strftime("%Y%m%d")
-        except Exception:  # TODO make this more specific
+        except Exception:
             if end_date != "":
                 plot_search_context["errors"]["end_date"] = "Invalid End Date"
             plot_search_context["end_date"] = ""

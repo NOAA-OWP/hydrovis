@@ -18,12 +18,12 @@ def get_db(
     Parameters
     ----------
     settings: Settings
-        The BaseSettings config object
+    - The BaseSettings config object
 
     Yields
     ------
     Session
-        The database session
+    - The database session
     """
     engine = create_engine(settings.sqlalchemy_database_url)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -13,19 +13,20 @@ async def _get(
     Parameters
     ----------
     endpoint : str
-        The URL we're hitting.
+    - The URL we're hitting.
+    
     params : Optional[Dict[str, Any]], optional
-        The parameters passed to the API endpoint.
+    - The parameters passed to the API endpoint.
 
     Returns
     -------
     Dict[str, Any]
-        The JSON response from the API.
+    - The JSON response from the API.
 
     Raises
     ------
     NWPSAPIError
-        If the request fails or returns a non-200 status code.
+    - If the request fails or returns a non-200 status code.
     """
     async with httpx.AsyncClient() as client:
         try:
@@ -54,17 +55,22 @@ async def gauges(
     Parameters
     ----------
     x_min : float
-        Bottom-left X coordinate of a bounding box geometry.
+    - Bottom-left X coordinate of a bounding box geometry.
+    
     y_min : float
-        Bottom-left Y coordinate of a bounding box geometry.
+    - Bottom-left Y coordinate of a bounding box geometry.
+    
     x_max : float
-        Top-right X coordinate of a bounding box geometry.
+    - Top-right X coordinate of a bounding box geometry.
+    
     y_max : float
-        Top-right Y coordinate of a bounding box geometry.
+    - Top-right Y coordinate of a bounding box geometry.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
+    
     srid : str, optional
-        Spatial reference system ID for input geometry. Default is "EPSG_4326".
+    - Spatial reference system ID for input geometry. Default is "EPSG_4326".
 
     Returns
     -------
@@ -88,14 +94,15 @@ async def gauge_data(identifier: str, base_url: str) -> Dict[str, Any]:
     Parameters
     ----------
     identifier : str
-        The gauge's unique identifier, LID, or USGS ID.
+    - The gauge's unique identifier, LID, or USGS ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
 
     Returns
     -------
     Dict[str, Any]
-        The gauge metadata.
+    - The gauge metadata.
     """
     endpoint = f"{base_url}/gauges/{identifier}"
     return await _get(endpoint)
@@ -114,25 +121,29 @@ async def gauge_ratings(
     Parameters
     ----------
     identifier : str
-        The gauge's unique identifier, LID, or USGS ID.
+    - The gauge's unique identifier, LID, or USGS ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
+    
     limit : str, optional
-        Limit the number of results. Default is "10000".
+    - Limit the number of results. Default is "10000".
+    
     sort : str, optional
-        Sorts results by ascending (ASC) or descending (DSC). Default is "ASC".
+    - Sorts results by ascending (ASC) or descending (DSC). Default is "ASC".
+    
     only_tenths : bool, optional
-        Limits ratings to only tenths of a foot increments. Default is False.
+    - Limits ratings to only tenths of a foot increments. Default is False.
 
     Returns
     -------
     Dict[str, Any]
-        The gauge metadata.
+    - The gauge metadata.
 
     Raises
     ------
     NWPSAPIError
-        If an incorrect sort option is provided.
+    - If an incorrect sort option is provided.
     """
     endpoint = f"{base_url}/gauges/{identifier}/ratings"
     params = {
@@ -158,14 +169,15 @@ async def gauge_stageflow(
     Parameters
     ----------
     identifier : str
-        The gauge's unique identifier, LID, or USGS ID.
+    - The gauge's unique identifier, LID, or USGS ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
 
     Returns
     -------
     Dict[str, Any]
-        The gauge stageflow.
+    - The gauge stageflow.
     """
     endpoint = f"{base_url}/gauges/{identifier}/stageflow"
     return await _get(endpoint)
@@ -177,21 +189,23 @@ async def gauge_product(identifier: str, base_url: str, product: str) -> Dict[st
     Parameters
     ----------
     identifier : str
-        The gauge's unique identifier, LID, or USGS ID.
+    - The gauge's unique identifier, LID, or USGS ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
+    
     product : str
-        The product you're looking for.
+    - The product you're looking for.
 
     Returns
     -------
     Dict[str, Any]
-        The gauge stageflow product.
+    - The gauge stageflow product.
 
     Raises
     ------
     NWPSAPIError
-        If an incorrect product is provided.
+    - If an incorrect product is provided.
     """
     endpoint = f"{base_url}/gauges/{identifier}/stageflow/{product}"
     if product.lower() in [
@@ -210,14 +224,15 @@ async def reaches(reach_id: str, base_url: str) -> Dict[str, Any]:
     Parameters
     ----------
     reach_id : str
-        The reach's unique Reach ID.
+    - The reach's unique Reach ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
 
     Returns
     -------
     Dict[str, Any]
-        The reach metadata.
+    - The reach metadata.
     """
     endpoint = f"{base_url}/reaches/{reach_id}"
     return await _get(endpoint)
@@ -231,21 +246,23 @@ async def reach_streamflow(
     Parameters
     ----------
     reach_id : str
-        The reach's unique Reach ID.
+    - The reach's unique Reach ID.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
+    
     series : str, optional
-        The specific forecast requested. Default is "analysis_assimilation".
+    - The specific forecast requested. Default is "analysis_assimilation".
 
     Returns
     -------
     Dict[str, Any]
-        The reach streamflow.
+    - The reach streamflow.
 
     Raises
     ------
     NWPSAPIError
-        If an incorrect series is provided.
+    - If an incorrect series is provided.
     """
     endpoint = f"{base_url}/reaches/{reach_id}"
     if series.lower() in [
@@ -269,16 +286,18 @@ async def stageflow(identifier: str, base_url: str, pedts: str) -> Dict[str, Any
     Parameters
     ----------
     identifier : str
-        The gauge's unique identifier.
+    - The gauge's unique identifier.
+    
     base_url : str
-        The base URL for the API.
+    - The base URL for the API.
+    
     pedts : str
-        The standard hydrometeorological exchange format parameter codes.
+    - The standard hydrometeorological exchange format parameter codes.
 
     Returns
     -------
     Dict[str, Any]
-        The stageflow given the LID and product.
+    - The stageflow given the LID and product.
     """
     endpoint = f"{base_url}/products/stageflow/{identifier}/{pedts}"
     return await _get(endpoint)

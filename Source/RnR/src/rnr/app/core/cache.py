@@ -10,6 +10,6 @@ def get_settings() -> Settings:
     Returns
     -------
     Settings
-        The Settings config object
+    - The Settings config object
     """
     return Settings()
