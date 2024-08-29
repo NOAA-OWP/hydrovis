@@ -1,6 +1,15 @@
 All notable changes to this project will be documented in this file.
 We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
+## 1.0.0 2024-08-29
+
+### Added
+
+- completed the pi-3 demo for OWP. this includes
+    - the publish/start endpoint
+    - the full data consumer
+    - the IaC component
+
 
 ## 0.0.3 2024-08-20
 
@@ -8,7 +17,6 @@ We follow the [Semantic Versioning 2.0.0](http://semver.org/) format.
 
 - migrated to github
 - added references to t-route and hfsubset
-
 
 
 ## 0.0.2 2024-08-12

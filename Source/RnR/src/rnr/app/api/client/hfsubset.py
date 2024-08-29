@@ -13,7 +13,7 @@ def _get(
     ----------
     endpoint : str
     - The URL we're hitting.
-    
+
     params : Optional[Dict[str, Any]], optional
     - The parameters passed to the API endpoint.
 
@@ -46,7 +46,7 @@ async def async_get(
     ----------
     endpoint : str
     - The URL we're hitting.
-    
+
     params : Optional[Dict[str, Any]], optional
     - The parameters passed to the API endpoint.
 

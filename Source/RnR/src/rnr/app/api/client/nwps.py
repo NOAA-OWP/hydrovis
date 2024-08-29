@@ -14,7 +14,7 @@ async def _get(
     ----------
     endpoint : str
     - The URL we're hitting.
-    
+
     params : Optional[Dict[str, Any]], optional
     - The parameters passed to the API endpoint.
 
@@ -56,19 +56,19 @@ async def gauges(
     ----------
     x_min : float
     - Bottom-left X coordinate of a bounding box geometry.
-    
+
     y_min : float
     - Bottom-left Y coordinate of a bounding box geometry.
-    
+
     x_max : float
     - Top-right X coordinate of a bounding box geometry.
-    
+
     y_max : float
     - Top-right Y coordinate of a bounding box geometry.
-    
+
     base_url : str
     - The base URL for the API.
-    
+
     srid : str, optional
     - Spatial reference system ID for input geometry. Default is "EPSG_4326".
 
@@ -95,7 +95,7 @@ async def gauge_data(identifier: str, base_url: str) -> Dict[str, Any]:
     ----------
     identifier : str
     - The gauge's unique identifier, LID, or USGS ID.
-    
+
     base_url : str
     - The base URL for the API.
 
@@ -122,16 +122,16 @@ async def gauge_ratings(
     ----------
     identifier : str
     - The gauge's unique identifier, LID, or USGS ID.
-    
+
     base_url : str
     - The base URL for the API.
-    
+
     limit : str, optional
     - Limit the number of results. Default is "10000".
-    
+
     sort : str, optional
     - Sorts results by ascending (ASC) or descending (DSC). Default is "ASC".
-    
+
     only_tenths : bool, optional
     - Limits ratings to only tenths of a foot increments. Default is False.
 
@@ -170,7 +170,7 @@ async def gauge_stageflow(
     ----------
     identifier : str
     - The gauge's unique identifier, LID, or USGS ID.
-    
+
     base_url : str
     - The base URL for the API.
 
@@ -190,10 +190,10 @@ async def gauge_product(identifier: str, base_url: str, product: str) -> Dict[st
     ----------
     identifier : str
     - The gauge's unique identifier, LID, or USGS ID.
-    
+
     base_url : str
     - The base URL for the API.
-    
+
     product : str
     - The product you're looking for.
 
@@ -225,7 +225,7 @@ async def reaches(reach_id: str, base_url: str) -> Dict[str, Any]:
     ----------
     reach_id : str
     - The reach's unique Reach ID.
-    
+
     base_url : str
     - The base URL for the API.
 
@@ -247,10 +247,10 @@ async def reach_streamflow(
     ----------
     reach_id : str
     - The reach's unique Reach ID.
-    
+
     base_url : str
     - The base URL for the API.
-    
+
     series : str, optional
     - The specific forecast requested. Default is "analysis_assimilation".
 
@@ -287,10 +287,10 @@ async def stageflow(identifier: str, base_url: str, pedts: str) -> Dict[str, Any
     ----------
     identifier : str
     - The gauge's unique identifier.
-    
+
     base_url : str
     - The base URL for the API.
-    
+
     pedts : str
     - The standard hydrometeorological exchange format parameter codes.
 

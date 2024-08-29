@@ -12,7 +12,7 @@ def get_rfc_entry(db: Session, identifier: str) -> Optional[RFCForecast]:
     ----------
     db: Session
     - The database session
-    
+
     identifier: str
     - The nws lid identifier
 

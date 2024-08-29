@@ -2,8 +2,8 @@ import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, BackgroundTasks, Depends
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from src.rnr.app.api.database import get_db
 from src.rnr.app.api.services.publish import MessagePublisherService
@@ -18,6 +18,7 @@ router = APIRouter()
 
 class Message(BaseModel):
     message: str = "Starting Replace and Route Workflow. Message being sent to RabbitMQ, Consumer running T-Route and populating data/ directories and data/replace_and_route/ outputs"
+
 
 @router.post("/start/{lid}", response_model=PublishMessagesResponse)
 async def publish_single_message(
@@ -76,8 +77,8 @@ async def publish_single_message(
 @router.post("/start", response_model=Message)
 async def publish_messages(
     background_tasks: BackgroundTasks,
-    settings: Annotated[Settings, Depends(get_settings)], 
-    db: Session = Depends(get_db)
+    settings: Annotated[Settings, Depends(get_settings)],
+    db: Session = Depends(get_db),
 ) -> Message:
     """
     Publish messages based on RFC data and NWPS forecasts.
@@ -90,7 +91,7 @@ async def publish_messages(
     ----------
     settings: Settings
     - The BaseSettings config object
-    
+
     db : Session
     - The database session from the config URL.
 

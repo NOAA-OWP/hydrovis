@@ -2,10 +2,10 @@ import os
 from csv import DictReader
 from datetime import datetime
 
-from fastapi import Request
-from src.rnr.frontend.core import get_settings
-
 import xarray as xr
+from fastapi import Request
+
+from src.rnr.frontend.core import get_settings
 
 settings = get_settings()
 
@@ -18,7 +18,7 @@ class DataSearchService:
     -------
     search_csv_data()
     - Takes input parameters and returns a dataset of all matching forecasts, including related CSV files.
-    
+
     search_plot_data()
     - Takes input parameters and returns a dataset of all matching forecasts, including related CSV and plot files.
     """
@@ -34,13 +34,13 @@ class DataSearchService:
         ----------
         request : Request
         - A Request object passed in by the router.
-        
+
         lid : str
         - The Location ID.
-        
+
         start_date : str
         - The earliest date to search on, formatted as YYYY-MM-DD.
-        
+
         end_date : str
         - The latest date to search on, formatted as YYYY-MM-DD.
 
@@ -155,11 +155,9 @@ class DataSearchService:
                                     )
 
         return csv_search_context
-    
+
     @staticmethod
-    async def search_lids(
-        request: Request
-    ):
+    async def search_lids(request: Request):
         """
         Returns a dataset of all available LIDS.
 
@@ -187,7 +185,7 @@ class DataSearchService:
         lid_search_context = {"lids": sorted(list(set(plot_lids) | set(troute_lids)))}
 
         return lid_search_context
-    
+
     @staticmethod
     async def search_plot_data(
         request: Request, lid: str, start_date: str, end_date: str
@@ -199,13 +197,13 @@ class DataSearchService:
         ----------
         request : Request
         - A Request object passed in by the router.
-        
+
         lid : str
         - The Location ID.
-        
+
         start_date : str
         - The earliest date to search on, formatted as YYYY-MM-DD.
-        
+
         end_date : str
         - The latest date to search on, formatted as YYYY-MM-DD.
 
@@ -234,7 +232,7 @@ class DataSearchService:
             if f.is_dir()
         ]
         plot_search_context["lids"] = sorted(list(set(plot_lids) | set(troute_lids)))
-        
+
         if lid == "" or lid not in plot_search_context["lids"]:
             plot_search_context["errors"]["lid"] = "Invalid LID"
             return plot_search_context
@@ -260,7 +258,7 @@ class DataSearchService:
                 plot_search_context["errors"]["end_date"] = "Invalid End Date"
             plot_search_context["end_date"] = ""
             plot_search_context["end_date_formatted"] = ""
-        
+
         plot_search_context["forecast_results"] = {}
 
         plot_files_to_search = os.path.normpath(settings.plots_location)
@@ -276,17 +274,23 @@ class DataSearchService:
                     end_date_formatted = ".".join(f.split(".")[:-1]).split("_")[-1]
                     if (
                         plot_search_context["start_date"] == ""
-                        or start_date_formatted >= plot_search_context["start_date_formatted"]
-                        or end_date_formatted >= plot_search_context["start_date_formatted"]
+                        or start_date_formatted
+                        >= plot_search_context["start_date_formatted"]
+                        or end_date_formatted
+                        >= plot_search_context["start_date_formatted"]
                     ) and (
                         plot_search_context["end_date"] == ""
-                        or start_date_formatted <= plot_search_context["end_date_formatted"]
-                        or end_date_formatted <= plot_search_context["end_date_formatted"]
+                        or start_date_formatted
+                        <= plot_search_context["end_date_formatted"]
+                        or end_date_formatted
+                        <= plot_search_context["end_date_formatted"]
                     ):
                         png_object = {
                             "name": os.path.join(root, f),
-                            "start_date": datetime.strptime(start_date_formatted,"%Y%m%d"),
-                            "end_date": datetime.strptime(end_date_formatted,"%Y%m%d")
+                            "start_date": datetime.strptime(
+                                start_date_formatted, "%Y%m%d"
+                            ),
+                            "end_date": datetime.strptime(end_date_formatted, "%Y%m%d"),
                         }
                         if (
                             os.path.basename(root)
@@ -294,22 +298,30 @@ class DataSearchService:
                         ):
                             plot_search_context["forecast_results"][
                                 os.path.basename(root)
-                            ] = {"png_files": [png_object], "nc_files": [], "forecasts": {}}
+                            ] = {
+                                "png_files": [png_object],
+                                "nc_files": [],
+                                "forecasts": {},
+                            }
                         else:
-                            plot_search_context["forecast_results"][os.path.basename(root)][
-                                "png_files"
-                            ].append(png_object)
-        
+                            plot_search_context["forecast_results"][
+                                os.path.basename(root)
+                            ]["png_files"].append(png_object)
+
         for root, dirs, file in os.walk(troute_files_to_search):
             for f in file:
                 if ".nc" in f:
-                    file_date_formatted = f.split(".")[1].replace('t','').replace('z','')
+                    file_date_formatted = (
+                        f.split(".")[1].replace("t", "").replace("z", "")
+                    )
                     if (
                         plot_search_context["start_date"] == ""
-                        or file_date_formatted >= plot_search_context["start_date_formatted"] + "0000"
+                        or file_date_formatted
+                        >= plot_search_context["start_date_formatted"] + "0000"
                     ) and (
                         plot_search_context["end_date"] == ""
-                        or file_date_formatted <= plot_search_context["end_date_formatted"] + "2359"
+                        or file_date_formatted
+                        <= plot_search_context["end_date_formatted"] + "2359"
                     ):
                         nc_object = {
                             "name": os.path.join(root, f),
@@ -320,20 +332,34 @@ class DataSearchService:
                         ):
                             plot_search_context["forecast_results"][
                                 os.path.basename(root)
-                            ] = {"png_files": [], "nc_files": [nc_object], "forecasts": {}}
+                            ] = {
+                                "png_files": [],
+                                "nc_files": [nc_object],
+                                "forecasts": {},
+                            }
                         else:
-                            plot_search_context["forecast_results"][os.path.basename(root)][
-                                "nc_files"
-                            ].append(nc_object)
-                        ds = xr.open_dataset(os.path.join(root, f), engine="netcdf4").copy(deep=True)
-                        
+                            plot_search_context["forecast_results"][
+                                os.path.basename(root)
+                            ]["nc_files"].append(nc_object)
+                        ds = xr.open_dataset(
+                            os.path.join(root, f), engine="netcdf4"
+                        ).copy(deep=True)
+
                         for idx, flow_value in enumerate(ds.flow.values):
                             if flow_value != 0:
                                 feature_id = ds.feature_id.values[idx]
-                                forecast_day = file_date_formatted[:4] + '-' + file_date_formatted[4:6] + '-' + file_date_formatted[6:8]
+                                forecast_day = (
+                                    file_date_formatted[:4]
+                                    + "-"
+                                    + file_date_formatted[4:6]
+                                    + "-"
+                                    + file_date_formatted[6:8]
+                                )
                                 forecast_data = {
-                                    'time': datetime.strptime(file_date_formatted, "%Y%m%d%H%M%S"),
-                                    'flow_value': float(flow_value)
+                                    "time": datetime.strptime(
+                                        file_date_formatted, "%Y%m%d%H%M%S"
+                                    ),
+                                    "flow_value": float(flow_value),
                                 }
 
                                 if (
@@ -344,7 +370,9 @@ class DataSearchService:
                                 ):
                                     plot_search_context["forecast_results"][
                                         os.path.basename(root)
-                                    ]["forecasts"][str(feature_id)]= {forecast_day: [forecast_data]}
+                                    ]["forecasts"][str(feature_id)] = {
+                                        forecast_day: [forecast_data]
+                                    }
                                 elif (
                                     forecast_day
                                     not in plot_search_context["forecast_results"][
@@ -353,12 +381,14 @@ class DataSearchService:
                                 ):
                                     plot_search_context["forecast_results"][
                                         os.path.basename(root)
-                                    ]["forecasts"][str(feature_id)][forecast_day] = [forecast_data]
+                                    ]["forecasts"][str(feature_id)][forecast_day] = [
+                                        forecast_data
+                                    ]
                                 else:
                                     plot_search_context["forecast_results"][
                                         os.path.basename(root)
-                                    ]["forecasts"][str(feature_id)][forecast_day].append(
-                                        forecast_data
-                                    )
+                                    ]["forecasts"][str(feature_id)][
+                                        forecast_day
+                                    ].append(forecast_data)
 
         return plot_search_context

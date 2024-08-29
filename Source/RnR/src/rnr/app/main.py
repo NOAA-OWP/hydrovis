@@ -4,13 +4,14 @@ from fastapi import FastAPI, status
 from fastapi.responses import Response
 
 from src.rnr.app.api.router import api_router
-from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.rabbit_connection import rabbit_connection
 
 settings = get_settings()
 
-logger = setup_logger('default', 'app.log')
+logger = setup_logger("default", "app.log")
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):

@@ -14,14 +14,14 @@ from aio_pika.abc import AbstractIncomingMessage
 
 from src.rnr.app.api.client.troute import run_troute
 from src.rnr.app.core.cache import get_settings
-from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import ManyToOneError
+from src.rnr.app.core.logging_module import setup_logger
 
 settings = get_settings()
 
 r_cache = redis.Redis(host=settings.redis_url, port=6379, decode_responses=True)
 
-log = setup_logger('default', 'consumer.log')
+log = setup_logger("default", "consumer.log")
 
 
 class ReplaceAndRoute:
@@ -44,11 +44,11 @@ class ReplaceAndRoute:
         ----------
         feature_id: str
         - The COMID for the RFC point
-        
-		_r_cache: Callable
+
+                _r_cache: Callable
         - The R Cache for saving existing IDs
-        
-		gpkg_file: Path
+
+                gpkg_file: Path
         - The gpkg file to read from
 
         Returns
@@ -74,20 +74,21 @@ class ReplaceAndRoute:
             log.error("Geopackage mapping file not found")
             raise FileNotFoundError
         return mapped_feature_id
-    
 
-    def map_ds_feature_id(self, feature_id: str, _r_cache: Callable, gpkg_file: Path) -> str:
+    def map_ds_feature_id(
+        self, feature_id: str, _r_cache: Callable, gpkg_file: Path
+    ) -> str:
         """A function to map a feature ID to the downstream catchment of the point
 
         Parameters
         ----------
         feature_id: str
         - The COMID for the RFC point
-        
-		_r_cache: Callable
+
+                _r_cache: Callable
         - The R Cache for saving existing IDs
-        
-		gpkg_file: Path
+
+                gpkg_file: Path
         - The gpkg file to read from
 
         Returns
@@ -101,7 +102,9 @@ class ReplaceAndRoute:
             gdf = gpd.read_file(gpkg_file, layer="network")
             _toids = gdf[gdf["hf_id"] == int(feature_id)]["toid"].values
             if np.all(_toids == _toids[0]):
-                mapped_feature_id = _toids[0].split("-")[1]  # Using downstream confluence point
+                mapped_feature_id = _toids[0].split("-")[
+                    1
+                ]  # Using downstream confluence point
             else:
                 log.error("Error in Mapping. There is a many to one relationship")
                 raise ManyToOneError
@@ -113,7 +116,7 @@ class ReplaceAndRoute:
             log.error("Geopackage mapping file not found")
             raise FileNotFoundError
         return mapped_feature_id
-    
+
     def create_troute_domains(self, mapped_feature_id, json_data, output_forcing_path):
         rfc_data = {}
 
@@ -213,7 +216,9 @@ class ReplaceAndRoute:
                     feature_id, r_cache, subset_gpkg_file
                 )
             except Exception as e:
-                log.error(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
+                log.error(
+                    f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}"
+                )
                 await message.ack()
                 return
         else:
@@ -223,7 +228,9 @@ class ReplaceAndRoute:
                     feature_id, r_cache, subset_gpkg_file
                 )
             except Exception as e:
-                log.error(f"Cannot find DS Point fron reference fabric for ID: {feature_id}. {e.__str__()}")
+                log.error(
+                    f"Cannot find DS Point fron reference fabric for ID: {feature_id}. {e.__str__()}"
+                )
                 await message.ack()
                 return
         try:
@@ -231,7 +238,9 @@ class ReplaceAndRoute:
                 json_data["downstream_feature_id"], r_cache, downstream_gpkg_file
             )
         except Exception as e:
-            log.error(f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}")
+            log.error(
+                f"Cannot find reference fabric for ID: {feature_id}. {e.__str__()}"
+            )
             await message.ack()
             return
 
@@ -248,11 +257,15 @@ class ReplaceAndRoute:
             cache_key = json_data["lid"] + "_" + formatted_time
             cache_value = hash(json.dumps(json_data["secondary_forecast"]))
             r_cache.set(cache_key, cache_value)
-            log.info(f"[x] Domain files created. Example: {domain_files_json['domain_files'][0]['file_location']}")
+            log.info(
+                f"[x] Domain files created. Example: {domain_files_json['domain_files'][0]['file_location']}"
+            )
             # for file in domain_files_json["domain_files"]:
             #     print("   - " + file["file_location"])
         else:
-            log.error(f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}")
+            log.error(
+                f"STATUS: {domain_files_json['status']}: {domain_files_json['msg']}"
+            )
 
         if json_data["latest_observation"] is not None:
             initial_start = json_data["latest_observation"]
@@ -453,7 +466,9 @@ class ReplaceAndRoute:
             troute_ds_flow.append(
                 ds.sel(feature_id=int(mapped_ds_feature_id)).flow.values[0]
             )
-            depth_upstream.append(ds.sel(feature_id=int(mapped_feature_id)).depth.values[0])
+            depth_upstream.append(
+                ds.sel(feature_id=int(mapped_feature_id)).depth.values[0]
+            )
             depth_downstream.append(
                 ds.sel(feature_id=int(mapped_ds_feature_id)).depth.values[0]
             )
@@ -469,8 +484,12 @@ class ReplaceAndRoute:
             float(flow_value) * 35.3147 / 1000 for flow_value in troute_ds_flow
         ]  # converting to kcfs
 
-        depth_upstream_feet = [float(depth_value) / 3.28084 for depth_value in depth_upstream]
-        depth_downstream_feet = [float(depth_value) / 3.28084 for depth_value in depth_downstream]
+        depth_upstream_feet = [
+            float(depth_value) / 3.28084 for depth_value in depth_upstream
+        ]
+        depth_downstream_feet = [
+            float(depth_value) / 3.28084 for depth_value in depth_downstream
+        ]
 
         dt_start_formatted = rfc_forecast_time_delta[0].strftime("%Y%m%d")
         dt_end_formatted = rfc_forecast_time_delta[-1].strftime("%Y%m%d")
@@ -537,7 +556,6 @@ class ReplaceAndRoute:
         plt.close(fig)
 
         return {"status": "OK", "plot_file_location": plot_file_location}
-
 
     async def process_error(self, message: AbstractIncomingMessage):
         # json_data = self.read_message(message.body)

@@ -24,19 +24,19 @@ class Settings(BaseSettings):
     ----------
     base_url : str
     - The base URL for the NWPS API containing RFC informational data.
-    
+
     sqlalchemy_database_url : str
     - SQLAlchemy connection string for the main database.
-    
+
     pika_url : str
     - The URL for connecting to RabbitMQ.
-    
+
     flooded_queue : str
     - Queue name for sending data regarding flooded RFC locations.
-    
+
     nonflooded_queue : str
     - Queue name for sending data regarding non-flooded RFC locations.
-    
+
     error_queue : str
     - Queue name for sending any RFC locations that error out.
 
@@ -115,7 +115,10 @@ class Settings(BaseSettings):
             )
         except FileNotFoundError:
             self.sqlalchemy_database_url = self.sqlalchemy_database_url.format(
-                os.getenv("USER"), os.getenv("PASSWORD"), self.db_host, os.getenv("DBNAME")
+                os.getenv("USER"),
+                os.getenv("PASSWORD"),
+                self.db_host,
+                os.getenv("DBNAME"),
             )
 
         self.aio_pika_url = self.aio_pika_url.format(

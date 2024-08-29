@@ -9,6 +9,7 @@ import pytest
 from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
 from src.rnr.app.core.settings import Settings
 
+
 def get_settings_override() -> Settings:
     """Overriding the BaseSettings for testing
 
@@ -17,9 +18,8 @@ def get_settings_override() -> Settings:
     Settings
         The test settings
     """
-    return Settings(
-        log_path="./logs/"
-    )
+    return Settings(log_path="./logs/")
+
 
 settings = get_settings_override()
 
@@ -66,8 +66,7 @@ def test_assimilation_mapping(feature_id: int = 2930769, lid: str = "CAGM7") -> 
 def test_create_troute_domains(sample_rfc_forecast):
     mapped_feature_id = 1074884
     output_forcing_path = (
-        Path(__file__).parent.parent.absolute()
-        / "data/rfc_channel_forcings/"
+        Path(__file__).parent.parent.absolute() / "data/rfc_channel_forcings/"
     )
     domain_files_json = rnr.create_troute_domains(
         mapped_feature_id, sample_rfc_forecast, output_forcing_path
@@ -79,8 +78,8 @@ def test_create_troute_domains(sample_rfc_forecast):
     assert (
         df["feature_id"].values[0] == mapped_feature_id
     ), "mapped feature_id is not correctly defined"
-    assert (
-        np.isclose(df[dt].values[0], domain_file["secondary_forecast"], rtol=1e-9, atol=0)
+    assert np.isclose(
+        df[dt].values[0], domain_file["secondary_forecast"], rtol=1e-9, atol=0
     ), "secondary forecast not correctly written"
     assert dt == "202408271800", "datetime incorrect"
 
@@ -111,7 +110,7 @@ def test_post_processing(sample_rfc_forecast):
         Path(__file__).parent.parent.absolute() / "data/replace_and_route/{}/"
     )
     try:
-        response = rnr.post_process(    
+        response = rnr.post_process(
             sample_rfc_forecast,
             mapped_feature_id,
             is_flooding=False,
@@ -131,7 +130,9 @@ def test_create_plot_file(sample_rfc_forecast):
         Path(__file__).parent.parent.absolute()
         / "data/troute_output/{}/troute_output_{}.nc"
     )
-    plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/{}".format(sample_rfc_forecast["lid"])
+    plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/{}".format(
+        sample_rfc_forecast["lid"]
+    )
     response = rnr.create_plot_file(
         json_data=sample_rfc_forecast,
         mapped_feature_id=mapped_feature_id,

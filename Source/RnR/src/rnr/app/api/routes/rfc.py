@@ -10,15 +10,15 @@ from src.rnr.app.api.database import get_db
 from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
-from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import NWPSAPIError
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.core.utils import AsyncRateLimiter
 from src.rnr.app.schemas import RFCDatabaseEntries, Subset, SubsetLocations
 
 router = APIRouter()
 
-log = setup_logger('default', 'app.log')
+log = setup_logger("default", "app.log")
 
 
 class Message(BaseModel):
@@ -125,10 +125,10 @@ async def build_rfc_domain(
     -----------
     background_tasks: BackgroundTasks
     - FastAPI background tasks
-    
+
     settings: Annotated[Settings, Depends(get_settings)]
     - pydantic settings
-    
+
     db: Session = Depends(get_db),
     - The database connection
 

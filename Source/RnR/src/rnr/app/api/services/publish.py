@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 from src.rnr.app.api.services.nwps import NWPSService
 from src.rnr.app.api.services.rfc import RFCReaderService
 from src.rnr.app.core.cache import get_settings
-from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.exceptions import NoForecastError, NWPSAPIError
+from src.rnr.app.core.logging_module import setup_logger
 from src.rnr.app.core.rabbit_connection import rabbit_connection
 from src.rnr.app.core.settings import Settings
 from src.rnr.app.schemas import (
@@ -19,7 +19,7 @@ from src.rnr.app.schemas import (
     RFCDatabaseEntry,
 )
 
-log = setup_logger('default', 'consumer.log')
+log = setup_logger("default", "consumer.log")
 
 _settings = get_settings()
 
@@ -37,7 +37,7 @@ class MessagePublisherService:
     -------
     process_rfc_entry(rfc_entry: RFCDatabaseEntry, channel: pika.BlockingConnection.channel, settings: Settings) -> Dict[str, str]
     - Process an RFC entry and publish related messages.
-    
+
     process_and_publish_messages(gauge_data: GaugeData, gauge_forecast: GaugeForecast, rfc_entry: RFCDatabaseEntry, channel: pika.BlockingConnection.channel, settings: Settings) -> None
     - Process gauge data and forecast, and publish messages to appropriate queues.
     """
@@ -55,10 +55,10 @@ class MessagePublisherService:
         ----------
         rfc_entry : RFCDatabaseEntry
         - The RFC table entry.
-        
+
         channel : pika.BlockingConnection.channel
         - The RabbitMQ channel.
-        
+
         settings : Settings
         - The application settings.
 
@@ -70,7 +70,7 @@ class MessagePublisherService:
         try:
             gauge_data = await NWPSService.get_gauge_data(rfc_entry.nws_lid, settings)
             if gauge_data.downstreamLid is None:
-                message=f"No downstream LID for {rfc_entry.nws_lid}" 
+                message = f"No downstream LID for {rfc_entry.nws_lid}"
                 log.error(message)
                 await rabbit_connection.send_message(
                     message=json.dumps(message), routing_key=settings.error_queue
@@ -169,9 +169,7 @@ class MessagePublisherService:
                     "status_code": getattr(e, "status_code", None),
                 }
             except UnboundLocalError:
-                message = {
-                    "message": f"No RFC DS Entry for: {gauge_data.lid}"
-                }
+                message = {"message": f"No RFC DS Entry for: {gauge_data.lid}"}
                 log.error(message["message"])
                 await rabbit_connection.send_message(
                     message=json.dumps(message), routing_key=settings.error_queue
@@ -203,16 +201,16 @@ class MessagePublisherService:
         ----------
         gauge_data : GaugeData
         - The gauge metadata.
-        
+
         gauge_forecast : GaugeForecast
         - The gauge forecast data.
-        
+
         rfc_entry : RFCDatabaseEntry
         - The RFC database entry.
-        
+
         channel : pika.BlockingConnection.channel
         - The RabbitMQ channel.
-        
+
         settings : Settings
         - The application settings.
         """
