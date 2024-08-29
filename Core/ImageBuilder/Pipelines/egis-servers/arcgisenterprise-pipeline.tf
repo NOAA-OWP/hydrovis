@@ -31,7 +31,7 @@ resource "aws_imagebuilder_image_pipeline" "arcgis_enterprise" {
 
 resource "aws_imagebuilder_image_recipe" "arcgisenterprise_recipe" {
   name         = "arcgisenterprise-${local.arcgisVersionName}-recipe"
-  parent_image = "arn:aws:imagebuilder:${var.region}:aws:image/windows-server-2019-english-full-base-x86/x.x.x"
+  parent_image = "arn:aws:imagebuilder:${var.region}:aws:image/windows-server-2022-english-full-base-x86/x.x.x"
   version      = local.image_version
   tags         = local.shared_tags
 
