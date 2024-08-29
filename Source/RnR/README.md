@@ -2,72 +2,87 @@
 
 A near real-time system that leverages the NWM data assimilation and channel routing capabilities to extend official flood forecasts issued by RFCs to all river reaches downstream of RFC forecast points by routing the forecasts through the river network to the next downstream forecast point. 
 
+Key Features of Replace and Route:
+- Deploys a message broker architecture to process incoming RFC forecasts
+- Utilizes v20.1 of the enterprise hydrofabric
+- Routes forecasted flow to downstream RFC locations 
+- Uses docker compose to manage architecture
+- Uses a jupyter-notebook to view and manage code through a container
 
-
+<img src="docs/API_spec.png" alt="isolated" width="750"/>
 
 ## Installation
 
-1. 
+1. Install a virtual environment and download dependencies
 
-> Keep the README fresh! It's the first thing people see and will make the initial impression.
+```shell
+pip install uv
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+```
 
-## Credits and References
+2. Make sure docker compose is installed on your system
+- https://docs.docker.com/compose/install/
 
-Credit to the developers and maintainers of https://github.com/NOAA-OWP/owp-open-source-project-template/tree/master for providing a starting template
+3. Start the service
+```shell
+docker compose up
+```
 
-# Project Title
+4. View swagger docs for the services
 
-**Description**:  Put a meaningful, short, plain-language description of what
-this project is trying to accomplish and why it matters.
-Describe the problem(s) this project solves.
-Describe how this software can improve the lives of its audience.
+Each of the URLS corresponds to one of the services:
 
-Other things to include:
-
-  - **Technology stack**: Indicate the technological nature of the software, including primary programming language(s) and whether the software is intended as standalone or as a module in a framework or other ecosystem.
-  - **Status**:  Alpha, Beta, 1.1, etc. It's OK to write a sentence, too. The goal is to let interested people know where this project is at. This is also a good place to link to the [CHANGELOG](CHANGELOG.md).
-  - **Links to production or demo instances**
-  - Describe what sets this apart from related-projects. Linking to another doc or page is OK if this can't be expressed in a sentence or two.
-
-
-**Screenshot**: If the software has visual components, place a screenshot after the description; e.g.,
-
-![](https://raw.githubusercontent.com/NOAA-OWP/owp-open-source-project-template/master/doc/Screenshot.png)
+- Publisher app:
+  - localhost:8000/docs
+- Front-end:
+  - localhost:8001/frontend/v1/plot
+- T-route
+  - localhost:8004/docs
+- hfsubset
+  - localhost:8008/docs
+- jupyter
+  - localhost:8888/lab
 
 
 ## Dependencies
 
-1. RabbitMQ (Version 3.13) https://www.rabbitmq.com/docs/download
-2. Rye (Version 0.36)
-3. A Postgres DB of RFC locations
-4. MKDocs (https://squidfunk.github.io/mkdocs-material/publishing-your-site/#with-github-actions-material-for-mkdocs)
-
-## Installation
-
-Detailed instructions on how to install, configure, and get the project running.
-This should be frequently tested to ensure reliability. Alternatively, link to
-a separate [INSTALL](INSTALL.md) document.
-
-## Configuration
-
-If the software is configurable, describe it in detail, either here or in other documentation to which you link.
+The following containers are utilized 
+1. RabbitMQ
+  - rabbitmq:3.13-management
+2. Mock DB
+  - ghcr.io/taddyb33/hydrovis/mock_database:0.0.1
+3. HFsubset
+  - ghcr.io/taddyb33/hfsubset-legacy:0.0.4
+4. T-Route
+  - ghcr.io/taddyb33/t-route-dev:0.0.2
+5. Redis
+  - redis:7.2.5
 
 ## Usage
 
-Show users how to use the software.
-Be specific.
-Use appropriate formatting when showing code snippets.
+Follow the installation to get to the API services. 
+
+To download RFC data based on the mock DB LIDS, run the following command once the DB is up:
+
+```shell
+curl -X 'POST' \
+  'http://localhost:8000/api/v1/rfc/build_rfc_geopackages' \
+  -H 'accept: application/json' \
+  -d ''
+```
 
 ## How to test the software
 
 Run the following command from the project's home dir
 ```sh
-rye test
+pytest -s
 ```
 
 ## Known issues
 
-Still a POC. Will be finished 9/1/24
+- Since there are only 170 locations in the mock DB, this is just a subset of all locations. So, there will be errors if there is no found LID in the DB (This happens oftern)
 
 ## Getting help
 
@@ -91,8 +106,15 @@ General instructions on _how_ to contribute should be stated with a link to [CON
 
 ----
 
-## Credits and references
+## Credits and References
 
-1. Projects that inspired you
-2. Related projects
-3. Books, papers, talks, or other sources that have meaningful impact or influence on this project
+Credits to the following developers:
+- Tadd Bindas @taddyb33
+- David Martin @david-w-martin
+
+Also, thank you to all OWP members / collaborators
+- Shawn Crawley
+- Fernando Salas
+- Derek G
+- Nels Frazier (T-Route dev)
+- Mike Johnson (Hydrofabric dev)
