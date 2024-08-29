@@ -1,18 +1,20 @@
 import asyncio
 
 import aio_pika
+
+from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
+from src.rnr.app.core.cache import get_settings
+from src.rnr.app.core.logging_module import setup_logger
+from src.rnr.app.core.settings import Settings
+
 # import uvicorn
 # from fastapi import FastAPI, status
 # from fastapi.responses import Response
 
-from src.rnr.app.api.services.replace_and_route import ReplaceAndRoute
-from src.rnr.app.core.logging_module import setup_logger
-from src.rnr.app.core.cache import get_settings
-from src.rnr.app.core.settings import Settings
 
 PARALLEL_TASKS = 10
 
-log = setup_logger('default', 'consumer.log')
+log = setup_logger("default", "consumer.log")
 
 # app = FastAPI(title="Consumer")
 

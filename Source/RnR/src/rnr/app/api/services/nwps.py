@@ -19,7 +19,7 @@ class NWPSService:
     -------
     get_gauge_data(identifier: str, settings: Settings) -> GaugeData
     - Asynchronously get gauge metadata.
-    
+
     get_gauge_product_forecast(identifier: str, settings: Settings) -> GaugeForecast
     - Asynchronously get gauge forecast data.
     """
@@ -32,7 +32,7 @@ class NWPSService:
         ----------
         identifier : str
         - The identifier for the API endpoint.
-        
+
         settings : Settings
         - The application settings.
 
@@ -55,7 +55,7 @@ class NWPSService:
         ----------
         identifier : str
         - The identifier for the API endpoint.
-        
+
         settings : Settings
         - The application settings.
 

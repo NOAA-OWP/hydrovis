@@ -5,7 +5,7 @@ class NWPSAPIError(Exception):
     ----------
     status_code : int
     - HTTP status code of the failed request.
-    
+
     endpoint : str
     - The API endpoint that was called.
 
@@ -13,10 +13,10 @@ class NWPSAPIError(Exception):
     ----------
     status_code : int
     - HTTP status code of the failed request.
-    
+
     endpoint : str
     - The API endpoint that was called.
-    
+
     message : str
     - Explanation of the error.
     """

@@ -13,7 +13,7 @@ def start_work_queues(
     ----------
     connection : pika.BlockingConnection
     - The RabbitMQ connection.
-    
+
     settings : Settings
     - The application settings.
 
@@ -69,10 +69,10 @@ def publish_messages(
     ----------
     processed_data : ProcessedData
     - The processed data to be published.
-    
+
     channel : pika.BlockingConnection.channel
     - The RabbitMQ channel for publishing.
-    
+
     queue : str
     - The name of the queue to publish to.
     """
@@ -96,10 +96,10 @@ def publish_error(
     ----------
     channel : pika.BlockingConnection.channel
     - The RabbitMQ channel for publishing.
-    
+
     error_queue : str
     - The name of the error queue to publish to.
-    
+
     message : str, optional
     - The error message to be published. Defaults to "Default error message".
     """

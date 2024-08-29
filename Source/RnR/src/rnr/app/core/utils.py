@@ -31,7 +31,7 @@ def convert_to_m3_per_sec(forecast: List[float], unit: str) -> Tuple[List[float]
     ----------
     forecast: List[float]
     - The list of forecasts to convert
-    
+
     unit: str
     - The units of the forecast
 
@@ -81,7 +81,7 @@ class AsyncRateLimiter:
     ----------
     rate_limit : float
     - The maximum number of operations allowed per time period.
-    
+
     time_period : float
     - The time period (in seconds) over which the rate limit applies.
 
@@ -89,16 +89,16 @@ class AsyncRateLimiter:
     ----------
     rate_limit : float
     - The maximum number of operations allowed per time period.
-    
+
     time_period : float
     - The time period (in seconds) over which the rate limit applies.
-    
+
     tokens : float
     - The current number of available tokens.
-    
+
     last_refill_time : float
     - The last time the token bucket was refilled.
-    
+
     lock : asyncio.Lock
     - A lock to ensure thread-safe operations.
     """

@@ -20,7 +20,7 @@ async def get_gauge_data(
     ----------
     lid: str
     - The identifier for the API endpoint
-    
+
     settings: Settings
     - The BaseSettings config object
 
@@ -36,13 +36,13 @@ async def get_gauge_data(
 async def get_gauge_product_forecast(
     lid: str, settings: Annotated[Settings, Depends(get_settings)]
 ) -> GaugeForecast:
-    """ A route to get the gauge forecast
+    """A route to get the gauge forecast
 
     Parameters
     ----------
     lid: str
     - The identifier for the API endpoint
-    
+
     settings: Settings
     - The BaseSettings config object
 
