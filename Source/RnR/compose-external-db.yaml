@@ -1,0 +1,133 @@
+services:
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
+    ports:
+      - "8000:8000"
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    depends_on:
+      redis:
+        condition: service_started
+      hfsubset:
+        condition: service_healthy
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 90s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    restart: always
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    command: sh -c ". /app/.venv/bin/activate && python src/rnr/app/consumer_manager.py"
+    depends_on:
+      redis:
+        condition: service_started
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: bind
+        source: ./static
+        target: /app/static
+        read_only: true
+    ports:
+      - "8001:8000"
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.frontend.main:app --host 0.0.0.0 --port 8000"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  hfsubset:
+    image: ghcr.io/taddyb33/hfsubset-legacy:0.0.4
+    ports:
+      - "8008:8000"
+    volumes:
+      - type: bind
+        source: ./data/rfc_geopackage_data
+        target: /app/data
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.hfsubset.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  redis:
+    image: redis:7.2.5
+    ports:
+      - "6379:6379"
+
+  troute:
+    image: ghcr.io/taddyb33/t-route-dev:0.0.2
+    ports:
+      - "8004:8000"
+    volumes:
+      - type: bind
+        source: ./data/troute_output
+        target: /t-route/output
+        bind:
+          selinux: z
+      - type: bind
+        source: ./data
+        target: /t-route/data
+        bind:
+          selinux: z
+    command: sh -c ". /t-route/.venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
