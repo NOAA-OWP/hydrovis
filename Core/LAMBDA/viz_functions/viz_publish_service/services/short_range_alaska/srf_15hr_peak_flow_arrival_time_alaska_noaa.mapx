@@ -385,28 +385,14 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id_str",
-            "fieldName" : "feature_id_str",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
             "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWM Feature ID",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           }
@@ -417,30 +403,25 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.services.%Bankfull Arrival Time_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,nwm_vers,reference_time,peak_flow_arrival_hour,peak_flow_arrival_time,below_bank_return_hour,below_bank_return_time,max_flow_cfs,update_time,strm_order,name,huc6,state,high_water_threshold,geom from vizprocessing.publish.srf_15hr_peak_flow_arrival_time_alaska",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,nwm_vers,reference_time,peak_flow_arrival_hour,peak_flow_arrival_time,below_bank_return_hour,below_bank_return_time,max_flow_cfs,update_time,strm_order,name,huc6,state,high_water_threshold,geom from vizprocessing.publish.srf_15hr_peak_flow_arrival_time_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "nwm_vers",
@@ -572,7 +553,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {

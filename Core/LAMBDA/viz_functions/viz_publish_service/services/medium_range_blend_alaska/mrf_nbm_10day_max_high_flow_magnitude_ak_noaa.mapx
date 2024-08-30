@@ -248,13 +248,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_nbm_10day_max_high_flow_magnitude_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,maxflow_10day_cfs,recur_cat_10day,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.mrf_nbm_10day_max_high_flow_magnitude_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,maxflow_10day_cfs,recur_cat_10day,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.mrf_nbm_10day_max_high_flow_magnitude_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17222900.2084,
@@ -269,19 +269,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -393,7 +388,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {

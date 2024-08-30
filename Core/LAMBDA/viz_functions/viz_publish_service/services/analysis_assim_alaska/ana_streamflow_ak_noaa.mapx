@@ -253,7 +253,7 @@
               "roundingValue" : 0
             },
             "readOnly" : true,
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {

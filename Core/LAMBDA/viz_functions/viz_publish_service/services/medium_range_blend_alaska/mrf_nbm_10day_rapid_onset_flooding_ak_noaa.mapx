@@ -255,27 +255,14 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
             "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id_str",
-            "fieldName" : "feature_id_str",
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -460,21 +447,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -483,13 +455,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_nbm_10day_rapid_onset_flooding_alaska",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17219891.8748,
@@ -504,19 +476,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -634,7 +601,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -9892,13 +9859,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_nbm_10day_rapid_onset_flooding_alaska",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17219891.8748,
@@ -9913,19 +9880,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -10043,7 +10005,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -19324,7 +19286,7 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
