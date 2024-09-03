@@ -19465,10 +19465,6 @@
         "type" : "CIMFeatureTable",
         "displayField" : "oid",
         "editable" : true,
-        "featureTable" : {
-        "type" : "CIMFeatureTable",
-        "displayField" : "oid",
-        "editable" : true,
         "fieldDescriptions" : [
           {
             "type" : "CIMFieldDescription",
