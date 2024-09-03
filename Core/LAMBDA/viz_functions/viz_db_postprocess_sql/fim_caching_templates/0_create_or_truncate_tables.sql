@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}_flows
 (
     hand_id integer,
     hydro_id integer,
-    feature_id integer,
+    feature_id bigint,
     huc8 integer,
     branch bigint,
     reference_time text,

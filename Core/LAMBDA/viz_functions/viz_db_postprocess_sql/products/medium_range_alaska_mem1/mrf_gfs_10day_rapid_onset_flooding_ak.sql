@@ -20,7 +20,7 @@ WITH rapid_onset AS (
 				)	
 			SELECT feature_id, forecast_hour, streamflow AS flow,
 			( -- Use the lag funtion to calucate percent change for each reach / forecast hour timestep
-				(streamflow) - (lag(streamflow, 1) OVER (PARTITION BY feature_id ORDER BY forecast_hour)))/ --Numerator: current streamflow - last hour streamflow
+				(streamflow) - (lag(streamflow, 1) OVER (PARTITION BY feature_id ORDER BY forecast_hour))/ --Numerator: current streamflow - last hour streamflow
 				(lag(streamflow, 1) OVER (PARTITION BY feature_id ORDER by forecast_hour)) -- Denominator: last hour streamflow
 			) AS pct_chg
 			FROM forecasts_full
