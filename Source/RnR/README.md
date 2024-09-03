@@ -9,7 +9,7 @@ Key Features of Replace and Route:
 - Uses docker compose to manage architecture
 - Uses a jupyter-notebook to view and manage code through a container
 
-<img src="docs/API_spec.png" alt="isolated" width="750"/>
+<img src="docs/photos/API_spec.png" alt="isolated" width="750"/>
 
 ## Installation
 

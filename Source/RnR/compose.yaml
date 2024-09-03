@@ -68,7 +68,6 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.app
-    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
     volumes:
       - type: bind
         source: ./data

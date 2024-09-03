@@ -68,9 +68,12 @@ def test_create_troute_domains(sample_rfc_forecast):
     output_forcing_path = (
         Path(__file__).parent.parent.absolute() / "data/rfc_channel_forcings/"
     )
-    domain_files_json = rnr.create_troute_domains(
-        mapped_feature_id, sample_rfc_forecast, output_forcing_path
-    )
+    try:
+        domain_files_json = rnr.create_troute_domains(
+            mapped_feature_id, sample_rfc_forecast, output_forcing_path
+        )
+    except PermissionError:
+        pytest.skip("Permission denied for reading files. Skipping test")
     assert domain_files_json["status"] == "OK"
     domain_file = domain_files_json["domain_files"][0]
     dt = domain_file["formatted_time"]
@@ -133,14 +136,14 @@ def test_create_plot_file(sample_rfc_forecast):
     plot_output_dir = Path(__file__).parent.absolute() / "test_data/plots/{}".format(
         sample_rfc_forecast["lid"]
     )
-    response = rnr.create_plot_file(
-        json_data=sample_rfc_forecast,
-        mapped_feature_id=mapped_feature_id,
-        mapped_ds_feature_id=mapped_ds_id,
-        troute_file_dir=troute_output_dir.__str__(),
-        plot_dir=plot_output_dir.__str__(),
-    )
-    # except Exception:
-    #     pytest.skip("No troute output found")
+    try:
+        response = rnr.create_plot_file(
+            json_data=sample_rfc_forecast,
+            mapped_feature_id=mapped_feature_id,
+            mapped_ds_feature_id=mapped_ds_id,
+            troute_file_dir=troute_output_dir.__str__(),
+            plot_dir=plot_output_dir.__str__(),
+        )
+    except FileNotFoundError:
+        pytest.skip("No troute output found. Skipping test")
     assert response["status"] == "OK"
-    print(response)

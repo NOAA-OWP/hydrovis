@@ -176,7 +176,7 @@ A security group is created to allow SSH access and open the necessary ports for
 The EC2 instance is configured via the instance user_date with necessary software including Docker, Docker Compose and the AWS CLI. It will automatically clone the RnR application code, sync data from S3, and start the services defined in the Docker Compose configuration via a systemd service called rnr-app.
 
 Example of checking the status via systemd. The app(s) can be stopped and started similarly via systemctl stop and start.
-```sh
+```shell
 systemctl status rnr-app
 
 ● rnr-app.service - Docker Compose Application
@@ -196,4 +196,6 @@ Aug 29 20:38:29 ip-10-6-0-139.ngwpc.com docker[39123]:  Container rnr-app-1  Sta
 Aug 29 20:38:30 ip-10-6-0-139.ngwpc.com docker[39123]:  Container rnr-jupyterlab-1  Started
 Aug 29 20:38:30 ip-10-6-0-139.ngwpc.com docker[39123]:  Container rnr-consumer-1  Started
 Aug 29 20:38:30 ip-10-6-0-139.ngwpc.com docker[39123]:  Container rnr-app-1  Started
-```sh
+```
+
+*Note:* If you would like to see the files that are being generated from RnR, go to the `/app/hydrovis/Source/RnR/data/` directory on the EC2. `/app/hydrovis/Source/RnR` is the location for all RnR code delivered as IaC
