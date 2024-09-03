@@ -253,6 +253,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -9891,6 +9892,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },

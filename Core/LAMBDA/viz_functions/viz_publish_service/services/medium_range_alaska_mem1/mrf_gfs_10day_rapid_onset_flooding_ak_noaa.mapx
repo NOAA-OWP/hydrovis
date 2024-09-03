@@ -19630,7 +19630,7 @@
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "huc10",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -17349104.870099999,
