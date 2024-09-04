@@ -972,9 +972,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            68,
-                            1,
-                            84,
+                            204,
+                            51,
+                            255,
                             100
                           ]
                         }
@@ -1013,9 +1013,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            204,
-                            51,
-                            255,
+                            230,
+                            0,
+                            169,
                             100
                           ]
                         }
@@ -1052,11 +1052,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMRGBColor",
+                          "type" : "CIMHSVColor",
                           "values" : [
-                            230,
                             0,
-                            169,
+                            100,
+                            100,
                             100
                           ]
                         }
@@ -1094,7 +1094,7 @@
                         "color" : {
                           "type" : "CIMHSVColor",
                           "values" : [
-                            0,
+                            36,
                             100,
                             100,
                             100
@@ -1134,7 +1134,7 @@
                         "color" : {
                           "type" : "CIMHSVColor",
                           "values" : [
-                            36,
+                            60,
                             100,
                             100,
                             100
