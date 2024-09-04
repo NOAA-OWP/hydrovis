@@ -30,7 +30,7 @@
       "CIMPATH=map/new_group_layer2.xml",
       "CIMPATH=map/new_group_layer3.xml",
       "CIMPATH=map/new_group_layer4.xml",
-      "CIMPATH=map/stage_based_catfim__major_threshold.xml"
+      "CIMPATH=map/stage_based_catfim__record_threshold.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -1686,7 +1686,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: 1ft Intervals",
+      "name" : "1 ft Invervals Above Action",
       "uRI" : "CIMPATH=map/stage_based_catfim__1ft_intervals.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -3097,7 +3097,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: 1ft Intervals",
+      "name" : "1 ft Invervals Above Minor",
       "uRI" : "CIMPATH=map/stage_based_catfim__action.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -4507,7 +4507,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: 1ft Intervals",
+      "name" : "1 ft Invervals Above Moderate",
       "uRI" : "CIMPATH=map/stage_based_catfim__1ft_intervals4.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -5917,7 +5917,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: 1ft Intervals",
+      "name" : "1 ft Invervals Above Major",
       "uRI" : "CIMPATH=map/stage_based_catfim__1ft_intervals2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
@@ -7318,8 +7318,8 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: Major Threshold",
-      "uRI" : "CIMPATH=map/stage_based_catfim__major_threshold.xml",
+      "name" : "Stage-Based CatFIM: Record Threshold",
+      "uRI" : "CIMPATH=map/stage_based_catfim__record_threshold.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
