@@ -537,29 +537,29 @@
       "displayFilters" : [
         {
           "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 300000
-        },
-        {
-          "type" : "CIMDisplayFilter",
           "name" : "Large Streams",
           "whereClause" : "strm_order >= 4",
-          "maxScale" : 3000000
+          "maxScale" : 5000000
         },
         {
           "type" : "CIMDisplayFilter",
           "name" : "Medium Streams",
           "whereClause" : "strm_order >= 3",
-          "minScale" : 3000000,
-          "maxScale" : 1000000
+          "minScale" : 5000000,
+          "maxScale" : 2500000
         },
         {
           "type" : "CIMDisplayFilter",
           "name" : "Small Streams",
           "whereClause" : "strm_order >= 2",
-          "minScale" : 1000000,
-          "maxScale" : 300000
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
         }
       ],
       "displayFiltersType" : "ByScale",
