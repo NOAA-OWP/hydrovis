@@ -558,29 +558,29 @@
       "displayFilters" : [
         {
           "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 300000
-        },
-        {
-          "type" : "CIMDisplayFilter",
           "name" : "Large Streams",
           "whereClause" : "strm_order >= 4",
-          "maxScale" : 3000000
+          "maxScale" : 5000000
         },
         {
           "type" : "CIMDisplayFilter",
           "name" : "Medium Streams",
           "whereClause" : "strm_order >= 3",
-          "minScale" : 3000000,
-          "maxScale" : 1000000
+          "minScale" : 5000000,
+          "maxScale" : 2500000
         },
         {
           "type" : "CIMDisplayFilter",
           "name" : "Small Streams",
           "whereClause" : "strm_order >= 2",
-          "minScale" : 1000000,
-          "maxScale" : 300000
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
         }
       ],
       "displayFiltersType" : "ByScale",
@@ -971,11 +971,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -1011,11 +1011,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1051,11 +1051,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            312.86000000000001,
-                            29.16,
-                            99.409999999999997,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }
@@ -1453,6 +1453,35 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
@@ -1841,11 +1870,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -1881,11 +1910,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1921,11 +1950,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            312.86000000000001,
-                            29.16,
-                            99.409999999999997,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }
@@ -2328,12 +2357,6 @@
       "displayFilters" : [
         {
           "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
           "name" : "Large Streams",
           "whereClause" : "strm_order >= 4",
           "maxScale" : 5000000
@@ -2343,14 +2366,20 @@
           "name" : "Medium Streams",
           "whereClause" : "strm_order >= 3",
           "minScale" : 5000000,
-          "maxScale" : 3000000
+          "maxScale" : 2500000
         },
         {
           "type" : "CIMDisplayFilter",
           "name" : "Small Streams",
           "whereClause" : "strm_order >= 2",
-          "minScale" : 3000000,
+          "minScale" : 2500000,
           "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
         }
       ],
       "displayFiltersType" : "ByScale",
@@ -2741,11 +2770,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -2781,11 +2810,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -2821,11 +2850,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            312.86000000000001,
-                            29.16,
-                            99.409999999999997,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }

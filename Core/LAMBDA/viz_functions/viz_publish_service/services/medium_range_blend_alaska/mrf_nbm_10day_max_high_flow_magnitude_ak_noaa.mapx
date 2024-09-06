@@ -582,6 +582,35 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
@@ -874,7 +903,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "2",
+                "label" : "2%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -914,7 +943,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "4",
+                "label" : "4%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -954,7 +983,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "10",
+                "label" : "10%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -970,11 +999,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -994,7 +1023,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "20",
+                "label" : "20%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -1010,11 +1039,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1034,7 +1063,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "50",
+                "label" : "50%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -1050,11 +1079,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            248.27000000000001,
-                            24.649999999999999,
-                            99.549999999999997,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }
