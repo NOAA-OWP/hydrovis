@@ -2382,7 +2382,7 @@
     },
     {
       "type" : "CIMRasterLayer",
-      "name" : "18 Hours - Accumulated Precipitation",
+      "name" : "15 Hours - Accumulated Precipitation",
       "uRI" : "CIMPATH=srf_15hr_accum_precip_ak/1hour-15hour_accum_precipitation_mrf.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
