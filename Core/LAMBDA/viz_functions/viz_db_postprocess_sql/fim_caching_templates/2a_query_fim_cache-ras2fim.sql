@@ -14,7 +14,7 @@ SELECT
 	gc.previous_stage_ft as rc_previous_stage_ft,
     mgc.max_rc_stage_ft,
     mgc.max_rc_discharge_cfs,
-    CONCAT ('ras2fim_', gc.version) as fim_version,
+    gc.fim_version,
     '{reference_time}' as reference_time,
     'Ras2FIM' AS prc_method
 FROM ras2fim.geocurves gc
