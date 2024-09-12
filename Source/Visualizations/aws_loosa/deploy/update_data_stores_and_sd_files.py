@@ -335,7 +335,7 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
                 if key == "allowGeometryUpdates":
                     prop.childNodes[1].childNodes[0].data = "false"  
         
-        if typeName.firstChild.data == "WFSServer" and service_data['public_service'] and service_data['feature_service']:
+        if typeName.firstChild.data == "WFSServer" and service_data['feature_service'] and (service_data['public_service'] or 'coastal' in service_name):
             extension = typeName.parentNode
             extension.getElementsByTagName("Enabled")[0].firstChild.data = "true"
 
