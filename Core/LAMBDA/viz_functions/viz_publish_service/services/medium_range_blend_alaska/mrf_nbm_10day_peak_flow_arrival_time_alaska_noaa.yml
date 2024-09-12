@@ -3,7 +3,7 @@ summary: Medium-Range NBM 10 Day Peak Flow Arrival Time Forecast for Alaska
 description: Depicts expected peak flow arrival times derived from the operational National Water 
   Model (NWM) medium-range NBM forecast for Alaska. Reaches are colored by the time at which 
   they are expected to be at their maximum flow within the forecast period. Updated every 6 hours.
-tags: arrival time, national water model, nwm, mrf, medium, range, conus
+tags: arrival time, national water model, nwm, mrf, medium, range, alaska
 credits: National Water Model, NOAA/NWS National Water Center
 egis_server: server
 egis_folder: nwm
