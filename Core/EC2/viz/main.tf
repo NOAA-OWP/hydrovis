@@ -193,6 +193,8 @@ resource "aws_ssm_parameter" "latest_deployed_github_repo_commit" {
   name  = "latest_deployed_github_repo_commit"
   type  = "String"
   value = data.external.github_repo_commit.result.output
+
+  depends_on = [aws_instance.viz_pipeline]
 }
 
 data "cloudinit_config" "pipeline_setup" {

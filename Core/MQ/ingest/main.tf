@@ -26,6 +26,10 @@ resource "aws_mq_broker" "ingest" {
   security_groups            = var.mq_ingest_security_groups
   subnet_ids                 = var.mq_ingest_subnets
 
+  lifecycle {
+    ignore_changes = [engine_version]
+  }
+
   logs {
     general = true
   }
