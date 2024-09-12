@@ -242,19 +242,218 @@
         "type" : "CIMFeatureTable",
         "displayField" : "name",
         "editable" : true,
+        "fieldDescriptions" : [
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "oid",
+            "fieldName" : "oid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWM Feature ID",
+            "fieldName" : "feature_id",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Stream Order ",
+            "fieldName" : "strm_order",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Name",
+            "fieldName" : "name",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "USGS HUC6",
+            "fieldName" : "huc6",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State",
+            "fieldName" : "state",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "NWM Version",
+            "fieldName" : "nwm_vers",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Reference Time",
+            "fieldName" : "reference_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Max Streamflow (cfs)",
+            "fieldName" : "maxflow_10day_cfs",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 3
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Annual Exceedance Probability (%)",
+            "fieldName" : "recur_cat_10day",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "High Water Threshold (cfs)",
+            "fieldName" : "high_water_threshold",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "50% Streamflow (cfs)",
+            "fieldName" : "flow_2yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "20% Streamflow (cfs)",
+            "fieldName" : "flow_5yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "10% Streamflow (cfs)",
+            "fieldName" : "flow_10yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "4% Streamflow (cfs)",
+            "fieldName" : "flow_25yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "2% Streamflow (cfs)",
+            "fieldName" : "flow_50yr",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Update Time",
+            "fieldName" : "update_time",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "geom",
+            "fieldName" : "geom",
+            "visible" : true,
+            "searchMode" : "Exact"
+          }
+        ],
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "ENCRYPTED_PASSWORD=00022e686245437975697037574a5439794d4e446f592f624c46477247414b6469794c486b4d332b624a79494e75553555754e5365727577486f587375586f32636b47512a00;SERVER=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;INSTANCE=sde:postgresql:hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=hv-vpp-ti-viz-processing.c4vzypepnkx3.us-east-1.rds.amazonaws.com;DATABASE=vizprocessing;USER=viz_proc_admin_rw_user;AUTHENTICATION_MODE=DBMS",
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_nbm_10day_max_high_flow_magnitude_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,maxflow_10day_cfs,recur_cat_10day,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.mrf_nbm_10day_max_high_flow_magnitude_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,maxflow_10day_cfs,recur_cat_10day,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.mrf_nbm_10day_max_high_flow_magnitude_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17222900.2084,
@@ -269,19 +468,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -388,12 +582,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -680,7 +903,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "2",
+                "label" : "2%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -720,7 +943,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "4",
+                "label" : "4%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -760,7 +983,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "10",
+                "label" : "10%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -776,11 +999,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -800,7 +1023,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "20",
+                "label" : "20%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -816,11 +1039,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -840,7 +1063,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "50",
+                "label" : "50%   ",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -856,11 +1079,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            248.27000000000001,
-                            24.649999999999999,
-                            99.549999999999997,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }

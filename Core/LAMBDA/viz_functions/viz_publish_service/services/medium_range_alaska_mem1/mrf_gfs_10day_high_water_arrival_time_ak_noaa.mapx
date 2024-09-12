@@ -232,7 +232,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -315,7 +316,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -331,20 +332,6 @@
               "roundingValue" : 6
             },
             "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -395,21 +382,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -418,13 +390,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_gfs_10day_high_water_arrival_time_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17222900.2084,
@@ -439,19 +411,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "name",
@@ -556,12 +523,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -9838,7 +9834,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -9920,22 +9917,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -10001,21 +9984,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -10024,13 +9992,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_gfs_10day_high_water_arrival_time_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17222900.2084,
@@ -10045,19 +10013,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "name",
@@ -10162,12 +10125,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -19434,7 +19426,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -19516,22 +19509,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -19597,21 +19576,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -19620,13 +19584,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%mrf_gfs_10day_high_water_arrival_time_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,name,strm_order,huc6,state,nwm_vers,reference_time,high_water_arrival_hour,high_water_arrival_time,below_bank_return_hour,below_bank_return_time,duration,high_water_threshold,max_flow,update_time,geom from vizprocessing.publish.mrf_gfs_10day_high_water_arrival_time_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17222900.2084,
@@ -19641,19 +19605,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "name",
@@ -19758,12 +19717,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
