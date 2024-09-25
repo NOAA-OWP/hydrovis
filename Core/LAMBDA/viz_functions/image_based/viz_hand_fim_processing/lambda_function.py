@@ -608,7 +608,11 @@ def interpolate_stage(df_row, df_hydro):
     
     # Get the interpolated stage by using the discharge forecast value against the arrays
     interpolated_stage = round(np.interp(forecast, discharges, stages), 2)
-   
+
+    if np.isnan(interpolated_stage):
+        print(f"WARNING: Interpolated stage is NaN where hydro_id == {hydro_id}")
+        return np.nan
+
     # Get the upper and lower values of the 1-ft hydrotable array that the current forecast / interpolated stage is at
     hydrotable_index = np.searchsorted(discharges, forecast, side='right')
 
