@@ -924,6 +924,14 @@ resource "aws_s3_object" "publish_service_zip_upload" {
   source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
 }
 
+resource "aws_s3_object" "viz_publish_mapx_files" {
+  for_each    = fileset("${path.module}/viz_publish_service/services", "**/*.mapx")
+  bucket      = var.deployment_bucket
+  key         = "viz_mapx/${reverse(split("/",each.key))[0]}"
+  source      = file("${path.module}/viz_publish_service/services/${each.key}")
+  source_hash = filemd5("${path.module}/viz_publish_service/services/${each.key}")
+}
+
 resource "aws_lambda_function" "viz_publish_service" {
   function_name = "hv-vpp-${var.environment}-viz-publish-service"
   description   = "Lambda function to check and publish (if needed) an egis service based on a SD file in S3."
@@ -942,6 +950,11 @@ resource "aws_lambda_function" "viz_publish_service" {
       S3_BUCKET           = var.viz_authoritative_bucket
       SD_S3_PATH          = "viz_sd_files/"
       SERVICE_TAG         = local.service_suffix
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
+      ENVIRONMENT         = var.environment
     }
   }
   s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
