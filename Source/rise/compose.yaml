@@ -1,0 +1,20 @@
+services:
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile.notebook
+    volumes:
+      - type: bind
+        source: ./notebooks
+        target: /app/notebooks
+      - type: bind
+        source: ./data
+        target: /app/data
+      - /var/run/docker.sock:/var/run/docker.sock 
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8888:8888"
+    command: jupyter-lab --NotebookApp.token='' --allow-root
+    user: root

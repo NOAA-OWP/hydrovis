@@ -1,0 +1,12 @@
+matplotlib==3.9.0
+xarray==2024.3.0
+netcdf4==1.6.5
+geopandas==1.0.1
+pandas==2.2.2
+numpy==1.26.3
+contextily==1.6.1
+cartopy
+hydromt 
+hydromt_sfincs==1.0.3
+zarr
+networkx

@@ -1,0 +1,17 @@
+
+meta:
+  root: /Users/taddbindas/projects/rise/data/SFINCS/ngwpc_data
+  
+10m_lidar:
+  path: HUC6_110701_dem.tiff
+  data_type: RasterDataset
+  driver: raster
+  driver_kwargs:
+    chunks:
+      x: 6000
+      y: 6000
+  meta:
+    category: topography
+    crs: 5070
+  rename:
+    10m_lidar: elevtn

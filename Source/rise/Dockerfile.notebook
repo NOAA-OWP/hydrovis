@@ -1,0 +1,49 @@
+FROM jupyter/minimal-notebook
+
+USER root
+
+# Install system dependencies for Docker
+RUN apt-get update && apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+# Add Docker's official GPG key
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+# Set up the stable repository
+RUN add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+# Install Docker CLI
+RUN apt-get update && apt-get install -y docker-ce-cli
+
+WORKDIR /app
+
+COPY src /app/src
+
+COPY requirements_notebook.txt .
+COPY requirements.txt .
+
+#RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install 'teehr @ git+https://github.com/RTIInternational/teehr@v0.3.28'
+RUN pip install --no-cache-dir -r requirements_notebook.txt
+# Install the Docker SDK for Python
+RUN pip install --no-cache-dir docker
+
+# Add jovyan user to the Docker group to allow Docker command execution
+RUN groupadd docker && usermod -aG docker jovyan
+
+# Ensure the jovyan user owns the /app directory
+RUN chown -R jovyan:users /app
+
+# Switch back to jovyan to avoid running as root
+USER jovyan
+
+# Set the working directory (this is redundant if already set, but included for clarity)
+WORKDIR /app
