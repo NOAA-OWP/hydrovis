@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
@@ -20,20 +19,30 @@ class Settings(BaseSettings):
 
     Attributes
     ----------
-    base_url : str
-    - The base URL for the ForecastService API containing informational data.
-
-    pika_url : str
-    - The URL for connecting to RabbitMQ.
-
-    flooded_queue : str
-    - Queue name for sending data regarding flooded locations.
-
-    nonflooded_queue : str
-    - Queue name for sending data regarding non-flooded locations.
-
-    error_queue : str
-    - Queue name for sending any locations that error out.
+    api_v1_str: str
+        The API header
+    rate_limit: int = 8
+        The amount of concurrent requests
+    rabbitmq_default_username: str
+        The default rabbitmq login username
+    rabbitmq_default_password: str
+        The default rabbitmq password
+    rabbitmq_default_host: str
+        The default hostname for rabbitmq
+    rabbitmq_default_port: int
+        The default port for rasbbitmq
+    aio_pika_url: str
+        The URL for aiopika to be handling requests
+    redis_url: str
+        The URL for REDIS hosting
+    project_name: str
+        The name of the API
+    base_queue: str
+        The name of the base_queue
+    error_queue: str
+        The name of the error_queue
+    log_path: str
+        The path to where the logs are written to
 
     Notes
     -----

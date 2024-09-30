@@ -18,3 +18,65 @@ services:
       - "8888:8888"
     command: jupyter-lab --NotebookApp.token='' --allow-root
     user: root
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "8000:8000"
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - REDIS_URL=redis
+      - DB_HOST=mock_db
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rise.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 90s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    restart: always
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - DB_HOST=mock_db
+      - REDIS_URL=redis
+      - SUBSET_URL=http://hfsubset:8000/api/v1
+      - TROUTE_URL=http://troute:8000/api/v1
+    command: sh -c ". /app/.venv/bin/activate && python src/rise/app/consumer_manager.py"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5

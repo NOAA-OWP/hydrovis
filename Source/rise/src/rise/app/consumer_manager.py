@@ -13,6 +13,13 @@ log = setup_logger("default", "consumer.log")
 
 
 async def main(settings: Settings) -> None:
+    """The consumer manager main function to define queues
+
+    Parameters:
+    -----------
+    settings: Settings
+        API settings object
+    """
     connection = await aio_pika.connect_robust(settings.aio_pika_url)
     rise = RISE()
 

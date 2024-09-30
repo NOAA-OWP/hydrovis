@@ -1,4 +1,5 @@
 import pika
+
 from src.rise.app.core.cache import Settings
 
 

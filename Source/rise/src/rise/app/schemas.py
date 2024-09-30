@@ -39,10 +39,9 @@ class PublishSingleMessage(BaseModel):
 
     status: HTTPStatus
     message: str
-    lid: str
 
 
 class ProcessedData(BaseModel):
     """The message to be sent to the consumer"""
 
-    lid: str
+    message: str

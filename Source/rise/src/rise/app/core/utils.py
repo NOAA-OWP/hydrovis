@@ -130,7 +130,7 @@ def setup_logging(log_level: str) -> logging.Logger:
     log_path = Path(__file__).resolve().parents[1] / "logs"
     log_path.mkdir(parents=True, exist_ok=True)
 
-    log_file = log_path / "rnr.log"
+    log_file = log_path / "rise.log"
 
     logger = logging.getLogger(__name__)
     logger.setLevel(getattr(logging, log_level))

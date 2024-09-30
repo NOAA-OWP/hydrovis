@@ -36,8 +36,6 @@ class RabbitConnection:
     async def connect(self) -> None:
         """
         Establish connection with the RabbitMQ
-
-        :return: None
         """
         print("Connecting to RabbitMQ")
         try:
@@ -51,8 +49,6 @@ class RabbitConnection:
     async def disconnect(self) -> None:
         """
         Disconnect and clear connections from RabbitMQ
-
-        :return: None
         """
         await self._clear()
 

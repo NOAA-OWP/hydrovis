@@ -31,7 +31,6 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
     The file handler rotates logs daily and keeps backups for 30 days.
     """
 
-    # Create logs directory if it doesn't exist
     log_dir = Path(settings.log_path)
     try:
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -44,7 +43,6 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
         "%(asctime)s | %(name)s | %(levelname)s | %(message)s"
     )
 
-    # Create handlers
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
 
@@ -58,11 +56,8 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
     file_handler.setFormatter(formatter)
     file_handler.suffix = "%Y-%m-%d"
 
-    # Create logger and set level
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Add handlers to logger
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
 

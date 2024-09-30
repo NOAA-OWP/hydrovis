@@ -8,9 +8,22 @@ from pyogrio.errors import DataLayerError
 
 
 def get_hydrofabric_vpu_graph(
-    nexus: gpd.GeoDataFrame, 
-    flowlines: gpd.GeoDataFrame
+    nexus: gpd.GeoDataFrame, flowlines: gpd.GeoDataFrame
 ) -> nx.DiGraph:
+    """Creates a networkx graph object to
+
+    Parameters:
+    -----------
+    nexus: gpd.GeoDataFrame
+        Node points within the v20.1 hydrofabric
+    flowlines: gpd.GeoDataFrame
+        Edges within the v20.1 hydrofabric
+
+    Returns:
+    --------
+    nx.DiGraph
+        The networkx directed graph
+    """
     G = nx.DiGraph()
     nexus_to_toid = dict(zip(nexus["id"], nexus["toid"]))
     for _, node in nexus.iterrows():
@@ -55,6 +68,8 @@ def get_layer(file_path: Path, layer: str) -> gpd.GeoDataFrame:
 
     Raises
     ------
+    DataLayerError
+        The layer does not exist within the gpkg
     FileNotFoundError
         The file does not exist
     """

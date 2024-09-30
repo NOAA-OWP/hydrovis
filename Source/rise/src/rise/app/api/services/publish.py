@@ -18,10 +18,10 @@ log = setup_logger("default", "publisher.log")
 class MessagePublisherService:
     @staticmethod
     async def publish_forecast(
-        lid: str,
         settings: Settings,
     ) -> None:
-        processed_data = ProcessedData(lid=lid)
+        lid = "test"
+        processed_data = ProcessedData(message="Sending Message")
         message = json.dumps(processed_data.model_dump_json())
         log.info(f"Sending message for LID: {lid}")
         await rabbit_connection.send_message(
