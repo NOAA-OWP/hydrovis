@@ -948,7 +948,7 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_USERNAME        = "hydrovis.proc"
       PUBLISH_FLAG_BUCKET = var.python_preprocessing_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
-      SD_S3_PATH          = "viz_sd_files/"
+      SD_S3_PATH          = "viz_sd_files"
       SERVICE_TAG         = local.service_suffix
       EGIS_DB_HOST        = var.egis_db_host
       EGIS_DB_DATABASE    = var.egis_db_name
