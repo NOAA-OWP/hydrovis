@@ -262,11 +262,11 @@ resource "aws_batch_compute_environment" "schism_fim_compute_env" {
     instance_role = aws_iam_instance_profile.schism_execution.arn
 
     instance_type = [
-      "c7g",
+      "r7g.4xlarge",
     ]
 
     min_vcpus = 0
-    max_vcpus = 108
+    max_vcpus = 112
 
     security_group_ids = var.security_groups
 
@@ -300,11 +300,11 @@ resource "aws_batch_job_definition" "schism_fim_job_definition" {
     resourceRequirements = [
       {
         type  = "VCPU"
-        value = "4"
+        value = "1"
       },
       {
         type  = "MEMORY"
-        value = "8000"
+        value = "7000"
       }
     ]
 
