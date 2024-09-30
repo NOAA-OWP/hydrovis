@@ -608,16 +608,22 @@ def interpolate_stage(df_row, df_hydro):
     
     # Get the interpolated stage by using the discharge forecast value against the arrays
     interpolated_stage = round(np.interp(forecast, discharges, stages), 2)
-   
+
+    if np.isnan(interpolated_stage):
+        print(f"WARNING: Interpolated stage is NaN where hydro_id == {hydro_id}")
+        return np.nan
+
     # Get the upper and lower values of the 1-ft hydrotable array that the current forecast / interpolated stage is at
     hydrotable_index = np.searchsorted(discharges, forecast, side='right')
 
     # If streamflow exceeds the rating curve max, just use the max value
+    exceeds_max = False
     if hydrotable_index >= len(stages):
+        exceeds_max = True
         hydrotable_index = hydrotable_index - 1
         
     hydrotable_previous_index = hydrotable_index-1
-    if CACHE_FIM_RESOLUTION_FT == 1:
+    if CACHE_FIM_RESOLUTION_FT == 1 or exceeds_max:
         rounded_stage = stages[hydrotable_index]
     else:
         rounded_stage = round_m_to_nearest_ft_resolution(interpolated_stage, CACHE_FIM_RESOLUTION_FT, CACHE_FIM_RESOLUTION_ROUNDING)
