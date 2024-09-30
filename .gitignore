@@ -51,3 +51,7 @@ terraform.rc
 **/destroyplan
 
 Dev/env.yaml
+
+# RISE 
+Source/rise/data/
+*.ipynb_checkpoints
