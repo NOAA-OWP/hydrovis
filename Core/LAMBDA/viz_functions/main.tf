@@ -928,7 +928,7 @@ resource "aws_s3_object" "viz_publish_mapx_files" {
   for_each    = fileset("${path.module}/viz_publish_service/services", "**/*.mapx")
   bucket      = var.deployment_bucket
   key         = "viz_mapx/${reverse(split("/",each.key))[0]}"
-  source      = file("${path.module}/viz_publish_service/services/${each.key}")
+  source      = "${path.module}/viz_publish_service/services/${each.key}"
   source_hash = filemd5("${path.module}/viz_publish_service/services/${each.key}")
 }
 
