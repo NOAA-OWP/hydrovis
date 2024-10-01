@@ -228,5 +228,5 @@ def mapx_to_sd(service_name, summary, description, public_service, tags, credits
 		'f': 'pjson'
 	}
 
-	request_url = f"https://{subdomain}.water.noaa.gov/gp/rest/services/Utilities/ServiceRepublish/GPServer/service_republish/execute"
+	request_url = f"https://{subdomain}.water.noaa.gov/gp/rest/services/Utilities/MapxToSD/GPServer/MapxToSD/execute"
 	gis._con._session.post(request_url, data=payload, timeout=30)
