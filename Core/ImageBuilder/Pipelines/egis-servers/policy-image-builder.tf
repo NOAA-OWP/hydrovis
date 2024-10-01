@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "EC2-ImageSTIG-builder" {
       "arn:aws:s3:::aws-ssm-distributor-file-us-east-1/*",
       "arn:aws:s3:::aws-ssm-document-attachments-us-east-1/*",
       "arn:aws:s3:::patch-baseline-snapshot-us-east-1/*",
-      "arn:aws:s3:::hydrovis-11-1-deployment/*"
+      "arn:aws:s3:::hydrovis-11-3-deployment/*"
     ]
   }
 
@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "EC2-ImageSTIG-builder" {
     resources = [
       "arn:aws:s3:::hydroviz-imagebuilder-artifacts/*",
       "arn:aws:s3:::hydrovis-dev-rnr-us-east-1/*",
-      "arn:aws:s3:::hydrovis-11-1-deployment/*"
+      "arn:aws:s3:::hydrovis-11-3-deployment/*"
     ]
   }
 
@@ -103,7 +103,7 @@ data "aws_iam_policy_document" "EC2-ImageSTIG-builder" {
       "s3:ListBucket"
     ]
     resources = [
-      "arn:aws:s3:::hydrovis-11-1-deployment"
+      "arn:aws:s3:::hydrovis-11-3-deployment"
     ]
   }
 

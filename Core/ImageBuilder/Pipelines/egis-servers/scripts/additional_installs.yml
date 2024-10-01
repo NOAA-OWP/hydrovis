@@ -34,9 +34,17 @@ phases:
             - |
               # write custom metric script
               $code = @(
+              'param(',
+              '[Parameter(Mandatory=$true)]',
+              '[string]$NamespaceParameter = ""',
+              ')',
               '# Prep metrics dimensions and namespace',
               'Import-Module AWSPowerShell',
-              '$namespace = "Custom-Metrics"',
+              '$namespace = if ([string]::IsNullOrWhiteSpace($NamespaceParameter)) {',
+              '"Custom-Metrics"',
+              '} else {',
+              '"Custom-Metrics/$NamespaceParameter"',
+              '}',
               '$instanceId = (New-Object System.Net.WebClient).DownloadString("http://169.254.169.254/latest/meta-data/instance-id")',
               '# Associate instance to custom metric',
               '$instanceDimension = New-Object -TypeName Amazon.CloudWatch.Model.Dimension;',
@@ -100,15 +108,3 @@ phases:
 
               # write out the script to file
               $code | Out-File -Append "C:\ProgramData\Amazon\Tools\custom-cw-metrics.ps1"
-
-      #         # schedule the script to run per minute
-      #         schtasks /create /tn "CloudWatch Custom Metrics" /tr "powershell -NoLogo -WindowStyle hidden -file C:\ProgramData\Amazon\Tools\custom-cw-metrics.ps1" /sc minute /mo 1 /ru System
-
-      # - name: ConfigureCloudWatchAgent
-      #   action: ExecutePowerShell
-      #   onFailure: Ignore
-      #   inputs:
-      #     commands:
-      #       - |
-      #         # Run agent and download config from SSM
-      #         & "C:\Program Files\Amazon\AmazonCloudWatchAgent\amazon-cloudwatch-agent-ctl.ps1" -a fetch-config -m ec2 -s -c ssm:CWAgent-Windows

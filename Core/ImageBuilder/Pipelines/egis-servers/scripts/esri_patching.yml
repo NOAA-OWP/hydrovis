@@ -103,26 +103,8 @@ phases:
                   }
               }
 
-              Install-MSP 'https://gisupdates.esri.com/QFE/WAI-111-P-963/ArcGIS-111-WAI-RU2-PatchB.msp' '{{ WorkingFolder }}' 'ArcGIS-111-WAI-RU2-PatchB.msp'              
-
               # Enable Antivirus Scanning
               Set-MpPreference -DisableRealtimeMonitoring $false
-
-      # # install ArcGIS Web Adaptor 11.1 Reliability Update 2 Patch
-      # # - name: DownloadWebAdaptorPatch
-      # #   action: WebDownload
-      # #   maxAttempts: 3
-      # #   inputs:
-      # #   - source: https://gisupdates.esri.com/QFE/WAI-111-P-963/ArcGIS-111-WAI-RU2-Patch.msp
-      # #     destination: '{{ WorkingFolder }}/ArcGIS-111-WAI-RU2-Patch.msp'
-
-      # - name: InstallWAPatches
-      #   action: ExecutePowerShell
-      #   timeoutSeconds: 21600
-      #   onFailure: Abort
-      #   inputs:
-      #     commands:
-      #       - |
 
       - name: StopServices
         action: ExecutePowerShell

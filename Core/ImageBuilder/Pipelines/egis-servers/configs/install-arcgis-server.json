@@ -1,12 +1,12 @@
 {
   "arcgis": {
-    "version": "11.1",
+    "version": "11.3",
     "run_as_user": "arcgis",
     "run_as_password": "p@@ssw0rd!123",
     "configure_windows_firewall": true,
     "repository": {
       "local_archives": "C:\\software",
-      "archives": "C:\\software",      
+      "archives": "C:\\software",
       "setups": "C:\\software"
     },
     "server": {
@@ -16,7 +16,7 @@
     },
     "web_adaptor": {
       "install_system_requirements": true,
-      "dotnet_setup_path": "C:\\software\\dotnet-hosting-6.0.9-win.exe",
+      "dotnet_setup_path": "C:\\software\\dotnet-hosting-8.0.8-win.exe",
       "web_deploy_setup_path": "C:\\software\\WebDeploy_amd64_en-US.msi",
       "admin_access": true,
       "reindex_portal_content": false

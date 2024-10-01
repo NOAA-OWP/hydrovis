@@ -65,7 +65,7 @@ phases:
       - name: InstallCinc
         action: InstallMSI
         inputs:
-          path: "https://arcgisstore-us-east-1.s3.amazonaws.com/cincclient/cinc-16.16.13-1-x64.msi"
+          path: "https://arcgisstore-us-east-1.s3.amazonaws.com/cincclient/cinc-18.4.2-1-x64.msi"
           reboot: Skip
           ignoreAuthenticodeSignatureErrors: true
           allowUnsignedInstaller: false
@@ -74,8 +74,8 @@ phases:
         action: WebDownload
         maxAttempts: 3
         inputs:
-          - source: "https://github.com/Esri/arcgis-cookbook/releases/download/v4.1.0/arcgis-4.1.0-cookbooks.tar.gz"
-            destination: "{{ WorkingFolder }}/arcgis-4.1.0-cookbooks.tar.gz"
+          - source: "https://github.com/Esri/arcgis-cookbook/releases/download/v5.0.0/arcgis-5.0.0-cookbooks.tar.gz"
+            destination: "{{ WorkingFolder }}/arcgis-5.0.0-cookbooks.tar.gz"
 
       - name: UpdateOS
         action: UpdateOS
@@ -97,4 +97,4 @@ phases:
           commands:
             - |
               $cincworkspacepath = Join-Path $env:SystemDrive 'cinc'
-              tar -C $cincworkspacepath -xzf '{{ WorkingFolder }}/arcgis-4.1.0-cookbooks.tar.gz'
+              tar -C $cincworkspacepath -xzf '{{ WorkingFolder }}/arcgis-5.0.0-cookbooks.tar.gz'
