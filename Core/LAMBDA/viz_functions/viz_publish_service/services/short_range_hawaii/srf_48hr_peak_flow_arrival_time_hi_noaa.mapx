@@ -251,6 +251,21 @@
         "fieldDescriptions" : [
           {
             "type" : "CIMFieldDescription",
+            "alias" : "oid",
+            "fieldName" : "oid",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 0
+            },
+            "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
             "fieldName" : "feature_id",
             "visible" : true,
@@ -547,7 +562,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {

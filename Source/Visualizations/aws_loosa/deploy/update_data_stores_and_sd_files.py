@@ -35,8 +35,10 @@ service_dict = {
     "static_hand_inundation_performance_metrics_noaa": "reference",
     "static_flow_based_catfim_noaa": "reference",
     "static_stage_based_catfim_noaa": "reference",
+    "static_stage_based_catfim": "reference",
     "static_nwm_aep_inundation_extent_library_noaa": "aep_fim",
-    "static_hand_rating_curve_performance_metrics_noaa": "reference"
+    "static_hand_rating_curve_performance_metrics_noaa": "reference",
+    "static_ras2fim_boundaries_noaa": "reference"
 }
 
 
@@ -335,7 +337,7 @@ def create_sd_file(aprx, service_name, sd_folder, conn_str, service_data):
                 if key == "allowGeometryUpdates":
                     prop.childNodes[1].childNodes[0].data = "false"  
         
-        if typeName.firstChild.data == "WFSServer" and service_data['public_service'] and service_data['feature_service']:
+        if typeName.firstChild.data == "WFSServer" and service_data['feature_service'] and (service_data['public_service'] or 'coastal' in service_name):
             extension = typeName.parentNode
             extension.getElementsByTagName("Enabled")[0].firstChild.data = "true"
 

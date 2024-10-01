@@ -58,6 +58,11 @@ resource "aws_db_instance" "hydrovis" {
   skip_final_snapshot          = true
   auto_minor_version_upgrade   = false
   deletion_protection          = true
+
+  lifecycle {
+    ignore_changes = [engine_version]
+  }
+
   tags = {
     "hv-vpp-${var.environment}-data-ingest-rdsdbtag" : "hv-vpp-${var.environment}-data-ingest-rdsdbtag"
     "noaa:monitoring"                                : "true"

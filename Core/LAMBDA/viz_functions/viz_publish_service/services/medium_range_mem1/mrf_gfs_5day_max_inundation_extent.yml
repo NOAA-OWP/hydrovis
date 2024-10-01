@@ -6,11 +6,11 @@ description: '
 <br><br>
 This experimental map represents the National Weather Service''s best approximation of inundation extent based upon modeled river discharge.
 <br><br>
-The map depicts the maximum inundation extent of the National Water Model (NWM) streamflow forecast over the next 5 days where the NWM is signaling high water. This service is derived from the medium-range configuration of the NWM leveraging precipitation forecasts from the National Weather Service''s Global Forecast System (GFS), for an area that includes 10% of the U.S. population but will be expanded later as described in the Story Map below.
+The map depicts the maximum inundation extent of the National Water Model (NWM) streamflow forecast over the next 5 days where the NWM is signaling high water. This service is derived from the medium-range configuration of the NWM leveraging precipitation forecasts from the National Weather Service''s Global Forecast System (GFS), for an area that includes 30% of the U.S. population but will be expanded later as described in the Story Map below.
 <br><br>
 <a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
 <br><br>
-Boundary of 10% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
+Boundary of 30% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
 <br><br>
 Shown are sections of river with flow at or above a predetermined high water threshold as depicted in the following service:
 <br><br>

@@ -7318,7 +7318,7 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Stage-Based CatFIM: Major Threshold",
+      "name" : "Stage-Based CatFIM: Record Threshold",
       "uRI" : "CIMPATH=map/stage_based_catfim__major_threshold.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
