@@ -42,4 +42,4 @@ ENVIRONMENT         = var.environment
 
    ![305212710-457918e1-644e-430c-a2b5-ccbaff982ebe](https://github.com/user-attachments/assets/84bd47d9-34e4-4133-800f-d86bfe81a1ee)
 
-10. When you validate, you'll probably get some warnings about Empty_Project.aprx and some connection string being uploaded to the server, that's fine and good. You should be able to test the tool through a REST job, as is possible in the test service I created here: https://maps-testing.water.noaa.gov/gp/rest/services/
+10. When you validate, you'll probably get some warnings about Empty_Project.aprx and some connection string being uploaded to the server, that's fine and good. You should be able to test the tool through a REST job, as is possible in the test service I created here: https://maps-testing.water.noaa.gov/gp/rest/services/Utilities/MapxToSD/GPServer/MapxToSD/execute
