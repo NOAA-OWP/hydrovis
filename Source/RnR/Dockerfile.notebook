@@ -1,0 +1,11 @@
+FROM jupyter/minimal-notebook
+
+WORKDIR /app
+
+COPY src /app/src
+
+COPY requirements_notebook.txt .
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_notebook.txt
