@@ -64,10 +64,10 @@ class Manager(object):
             self._stop_events.append(stop_event)
 
         try:
-            last_heartbeat_minute = dt.datetime.utcnow().minute
+            last_heartbeat_minute = dt.datetime.now(dt.UTC).minute
             while True:
                 time.sleep(self.SLEEP_BETWEEN_HEARTBEAT_CHECK)
-                current_minute = dt.datetime.utcnow().minute
+                current_minute = dt.datetime.now(dt.UTC).minute
                 if last_heartbeat_minute != current_minute:
                     self._log.info("Heartbeat.")
                     last_heartbeat_minute = current_minute

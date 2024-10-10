@@ -1,5 +1,5 @@
 import boto3
-from datetime import datetime
+from datetime import datetime, UTC
 import json
 from aws_loosa import consts
 import os
@@ -11,7 +11,7 @@ def kickoff_viz_lambdas():
     postprocess_lambda = f"viz_db_postprocess_{consts.hydrovis_env_map[os.environ['VIZ_ENVIRONMENT']]}"
 
     print("Invoking max flows function for AnA 14 day")
-    current_datetime = datetime.utcnow()
+    current_datetime = datetime.now(UTC)
     current_date = current_datetime.strftime("%Y%m%d")
     latest_0Z_ana_file = f"common/data/model/com/nwm/prod/nwm.{current_date}/analysis_assim/nwm.t00z.analysis_assim.channel_rt.tm00.conus.nc"  # noqa: E501
     max_values_payload = {"data_key": latest_0Z_ana_file, "data_bucket": os.environ['NWM_DATA_BUCKET']}

@@ -1,7 +1,7 @@
 import requests
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import boto3
 import botocore
 import json
@@ -67,7 +67,7 @@ def get_recent_rfc_forecasts(hour_range=48):
     df = pd.DataFrame(res['forecasts'])
     df['issuedTime'] = pd.to_datetime(df['issuedTime'], format='%Y-%m-%dT%H:%M:%SZ')
     
-    date_range = datetime.utcnow() - timedelta(hours=48)
+    date_range = datetime.now(UTC) - timedelta(hours=48)
     df = df[pd.to_datetime(df['issuedTime']) > date_range]
 
     df = pd.concat([df.drop(['location'], axis=1), df['location'].apply(pd.Series)], axis=1)

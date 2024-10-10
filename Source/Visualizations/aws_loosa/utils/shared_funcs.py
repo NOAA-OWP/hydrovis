@@ -22,7 +22,7 @@ def add_update_time(data, method='extend_table'):
     if method not in ['extend_table', 'calculate_field', 'array']:
         raise Exception("method must be extend_table, calculate_field,  or array")
 
-    update_time = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    update_time = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M UTC")
 
     if method == 'extend_table':
         print("--> Updating table by extending existing attributes")
