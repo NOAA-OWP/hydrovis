@@ -1,5 +1,5 @@
 import datetime as dt
-from dateutil import parser as date_parser, tz
+from dateutil import parser as date_parser
 import os
 import requests
 import time
@@ -118,7 +118,7 @@ class WebFetcher(DataFetcher):
                 if last_modified:
                     try:
                         last_modified_obj = date_parser.parse(last_modified)
-                        utcnow = dt.datetime.now(dt.UTC).replace(tzinfo=tz.tz.tzutc())
+                        utcnow = dt.datetime.now(dt.UTC)
                         time_since_modified = utcnow - last_modified_obj
                         if time_since_modified < dt.timedelta(seconds=10):
                             self._log.warning(
