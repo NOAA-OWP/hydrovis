@@ -49,5 +49,6 @@ terraform.rc
 
 **/buildplan
 **/destroyplan
+**/ipynb_checkpoints
 
 Dev/env.yaml
