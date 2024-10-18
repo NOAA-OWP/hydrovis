@@ -1,0 +1,36 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Ensure RDS Bastion Running",
+  "States": {
+    "Ensure RDS Bastion Running": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${ensure_ec2_ready_step_function_arn}",
+        "Input": {
+          "InstanceId": "${rds_bastion_id}"
+        }
+      },
+      "Next": "Execute Restore DB on RDS Bastion",
+      "ResultPath": null
+    },
+    "Execute Restore DB on RDS Bastion": {
+      "Type": "Task",
+      "End": true,
+      "Parameters": {
+        "DocumentName": "AWS-RunShellScript",
+        "InstanceIds": [
+          "${rds_bastion_id}"
+        ],
+        "Parameters": {
+          "commands.$": "States.Array(States.Format('. /deploy_files/restore_db_from_s3.sh {} {} {} {} ${region}', $.db_instance_tag, $.s3_uri, $.db_name, $$.Task.Token))"
+        },
+        "CloudWatchOutputConfig": {
+          "CloudWatchLogGroupName": "/aws/systemsmanager/sendcommand",
+          "CloudWatchOutputEnabled": true
+        }
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken"
+    }
+  }
+}

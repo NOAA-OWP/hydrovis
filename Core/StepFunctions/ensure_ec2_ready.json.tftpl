@@ -1,0 +1,106 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Which arg provided?",
+  "States": {
+    "Which arg provided?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.InstanceId",
+          "IsPresent": true,
+          "Next": "Get Machine Status"
+        },
+        {
+          "Variable": "$.InstanceName",
+          "IsPresent": true,
+          "Next": "Get InstanceId"
+        }
+      ],
+      "Default": "Fail"
+    },
+    "Get InstanceId": {
+      "Type": "Task",
+      "Parameters": {
+        "Filters": [
+          {
+            "Name": "tag:Name",
+            "Values.$": "States.Array(States.Format($.InstanceName))"
+          }
+        ]
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:describeInstances",
+      "Next": "Get Machine Status",
+      "ResultSelector": {
+        "InstanceId.$": "$.Reservations[0].Instances[0].InstanceId"
+      }
+    },
+    "Get Machine Status": {
+      "Type": "Task",
+      "Parameters": {
+        "InstanceIds.$": "States.Array(States.Format($.InstanceId))"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:describeInstanceStatus",
+      "Next": "Machine Running?",
+      "ResultPath": "$.result"
+    },
+    "Machine Running?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.result.InstanceStatuses[0]",
+          "IsPresent": true,
+          "Next": "Machine Accessible?"
+        }
+      ],
+      "Default": "StartInstances"
+    },
+    "Machine Accessible?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            {
+              "Variable": "$.result.InstanceStatuses[0].InstanceStatus.Status",
+              "StringEquals": "ok"
+            },
+            {
+              "Variable": "$.result.InstanceStatuses[0].SystemStatus.Status",
+              "StringEquals": "ok"
+            }
+          ],
+          "Next": "DescribeInstances"
+        }
+      ],
+      "Default": "Wait"
+    },
+    "DescribeInstances": {
+      "Type": "Task",
+      "Next": "Success",
+      "Parameters": {
+        "InstanceIds.$": "States.Array(States.Format($.InstanceId))"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:describeInstances",
+      "OutputPath": "$.Reservations[0].Instances[0]"
+    },
+    "StartInstances": {
+      "Type": "Task",
+      "Next": "Wait",
+      "Parameters": {
+        "InstanceIds.$": "States.Array(States.Format($.InstanceId))"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ec2:startInstances",
+      "ResultPath": null
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "Wait": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Get Machine Status"
+    },
+    "Fail": {
+      "Type": "Fail"
+    }
+  }
+}
