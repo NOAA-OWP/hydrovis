@@ -50,4 +50,7 @@ terraform.rc
 **/buildplan
 **/destroyplan
 
+# Ignore all jupyter checkpoint folders
+.ipynb_checkpoints
+
 Dev/env.yaml
