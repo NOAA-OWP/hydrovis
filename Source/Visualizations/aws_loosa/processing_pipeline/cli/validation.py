@@ -228,7 +228,7 @@ class PipelineConfigValidator(object):
                 raise ValueError()
 
             duration = isodate.parse_duration(raw_duration)
-            new_val = operation(datetime.datetime.utcnow(), duration)
+            new_val = operation(datetime.datetime.now(datetime.UTC), duration)
         except Exception:
             cls._raise('When using relative times, follow the format: [now]+|-<iso 8601 duration>')
 
@@ -245,7 +245,7 @@ class PipelineConfigValidator(object):
                 if mod_val.lower() == consts.LATEST or mod_val.lower() == consts.NONE:
                     new_val = None
                 elif mod_val.lower().strip() == consts.NOW:
-                    new_val = datetime.datetime.utcnow()
+                    new_val = datetime.datetime.now(datetime.UTC)
                 elif any(x in mod_val for x in ['+', '-']):
                     new_val = self.get_datetime_from_relative_time(mod_val)
                 else:
