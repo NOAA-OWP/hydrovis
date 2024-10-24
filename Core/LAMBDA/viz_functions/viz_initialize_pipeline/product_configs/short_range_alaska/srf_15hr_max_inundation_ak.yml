@@ -1,7 +1,7 @@
 product: srf_15hr_max_inundation_ak
 configuration: short_range_alaska
 product_type: "fim"
-domain: alaska
+domain: ak
 run: true
 
 ingest_files:
