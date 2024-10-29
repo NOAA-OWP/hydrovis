@@ -489,11 +489,10 @@ def raster_to_polygon_dataframe(input_raster_memfile, attributes):
     gpd_polygonized_raster = gpd.GeoDataFrame()
     with input_raster_memfile.open() as src:
         image = src.read(1).astype('float32')
-        results = (
-            {'properties': attributes, 'geometry': s} for i, (s, v) 
-            in enumerate(rasterio.features.shapes(image, mask=image > 0, transform=src.transform))
+        geoms = list(
+            {'properties': attributes, 'geometry': s} for s, v 
+            in rasterio.features.shapes(image, mask=image > 0, transform=src.transform)
         )
-        geoms = list(results)
         if geoms:
             gpd_polygonized_raster  = gpd.GeoDataFrame.from_features(geoms, crs='4326')
 
