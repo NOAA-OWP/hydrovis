@@ -68,7 +68,6 @@ def main(event):
     print(f'Top-level processing (i.e. data from network to memory) time: {main_end - main_start} seconds')
     
     for tile_key in tile_keys:
-        gc.collect()
         start = time()
         final_grid_memfile, polygon_df = create_fim_by_tile(tile_key, fcst_points, mask_geoms_by_group)
         end = time()
@@ -431,7 +430,6 @@ def mask_fim(input_fim, mask_geoms_by_group):
     out_meta = {}
 
     for group, geoms in mask_geoms_by_group.items():
-        gc.collect()
         if not geoms: continue
         print(f'... Applying {group} masks...')
         
