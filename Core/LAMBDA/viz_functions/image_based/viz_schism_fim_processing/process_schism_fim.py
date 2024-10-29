@@ -9,7 +9,6 @@
 #
 ################################
 import boto3
-import gc
 import geopandas as gpd
 import fiona
 import numpy as np
