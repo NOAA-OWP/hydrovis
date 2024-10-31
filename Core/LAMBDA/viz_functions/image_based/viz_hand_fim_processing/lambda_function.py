@@ -279,7 +279,8 @@ def create_inundation_catchment_boundary(huc8, branch):
     from shapely.geometry import shape
     geom = [shape(i['geom']) for i in geoms]
     hydro_ids = [i['hydro_id'] for i in geoms]
-    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
+    crs = 'EPSG:3338' if str(huc8).startswith('19') else 'EPSG:5070'
+    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs=crs, geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
@@ -474,7 +475,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     from shapely.geometry import shape
     geom = [shape(i['geom']) for i in geoms]
     hydro_ids = [i['hydro_id'] for i in geoms]
-    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs="ESRI:102039", geometry="geom")
+    crs = 'EPSG:3338' if str(huc8).startswith('19') else 'EPSG:5070'
+    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs=crs, geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
     df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
