@@ -62,6 +62,26 @@ def lambda_handler(event, context):
         ds = xr.open_dataset(download_path)
         ds_vars = [var for var in ds.variables]
 
+        match = re.search(r'common/data/model/com/nwm/prod/nwm.\d{8}/(.*)', file)
+        test_bucket = 'hydrovis-ti-deployment-us-east-1'
+        s3_fname = f'test_nwm_outputs/{match.group(1)}'
+        local_fname = f'/tmp/{match.group(1)}'
+        if 'forcing' in file:
+            interest_val = 'RAINRATE'
+        elif 'channel_rt' in file:
+            interest_val = 'streamflow'
+        elif 'coastal' in file:
+            interest_val = 'elevation'
+        elif 'reservoir' in file:
+            interest_val = 'water_sfc_elev'
+  
+        try:
+            check_if_file_exists(test_bucket, s3_fname, download=False)
+        except:
+            ds['streamflow'] = (ds['streamflow'] + 1) * 1000
+            ds.to_netcdf(local_fname)
+            s3.upload_file(local_fname, test_bucket, s3_fname)
+        
         if not target_cols:
             target_cols = ds_vars
 
