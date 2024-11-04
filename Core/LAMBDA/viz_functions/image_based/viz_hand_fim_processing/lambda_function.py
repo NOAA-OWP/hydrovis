@@ -579,16 +579,12 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
 
 
 def round_m_to_nearest_ft_resolution(value_m, resolution_ft, method="nearest", decimals=4):
-    valid_methods = ['up', 'down', 'nearest']
+    valid_methods = {'up': ceil, 'down': floor, 'nearest': round}
     method = method.lower()
     if method not in valid_methods:
         raise ValueError(f"The method argument must be one of: {', '.join(valid_methods)}")
     value_ft = value_m * 3.28084
-    method_func = {
-        'up': ceil,
-        'down': floor,
-        'nearest': round
-    }[method]
+    method_func = valid_methods[method]
     rounded_ft = method_func(value_ft / resolution_ft) * resolution_ft
     rounded_m = round(rounded_ft / 3.28084, decimals)
     return rounded_m
