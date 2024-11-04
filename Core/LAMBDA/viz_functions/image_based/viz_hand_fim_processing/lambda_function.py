@@ -601,11 +601,14 @@ def interpolate_stage(df_row, df_hydro):
     hydro_id = df_row['hydro_id']
     forecast = df_row['discharge_cms']
     
-    if hydro_id not in df_hydro['hydro_id'].values:
-        return np.nan
+    hydro_mask = df_hydro.hydro_id == hydro_id
     
     # Filter the hydrotable to this hydroid and pull out discharge and stages into arrays
-    subset_hydro = df_hydro.loc[df_hydro['hydro_id']==hydro_id, ['discharge_cms', 'stage_m']]
+    subset_hydro = df_hydro.loc[hydro_mask, ['discharge_cms', 'stage_m']]
+    if subset_hydro.empty:
+        return np.nan
+    
+    subset_hydro = subset_hydro.sort_value('discahrge_cms')
     discharges = subset_hydro['discharge_cms'].values
     stages = subset_hydro['stage_m'].values
     
