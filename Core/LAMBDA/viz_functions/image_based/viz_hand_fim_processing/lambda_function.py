@@ -515,13 +515,16 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
                 
     return df_final
 
-def s3_csv_to_df(bucket, key):    
+def s3_csv_to_df(bucket, key, columns=None):    
     # Allow retrying a few times before failing
+    extra_pd_args = {}
+    if columns is not None:
+        extra_pd_args['usecols'] = columns
     for i in range(5):
         try:
             # Read S3 csv file into Pandas DataFrame
             print(f"Reading {key} from {bucket} into DataFrame")
-            df = wr.s3.read_csv(path=f"s3://{bucket}/{key}")
+            df = wr.s3.read_csv(path=f"s3://{bucket}/{key}", **extra_pd_args)
             print("DataFrame creation Successful")
         except ResponseStreamingError:
             if i == 4: print("Failed to read from S3")
@@ -541,8 +544,8 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
         Returns:
             stage_dict (dict): A dictionary with the hydroid as the key and interpolated stage as the value
     """
-    df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key)
-    df_hydro = df_hydro[['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']]
+    hydrocols = ['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']
+    df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key, columns=hydrocols)
     df_hydro = df_hydro.rename(columns={'HydroID': 'hydro_id', 'stage': 'stage_m'})
 
     df_hydro_max = df_hydro.sort_values('stage_m').groupby('hydro_id').tail(1)
