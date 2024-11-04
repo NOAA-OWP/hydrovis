@@ -548,16 +548,16 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key, columns=hydrocols)
     df_hydro = df_hydro.rename(columns={'HydroID': 'hydro_id', 'stage': 'stage_m'})
 
-    df_hydro_max = df_hydro.sort_values('stage_m').groupby('hydro_id').tail(1)
+    df_hydro_max = df_hydro.loc[df_hydro.groupby('hydro_id')['stage_m'].idxmax()]
     df_hydro_max = df_hydro_max.set_index('hydro_id')
-    df_hydro_max = df_hydro_max[['stage_m', 'discharge_cms']].rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
+    df_hydro_max = df_hydro_max.rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
 
     df_forecast = s3_csv_to_df(subsetted_streams_bucket, subsetted_streams)
     df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
     df_forecast = df_forecast.rename(columns={'streamflow_cms': 'discharge_cms'}) #TODO: Change the output CSV to list discharge instead of streamflow for consistency?
     df_forecast[['stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_discharge_cms', 'rc_previous_discharge_cms']] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1).apply(pd.Series)
     
-    df_forecast.drop(columns=['huc8_branch', 'huc'], inplace=True)
+    df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
     df_forecast = df_forecast.set_index('hydro_id')
     
     print(f"Removing {len(df_forecast[df_forecast['stage_m'].isna()])} reaches with a NaN interpolated stage")
