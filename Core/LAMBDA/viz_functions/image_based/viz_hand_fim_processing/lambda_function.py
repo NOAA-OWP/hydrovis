@@ -253,14 +253,12 @@ def create_inundation_catchment_boundary(huc8, branch):
                 raise HANDDatasetReadError("Failed to open Catchment dataset window")
             
             from rasterio.features import shapes
-            mask = None
-            results = (
-            {'hydro_id': int(v), 'geom': s}
-            for i, (s, v) 
-            in enumerate(
-                shapes(catchment_window, mask=mask, transform=rasterio.windows.transform(window, catchment_dataset.transform))) if int(v))
+            results = []
+            for s, v in shapes(catchment_window, mask=None, transform=rasterio.windows.transform(window, catchment_dataset.transform)):
+                if int(v):
+                    results.append({'hydro_id': int(v), 'geom': s})
 
-            return list(results)
+            return results
 
         # Use threading to parallelize the processing of the inundation windows
         geoms = []
@@ -445,14 +443,12 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
 
             if np.max(inundation_window) != 0:
                 from rasterio.features import shapes
-                mask = None
-                results = (
-                {'hydro_id': int(v), 'geom': s}
-                for i, (s, v) 
-                in enumerate(
-                    shapes(inundation_window, mask=mask, transform=rasterio.windows.transform(window, hand_dataset.transform))) if int(v))
+                results = []
+                for s, v in shapes(inundation_window, mask=None, transform=rasterio.windows.transform(window, hand_dataset.transform)):
+                    if int(v):
+                        results.append({'hydro_id': int(v), 'geom': s})
                     
-                return list(results)
+                return results
 
         # Use threading to parallelize the processing of the inundation windows
         geoms = []
