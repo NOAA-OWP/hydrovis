@@ -9,7 +9,6 @@
 #
 ################################
 import boto3
-import gc
 import geopandas as gpd
 import fiona
 import numpy as np
@@ -26,7 +25,7 @@ import sys
 from rasterio.session import AWSSession
 from rasterio.io import MemoryFile
 from scipy.interpolate import griddata
-from shapely.geometry import box
+from shapely.geometry import box, shape
 from time import sleep, time
 
 # DO NOT LEAVE THIS COMMENTED!!!!!!!
@@ -68,7 +67,6 @@ def main(event):
     print(f'Top-level processing (i.e. data from network to memory) time: {main_end - main_start} seconds')
     
     for tile_key in tile_keys:
-        gc.collect()
         start = time()
         final_grid_memfile, polygon_df = create_fim_by_tile(tile_key, fcst_points, mask_geoms_by_group)
         end = time()
@@ -118,14 +116,11 @@ def get_mask_geoms_by_group(domain):
     mask_prefixes = result.get('Contents')
     for group_key in ['interior', 'exterior']:
         print(f'... Getting {group_key} masks... ')
-        mask_uris = [f"zip+s3://{INPUTS_BUCKET}/{m['Key']}" for m in mask_prefixes if group_key in m['Key']]
-        geoms = []
-        for uri in mask_uris:
-            with fiona.open(uri, "r") as shapefile:
-                geoms += [feature["geometry"] for feature in shapefile]
-                # geoms += [to_dict(feature["geometry"]) for feature in shapefile]
-        mask_groups[group_key] = geoms
-    
+        mask_groups[group_key] = geoms = []
+        for m in mask_prefixes:
+            if group_key in m['Key']:                
+                with fiona.open(f"zip+s3://{INPUTS_BUCKET}/{m['Key']}", "r") as shapefile:
+                    geoms.extend(shape(feature.geometry) for feature in shapefile)    
     return mask_groups
 
 def get_fcst_point_ds(fim_config):
@@ -434,7 +429,6 @@ def mask_fim(input_fim, mask_geoms_by_group):
     out_meta = {}
 
     for group, geoms in mask_geoms_by_group.items():
-        gc.collect()
         if not geoms: continue
         print(f'... Applying {group} masks...')
         
@@ -492,11 +486,10 @@ def raster_to_polygon_dataframe(input_raster_memfile, attributes):
     gpd_polygonized_raster = gpd.GeoDataFrame()
     with input_raster_memfile.open() as src:
         image = src.read(1).astype('float32')
-        results = (
-            {'properties': attributes, 'geometry': s} for i, (s, v) 
-            in enumerate(rasterio.features.shapes(image, mask=image > 0, transform=src.transform))
+        geoms = list(
+            {'properties': attributes, 'geometry': s} for s, v 
+            in rasterio.features.shapes(image, mask=image > 0, transform=src.transform)
         )
-        geoms = list(results)
         if geoms:
             gpd_polygonized_raster  = gpd.GeoDataFrame.from_features(geoms, crs='4326')
 
