@@ -426,19 +426,18 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
             mapping_ar = np.full(mapping_ar_max+1, -9999, dtype="float32")
             mapping_ar[k] = v
 
-            catchment_window[np.where(catchment_window == catchment_nodata)] = 0  # Convert catchment values to 0 where the catchment = catchment_nodata  # noqa
-            catchment_window[np.where(hand_window == hand_nodata)] = 0  # Convert catchment values to 0 where the HAND = HAND_nodata. THis will ensure we are only processing where we have HAND values!  # noqa
+            catchment_window[catchment_window == catchment_nodata] = 0  # Convert catchment values to 0 where the catchment = catchment_nodata  # noqa
+            catchment_window[hand_window == hand_nodata] = 0  # Convert catchment values to 0 where the HAND = HAND_nodata. THis will ensure we are only processing where we have HAND values!  # noqa
 
             reclass_window = mapping_ar[catchment_window]  # Convert the catchment to stage
 
-            condition1 = reclass_window > hand_window  # Select where stage is gte to HAND
-            condition2 = reclass_window != -9999  # Select where stage is valid
-            conditions = (condition1) & (condition2)
+            conditions = reclass_window > hand_window  # Select where stage is gte to HAND
+            conditions &= reclass_window != -9999  # Select where stage is gte to HAND
 
             inundation_window = np.where(conditions, catchment_window, 0).astype('int32')
 
             # Checking to see if there is any inundated areas in the window
-            if not inundation_window[np.where(inundation_window != 0)].any():
+            if not (inundation_window != 0).any():
                 return 
 
             if np.max(inundation_window) != 0:
