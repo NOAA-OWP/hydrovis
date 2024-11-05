@@ -545,7 +545,7 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
 
     df_hydro_max = df_hydro.loc[df_hydro.groupby('hydro_id')['stage_m'].idxmax()]
     df_hydro_max = df_hydro_max.set_index('hydro_id')
-    df_hydro_max = df_hydro_max.rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
+    df_hydro_max = df_hydro_max[['stage_m', 'discharge_cms']].rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
 
     df_forecast = s3_csv_to_df(subsetted_streams_bucket, subsetted_streams)
     df_forecast = df_forecast.loc[df_forecast['huc8_branch']==huc8_branch]
