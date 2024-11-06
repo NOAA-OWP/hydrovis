@@ -8,6 +8,7 @@ from viz_classes import database
 
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
+FIM_VERSION = os.environ['FIM_VERSION']
 hand_processing_parallel_groups = 20
 
 S3 = boto3.client('s3')
@@ -60,6 +61,7 @@ def setup_huc_inundation(event):
     # If a SQL file exists for selecting hand features, use it.
     if os.path.exists(hand_features_sql_file):
         hand_sql = open(hand_features_sql_file, 'r').read()
+        hand_sql = hand_sql.replace("{fim_version}", FIM_VERSION)
     # Otherwise, use the template file
     else:
         hand_sql = open("templates_sql/hand_features.sql", 'r').read()

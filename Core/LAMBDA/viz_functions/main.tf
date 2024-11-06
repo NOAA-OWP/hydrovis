@@ -818,6 +818,7 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       EGIS_DB_PASSWORD        = jsondecode(var.egis_db_user_secret_string)["password"]
       PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX = "processing_outputs"
+      FIM_VERSION             = var.fim_version
       VIZ_DB_DATABASE         = var.viz_db_name
       VIZ_DB_HOST             = var.viz_db_host
       VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]
