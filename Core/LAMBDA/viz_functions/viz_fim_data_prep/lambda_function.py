@@ -1,8 +1,6 @@
 import boto3
 import os
 import datetime
-import time
-import re
 import numpy as np
 import pandas as pd
 
@@ -42,7 +40,6 @@ def setup_huc_inundation(event):
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
-    sql_replace = event['args']['sql_rename_dict']
     one_off = event['args'].get("hucs")
     process_by = fim_config.get('process_by', ['huc'])
     

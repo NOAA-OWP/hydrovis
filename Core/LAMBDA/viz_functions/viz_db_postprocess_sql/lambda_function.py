@@ -3,6 +3,10 @@ import os
 from datetime import datetime
 from viz_classes import database
 
+FIM_VERSION = os.environ['FIM_VERSION']
+HAND_VERSION = os.environ['HAND_VERSION']
+RAS2FIM_VERSION = os.environ['RAS2FIM_VERSION']
+
 def lambda_handler(event, context):
     step = event['step']
     folder = event['folder']
@@ -38,8 +42,11 @@ def lambda_handler(event, context):
             sql_replace.update({"{max_flows_table}": max_flows_table})
             sql_replace.update({"{db_fim_table}": db_fim_table})
             sql_replace.update({"{domain}": domain})
-            sql_replace.update({"{db_publish_table}": db_publish_table})  
-            
+            sql_replace.update({"{db_publish_table}": db_publish_table})
+            sql_replace.update({"{fim_version}": FIM_VERSION}) 
+            sql_replace.update({"{hand_version}": HAND_VERSION}) 
+            sql_replace.update({"{ras2fim_version}": RAS2FIM_VERSION}) 
+
     ############################################################ Conditional Logic ##########################################################
     # This section contains the conditional logic of database operations within our pipelline. At some point it may be nice to abstract this.
     

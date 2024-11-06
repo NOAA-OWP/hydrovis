@@ -2,7 +2,7 @@
 INSERT INTO {db_fim_table}(
     hand_id, forecast_discharge_cfs,
     rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft,
-    max_rc_stage_ft, max_rc_discharge_cfs, fim_version, reference_time, prc_method
+    max_rc_stage_ft, max_rc_discharge_cfs, model_version, reference_time, prc_method
 )
 
 SELECT
@@ -14,14 +14,16 @@ SELECT
 	gc.previous_stage_ft as rc_previous_stage_ft,
     mgc.max_rc_stage_ft,
     mgc.max_rc_discharge_cfs,
-    gc.fim_version,
+    gc.model_version,
     '{reference_time}' as reference_time,
     'Ras2FIM' AS prc_method
 FROM ras2fim.geocurves gc
 JOIN {db_fim_table}_flows fs ON fs.feature_id = gc.feature_id
 JOIN ras2fim.max_geocurves mgc ON gc.feature_id = mgc.feature_id
 JOIN {db_fim_table} fim ON fs.hand_id = fim.hand_id
-WHERE gc.discharge_cfs >= fs.discharge_cfs AND gc.previous_discharge_cfs < fs.discharge_cfs;
+WHERE gc.discharge_cfs >= fs.discharge_cfs 
+    AND gc.previous_discharge_cfs < fs.discharge_cfs
+    AND gc.model_version = 'ras2fim {ras2fim_version}';
 
 INSERT INTO {db_fim_table}_geo (hand_id, rc_stage_ft, geom)
 SELECT fim.hand_id, fim.rc_stage_ft, ST_Transform(gc.geom, 3857) as geom

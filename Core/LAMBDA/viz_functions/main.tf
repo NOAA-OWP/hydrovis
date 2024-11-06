@@ -58,7 +58,17 @@ variable "viz_cache_bucket" {
 }
 
 variable "fim_version" {
-  description = "FIM version to run"
+  description = "Version of the FIM Package"
+  type        = string
+}
+
+variable "hand_version" {
+  description = "Version of HAND FIM"
+  type        = string
+}
+
+variable "ras2fim_version" {
+  description = "Version of RAS2FIM"
   type        = string
 }
 
@@ -627,6 +637,9 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_HOST           = var.viz_db_host
       VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
+      FIM_VERSION           = var.fim_version
+      HAND_VERSION          = var.hand_version
+      RAS2FIM_VERSION       = var.ras2fim_version
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -803,8 +816,6 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       EGIS_DB_HOST            = var.egis_db_host
       EGIS_DB_USERNAME        = jsondecode(var.egis_db_user_secret_string)["username"]
       EGIS_DB_PASSWORD        = jsondecode(var.egis_db_user_secret_string)["password"]
-      FIM_DATA_BUCKET         = var.fim_data_bucket
-      FIM_VERSION             = var.fim_version
       PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX = "processing_outputs"
       VIZ_DB_DATABASE         = var.viz_db_name
@@ -999,7 +1010,7 @@ module "image-based-lambdas" {
   hand_fim_processing_sgs     = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets
   ecr_repository_image_tag    = local.ecr_repository_image_tag
-  fim_version                 = var.fim_version
+  hand_version                = var.hand_version
   fim_data_bucket             = var.fim_data_bucket
   viz_db_name                 = var.viz_db_name
   viz_db_host                 = var.viz_db_host
