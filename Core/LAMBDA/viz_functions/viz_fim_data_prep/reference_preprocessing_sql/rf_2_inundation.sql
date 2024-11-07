@@ -12,7 +12,7 @@ SELECT
     mgc.max_rc_stage_ft,
     mgc.max_rc_discharge_cfs,
     '{fim_version}' as fim_version,
-    gc.model_version,
+    '{ras2fim_version}' as model_version,,
     to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     crosswalk.huc8 as huc8,
     crosswalk.branch_id as branch

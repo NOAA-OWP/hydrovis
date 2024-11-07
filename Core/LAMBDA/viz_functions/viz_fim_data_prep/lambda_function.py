@@ -57,6 +57,7 @@ def setup_huc_inundation(event):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
             preprocess_sql = open(preprocess_sql_file, 'r').read()
             preprocess_sql.replace('{fim_version}', FIM_VERSION)
+            preprocess_sql.replace('{ras2fim_version}', RAS2FIM_VERSION)
             preprocess_sql.replace('{ras2fim_version_db}', RAS2FIM_VERSION.replace('.', '_'))
             viz_db.execute_sql(preprocess_sql)
 
