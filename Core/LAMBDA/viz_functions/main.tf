@@ -730,60 +730,6 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 }
 
 #############################
-##   Stage-Based CatFIM    ##
-#############################
-data "archive_file" "viz_stage_based_catfim_zip" {
-  type = "zip"
-
-  source_dir = "${path.module}/viz_stage_based_catfim"
-
-  output_path = "${path.module}/temp/viz_stage_based_catfim_${var.environment}_${var.region}.zip"
-}
-
-resource "aws_s3_object" "viz_stage_based_catfim_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_stage_based_catfim.zip"
-  source      = data.archive_file.viz_stage_based_catfim_zip.output_path
-  source_hash = filemd5(data.archive_file.viz_stage_based_catfim_zip.output_path)
-}
-
-resource "aws_lambda_function" "viz_stage_based_catfim" {
-  function_name = "hv-vpp-${var.environment}-viz-stage-based-catfim"
-  description   = "Lambda function to ingest individual files into the viz processing postgresql database."
-  memory_size   = 1280
-  timeout       = 900
-  vpc_config {
-    security_group_ids = var.db_lambda_security_groups
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      VIZ_DB_DATABASE = var.viz_db_name
-      VIZ_DB_HOST = var.viz_db_host
-      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-      PYTHONWARNINGS = "ignore:Unverified HTTPS request"
-    }
-  }
-  s3_bucket        = aws_s3_object.viz_stage_based_catfim_zip_upload.bucket
-  s3_key           = aws_s3_object.viz_stage_based_catfim_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.viz_stage_based_catfim_zip.output_path)
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.psycopg2_sqlalchemy_layer,
-    var.geopandas_layer,
-    var.requests_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-stage-based-catfim"
-  }
-}
-
-#############################
 ##      FIM Data Prep      ##
 #############################
 data "archive_file" "fim_data_prep_zip" {
@@ -819,6 +765,7 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX = "processing_outputs"
       FIM_VERSION             = var.fim_version
+      RAS2FIM_VERSION         = var.ras2fim_version
       VIZ_DB_DATABASE         = var.viz_db_name
       VIZ_DB_HOST             = var.viz_db_host
       VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]

@@ -9,6 +9,8 @@ from viz_classes import database
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
 FIM_VERSION = os.environ['FIM_VERSION']
+RAS2FIM_VERSION = os.environ['RAS2FIM_VERSION']
+
 hand_processing_parallel_groups = 20
 
 S3 = boto3.client('s3')
@@ -53,22 +55,24 @@ def setup_huc_inundation(event):
         preprocess_sql_file = os.path.join("reference_preprocessing_sql", fim_config_name + '.sql')
         if os.path.exists(preprocess_sql_file):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
-            viz_db.run_sql_file_in_db(preprocess_sql_file)
-    
+            preprocess_sql = open(preprocess_sql_file, 'r').read()
+            preprocess_sql.replace('{fim_version}', FIM_VERSION)
+            preprocess_sql.replace('{ras2fim_version_db}', RAS2FIM_VERSION.replace('.', '_'))
+            viz_db.execute_sql(preprocess_sql)
+
     print("Determing features to be processed by HAND")
     # Query flows data from the vizprocessing database, using the SQL defined above.
     hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
     # If a SQL file exists for selecting hand features, use it.
     if os.path.exists(hand_features_sql_file):
         hand_sql = open(hand_features_sql_file, 'r').read()
-        hand_sql = hand_sql.replace("{fim_version}", FIM_VERSION)
     # Otherwise, use the template file
     else:
         hand_sql = open("templates_sql/hand_features.sql", 'r').read()
         hand_sql = hand_sql.replace("{db_fim_table}", target_table)
     
     # Using the sql defined above, pull features for running hand into a dataframe
-    df_streamflows = viz_db.run_sql_in_db(hand_sql)
+    df_streamflows = viz_db.sql_to_dataframe(hand_sql)
     
     # Split reaches with flows into processing groups, and write two sets of csv files to S3 (we need to write to csvs to not exceed the limit of what can be passed in the step function):
     # This first loop splits up the number of huc8_branch combinations into X even 'hucs_to_process' groups, in order to parallel process groups in a step function map, and writes those to csv files on S3.

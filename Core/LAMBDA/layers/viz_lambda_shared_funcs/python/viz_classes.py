@@ -90,19 +90,19 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         db_engine.dispose()
 
     ###################################
-    def run_sql_file_in_db(self, sql_file):
-        sql = open(sql_file, 'r').read()
+    def execute_sql(self, sql):
+        if sql.endswith(".sql"):
+            sql = open(sql, 'r').read()
         with self.connection:
             try:
                 with self.connection.cursor() as cur:
-                    print(f"---> Running {sql_file}")
                     cur.execute(sql)
             except Exception as e:
                 raise e
         self.connection.close()
-                
+
     ###################################                
-    def run_sql_in_db(self, sql, return_geodataframe=False):
+    def sql_to_dataframe(self, sql, return_geodataframe=False):
         if sql.endswith(".sql"):
             sql = open(sql, 'r').read()
             

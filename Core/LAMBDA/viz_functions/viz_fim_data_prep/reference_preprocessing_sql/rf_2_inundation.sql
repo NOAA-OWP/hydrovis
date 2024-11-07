@@ -17,8 +17,8 @@ SELECT
     crosswalk.huc8 as huc8,
     crosswalk.branch_id as branch
 INTO publish.rf_2_inundation
-FROM ras2fim.geocurves gc
+FROM ras2fim.{ras2fim_version_db}__geocurves gc
 JOIN derived.recurrence_flows_conus fs ON fs.feature_id = gc.feature_id
-JOIN ras2fim.max_geocurves mgc ON gc.feature_id = mgc.feature_id
+JOIN ras2fim.{ras2fim_version_db}__max_geocurves mgc ON gc.feature_id = mgc.feature_id
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON gc.feature_id = crosswalk.feature_id
 WHERE gc.discharge_cfs >= fs.rf_2_0_17c AND gc.previous_discharge_cfs < fs.rf_2_0_17c;

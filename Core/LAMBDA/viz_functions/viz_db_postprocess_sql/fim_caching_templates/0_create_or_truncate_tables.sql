@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}
     rc_previous_stage_ft integer,
     max_rc_stage_ft double precision,
     max_rc_discharge_cfs double precision,
-    fim_version varchar(12) DEFAULT '{fim_version}',
+    fim_version varchar(12),
     model_version varchar(20),
     reference_time varchar(30),
 	prc_method text
