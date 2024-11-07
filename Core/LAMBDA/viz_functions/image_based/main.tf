@@ -457,6 +457,7 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   triggers = {
     source_hash = data.archive_file.hand_fim_processing_zip.output_md5
     hand_version = var.hand_version
+    fim_version = var.fim_version
   }
 
   depends_on = [ aws_s3_object.hand_fim_processing_zip_upload ]
