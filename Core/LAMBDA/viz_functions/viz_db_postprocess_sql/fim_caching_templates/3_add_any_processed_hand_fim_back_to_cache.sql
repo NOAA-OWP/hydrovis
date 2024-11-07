@@ -3,10 +3,9 @@
 -- the current hydrotable record doesn't alraedy exist in the cache.
 
 -- 1. Add unique hand_id records to the hydrotable_cached_max table
-INSERT INTO handfim_cache.{hand_version_db}__hydrotable_cached_max(hand_id, model_version, max_rc_discharge_cfs, max_rc_stage_ft)
+INSERT INTO handfim_cache.{hand_version_db}__hydrotable_cached_max(hand_id, max_rc_discharge_cfs, max_rc_stage_ft)
 SELECT DISTINCT
     fim.hand_id,
-    fim.model_version,
     fim.max_rc_discharge_cfs,
     fim.max_rc_stage_ft
 FROM {db_fim_table} AS fim
@@ -15,7 +14,7 @@ WHERE fim.prc_method = 'HAND_Processing'
     AND hcm.hand_id IS NULL;
 
 -- 2. Add records for each stage_ft step of the hydrotable to the hydrotable_cached table
-INSERT INTO handfim_cache.{hand_version_db}__hydrotable_cached (hand_version, hand_id, rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft)
+INSERT INTO handfim_cache.{hand_version_db}__hydrotable_cached (hand_id, rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft)
 SELECT
     fim.hand_id,
     fim.rc_discharge_cfs,

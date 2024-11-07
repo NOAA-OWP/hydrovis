@@ -13,6 +13,7 @@ from math import floor, ceil
 
 from viz_classes import s3_file, database
 
+FIM_VERSION = os.environ['FIM_VERSION']
 HAND_BUCKET = os.environ['HAND_BUCKET']
 HAND_PREFIX = os.environ['HAND_PREFIX']
 HAND_VERSION = '.'.join(re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", HAND_PREFIX)[0])
@@ -290,6 +291,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
+    df_final['fim_version'] = FIM_VERSION
     df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['huc8'] = huc8
     df_final['branch'] = branch
@@ -493,6 +495,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     print("Adding additional metadata columns")
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
+    df_final['fim_version'] = FIM_VERSION
     df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['reference_time'] = reference_time
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)

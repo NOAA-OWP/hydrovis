@@ -13,7 +13,7 @@ SELECT
     cfm.max_rc_stage_ft,
     cfm.max_rc_discharge_cfs,
     '{fim_version}' as fim_version,
-    '{hand_version}' as model_version,
+    'HAND {hand_version}' as model_version,
     to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     'Cached' AS prc_method
 FROM {db_fim_table}_flows AS fs

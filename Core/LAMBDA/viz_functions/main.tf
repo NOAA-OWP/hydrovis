@@ -958,6 +958,7 @@ module "image-based-lambdas" {
   hand_fim_processing_sgs     = var.db_lambda_security_groups
   hand_fim_processing_subnets = var.db_lambda_subnets
   ecr_repository_image_tag    = local.ecr_repository_image_tag
+  fim_version                 = var.fim_version
   hand_version                = var.hand_version
   fim_data_bucket             = var.fim_data_bucket
   viz_db_name                 = var.viz_db_name

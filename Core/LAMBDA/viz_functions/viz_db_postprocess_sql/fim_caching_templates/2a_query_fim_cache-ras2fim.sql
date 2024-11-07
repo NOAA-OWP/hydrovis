@@ -15,7 +15,7 @@ SELECT
     mgc.max_rc_stage_ft,
     mgc.max_rc_discharge_cfs,
     '{fim_version}' as fim_version,
-    'ras2fim {ras2fim_version}' as model_version,
+    'Ras2FIM {ras2fim_version}' as model_version,
     '{reference_time}' as reference_time,
     'Ras2FIM' AS prc_method
 FROM ras2fim.{ras2fim_version_db}__geocurves gc
