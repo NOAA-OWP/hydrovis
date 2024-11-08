@@ -232,7 +232,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -376,7 +383,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%fim_performance_points",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,nws_lid,lid_name,feature_id,wfo,state,county,huc,version,magnitude,tp_area_km,fp_area_km,tn_area_km,fn_area_km,csi,far,tpr,pnd,source,geom from hydrovis.reference.fim_performance_points",
+          "sqlQuery" : "select oid,nws_lid,lid_name,feature_id,wfo,state,county,huc,fim_version,model_version,magnitude,tp_area_km,fp_area_km,tn_area_km,fn_area_km,csi,far,tpr,pnd,source,geom from hydrovis.reference.fim_performance_points",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -441,10 +448,16 @@
               "alias" : "huc"
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 15
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "magnitude",
@@ -2603,10 +2616,16 @@
               "length" : 15
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 15
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             }
           ],
           "spatialStorageType" : 8
@@ -3573,7 +3592,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3724,7 +3750,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%fim_performance_polys_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,version,magnitude,huc8,tp_area_km,fp_area_km,tn_area_km,fn_area_km,csi,far,tpr,pnd,source,geom from hydrovis.reference.fim_performance_polys",
+          "sqlQuery" : "select oid,fim_version,model_version,magnitude,huc8,tp_area_km,fp_area_km,tn_area_km,fn_area_km,csi,far,tpr,pnd,source,geom from hydrovis.reference.fim_performance_polys",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3749,10 +3775,16 @@
               "alias" : "oid"
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 15
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "magnitude",

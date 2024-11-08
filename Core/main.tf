@@ -404,8 +404,6 @@ module "rds-bastion" {
   egis_db_address                 = module.rds-egis.dns_name
   egis_db_port                    = module.rds-egis.instance.port
   egis_db_name                    = local.env.egis_db_name
-
-  fim_version = local.env.fim_version
 }
 
 # Data Services (WRDS APIs)
@@ -593,6 +591,7 @@ module "viz-lambda-functions" {
   deployment_bucket              = module.s3.buckets["deployment"].bucket
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
+  hand_version                   = local.env.hand_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
   # sns_topics                      = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
@@ -706,4 +705,18 @@ module "sync-wrds-location-db" {
   lambda_security_groups = [module.security-groups.rds.id]
   lambda_subnets         = [module.vpc.subnet_private_a.id, module.vpc.subnet_private_b.id]
   db_dumps_bucket        = module.s3.buckets["deployment"].bucket
+}
+
+# Kick off tests in TI
+data "aws_s3_objects" "test_nwm_outputs" {
+  bucket = module.s3.buckets["deployment"].bucket
+  prefix = "test_nwm_outputs/"
+  depends_on = []
+}
+
+resource "aws_s3_object_copy" "test" {
+  count  = length(data.aws_s3_objects.test_nwm_outputs.keys)
+  bucket = module.s3.buckets["deployment"].bucket
+  key    = replace(element(data.aws_s3_objects.test_nwm_outputs.keys, count.index), "test_nwm_outputs", formatdate("YYYYDDMM", timestamp()))
+  source = element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)
 }

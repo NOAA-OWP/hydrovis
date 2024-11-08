@@ -17,6 +17,7 @@ SELECT
 	inun.max_rc_stage_ft,
 	inun.max_rc_discharge_cfs,
 	inun.fim_version,
+	inun.model_version,
 	rnr_flow.influental_forecast_text AS inherited_rfc_forecasts,
     rnr_flow.viz_status AS max_status,
 	to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,

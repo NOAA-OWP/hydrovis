@@ -13,9 +13,10 @@ from math import floor, ceil
 
 from viz_classes import s3_file, database
 
-FIM_BUCKET = os.environ['FIM_BUCKET']
-FIM_PREFIX = os.environ['FIM_PREFIX']
-FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+FIM_VERSION = os.environ['FIM_VERSION']
+HAND_BUCKET = os.environ['HAND_BUCKET']
+HAND_VERSION = os.environ['HAND_VERSION']
+HAND_PREFIX = f"fim/{HAND_VERSION.replace('.', '_')}/hand_datasets"
 
 CACHE_FIM_RESOLUTION_FT = 0.25
 CACHE_FIM_RESOLUTION_ROUNDING = 'up'
@@ -92,14 +93,14 @@ def lambda_handler(event, context):
             stage_lookup = stage_lookup.set_index('hydro_id')
         else:
             # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-            catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-            catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
+            catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+            catch_exists = s3_file(HAND_BUCKET, catchment_key).check_existence()
 
-            hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
-            hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
+            hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+            hand_exists = s3_file(HAND_BUCKET, hand_key).check_existence()
 
-            rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
-            rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
+            rating_curve_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
+            rating_curve_exists = s3_file(HAND_BUCKET, rating_curve_key).check_existence()
 
             stage_lookup = pd.DataFrame()
             df_zero_stage_records = pd.DataFrame()
@@ -184,7 +185,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     """
         Creates the catchment boundary polygons
     """
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
     
     catchment_dataset = None
     try:
@@ -193,7 +194,7 @@ def create_inundation_catchment_boundary(huc8, branch):
         raster_open_success = False
         while tries < 3:
             try:
-                catchment_dataset = rasterio.open(f's3://{FIM_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
+                catchment_dataset = rasterio.open(f's3://{HAND_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
                 tries = 3
                 raster_open_success = True
             except Exception as e:
@@ -291,6 +292,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
+    df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['huc8'] = huc8
     df_final['branch'] = branch
                 
@@ -302,8 +304,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
     # join metadata to get path to FIM datasets
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
     
     try:
         print(f"Creating inundation for huc {huc8} and branch {branch}")
@@ -317,8 +319,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         raster_open_success = False
         while tries < 3:
             try:
-                hand_dataset = rasterio.open(f's3://{FIM_BUCKET}/{hand_key}')  # open HAND grid from S3
-                catchment_dataset = rasterio.open(f's3://{FIM_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
+                hand_dataset = rasterio.open(f's3://{HAND_BUCKET}/{hand_key}')  # open HAND grid from S3
+                catchment_dataset = rasterio.open(f's3://{HAND_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
                 tries = 3
                 raster_open_success = True
             except Exception as e:
@@ -494,6 +496,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
+    df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['reference_time'] = reference_time
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['prc_method'] = 'HAND_Processing'
@@ -542,7 +545,7 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
             stage_dict (dict): A dictionary with the hydroid as the key and interpolated stage as the value
     """
     hydrocols = ['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']
-    df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key, columns=hydrocols)
+    df_hydro = s3_csv_to_df(HAND_BUCKET, hydrotable_key, columns=hydrocols)
     df_hydro = df_hydro.rename(columns={'HydroID': 'hydro_id', 'stage': 'stage_m'})
 
     df_hydro_max = df_hydro.loc[df_hydro.groupby('hydro_id')['stage_m'].idxmax()]

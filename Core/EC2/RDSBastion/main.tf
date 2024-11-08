@@ -128,10 +128,6 @@ variable "viz_proc_dev_rw_secret_string" {
   type = string
 }
 
-variable "fim_version" {
-  type = string
-}
-
 variable "forecast_db_name" {
   type = string
 }
