@@ -67,11 +67,6 @@ variable "hand_version" {
   type        = string
 }
 
-variable "ras2fim_version" {
-  description = "Version of RAS2FIM"
-  type        = string
-}
-
 variable "lambda_role" {
   description = "Role to use for the lambda functions."
   type        = string
@@ -639,7 +634,6 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
       FIM_VERSION           = var.fim_version
       HAND_VERSION          = var.hand_version
-      RAS2FIM_VERSION       = var.ras2fim_version
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -765,7 +759,6 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX = "processing_outputs"
       FIM_VERSION             = var.fim_version
-      RAS2FIM_VERSION         = var.ras2fim_version
       VIZ_DB_DATABASE         = var.viz_db_name
       VIZ_DB_HOST             = var.viz_db_host
       VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]

@@ -15,8 +15,8 @@ from viz_classes import s3_file, database
 
 FIM_VERSION = os.environ['FIM_VERSION']
 HAND_BUCKET = os.environ['HAND_BUCKET']
-HAND_PREFIX = os.environ['HAND_PREFIX']
-HAND_VERSION = '.'.join(re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", HAND_PREFIX)[0])
+HAND_VERSION = os.environ['HAND_VERSION']
+HAND_PREFIX = f"fim/{HAND_VERSION.replace('.', '_')}/hand_datasets"
 
 CACHE_FIM_RESOLUTION_FT = 0.25
 CACHE_FIM_RESOLUTION_ROUNDING = 'up'

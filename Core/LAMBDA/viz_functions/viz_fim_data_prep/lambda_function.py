@@ -9,7 +9,6 @@ from viz_classes import database
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
 FIM_VERSION = os.environ['FIM_VERSION']
-RAS2FIM_VERSION = os.environ['RAS2FIM_VERSION']
 
 hand_processing_parallel_groups = 20
 
@@ -57,8 +56,6 @@ def setup_huc_inundation(event):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
             preprocess_sql = open(preprocess_sql_file, 'r').read()
             preprocess_sql.replace('{fim_version}', FIM_VERSION)
-            preprocess_sql.replace('{ras2fim_version}', RAS2FIM_VERSION)
-            preprocess_sql.replace('{ras2fim_version_db}', RAS2FIM_VERSION.replace('.', '_'))
             viz_db.execute_sql(preprocess_sql)
 
     print("Determing features to be processed by HAND")

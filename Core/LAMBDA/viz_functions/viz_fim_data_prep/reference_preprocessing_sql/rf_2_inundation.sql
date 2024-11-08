@@ -11,14 +11,14 @@ SELECT
     gc.stage_ft as fim_stage_ft,
     mgc.max_rc_stage_ft,
     mgc.max_rc_discharge_cfs,
+    mgc.model_version,
     '{fim_version}' as fim_version,
-    '{ras2fim_version}' as model_version,,
     to_char('1900-01-01 00:00:00'::timestamp without time zone, 'YYYY-MM-DD HH24:MI:SS UTC') AS reference_time,
     crosswalk.huc8 as huc8,
     crosswalk.branch_id as branch
 INTO publish.rf_2_inundation
-FROM ras2fim.{ras2fim_version_db}__geocurves gc
+FROM ras2fim.geocurves gc
 JOIN derived.recurrence_flows_conus fs ON fs.feature_id = gc.feature_id
-JOIN ras2fim.{ras2fim_version_db}__max_geocurves mgc ON gc.feature_id = mgc.feature_id
+JOIN ras2fim.max_geocurves mgc ON gc.feature_id = mgc.feature_id
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON gc.feature_id = crosswalk.feature_id
 WHERE gc.discharge_cfs >= fs.rf_2_0_17c AND gc.previous_discharge_cfs < fs.rf_2_0_17c;
