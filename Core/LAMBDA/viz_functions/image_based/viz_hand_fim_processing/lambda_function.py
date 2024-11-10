@@ -13,9 +13,10 @@ from math import floor, ceil
 
 from viz_classes import s3_file, database
 
-FIM_BUCKET = os.environ['FIM_BUCKET']
-FIM_PREFIX = os.environ['FIM_PREFIX']
-FIM_VERSION = re.findall("[/_]?(\d*_\d*_\d*_\d*)/?", FIM_PREFIX)[0]
+FIM_VERSION = os.environ['FIM_VERSION']
+HAND_BUCKET = os.environ['HAND_BUCKET']
+HAND_VERSION = os.environ['HAND_VERSION']
+HAND_PREFIX = f"fim/{HAND_VERSION.replace('.', '_')}/hand_datasets"
 
 CACHE_FIM_RESOLUTION_FT = 0.25
 CACHE_FIM_RESOLUTION_ROUNDING = 'up'
@@ -92,14 +93,14 @@ def lambda_handler(event, context):
             stage_lookup = stage_lookup.set_index('hydro_id')
         else:
             # Validate main stem datasets by checking cathment, hand, and rating curves existence for the HUC
-            catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-            catch_exists = s3_file(FIM_BUCKET, catchment_key).check_existence()
+            catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+            catch_exists = s3_file(HAND_BUCKET, catchment_key).check_existence()
 
-            hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
-            hand_exists = s3_file(FIM_BUCKET, hand_key).check_existence()
+            hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+            hand_exists = s3_file(HAND_BUCKET, hand_key).check_existence()
 
-            rating_curve_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
-            rating_curve_exists = s3_file(FIM_BUCKET, rating_curve_key).check_existence()
+            rating_curve_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/hydroTable_{branch}.csv'
+            rating_curve_exists = s3_file(HAND_BUCKET, rating_curve_key).check_existence()
 
             stage_lookup = pd.DataFrame()
             df_zero_stage_records = pd.DataFrame()
@@ -184,7 +185,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     """
         Creates the catchment boundary polygons
     """
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
     
     catchment_dataset = None
     try:
@@ -193,7 +194,7 @@ def create_inundation_catchment_boundary(huc8, branch):
         raster_open_success = False
         while tries < 3:
             try:
-                catchment_dataset = rasterio.open(f's3://{FIM_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
+                catchment_dataset = rasterio.open(f's3://{HAND_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
                 tries = 3
                 raster_open_success = True
             except Exception as e:
@@ -253,14 +254,12 @@ def create_inundation_catchment_boundary(huc8, branch):
                 raise HANDDatasetReadError("Failed to open Catchment dataset window")
             
             from rasterio.features import shapes
-            mask = None
-            results = (
-            {'hydro_id': int(v), 'geom': s}
-            for i, (s, v) 
-            in enumerate(
-                shapes(catchment_window, mask=mask, transform=rasterio.windows.transform(window, catchment_dataset.transform))) if int(v))
+            results = []
+            for s, v in shapes(catchment_window, mask=None, transform=rasterio.windows.transform(window, catchment_dataset.transform)):
+                if int(v):
+                    results.append({'hydro_id': int(v), 'geom': s})
 
-            return list(results)
+            return results
 
         # Use threading to parallelize the processing of the inundation windows
         geoms = []
@@ -293,6 +292,7 @@ def create_inundation_catchment_boundary(huc8, branch):
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
+    df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['huc8'] = huc8
     df_final['branch'] = branch
                 
@@ -304,8 +304,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         Creates the actual inundation output from the stages, catchments, and hand grids
     """
     # join metadata to get path to FIM datasets
-    catchment_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
-    hand_key = f'{FIM_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
+    catchment_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/gw_catchments_reaches_filtered_addedAttributes_{branch}.tif'
+    hand_key = f'{HAND_PREFIX}/{huc8}/branches/{branch}/rem_zeroed_masked_{branch}.tif'
     
     try:
         print(f"Creating inundation for huc {huc8} and branch {branch}")
@@ -319,8 +319,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         raster_open_success = False
         while tries < 3:
             try:
-                hand_dataset = rasterio.open(f's3://{FIM_BUCKET}/{hand_key}')  # open HAND grid from S3
-                catchment_dataset = rasterio.open(f's3://{FIM_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
+                hand_dataset = rasterio.open(f's3://{HAND_BUCKET}/{hand_key}')  # open HAND grid from S3
+                catchment_dataset = rasterio.open(f's3://{HAND_BUCKET}/{catchment_key}')  # open catchment grid from S3  # noqa
                 tries = 3
                 raster_open_success = True
             except Exception as e:
@@ -429,31 +429,28 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
             mapping_ar = np.full(mapping_ar_max+1, -9999, dtype="float32")
             mapping_ar[k] = v
 
-            catchment_window[np.where(catchment_window == catchment_nodata)] = 0  # Convert catchment values to 0 where the catchment = catchment_nodata  # noqa
-            catchment_window[np.where(hand_window == hand_nodata)] = 0  # Convert catchment values to 0 where the HAND = HAND_nodata. THis will ensure we are only processing where we have HAND values!  # noqa
+            catchment_window[catchment_window == catchment_nodata] = 0  # Convert catchment values to 0 where the catchment = catchment_nodata  # noqa
+            catchment_window[hand_window == hand_nodata] = 0  # Convert catchment values to 0 where the HAND = HAND_nodata. THis will ensure we are only processing where we have HAND values!  # noqa
 
             reclass_window = mapping_ar[catchment_window]  # Convert the catchment to stage
 
-            condition1 = reclass_window > hand_window  # Select where stage is gte to HAND
-            condition2 = reclass_window != -9999  # Select where stage is valid
-            conditions = (condition1) & (condition2)
+            conditions = reclass_window > hand_window  # Select where stage is gte to HAND
+            conditions &= reclass_window != -9999  # Select where stage is gte to HAND
 
             inundation_window = np.where(conditions, catchment_window, 0).astype('int32')
 
             # Checking to see if there is any inundated areas in the window
-            if not inundation_window[np.where(inundation_window != 0)].any():
+            if not (inundation_window != 0).any():
                 return 
 
             if np.max(inundation_window) != 0:
                 from rasterio.features import shapes
-                mask = None
-                results = (
-                {'hydro_id': int(v), 'geom': s}
-                for i, (s, v) 
-                in enumerate(
-                    shapes(inundation_window, mask=mask, transform=rasterio.windows.transform(window, hand_dataset.transform))) if int(v))
+                results = []
+                for s, v in shapes(inundation_window, mask=None, transform=rasterio.windows.transform(window, hand_dataset.transform)):
+                    if int(v):
+                        results.append({'hydro_id': int(v), 'geom': s})
                     
-                return list(results)
+                return results
 
         # Use threading to parallelize the processing of the inundation windows
         geoms = []
@@ -499,6 +496,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
     df_final = df_final.reset_index()
     df_final = df_final.rename(columns={"index": "hydro_id"})
     df_final['fim_version'] = FIM_VERSION
+    df_final['model_version'] = f'HAND {HAND_VERSION}'
     df_final['reference_time'] = reference_time
     df_final['forecast_stage_ft'] = round(df_final['stage_m'] * 3.28084, 2)
     df_final['prc_method'] = 'HAND_Processing'
@@ -517,13 +515,16 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
                 
     return df_final
 
-def s3_csv_to_df(bucket, key):    
+def s3_csv_to_df(bucket, key, columns=None):    
     # Allow retrying a few times before failing
+    extra_pd_args = {}
+    if columns is not None:
+        extra_pd_args['usecols'] = columns
     for i in range(5):
         try:
             # Read S3 csv file into Pandas DataFrame
             print(f"Reading {key} from {bucket} into DataFrame")
-            df = wr.s3.read_csv(path=f"s3://{bucket}/{key}")
+            df = wr.s3.read_csv(path=f"s3://{bucket}/{key}", **extra_pd_args)
             print("DataFrame creation Successful")
         except ResponseStreamingError:
             if i == 4: print("Failed to read from S3")
@@ -543,11 +544,11 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
         Returns:
             stage_dict (dict): A dictionary with the hydroid as the key and interpolated stage as the value
     """
-    df_hydro = s3_csv_to_df(FIM_BUCKET, hydrotable_key)
-    df_hydro = df_hydro[['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']]
+    hydrocols = ['HydroID', 'feature_id', 'stage', 'discharge_cms', 'LakeID']
+    df_hydro = s3_csv_to_df(HAND_BUCKET, hydrotable_key, columns=hydrocols)
     df_hydro = df_hydro.rename(columns={'HydroID': 'hydro_id', 'stage': 'stage_m'})
 
-    df_hydro_max = df_hydro.sort_values('stage_m').groupby('hydro_id').tail(1)
+    df_hydro_max = df_hydro.loc[df_hydro.groupby('hydro_id')['stage_m'].idxmax()]
     df_hydro_max = df_hydro_max.set_index('hydro_id')
     df_hydro_max = df_hydro_max[['stage_m', 'discharge_cms']].rename(columns={'stage_m': 'max_rc_stage_m', 'discharge_cms': 'max_rc_discharge_cms'})
 
@@ -556,7 +557,7 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
     df_forecast = df_forecast.rename(columns={'streamflow_cms': 'discharge_cms'}) #TODO: Change the output CSV to list discharge instead of streamflow for consistency?
     df_forecast[['stage_m', 'rc_stage_m', 'rc_previous_stage_m', 'rc_discharge_cms', 'rc_previous_discharge_cms']] = df_forecast.apply(lambda row : interpolate_stage(row, df_hydro), axis=1).apply(pd.Series)
     
-    df_forecast.drop(columns=['huc8_branch', 'huc'], inplace=True)
+    df_forecast = df_forecast.drop(columns=['huc8_branch', 'huc'])
     df_forecast = df_forecast.set_index('hydro_id')
     
     print(f"Removing {len(df_forecast[df_forecast['stage_m'].isna()])} reaches with a NaN interpolated stage")
@@ -578,16 +579,12 @@ def calculate_stage_values(hydrotable_key, subsetted_streams_bucket, subsetted_s
 
 
 def round_m_to_nearest_ft_resolution(value_m, resolution_ft, method="nearest", decimals=4):
-    valid_methods = ['up', 'down', 'nearest']
+    valid_methods = {'up': ceil, 'down': floor, 'nearest': round}
     method = method.lower()
     if method not in valid_methods:
         raise ValueError(f"The method argument must be one of: {', '.join(valid_methods)}")
     value_ft = value_m * 3.28084
-    method_func = {
-        'up': ceil,
-        'down': floor,
-        'nearest': round
-    }[method]
+    method_func = valid_methods[method]
     rounded_ft = method_func(value_ft / resolution_ft) * resolution_ft
     rounded_m = round(rounded_ft / 3.28084, decimals)
     return rounded_m
@@ -600,11 +597,14 @@ def interpolate_stage(df_row, df_hydro):
     hydro_id = df_row['hydro_id']
     forecast = df_row['discharge_cms']
     
-    if hydro_id not in df_hydro['hydro_id'].values:
-        return np.nan
+    hydro_mask = df_hydro.hydro_id == hydro_id
     
     # Filter the hydrotable to this hydroid and pull out discharge and stages into arrays
-    subset_hydro = df_hydro.loc[df_hydro['hydro_id']==hydro_id, ['discharge_cms', 'stage_m']]
+    subset_hydro = df_hydro.loc[hydro_mask, ['discharge_cms', 'stage_m']]
+    if subset_hydro.empty:
+        return np.nan
+    
+    subset_hydro = subset_hydro.sort_value('discahrge_cms')
     discharges = subset_hydro['discharge_cms'].values
     stages = subset_hydro['stage_m'].values
     

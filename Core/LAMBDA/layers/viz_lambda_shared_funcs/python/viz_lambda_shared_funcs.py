@@ -492,15 +492,13 @@ def load_df_into_db(table_name, db_engine, df):
     df.to_sql(con=db_engine, schema=schema, name=table, index=False, if_exists='append')
 
 
-def run_sql_file_in_db(db_type, sql_file):
-    print("Getting connection to run sql files")
-    sql = open(sql_file, 'r').read()
-
+def execute_sql(db_type, sql):
+    if sql.endswith(".sql"):
+            sql = open(sql, 'r').read()
     connection = get_db_connection(db_type)
     with connection:
         try:
             with connection.cursor() as cur:
-                print(f"Running {sql_file}")
                 cur.execute(sql)
         except Exception as e:
             raise e

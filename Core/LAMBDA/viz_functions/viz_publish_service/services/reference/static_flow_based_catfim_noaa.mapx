@@ -1820,7 +1820,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -1971,7 +1978,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2008,10 +2015,16 @@
               "length" : 255
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "huc8",
@@ -2613,7 +2626,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -2764,7 +2784,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2801,10 +2821,16 @@
               "length" : 255
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "huc8",
@@ -3406,7 +3432,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -3557,7 +3590,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3594,10 +3627,16 @@
               "length" : 255
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "huc8",
@@ -4199,7 +4238,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -4350,7 +4396,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4387,10 +4433,16 @@
               "length" : 255
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "huc8",
@@ -4992,7 +5044,14 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "FIM Version",
-            "fieldName" : "version",
+            "fieldName" : "fim_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -5143,7 +5202,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_1_1_3",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,viz,geom from hydrovis.reference.flow_based_catfim",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5180,10 +5239,16 @@
               "length" : 255
             },
             {
-              "name" : "version",
+              "name" : "fim_version",
               "type" : "esriFieldTypeString",
-              "alias" : "version",
-              "length" : 255
+              "alias" : "fim_version",
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "huc8",

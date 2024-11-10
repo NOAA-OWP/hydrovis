@@ -382,6 +382,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "FIM Branch ID",
             "fieldName" : "branch",
             "visible" : true,
@@ -453,7 +460,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_1_2_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.ana_inundation_prvi",
+          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,model_version,reference_time,valid_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid  from hydrovis.services.ana_inundation_prvi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -498,7 +505,13 @@
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 10
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "reference_time",
