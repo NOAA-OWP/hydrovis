@@ -1,13 +1,17 @@
 variable "environment" {
-    type = "string"
+  type = string
 }
 
 variable "test_data_bucket" {
-    type = "string"
+  type = string
+}
+
+variable "viz_initialize_pipeline_arn" {
+  type = string
 }
 
 variable "step_function_arn" {
-    type = "string"
+  type = string
 }
 
 resource "aws_cloudwatch_event_rule" "detect_test_files" {
@@ -33,8 +37,8 @@ resource "aws_cloudwatch_event_rule" "detect_test_files" {
 
 resource "aws_cloudwatch_event_target" "trigger_pipeline_test_run" {
   rule      = aws_cloudwatch_event_rule.detect_test_files.name
-  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
-  arn       = aws_lambda_function.viz_initialize_pipeline.arn
+  target_id = "initialize_pipeline"
+  arn       = var.viz_initialize_pipeline_arn
   input_transformer {
     input_paths = {
       "s3_bucket": "$.detail.bucket.name",

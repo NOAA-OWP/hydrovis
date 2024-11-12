@@ -711,7 +711,8 @@ module "testing" {
   count = local.env.environment == "ti" ? 1 : 0
   source = "./Testing"
 
-  environment            = local.env.environment
-  test_data_bucket       = module.s3.buckets["deployment"].bucket
-  step_function_arn      = module.step-functions.viz_pipeline_step_function.arn
+  environment                 = local.env.environment
+  test_data_bucket            = module.s3.buckets["deployment"].bucket
+  viz_initialize_pipeline_arn = module.viz-lambda-functions.initialize_pipeline.arn
+  step_function_arn           = module.step-functions.viz_pipeline_step_function.arn
 }
