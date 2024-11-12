@@ -111,7 +111,7 @@ def lambda_handler(event, context):
                 print(f"catchment, hand, or rating curve are missing for huc {huc8} and branch {branch}:\nCatchment exists: {catch_exists} ({catchment_key})\nHand exists: {hand_exists} ({hand_key})\nRating curve exists: {rating_curve_exists} ({rating_curve_key})")
  
         # If not a reference/egis fim run, Upload zero_stage reaches for tracking / FIM cache
-        if fim_run_type != 'reference':
+        if fim_run_type != 'reference' and not df_zero_stage_records.empty:
             print(f"Adding zero stage data to {db_table}_zero_stage")# Only process inundation configuration if available data
             df_zero_stage_records = df_zero_stage_records.reset_index()
             df_zero_stage_records.drop(columns=['hydro_id','feature_id'], inplace=True)

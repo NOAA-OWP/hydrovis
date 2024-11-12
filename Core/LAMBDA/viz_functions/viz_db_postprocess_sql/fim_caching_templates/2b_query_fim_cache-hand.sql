@@ -1,7 +1,7 @@
 -- Query the hand cache.
 INSERT INTO {db_fim_table} (
     hand_id, forecast_discharge_cfs, rc_discharge_cfs, rc_previous_discharge_cfs, rc_stage_ft, rc_previous_stage_ft,
-    max_rc_stage_ft, max_rc_discharge_cfs, fim_version, model_version, reference_time, prc_method
+    max_rc_stage_ft, max_rc_discharge_cfs, model_version, fim_version, reference_time, prc_method
 )
 SELECT
     fs.hand_id,
