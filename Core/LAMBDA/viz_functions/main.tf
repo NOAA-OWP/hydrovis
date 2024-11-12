@@ -987,10 +987,6 @@ output "db_ingest" {
   value = aws_lambda_function.viz_db_ingest
 }
 
-output "viz_stage_based_catfim" {
-  value = aws_lambda_function.viz_stage_based_catfim
-}
-
 output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
