@@ -63,12 +63,12 @@ data "aws_s3_objects" "test_nwm_outputs" {
   bucket        = var.test_data_bucket
   prefix        = "test_nwm_outputs/"
   max_keys      = 2000
-  depends_on    = [var.step_function_arn]
 }
 
 resource "aws_s3_object_copy" "test" {
-  count  = length(data.aws_s3_objects.test_nwm_outputs.keys)
-  bucket = var.test_data_bucket
-  source = join("/", [var.test_data_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
-  key    = replace(element(data.aws_s3_objects.test_nwm_outputs.keys, count.index), "test_nwm_outputs", formatdate("'common/data/model/com/nwm/prod/nwm.'YYYYDDMM", timestamp()))
+  count       = length(data.aws_s3_objects.test_nwm_outputs.keys)
+  bucket      = var.test_data_bucket
+  source      = join("/", [var.test_data_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
+  key         = replace(element(data.aws_s3_objects.test_nwm_outputs.keys, count.index), "test_nwm_outputs", formatdate("'common/data/model/com/nwm/prod/nwm.'YYYYDDMM", timestamp()))
+  depends_on  = [var.step_function_arn]
 }
