@@ -168,7 +168,7 @@ class viz_lambda_pipeline:
             self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
-        elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
+        elif "invocation_type" in self.start_event: # The max_flows lambda function manually invokes this lambda function and includes the "invocation_type" key in the payload.
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
         else: 
             self.invocation_type = "manual"

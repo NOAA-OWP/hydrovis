@@ -707,16 +707,17 @@ module "sync-wrds-location-db" {
   db_dumps_bucket        = module.s3.buckets["deployment"].bucket
 }
 
-# Kick off tests in TI
-data "aws_s3_objects" "test_nwm_outputs" {
-  bucket = module.s3.buckets["deployment"].bucket
-  prefix = "test_nwm_outputs/"
-  depends_on = []
-}
+module "testing" {
+  count = local.env.environment == "ti" ? 1 : 0
+  source = "./Testing"
+  depends_on = [
+    module.s3.buckets,
+    module.step-functions.viz_pipeline_step_function,
+    module.viz-lambda-functions
+  ]
 
-resource "aws_s3_object_copy" "test" {
-  count  = length(data.aws_s3_objects.test_nwm_outputs.keys)
-  bucket = module.s3.buckets["deployment"].bucket
-  key    = replace(element(data.aws_s3_objects.test_nwm_outputs.keys, count.index), "test_nwm_outputs", formatdate("YYYYDDMM", timestamp()))
-  source = element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)
+  environment                 = local.env.environment
+  test_data_bucket            = module.s3.buckets["deployment"].bucket
+  viz_initialize_pipeline_arn = module.viz-lambda-functions.initialize_pipeline.arn
+  lambda_role                 = module.iam-roles.role_viz_pipeline.arn
 }

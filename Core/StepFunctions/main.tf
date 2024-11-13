@@ -109,6 +109,7 @@ resource "aws_sfn_state_machine" "replace_route_step_function" {
 }
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
+  count     = var.environment == "ti" ? 0 : 1
   rule      = var.fifteen_minute_trigger.name
   target_id = aws_sfn_state_machine.replace_route_step_function.name
   arn       = aws_sfn_state_machine.replace_route_step_function.arn

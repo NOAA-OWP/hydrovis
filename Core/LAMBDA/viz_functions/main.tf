@@ -215,82 +215,6 @@ locals {
 ########################################################################################################################################
 ########################################################################################################################################
 
-###############################
-## WRDS API Handler Function ##
-###############################
-data "archive_file" "wrds_api_handler_zip" {
-  type = "zip"
-
-  source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
-
-  output_path = "${path.module}/temp/viz_wrds_api_handler_${var.environment}_${var.region}.zip"
-}
-
-resource "aws_s3_object" "wrds_api_handler_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_wrds_api_handler.zip"
-  source      = data.archive_file.wrds_api_handler_zip.output_path
-  source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
-}
-
-resource "aws_lambda_function" "viz_wrds_api_handler" {
-  function_name = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  description   = "Lambda function to ping WRDS API and format outputs for processing."
-  memory_size   = 512
-  timeout       = 900
-  vpc_config {
-    security_group_ids = [var.nat_sg_group]
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      DATASERVICES_HOST            = var.dataservices_host
-      PYTHON_PREPROCESSING_BUCKET              = var.python_preprocessing_bucket
-      PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-    }
-  }
-  s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
-  s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.wrds_api_handler_zip.output_path)
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.arcgis_python_api_layer,
-    var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  }
-}
-
-resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
-  rule      = var.five_minute_trigger.name
-  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
-  arn       = aws_lambda_function.viz_initialize_pipeline.arn
-  input     = "{\"configuration\":\"rfc\"}"
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.viz_wrds_api_handler.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = var.five_minute_trigger.arn
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
-  function_name          = resource.aws_lambda_function.viz_wrds_api_handler.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
-}
-
 ##################################
 ## EGIS Health Checker Function ##
 ##################################
@@ -560,22 +484,8 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
 }
 
-# resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
-#   for_each  = local.initialize_pipeline_subscriptions
-#   topic_arn = var.sns_topics["${each.value}"].arn
-#   protocol  = "lambda"
-#   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
-# }
-
-# resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
-#   for_each      = local.initialize_pipeline_subscriptions
-#   action        = "lambda:InvokeFunction"
-#   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
-#   principal     = "sns.amazonaws.com"
-#   source_arn    = var.sns_topics["${each.value}"].arn
-# }
-
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  count     = var.environment == "ti" ? 0 : 1
   provider = aws.sns
   topic_arn = var.nws_shared_account_nwm_sns
   protocol  = "lambda"
@@ -583,6 +493,7 @@ resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shar
 }
 
 resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm" {
+  count     = var.environment == "ti" ? 0 : 1
   action        = "lambda:InvokeFunction"
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
@@ -987,10 +898,6 @@ output "db_ingest" {
   value = aws_lambda_function.viz_db_ingest
 }
 
-output "viz_stage_based_catfim" {
-  value = aws_lambda_function.viz_stage_based_catfim
-}
-
 output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
@@ -1001,10 +908,6 @@ output "update_egis_data" {
 
 output "publish_service" {
   value = aws_lambda_function.viz_publish_service
-}
-
-output "wrds_api_handler" {
-  value = aws_lambda_function.viz_wrds_api_handler
 }
 
 output "egis_health_checker" {
