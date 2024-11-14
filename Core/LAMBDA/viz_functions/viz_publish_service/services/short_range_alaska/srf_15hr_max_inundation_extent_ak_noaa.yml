@@ -4,7 +4,7 @@ description: 'Depicts the inundation extent of the peak National Water Model (NW
   forecast over the next 15 hours where the NWM is signaling high water in Alaska. This service is derived 
   from the short-range configuration of the NWM over the Alaska domain. Shown are reaches with 
   peak flow at or above high water thresholds. High water thresholds (regionally varied) and 
-  AEPs were derived using the 40-year NWM v2.1 reanalysis simulation. Updated hourly.
+  AEPs were derived using the 40-year NWM v2.1 reanalysis simulation. Updated hourly.'
 
 tags: national water model, nwm, srf, short, range, alaska, fim, inundation, extent
 credits: National Water Model, NOAA/NWS National Water Center
