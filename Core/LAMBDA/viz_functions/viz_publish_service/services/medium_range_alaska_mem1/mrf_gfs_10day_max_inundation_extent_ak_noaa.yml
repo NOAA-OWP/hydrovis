@@ -1,0 +1,14 @@
+service: mrf_gfs_10day_max_inundation_extent_ak_noaa
+summary: Medium-Range GFS 10 Day Maximum Inundation Extent Forecast - Alaska
+description: 'Depicts the inundation extent of the peak National Water Model (NWM) streamflow forecast for Alaska
+  over the next 5 and 10 days where the NWM is signaling high water. This service is derived from 
+  the medium-range GFS configuration of the NWM over the Alaska domain. Shown are reaches with peak flow 
+  at or above high water thresholds. High water thresholds (regionally varied) and AEPs were derived 
+  using the 40-year NWM v3.0 reanalysis simulation. Updated every 6 hours.'
+
+tags: national water model, nwm, mrf, medium, range, alaska, fim, inundation, extent
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false
