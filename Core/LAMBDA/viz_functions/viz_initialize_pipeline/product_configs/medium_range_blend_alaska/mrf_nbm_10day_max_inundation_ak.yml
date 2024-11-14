@@ -1,7 +1,7 @@
 product: mrf_nbm_10day_max_inundation_ak
 configuration: medium_range_blend_alaska
 product_type: "fim"
-domain: alaska
+domain: ak
 run: true
 
 ingest_files:
@@ -12,6 +12,11 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 db_max_flows:
+  - name: mrf_nbm_5day_max_flows_ak
+    target_table: cache.max_flows_mrf_nbm_5day_ak
+    target_keys: (feature_id, streamflow)
+    method: database
+    max_flows_sql_file: mrf_nbm_5day_max_flows_ak
   - name: mrf_nbm_10day_max_flows_ak
     target_table: cache.max_flows_mrf_nbm_10day_ak
     target_keys: (feature_id, streamflow)
@@ -26,6 +31,13 @@ fim_configs:
     postprocess:
       sql_file: mrf_nbm_max_inundation_10day_ak
       target_table: publish.mrf_nbm_max_inundation_10day_ak
+  - name: mrf_nbm_max_inundation_5day_ak
+    flows_table: cache.max_flows_mrf_nbm_5day_ak
+    target_table: fim_ingest.mrf_nbm_max_inundation_5day_ak
+    fim_type: hand
+    postprocess:
+      sql_file: mrf_nbm_max_inundation_5day_ak
+      target_table: publish.mrf_nbm_max_inundation_5day_ak
   
 services:
-  - mrf_nbm_10day_max_inundation_extent_noaa_ak
+  - mrf_nbm_10day_max_inundation_extent_ak_noaa
