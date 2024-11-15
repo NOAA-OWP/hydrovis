@@ -14,6 +14,18 @@ variable "lambda_role" {
   type = string
 }
 
+variable "s3_module" {
+  type = any
+}
+
+variable "lambda_module" {
+  type = any
+}
+
+variable "step_function_module" {
+  type = any
+}
+
 resource "aws_cloudwatch_event_rule" "detect_test_files" {
   name                = "hv-vpp-${var.environment}-detect-test-files"
   description         = "Detects when a new test file has been created"
@@ -59,7 +71,9 @@ resource "aws_cloudwatch_event_target" "trigger_pipeline_test_run" {
   }
 }
 
-# Kick off tests in TI
+##################################
+###### KICK OFF TESTS IN TI ######
+##################################
 data "aws_s3_objects" "test_nwm_outputs" {
   bucket        = var.test_data_bucket
   prefix        = "test_nwm_outputs/"
@@ -67,6 +81,7 @@ data "aws_s3_objects" "test_nwm_outputs" {
 }
 
 resource "aws_s3_object_copy" "test" {
+  depends_on  = [var.s3_module, var.lambda_module, var.step_function_module]
   count       = length(data.aws_s3_objects.test_nwm_outputs.keys)
   bucket      = var.test_data_bucket
   source      = join("/", [var.test_data_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
