@@ -131,8 +131,8 @@ def lambda_handler(event, context):
         connection.close()
 
         columns = ', '.join(column_names)
-        
-        if step == 'cache_data':
+
+        if 'cache' in step:
             cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
         else:
             # Copy data to EGIS
