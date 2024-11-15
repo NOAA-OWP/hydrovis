@@ -81,7 +81,7 @@ data "aws_s3_objects" "test_nwm_outputs" {
 }
 
 resource "aws_s3_object_copy" "test" {
-  depends_on  = [var.s3_module, var.lambda_module, var.step_function_module]
+  depends_on  = [var.s3_module, var.lambda_module, var.step_function_module, aws_cloudwatch_event_target.trigger_pipeline_test_run]
   count       = length(data.aws_s3_objects.test_nwm_outputs.keys)
   bucket      = var.test_data_bucket
   source      = join("/", [var.test_data_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
