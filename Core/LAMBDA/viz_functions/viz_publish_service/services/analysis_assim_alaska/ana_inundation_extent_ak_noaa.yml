@@ -1,0 +1,13 @@
+service: ana_inundation_extent_ak_noaa
+summary: Inundation Extent Analysis - Alaska
+description: 'The map depicts the inundation extent of the National Water Model (NWM) streamflow forecast for Alaska where the NWM is 
+signaling high water. Shown are sections of river with flow at or above a predetermined high water threshold as depicted in the "High 
+Flow Magnitude - Alaska" service. High water thresholds (regionally varied) and Annual Exceedance Probabilities (AEPs) are derived 
+using the 40-year NWM reanalysis simulation which is available via the NOAA Open Data Dissemination Program (NODD). Forecast inundation 
+extents do not fully capture coastal processes. Updated hourly.'
+tags: national water model, nwm, ana, alaska, fim, inundation, extent
+credits: National Water Model, NOAA/NWS National Water Center
+egis_server: server
+egis_folder: nwm
+feature_service: false
+public_service: false

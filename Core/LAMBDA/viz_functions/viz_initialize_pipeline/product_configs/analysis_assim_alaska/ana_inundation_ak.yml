@@ -1,7 +1,7 @@
 product: ana_inundation_ak
 configuration: analysis_assim_alaska
 product_type: "fim"
-domain: alaska
+domain: ak
 run: true
 
 ingest_files:
