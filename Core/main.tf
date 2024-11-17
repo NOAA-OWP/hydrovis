@@ -710,14 +710,9 @@ module "sync-wrds-location-db" {
 module "testing" {
   count = local.env.environment == "ti" ? 1 : 0
   source = "./Testing"
-  depends_on = [
-    module.s3.buckets,
-    module.step-functions.viz_pipeline_step_function,
-    module.viz-lambda-functions
-  ]
 
   environment                 = local.env.environment
-  test_data_bucket            = module.s3.buckets["deployment"].bucket
-  viz_initialize_pipeline_arn = module.viz-lambda-functions.initialize_pipeline.arn
-  lambda_role                 = module.iam-roles.role_viz_pipeline.arn
+  s3_module                   = module.s3
+  lambda_module               = module.viz-lambda-functions
+  step_function_module        = module.step-functions
 }

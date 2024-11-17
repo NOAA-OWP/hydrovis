@@ -2,16 +2,21 @@ variable "environment" {
   type = string
 }
 
-variable "test_data_bucket" {
-  type = string
+variable "s3_module" {
+  type = any
 }
 
-variable "viz_initialize_pipeline_arn" {
-  type = string
+variable "lambda_module" {
+  type = any
 }
 
-variable "lambda_role" {
-  type = string
+variable "step_function_module" {
+  type = any
+}
+
+locals {
+  test_bucket = var.s3_module.buckets["deployment"].bucket
+  init_pipeline_lambda = var.lambda_module.initialize_pipeline
 }
 
 resource "aws_cloudwatch_event_rule" "detect_test_files" {
@@ -23,7 +28,7 @@ resource "aws_cloudwatch_event_rule" "detect_test_files" {
     "detail-type": ["Object Created"],
     "detail": {
       "bucket": {
-        "name": ["${var.test_data_bucket}"]
+        "name": ["${local.test_bucket}"]
       },
       "object": {
         "key": [{
@@ -35,11 +40,18 @@ resource "aws_cloudwatch_event_rule" "detect_test_files" {
   EOF
 }
 
+resource "aws_lambda_permission" "allow_cloudwatch_to_call_initialize_pipeline" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = local.init_pipeline_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.detect_test_files.arn
+}
+
 resource "aws_cloudwatch_event_target" "trigger_pipeline_test_run" {
   rule      = aws_cloudwatch_event_rule.detect_test_files.name
-  target_id = "initialize_pipeline"
-  arn       = var.viz_initialize_pipeline_arn
-  role_arn  = var.lambda_role
+  target_id = local.init_pipeline_lambda.function_name
+  arn       = local.init_pipeline_lambda.arn
   input_transformer {
     input_paths = {
       "s3_bucket": "$.detail.bucket.name",
@@ -59,16 +71,19 @@ resource "aws_cloudwatch_event_target" "trigger_pipeline_test_run" {
   }
 }
 
-# Kick off tests in TI
+##################################
+###### KICK OFF TESTS IN TI ######
+##################################
 data "aws_s3_objects" "test_nwm_outputs" {
-  bucket        = var.test_data_bucket
+  bucket        = local.test_bucket
   prefix        = "test_nwm_outputs/"
   max_keys      = 2000
 }
 
 resource "aws_s3_object_copy" "test" {
+  depends_on  = [var.s3_module, var.lambda_module, var.step_function_module, aws_cloudwatch_event_target.trigger_pipeline_test_run]
   count       = length(data.aws_s3_objects.test_nwm_outputs.keys)
-  bucket      = var.test_data_bucket
-  source      = join("/", [var.test_data_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
+  bucket      = local.test_bucket
+  source      = join("/", [local.test_bucket, element(data.aws_s3_objects.test_nwm_outputs.keys, count.index)])
   key         = replace(element(data.aws_s3_objects.test_nwm_outputs.keys, count.index), "test_nwm_outputs", formatdate("'common/data/model/com/nwm/prod/nwm.'YYYYMMDD", timestamp()))
 }

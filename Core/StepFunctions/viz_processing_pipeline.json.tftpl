@@ -658,6 +658,32 @@
                     }
                   ],
                   "ResultPath": null,
+                  "Next": "Cache Data - Product"
+                },
+                "Cache Data - Product": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${update_egis_data_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "cache_product_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
                   "End": true
                 }
               }
@@ -1154,6 +1180,32 @@
                     }
                   ],
                   "ResultPath": null,
+                  "Next": "Cache Data - FIM Config"
+                },
+                "Cache Data - FIM Config": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${update_egis_data_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "cache_fim_config_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
                   "End": true
                 }
               }
@@ -1246,6 +1298,32 @@
                     "Payload": {
                       "args.$": "$",
                       "step": "update_summary_data"
+                    }
+                  },
+                  "Retry": [
+                    {
+                      "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                      ],
+                      "IntervalSeconds": 2,
+                      "MaxAttempts": 6,
+                      "BackoffRate": 2,
+                      "Comment": "Lambda Service Errors"
+                    }
+                  ],
+                  "ResultPath": null,
+                  "Next": "Cache Data - Summary"
+                },
+                "Cache Data - Summary": {
+                  "Type": "Task",
+                  "Resource": "arn:aws:states:::lambda:invoke",
+                  "Parameters": {
+                    "FunctionName": "${update_egis_data_arn}",
+                    "Payload": {
+                      "args.$": "$",
+                      "step": "cache_summary_data"
                     }
                   },
                   "Retry": [

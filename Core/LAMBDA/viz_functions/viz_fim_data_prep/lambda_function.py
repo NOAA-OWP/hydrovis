@@ -49,13 +49,14 @@ def setup_huc_inundation(event):
     # Initilize the database class for relevant databases
     viz_db = database(db_type="viz") # we always need the vizprocessing database to get flows data.
 
-    # If a reference configuration, check to see if any preprocessing sql is needed (this currently does manual things, like reploading ras2fim data, which is copied to egis at the bottom of this function)
+    # If a reference configuration, check to see if any preprocessing sql is needed (this currently does manual things, like loading ras2fim data, which is copied to egis at the bottom of this function)
     if configuration == 'reference':
         preprocess_sql_file = os.path.join("reference_preprocessing_sql", fim_config_name + '.sql')
         if os.path.exists(preprocess_sql_file):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
             preprocess_sql = open(preprocess_sql_file, 'r').read()
-            preprocess_sql.replace('{fim_version}', FIM_VERSION)
+            preprocess_sql = preprocess_sql.replace('{fim_version}', FIM_VERSION)
+            preprocess_sql = preprocess_sql.replace('1900-01-01 00:00:00', reference_time)
             viz_db.execute_sql(preprocess_sql)
 
     print("Determing features to be processed by HAND")
