@@ -120,7 +120,7 @@ def get_mask_geoms_by_group(domain):
         for m in mask_prefixes:
             if group_key in m['Key']:                
                 with fiona.open(f"zip+s3://{INPUTS_BUCKET}/{m['Key']}", "r") as shapefile:
-                    geoms.extend(shape(feature.geometry) for feature in shapefile)    
+                    geoms.extend(shape(feature["geometry"]) for feature in shapefile)    
     return mask_groups
 
 def get_fcst_point_ds(fim_config):
