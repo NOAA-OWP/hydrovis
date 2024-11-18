@@ -168,7 +168,7 @@ class viz_lambda_pipeline:
             self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
-        elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
+        elif "invocation_type" in self.start_event: # The max_flows lambda function manually invokes this lambda function and includes the "invocation_type" key in the payload.
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
         else: 
             self.invocation_type = "manual"
@@ -197,7 +197,7 @@ class viz_lambda_pipeline:
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
                 self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
             elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'rfc':
-                self.configuration = configuration('rfc', reference_time=datetime.datetime.utcnow().replace(second=0, microsecond=0))
+                self.configuration = configuration('rfc', reference_time=datetime.datetime.now(datetime.UTC).replace(second=0, microsecond=0))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))

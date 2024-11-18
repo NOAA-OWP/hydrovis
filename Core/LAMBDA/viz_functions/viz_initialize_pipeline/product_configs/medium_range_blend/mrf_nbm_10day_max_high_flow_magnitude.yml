@@ -34,3 +34,4 @@ postprocess_sql:
 
 services:
   - mrf_nbm_10day_max_high_flow_magnitude_noaa
+  - mrf_nbm_5day_max_high_flow_magnitude

@@ -1,9 +1,11 @@
 -- This creates the four tables on a RDS db needed for a cached fim pipeline run.
-CREATE TABLE IF NOT EXISTS {db_fim_table}_flows
+DROP TABLE IF EXISTS {db_fim_table}_flows;
+
+CREATE TABLE {db_fim_table}_flows
 (
     hand_id integer,
     hydro_id integer,
-    feature_id integer,
+    feature_id bigint,
     huc8 integer,
     branch bigint,
     reference_time text,
@@ -12,7 +14,9 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}_flows
     prc_status text
 );
 
-CREATE TABLE IF NOT EXISTS {db_fim_table} 
+DROP TABLE IF EXISTS {db_fim_table};
+
+CREATE TABLE {db_fim_table} 
 (
     hand_id integer,
     forecast_discharge_cfs double precision,
@@ -23,25 +27,24 @@ CREATE TABLE IF NOT EXISTS {db_fim_table}
     rc_previous_stage_ft integer,
     max_rc_stage_ft double precision,
     max_rc_discharge_cfs double precision,
-    fim_version text,
-    reference_time text,
+    model_version varchar(20),
+    fim_version varchar(12),
+    reference_time varchar(30),
 	prc_method text
 );
 
-CREATE TABLE IF NOT EXISTS {db_fim_table}_geo (
+DROP TABLE IF EXISTS {db_fim_table}_geo;
+
+CREATE TABLE {db_fim_table}_geo (
     hand_id integer,
     rc_stage_ft integer,
     geom geometry(geometry, 3857)
 );
 
-CREATE TABLE IF NOT EXISTS {db_fim_table}_zero_stage (
+DROP TABLE IF EXISTS {db_fim_table}_zero_stage;
+
+CREATE TABLE {db_fim_table}_zero_stage (
     hand_id integer,
     rc_discharge_cms double precision,
 	note text
 );
-
--- Truncate the tables so they are ready for the FIM Config run
-TRUNCATE {db_fim_table}_flows;
-TRUNCATE {db_fim_table};
-TRUNCATE {db_fim_table}_geo;
-TRUNCATE {db_fim_table}_zero_stage;

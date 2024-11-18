@@ -1,0 +1,33 @@
+mirror_job:
+  image: alpine:latest
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - apk add --no-cache git
+  script:
+    # Configure Git
+    - git config --global user.email "hydrovis-ci@noaa.gov"
+    - git config --global user.name "CI Bot"
+
+    # Clone the GitLab repository
+    - git clone https://oauth2:${GITLAB_TOKEN}@gitlab.nws.noaa.gov/${CI_PROJECT_PATH}.git
+    - cd ${CI_PROJECT_NAME}
+
+    # Add Github as remote and fetch updates
+    - git remote add github https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/NOAA-OWP/hydrovis.git
+    - git fetch github
+
+    # Checkout all branches from GitHub
+    - for branch in $(git branch -r | grep -E '(^|\s)github/' | sed 's/  github\///'); do
+        git checkout -B $branch github/$branch;
+      done
+
+    # Push branches to GitLab
+    - git push origin --all
+
+    # Push tags to GitLab
+    - git push origin --tags
+    
+  only:
+    - triggers
+    - schedules

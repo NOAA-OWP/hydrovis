@@ -1,0 +1,27 @@
+service: static_stage_based_catfim
+summary: Static Stage-Based CatFIM (EXPERIMENTAL)
+description: '
+*****THIS IS AN EXPERIMENTAL SERVICE*****
+<br><br>
+This experimental map represents the National Weather Service''s best approximation of inundation extent based upon modeled river discharge.
+<br><br>
+The map depicts the inundation extent of official NWS categorigal stage thresholds for an area that includes 30% of the U.S. population but will be expanded later as described in the Story Map below.
+<br><br>
+<a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
+<br><br>
+Boundary of 30% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
+<br><br>
+Flood inundation extent polygons are colored according to their category. Mapping extends 5 miles upstream and downstream of AHPS gage locations for streams of consistent stream order. Not all sites are mapped due to incomplete or unacceptable gage characteristics such as altitute accuracy, datum method, etc. This information is available in the attributes table for the "sites" layer.
+<br><br>
+This service is static and only updated when a new FIM version is released.
+<br><br>
+For more information on the expansion of National Weather Service (NWS) flood inundation mapping capabilities, please visit <a>https://www.weather.gov/owp/operations</a>. For information about the NWM, please visit <a>https://water.noaa.gov</a>.
+<br><br>
+The NWS is accepting comments and feedback on the expansion of NWS flood inundation mapping capabilities. Please visit <a>https://www.surveymonkey.com/r/ExpFIMServices_2023</a> to provide feedback.
+'
+tags: nws, flood, categorical, hand, fim, catfim, inundation, library, rfc, height, above, nearest, drainage, ahps, usgs
+credits: National Water Model, NOAA/NWS National Water Center, Advanced Hydrologic Prediction Service, National River Layer Database
+egis_server: server
+egis_folder: fim_libs
+feature_service: true
+public_service: true

@@ -6,11 +6,11 @@ description: '
 <br><br>
 This experimental map represents the National Weather Service''s best approximation of inundation extent based upon modeled river discharge.
 <br><br>
-The map depicts the maximum inundation extent over the next 5 days derived from the official River Forecast Center (RFC) forecast routed downstream through the National Water Model (NWM) stream network. Forecast inundation extents are available for an area that includes 10% of the U.S. population but will be expanded later as described in the Story Map below.
+The map depicts the maximum inundation extent over the next 5 days derived from the official River Forecast Center (RFC) forecast routed downstream through the National Water Model (NWM) stream network. Forecast inundation extents are available for an area that includes 30% of the U.S. population but will be expanded later as described in the Story Map below.
 <br><br>
 <a>https://storymaps.arcgis.com/stories/c7ae8422207241b5873fff38a22cf66b</a>
 <br><br>
-Boundary of 10% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
+Boundary of 30% Area: <a>https://maps.water.noaa.gov/server/rest/services/reference/static_public_fim_domain/MapServer</a>
 <br><br>
 Shown are sections of river downstream of RFC forecast points whose forecast reaches action status or greater as depicted in the following service:
 <br><br>

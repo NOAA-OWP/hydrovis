@@ -383,7 +383,7 @@ class DataSet(FileHandlerMixin):
     @classmethod
     def _parse_datetime_token_value(cls, token_val, datetime=None):
         if not datetime:
-            datetime = dt.datetime.utcnow()
+            datetime = UTCNOW()
 
         try:
             if "reftime" in token_val:

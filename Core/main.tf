@@ -10,7 +10,7 @@ terraform {
     key                     = "state"
     region                  = "us-east-1"
     profile                 = "prod"
-    shared_credentials_file = "/cloud/aws/credentials"
+    shared_credentials_files = ["/cloud/aws/credentials"]
   }
 }
 
@@ -404,8 +404,6 @@ module "rds-bastion" {
   egis_db_address                 = module.rds-egis.dns_name
   egis_db_port                    = module.rds-egis.instance.port
   egis_db_name                    = local.env.egis_db_name
-
-  fim_version = local.env.fim_version
 }
 
 # Data Services (WRDS APIs)
@@ -593,6 +591,7 @@ module "viz-lambda-functions" {
   deployment_bucket              = module.s3.buckets["deployment"].bucket
   viz_cache_bucket               = module.s3.buckets["fim"].bucket
   fim_version                    = local.env.fim_version
+  hand_version                   = local.env.hand_version
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
   # sns_topics                      = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
@@ -694,4 +693,14 @@ module "viz-ec2" {
   egis_db_secret_string       = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   private_route_53_zone       = module.private-route53.zone
   nwm_dataflow_version        = local.env.nwm_dataflow_version
+}
+
+module "testing" {
+  count = local.env.environment == "ti" ? 1 : 0
+  source = "./Testing"
+
+  environment                 = local.env.environment
+  s3_module                   = module.s3
+  lambda_module               = module.viz-lambda-functions
+  step_function_module        = module.step-functions
 }

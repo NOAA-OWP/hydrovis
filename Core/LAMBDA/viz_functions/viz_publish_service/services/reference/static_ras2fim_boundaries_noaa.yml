@@ -1,0 +1,9 @@
+service: static_ras2fim_boundaries_noaa
+summary: Ras2Fim Boundaries
+description: Depicts the boundaries for the RAS2FIM catchments
+tags: ras2fim
+credits: National Water Model, NOAA/NWS National Water Center, Advanced Hydrologic Prediction Service, National River Layer Database
+egis_server: server
+egis_folder: reference
+feature_service: true
+public_service: false

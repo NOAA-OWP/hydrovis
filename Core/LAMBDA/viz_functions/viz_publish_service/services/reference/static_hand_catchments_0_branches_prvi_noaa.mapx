@@ -205,6 +205,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Model Version",
+            "fieldName" : "model_version",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "oid",
             "fieldName" : "oid",
             "numberFormat" : {
@@ -239,7 +246,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%Main Stem FIM Catchments_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "SELECT hydro_id::text as hydro_id, geom, huc8, branch, fim_version, oid FROM hydrovis.fim_catchments.branch_0_catchments_prvi",
+          "sqlQuery" : "SELECT hydro_id::text as hydro_id, geom, huc8, branch, fim_version,model_version, oid FROM hydrovis.fim_catchments.branch_0_catchments_prvi",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -285,7 +292,13 @@
               "name" : "fim_version",
               "type" : "esriFieldTypeString",
               "alias" : "fim_version",
-              "length" : 10
+              "length" : 12
+            },
+            {
+              "name" : "model_version",
+              "type" : "esriFieldTypeString",
+              "alias" : "model_version",
+              "length" : 20
             },
             {
               "name" : "oid",

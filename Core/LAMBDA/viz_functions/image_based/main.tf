@@ -38,6 +38,10 @@ variable "fim_version" {
   type = string
 }
 
+variable "hand_version" {
+  type = string
+}
+
 variable "fim_data_bucket" {
   type = string
 }
@@ -372,8 +376,9 @@ data "archive_file" "hand_fim_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_hand_fim_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
-      FIM_BUCKET         = var.fim_data_bucket
-      FIM_PREFIX         = "fim/fim_${replace(var.fim_version, ".", "_")}/hand_datasets"
+      FIM_VERSION        = var.fim_version
+      HAND_BUCKET        = var.fim_data_bucket
+      HAND_VERSION       = var.hand_version
       VIZ_DB_DATABASE    = var.viz_db_name
       VIZ_DB_HOST        = var.viz_db_host
       VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
@@ -456,6 +461,7 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     source_hash = data.archive_file.hand_fim_processing_zip.output_md5
+    hand_version = var.hand_version
     fim_version = var.fim_version
   }
 
