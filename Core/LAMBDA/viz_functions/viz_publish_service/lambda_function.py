@@ -225,7 +225,7 @@ def mapx_to_sd(service_name, summary, description, public_service, tags, credits
 		'egis_db_schema': 'services',
 		'egis_folder': folder,
 		'deployment_bucket': s3_bucket,
-		's3_pro_project_path': 'viz/pro_projects', # needs to be set by terraform. mapx files directory
+		's3_pro_project_path': 'viz_mapx',
 		's3_sd_path': sd_files,
 		'returnZ': 'false',
 		'returnM': 'false',
