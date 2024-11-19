@@ -655,7 +655,7 @@ resource "aws_s3_object" "fim_data_prep_zip_upload" {
 resource "aws_lambda_function" "viz_fim_data_prep" {
   function_name = "hv-vpp-${var.environment}-viz-fim-data-prep"
   description   = "Lambda function to setup a fim run by retriving max flows from the database, prepare an ingest database table, and creating a dictionary for huc-based worker lambdas to use."
-  memory_size   = 2048
+  memory_size   = var.environment == "ti" ? 4096 : 2048 # Larger for apocalyptic testing
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups

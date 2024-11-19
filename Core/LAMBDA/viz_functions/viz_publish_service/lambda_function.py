@@ -98,11 +98,18 @@ def lambda_handler(event, context):
 				s3.download_file(s3_bucket, sd_s3_path, local_sd_file)
 				print(f"---> Downloaded {sd_s3_path}")
 				# Publish the service
-				publish_server.services.publish_sd(sd_file=local_sd_file, folder=folder) # arcgis.gis.GIS publish_sd method
+				success = publish_server.services.publish_sd(sd_file=local_sd_file, folder=folder) # arcgis.gis.GIS publish_sd method
+				print(f"Publish success: {success}")
 				print(f"---> Published {sd_s3_path}")
 
+				matching_services = [service for service in publish_server.services.list(folder=folder) if 'serviceName' in service.properties and (service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish)]  # noqa: E501
+				if not matching_services:
+					print(f"Service not found, though supposedly published successfully. Removing SD file and recreating it...")
+					os.remove(local_sd_file)
+					s3.delete_object(Bucket=s3_bucket, Key=sd_s3_path)
+					continue
 				# Ensuring that the description for the service matches the iteminfo
-				matching_service = [service for service in publish_server.services.list(folder=folder) if 'serviceName' in service.properties and (service.properties['serviceName'] == service_name or service.properties['serviceName'] == service_name_publish)][0]
+				matching_service = matching_services[0]
 				if not matching_service.properties['description']:
 					print("Updating service property description to match iteminfo")
 					service_properties = matching_service.properties
@@ -218,7 +225,7 @@ def mapx_to_sd(service_name, summary, description, public_service, tags, credits
 		'egis_db_schema': 'services',
 		'egis_folder': folder,
 		'deployment_bucket': s3_bucket,
-		's3_pro_project_path': 'viz/pro_projects', # needs to be set by terraform. mapx files directory
+		's3_pro_project_path': 'viz_mapx',
 		's3_sd_path': sd_files,
 		'returnZ': 'false',
 		'returnM': 'false',
