@@ -299,14 +299,9 @@ resource "aws_cloudwatch_event_target" "sync_wrds_location_db_step_function_fail
   input_path  = "$.detail.name"
 }
 
-
-
-
-
-
-
-
-
+output "sync_wrds_location_db_step_function" {
+  value = aws_sfn_state_machine.sync_wrds_location_db_step_function
+}
 
 output "hand_fim_processing_step_function" {
   value = aws_sfn_state_machine.hand_fim_processing_step_function

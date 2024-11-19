@@ -9,7 +9,7 @@
         "StateMachineArn": "${restore_db_dump_from_s3_step_function_arn}",
         "Input": {
           "db_instance_tag": "ingest",
-          "s3_uri.$": "States.Format('s3://{}/{}', $.detail.bucket.name, $.detail.object.key)",
+          "s3_uri.$": "States.Format('s3://{}/{}', $.bucket.name, $.object.key)",
           "db_name": "wrds_location3_ondeck"
         }
       },

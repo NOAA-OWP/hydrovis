@@ -28,6 +28,12 @@ from viz_classes import s3_file, database # We use some common custom classes in
 from viz_lambda_shared_funcs import get_file_tokens, get_formatted_files, gen_dict_extract
 import yaml
 
+SF_ARN__VIZ_PIPELINE = os.environ["SF_ARN__VIZ_PIPELINE"]
+SF_ARN__SYNC_WRDS_DB = os.environ["SF_ARN__SYNC_WRDS_DB"]
+SNS_TOPIC__WRDS_DB_DUMP = os.environ["SNS_TOPIC__WRDS_DB_DUMP"]
+
+SF_CLIENT = boto3.client('stepfunctions')
+
 ###################################################################################################################################################
 class DuplicatePipelineException(Exception):
     """ my custom exception class """
@@ -38,6 +44,15 @@ def lambda_handler(event, context):
     # (lots of false starts, but it only amounts to about $1 a month)
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
+        sns_event = event.get('Records')[0].get('Sns')
+        s3_event = json.loads(sns_event.get('Message'))
+
+        if sns_event["TopicArn"] == SNS_TOPIC__WRDS_DB_DUMP:
+            SF_CLIENT.start_execution(
+                stateMachineArn=SF_ARN__SYNC_WRDS_DB,
+                name=s3_event.get('object').get('key').split('/')[-1].split('.')[0],
+                input=json.dumps(s3_event)
+                )
         # pipeline_iniitializing_files = [] #Swap out this for the following list to pause all pipelines.
         pipeline_iniitializing_files = [
                                         ## ANA ##
@@ -86,7 +101,6 @@ def lambda_handler(event, context):
                                         "short_range_coastal.total_water.f048.puertorico.nc",
                                         "short_range_coastal.total_water.f048.hawaii.nc"
                                         ]
-        s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
             s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
             if any(suffix in s3_key for suffix in pipeline_iniitializing_files) == False:
@@ -114,12 +128,9 @@ def lambda_handler(event, context):
         
     pipeline_runs = pipeline.get_pipeline_runs()
     
-    # Invoke the step function with the dictionary we've not created.
-    step_function_arn = os.environ["STEP_FUNCTION_ARN"]
     if invoke_step_function is True:
         try:
             #Invoke the step function.
-            client = boto3.client('stepfunctions')
             for pipeline_run in pipeline_runs:
                 ref_time_short = pipeline.configuration.reference_time.strftime("%Y%m%dT%H%M")
                 short_config = pipeline_run['configuration'].replace("puertorico", "prvi").replace("hawaii", "hi")
@@ -128,12 +139,12 @@ def lambda_handler(event, context):
                 pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
                 pipeline_run['logging_info'] = {'Timestamp': int(time.time())*1000}
             
-                client.start_execution(
-                    stateMachineArn = step_function_arn,
+                SF_CLIENT.start_execution(
+                    stateMachineArn = SF_ARN__VIZ_PIPELINE,
                     name = pipeline_name,
                     input= json.dumps(pipeline_run)
                 )
-            print(f"Invoked: {step_function_arn}")
+            print(f"Invoked: {SF_ARN__VIZ_PIPELINE}")
         except Exception as e:
             print(f"Couldn't invoke - update later. ({e})")
             

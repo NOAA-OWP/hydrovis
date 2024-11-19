@@ -595,6 +595,7 @@ module "viz-lambda-functions" {
   lambda_role                    = module.iam-roles.role_viz_pipeline.arn
   # sns_topics                      = module.sns.sns_topics
   nws_shared_account_nwm_sns     = local.env.nwm_dataflow_version == "para" ? local.env.nws_shared_account_para_nwm_sns : local.env.nws_shared_account_prod_nwm_sns
+  wrds_db_dump_sns               = local.env.nws_shared_account_wrds_db_sns
   email_sns_topics               = module.sns.email_sns_topics
   es_logging_layer               = module.lambda-layers.es_logging.arn
   xarray_layer                   = module.lambda-layers.xarray.arn
@@ -619,6 +620,7 @@ module "viz-lambda-functions" {
   egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
   viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
+  sync_wrds_db_step_function_arn = module.step-functions.sync_wrds_location_db_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
   five_minute_trigger            = module.eventbridge.five_minute_eventbridge

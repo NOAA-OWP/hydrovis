@@ -91,6 +91,10 @@ variable "nws_shared_account_nwm_sns" {
   type = string
 }
 
+variable "wrds_db_dump_sns" {
+  type = string
+}
+
 variable "email_sns_topics" {
   description = "SnS topics"
   type        = map(any)
@@ -186,6 +190,10 @@ variable "viz_lambda_shared_funcs_layer" {
 }
 
 variable "viz_pipeline_step_function_arn" {
+  type = string
+}
+
+variable "sync_wrds_db_step_function_arn" {
   type = string
 }
 
@@ -458,7 +466,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN            = var.viz_pipeline_step_function_arn
+      SF_ARN__VIZ_PIPELINE         = var.viz_pipeline_step_function_arn
+      SF_ARN__SYNC_WRDS_DB         = var.sync_wrds_db_step_function_arn
+      SNS_TOPIC__WRDS_DB_DUMP      = var.wrds_db_dump_sns
       DATA_BUCKET_UPLOAD           = var.fim_output_bucket
       PYTHON_PREPROCESSING_BUCKET  = var.python_preprocessing_bucket
       RNR_DATA_BUCKET              = var.rnr_data_bucket
@@ -502,6 +512,20 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.nws_shared_account_nwm_sns
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_wrds_db_dump" {
+  provider = aws.sns
+  topic_arn = var.wrds_db_dump_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_wrds_db_dump" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.wrds_db_dump_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {
