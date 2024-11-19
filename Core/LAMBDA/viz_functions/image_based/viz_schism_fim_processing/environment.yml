@@ -1,0 +1,16 @@
+name: HV
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - numpy
+  - scipy
+  - xarray
+  - rasterio
+  - s3fs
+  - boto3
+  - geopandas
+  - fiona
+  - rioxarray
+  - shapely
