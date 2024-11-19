@@ -377,7 +377,7 @@ def load_df_into_db(table_name, db_engine, df, dtype={'oid': sqlalchemy.types.In
     
 def move_data_to_another_db(origin_db, dest_db, origin_table, dest_table, stage=True, add_oid=True,
                             add_geom_index=True, columns="*"):
-    origin_engine = get_db_engine(origin_db)
+    # origin_engine = get_db_engine(origin_db)
     dest_engine = get_db_engine(dest_db)
 
     if stage:
