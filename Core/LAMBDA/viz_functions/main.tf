@@ -124,7 +124,7 @@ variable "viz_db_user_secret_string" {
   type        = string
 }
 
-variable "viz_db_suser_seceret_string" {
+variable "viz_db_suser_secret_string" {
   description = "The secret string of the viz_processing data base superuser to write/read data as."
   type        = string
 }
@@ -919,8 +919,8 @@ resource "aws_lambda_function" "viz_test_wrds_db" {
       WRDS_DB_PASSWORD  = jsondecode(var.wrds_db_user_secret_string)["password"]
       VIZ_DB_DATABASE   = var.viz_db_name
       VIZ_DB_HOST       = var.viz_db_host
-      VIZ_DB_USERNAME   = jsondecode(var.viz_db_suser_seceret_string)["username"]
-      VIZ_DB_PASSWORD   = jsondecode(var.viz_db_suser_seceret_string)["password"]
+      VIZ_DB_USERNAME   = jsondecode(var.viz_db_suser_secret_string)["username"]
+      VIZ_DB_PASSWORD   = jsondecode(var.viz_db_suser_secret_string)["password"]
     }
   }
   s3_bucket        = aws_s3_object.viz_test_wrds_db_upload.bucket

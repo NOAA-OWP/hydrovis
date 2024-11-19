@@ -612,7 +612,7 @@ module "viz-lambda-functions" {
   viz_db_host                    = module.rds-viz.dns_name
   viz_db_name                    = local.env.viz_db_name
   viz_db_user_secret_string      = module.secrets-manager.secret_strings["viz-proc-admin-rw-user"]
-  viz_db_suser_seceret_string    = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
+  viz_db_suser_secret_string     = module.secrets-manager.secret_strings["viz-processing-pg-rdssecret"]
   wrds_db_host                   = module.rds-ingest.dns_name
   wrds_db_user_secret_string     = module.secrets-manager.secret_strings["ingest-pg-rdssecret"]
   egis_db_host                   = module.rds-egis.dns_name
