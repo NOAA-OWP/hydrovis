@@ -246,7 +246,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%Main Stem FIM Catchments_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "SELECT hydro_id::text as hydro_id, geom, huc8, branch, fim_version,model_version, oid FROM hydrovis.fim_catchments.branch_0_catchments",
+          "sqlQuery" : "SELECT hydro_id::text as hydro_id, geom, huc8, branch, fim_version,model_version, oid FROM hydrovis.fim_catchments.catchments_0_branches",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
