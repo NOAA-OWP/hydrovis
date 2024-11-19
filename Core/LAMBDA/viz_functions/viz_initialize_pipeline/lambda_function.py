@@ -76,15 +76,16 @@ def lambda_handler(event, context):
                                         ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
                                         # "medium_range.channel_rt_6.f240.conus.nc",
 
+                                        # NOTE: https://github.com/NOAA-OWP/hydrovis/issues/982
                                         ## Coastal ##
-                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
-                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
-                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
-                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
-                                        "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
-                                        "short_range_coastal.total_water.f018.atlgulf.nc",
-                                        "short_range_coastal.total_water.f048.puertorico.nc",
-                                        "short_range_coastal.total_water.f048.hawaii.nc"
+                                        # "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+                                        # "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+                                        # "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+                                        # "medium_range_coastal.total_water.f240.atlgulf.nc",
+                                        # "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
+                                        # "short_range_coastal.total_water.f018.atlgulf.nc",
+                                        # "short_range_coastal.total_water.f048.puertorico.nc",
+                                        # "short_range_coastal.total_water.f048.hawaii.nc"
                                         ]
         s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
         if s3_event.get('Records')[0].get('s3').get('object').get('key'):
