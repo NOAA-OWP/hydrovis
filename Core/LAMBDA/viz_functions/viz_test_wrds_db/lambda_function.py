@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         ALTER SERVER test_wrds_location OPTIONS (fetch_size '150000');
     '''
     
-    _execute_sql(connection, sql)
+    db.execute_sql(connection, sql)
     
     for fname in FILES_DIR.iterdir():
         if fname.name in IGNORE_FILES: continue
@@ -65,22 +65,13 @@ def lambda_handler(event, context):
                 sql = re.sub(f'DROP TABLE IF EXISTS {table}\\b;?', '', sql, flags=re.IGNORECASE)
 
             print(f"Executing {fname.name} in test environment...")
-            _execute_sql(connection, sql)
+            db.execute_sql(connection, sql)
     
     sql = f'''
         DROP SERVER IF EXISTS test_wrds_location CASCADE;
         DROP SCHEMA IF EXISTS automated_test CASCADE;
         DROP SCHEMA IF EXISTS test_external CASCADE;
     '''
-    _execute_sql(connection, sql)
+    db.execute_sql(connection, sql)
     
     connection.close()
-
-def _execute_sql(connection, sql):
-    with connection:
-        with connection.cursor() as cur:
-            try:
-                cur.execute(sql)
-            except Exception as e:
-                print(sql)
-                raise e
