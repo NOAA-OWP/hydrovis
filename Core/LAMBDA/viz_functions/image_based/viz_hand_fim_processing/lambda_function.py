@@ -604,7 +604,7 @@ def interpolate_stage(df_row, df_hydro):
     if subset_hydro.empty:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
-    subset_hydro = subset_hydro.sort_value('discahrge_cms')
+    subset_hydro = subset_hydro.sort_values('discahrge_cms')
     discharges = subset_hydro['discharge_cms'].values
     stages = subset_hydro['stage_m'].values
     
