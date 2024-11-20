@@ -1,7 +1,7 @@
 product: mrf_gfs_10day_max_inundation_ak
 configuration: medium_range_alaska_mem1
 product_type: "fim"
-domain: alaska
+domain: ak
 run: true
 
 ingest_files:
