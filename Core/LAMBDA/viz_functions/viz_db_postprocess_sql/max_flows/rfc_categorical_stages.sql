@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS cache.rfc_categorical_stages;
 -- calculation
 SELECT *
 INTO ingest.routelink
-FROM external.nwm_routelink;
+FROM external.nwm_routelink_3_0_conus;
 
 SELECT 
 	main.nwm_feature_id, 

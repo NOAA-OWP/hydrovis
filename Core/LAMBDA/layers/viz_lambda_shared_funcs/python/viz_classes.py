@@ -101,6 +101,19 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                 raise e
         self.connection.close()
 
+    ###################################
+    def execute_sql(self, sql):
+        if sql.endswith('.sql') and os.path.exists(sql):
+            sql = open(sql, 'r').read()
+        with self.connection:
+            try:
+                with self.connection.cursor() as cur:
+                    print(f"---> Running provided SQL:\n{sql}")
+                    cur.execute(sql)
+            except Exception as e:
+                raise e
+        self.connection.close()
+                
     ###################################                
     def sql_to_dataframe(self, sql, return_geodataframe=False):
         if sql.endswith(".sql"):
