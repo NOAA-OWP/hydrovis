@@ -1,35 +1,30 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal AS alinux
 
-RUN dnf -y install gcc-c++ cpp sqlite-devel libtiff cmake python3 python3-pip \
-python3-setuptools python3-devel openssl-devel tcl libtiff-devel libcurl-devel \
-swig libpng-devel libjpeg-turbo-devel expat-devel wget tar gzip
+ARG MINIFORGE_NAME=Miniforge3
+ARG MINIFORGE_VERSION=24.9.2-0
 
-RUN wget https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_1_14_3/src/hdf5-1.14.3.tar.gz && \
-    tar zxvf hdf5-1.14.3.tar.gz && \
-    cd hdf5-1.14.3 && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    cmake --build . --parallel $(nproc) && \
-    cmake --install . --prefix /usr;
+ENV CONDA_DIR=/opt/conda
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV PATH=${CONDA_DIR}/bin:${PATH}
+# Prevent Python from writing bytecode files
+ENV PYTHONDONTWRITEBYTECODE=1
+# Prevent python from buffering stdout
+ENV PYTHONUNBUFFERED=1
 
-RUN wget https://download.osgeo.org/proj/proj-9.3.1.tar.gz && \
-    tar zxvf proj-9.3.1.tar.gz && \
-    cd proj-9.3.1/ && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    cmake --build . --parallel $(nproc) && \
-    cmake --install . --prefix /usr;
+# Installs some basic system tools to get conda installed
+RUN dnf update && \
+    dnf -y install wget bzip2 ca-certificates findutils && \
+    dnf clean all
 
-RUN wget https://github.com/OSGeo/gdal/releases/download/v3.8.3/gdal-3.8.3.tar.gz && \
-    tar xvzf gdal-3.8.3.tar.gz && \
-    cd gdal-3.8.3/ && \
-    mkdir build && \
-    cd build && \
-    cmake -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF -DOGR_BUILD_OPTIONAL_DRIVERS=OFF .. && \
-    cmake --build . --parallel $(nproc) && \
-    cmake --install . --prefix /usr;
+# Install and setup conda
+RUN wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
+    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
+    rm /tmp/miniforge.sh && \
+    conda clean --tarballs --index-cache --packages --yes && \
+    conda clean -afy && \
+    find ${CONDA_DIR} -regex '^.*\(__pycache__\|\.py[co]\)$' -delete && \
+    find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
+    rm -rf ${CONDA_DIR}/share/man ${CONDA_DIR}/man ${CONDA_DIR}/share/doc
 
 # END BASE IMAGE SETUP
 
@@ -37,15 +32,24 @@ RUN wget https://github.com/OSGeo/gdal/releases/download/v3.8.3/gdal-3.8.3.tar.g
 
 # Install the function's dependencies using file requirements.txt
 # from your project folder.
-COPY requirements.txt  .
-RUN  HDF5_DIR=/usr pip3 install --no-cache-dir --no-binary fiona -r requirements.txt
+WORKDIR /code
+#COPY conda-linux-64.lock  .
+# Create conda environment for hydrovis
+RUN --mount=type=bind,source=conda-linux-64.lock,target=/tmp/conda-linux-64.lock \
+    conda create -y -p /HV --file /tmp/conda-linux-64.lock && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate /HV" >> ~/.bashrc && \
+    conda clean -afy && \
+    find /HV -regex '^.*\(__pycache__\|\.py[co]\)$' -delete && \
+    find /HV -follow -type f -name '*.a' -delete
 
 # Copy function code
-COPY process_schism_fim.py .
-COPY viz_classes.py .
+COPY viz_classes.py \
+    process_schism_fim.py \
+    ./
 
-ENV PYTHONUNBUFFERED=1
-ENV GDAL_DATA=/usr/share/gdal/data
-
-# Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
-CMD [ "python3", "./process_schism_fim.py" ]
+ENTRYPOINT [ "conda", "run", "--no-capture-output", "-p", "/HV" ]
+CMD [ \
+    "python", "process_schism_fim.py" \
+]

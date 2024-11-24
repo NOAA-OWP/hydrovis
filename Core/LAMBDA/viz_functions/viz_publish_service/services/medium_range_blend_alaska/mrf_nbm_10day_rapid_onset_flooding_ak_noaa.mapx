@@ -26,11 +26,9 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/10_day___rapid_onset_flood_arrival_time2.xml",
+      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/10_day___rapid_onset_flood_arrival_time.xml",
       "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/essing_publish_mrf_nbm_10day_rapid_onset_flooding_alaska.xml",
-      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/n_rw_user_mrf_nbm_10day_rapid_onset_flooding_hucs_alaska.xml",
-      "CIMPATH=e0f5c39ad8fa4f0fb24a050bc9018d49.xml",
-      "CIMPATH=aff6ed460e58483f8686196f28c72128.xml"
+      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/n_rw_user_mrf_nbm_10day_rapid_onset_flooding_hucs_alaska.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -66,9 +64,9 @@
     ],
     "defaultExtent" : {
       "xmin" : -17521420.8845863342,
-      "ymin" : 8078616.62078872137,
-      "xmax" : -15023088.8685748782,
-      "ymax" : 9298068.87979336269,
+      "ymin" : 7755559.3993347995,
+      "xmax" : -15023088.86857488,
+      "ymax" : 9621126.10124728456,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -215,7 +213,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "10 Day - Rapid Onset Flood Arrival Time",
-      "uRI" : "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/10_day___rapid_onset_flood_arrival_time2.xml",
+      "uRI" : "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/10_day___rapid_onset_flood_arrival_time.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -263,7 +261,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
             "fieldName" : "feature_id",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -630,7 +628,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.feature_id",
+          "expression" : "$feature.Name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -9858,7 +9856,8 @@
       "name" : "10 Day - Rapid Onset Flood Duration",
       "uRI" : "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/essing_publish_mrf_nbm_10day_rapid_onset_flooding_alaska.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant"
+        "type" : "TimeInstant",
+        "start" : 978307200000
       },
       "useSourceMetadata" : true,
       "description" : "vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska",
@@ -10035,7 +10034,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -20808,89 +20807,6 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    },
-    {
-      "type" : "CIMVectorTileLayer",
-      "name" : "World Topographic Map",
-      "uRI" : "CIMPATH=e0f5c39ad8fa4f0fb24a050bc9018d49.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/625740129436790ce50fb6d6c3130cc2.xml",
-      "useSourceMetadata" : true,
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{5772F712-BC82-4B4C-A077-A4B644E970CF}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : false,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "dataConnection" : {
-        "type" : "CIMVectorTileDataConnection",
-        "uRI" : "https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json"
-      }
-    },
-    {
-      "type" : "CIMTiledServiceLayer",
-      "name" : "World Hillshade",
-      "uRI" : "CIMPATH=aff6ed460e58483f8686196f28c72128.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/f786bde0b0b9d4a15677a4d6b0d258b0.xml",
-      "useSourceMetadata" : true,
-      "description" : "Elevation/World_Hillshade",
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{5772F712-BC82-4B4C-A077-A4B644E970CF}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : false,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "serviceConnection" : {
-        "type" : "CIMAGSServiceConnection",
-        "objectName" : "Elevation/World_Hillshade",
-        "objectType" : "MapServer",
-        "url" : "https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
-        "serverConnection" : {
-          "type" : "CIMInternetServerConnection",
-          "anonymous" : true,
-          "hideUserProperty" : true,
-          "url" : "https://services.arcgisonline.com/arcgis/services"
-        }
-      },
-      "transparentColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      },
-      "backgroundColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      }
     }
   ],
   "binaryReferences" : [
@@ -20903,16 +20819,6 @@
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/0d9f8ac9e67d3ef6f775db0d27a0661c.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240807</CreaDate><CreaTime>19082900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>10 Day - Rapid Onset Flood Arrival Time</resTitle></idCitation><idAbs>vizprocessing.publish.mrf_nbm_10day_rapid_onset_flooding_alaska</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/625740129436790ce50fb6d6c3130cc2.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240807</CreaDate><CreaTime>18484500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Topographic Map</resTitle></idCitation><idAbs></idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/f786bde0b0b9d4a15677a4d6b0d258b0.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240807</CreaDate><CreaTime>18484500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Hillshade</resTitle></idCitation><idAbs>Elevation/World_Hillshade</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ]
 }

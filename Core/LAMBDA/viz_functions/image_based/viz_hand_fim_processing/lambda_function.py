@@ -16,7 +16,7 @@ from viz_classes import s3_file, database
 FIM_VERSION = os.environ['FIM_VERSION']
 HAND_BUCKET = os.environ['HAND_BUCKET']
 HAND_VERSION = os.environ['HAND_VERSION']
-HAND_PREFIX = f"fim/{HAND_VERSION.replace('.', '_')}/hand_datasets"
+HAND_PREFIX = f"fim/hand_{HAND_VERSION.replace('.', '_')}/hand_datasets"
 
 CACHE_FIM_RESOLUTION_FT = 0.25
 CACHE_FIM_RESOLUTION_ROUNDING = 'up'
@@ -342,10 +342,10 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         else:
             stages = stage_lookup['stage_m'].tolist()  # uses the interpolated stage value for the extent
 
-        k = np.array(hydroids)  # Create a feature numpy array from the list
-        v = np.array(stages)  # Create a stage numpy array from the list
+        hydroids = np.array(hydroids)  # Create a feature numpy array from the list
+        stages = np.array(stages)  # Create a stage numpy array from the list
 
-        hydro_id_max = k.max()  # Get the max feature id in the array
+        hydro_id_max = hydroids.max()  # Get the max feature id in the array
 
         hand_nodata = hand_dataset.nodata  # get the no_data value for the HAND raster
         hand_dtype = hand_dataset.dtypes[0]  # get the dtype for the HAND raster
@@ -427,7 +427,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
             # Create a stage mapper that will convert hydroids to their corresponding stage. -9999 is null or
             # no value. we cant use 0 because it will mess up the mapping and use the 0 index
             mapping_ar = np.full(mapping_ar_max+1, -9999, dtype="float32")
-            mapping_ar[k] = v
+            mapping_ar[hydroids] = stages
 
             catchment_window[catchment_window == catchment_nodata] = 0  # Convert catchment values to 0 where the catchment = catchment_nodata  # noqa
             catchment_window[hand_window == hand_nodata] = 0  # Convert catchment values to 0 where the HAND = HAND_nodata. THis will ensure we are only processing where we have HAND values!  # noqa
@@ -604,7 +604,7 @@ def interpolate_stage(df_row, df_hydro):
     if subset_hydro.empty:
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
-    subset_hydro = subset_hydro.sort_value('discahrge_cms')
+    subset_hydro = subset_hydro.sort_values('discharge_cms')
     discharges = subset_hydro['discharge_cms'].values
     stages = subset_hydro['stage_m'].values
     

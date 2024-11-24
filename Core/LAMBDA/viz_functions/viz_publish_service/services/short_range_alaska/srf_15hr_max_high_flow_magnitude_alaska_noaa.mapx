@@ -26,7 +26,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_15_hour_max_high_flow_magnitude_forecast___alaska/estimated_annual_exceedance_probability.xml"
+      "CIMPATH=nwm_15_hour_max_high_flow_magnitude_forecast___alaska/estimated_annual_exceedance_probability2.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -61,9 +61,9 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -17867618.5906868279,
+      "xmin" : -18020342.73184761,
       "ymin" : 7415517.29321499355,
-      "xmax" : -15482772.3864069209,
+      "xmax" : -15330048.2452461384,
       "ymax" : 9424427.15002220683,
       "spatialReference" : {
         "wkid" : 102100,
@@ -211,7 +211,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Estimated Annual Exceedance Probability",
-      "uRI" : "CIMPATH=nwm_15_hour_max_high_flow_magnitude_forecast___alaska/estimated_annual_exceedance_probability.xml",
+      "uRI" : "CIMPATH=nwm_15_hour_max_high_flow_magnitude_forecast___alaska/estimated_annual_exceedance_probability2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -221,7 +221,7 @@
       "description" : "vizprocessing.publish.ana_high_flow_magnitude_ak",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{A4AEB3CF-5631-44E1-AF4B-0734E483B9CC}"
+        "mapElevationID" : "{252FDDD5-FFE1-4445-B6DE-42B26FEDFF6E}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -628,7 +628,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.feature_id",
+          "expression" : "$feature.Name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1078,7 +1078,7 @@
               {
                 "type" : "CIMUniqueValueClass",
                 "editable" : true,
-                "label" : "> 50% (High Water Threshold)",
+                "label" : "50%",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -1099,6 +1099,47 @@
                             57,
                             239,
                             255,
+                            100
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                "values" : [
+                  {
+                    "type" : "CIMUniqueValue",
+                    "fieldValues" : [
+                      "50"
+                    ]
+                  }
+                ],
+                "visible" : true
+              },
+              {
+                "type" : "CIMUniqueValueClass",
+                "editable" : true,
+                "label" : "> 50% AND > High Water Threshold",
+                "patch" : "Default",
+                "symbol" : {
+                  "type" : "CIMSymbolReference",
+                  "symbol" : {
+                    "type" : "CIMLineSymbol",
+                    "symbolLayers" : [
+                      {
+                        "type" : "CIMSolidStroke",
+                        "enable" : true,
+                        "capStyle" : "Round",
+                        "joinStyle" : "Round",
+                        "lineStyle3D" : "Strip",
+                        "miterLimit" : 10,
+                        "width" : 1,
+                        "color" : {
+                          "type" : "CIMRGBColor",
+                          "values" : [
+                            180,
+                            255,
+                            242,
                             100
                           ]
                         }
@@ -1158,7 +1199,7 @@
                 "visible" : true
               }
             ],
-            "heading" : "Current Annual Exceedance Probability"
+            "heading" : "Annual Exceedance Probability"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"

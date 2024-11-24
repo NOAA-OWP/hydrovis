@@ -26,7 +26,7 @@
       "enableEyeDomeLighting" : true
     },
     "layers" : [
-      "CIMPATH=nwm_streamflow_analysis___puertorico/discharge__cfs_.xml"
+      "CIMPATH=nwm_streamflow_analysis___alaska/discharge__cfs_.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -34,24 +34,24 @@
       "rings" : [
         [
           [
-            -17485422.4174862318,
-            7886300.20065900218
+            -18138582.7503093,
+            7381751.47884553671
           ],
           [
-            -17485422.4174862318,
-            9371378.81771642715
+            -18138582.7503093,
+            9417724.30079118162
           ],
           [
-            -15237735.8619398568,
-            9371378.81771642715
+            -15257264.4876727723,
+            9417724.30079118162
           ],
           [
-            -15237735.8619398568,
-            7886300.20065900218
+            -15257264.4876727723,
+            7381751.47884553671
           ],
           [
-            -17485422.4174862318,
-            7886300.20065900218
+            -18138582.7503093,
+            7381751.47884553671
           ]
         ]
       ],
@@ -61,10 +61,10 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -17485422.4174862318,
-      "ymin" : 7886300.20065900218,
-      "xmax" : -15237735.8619398568,
-      "ymax" : 9371378.81771642715,
+      "xmin" : -18061191.9705277383,
+      "ymin" : 7381751.47884553671,
+      "xmax" : -15334655.2674543317,
+      "ymax" : 9417724.30079118162,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -202,6 +202,13 @@
       "equalsSign" : "="
     },
     "scaleDisplayFormat" : "Value",
+    "groundToGridCorrection" : {
+      "type" : "CIMGroundToGridCorrection",
+      "useDirection" : true,
+      "useScale" : true,
+      "scaleType" : "ConstantFactor",
+      "constantScaleFactor" : 1
+    },
     "clippingMode" : "None",
     "nearPlaneClipDistanceMode" : "Automatic",
     "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
@@ -211,7 +218,7 @@
     {
       "type" : "CIMFeatureLayer",
       "name" : "Discharge (cfs)",
-      "uRI" : "CIMPATH=nwm_streamflow_analysis___puertorico/discharge__cfs_.xml",
+      "uRI" : "CIMPATH=nwm_streamflow_analysis___alaska/discharge__cfs_.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -731,11 +738,11 @@
                     "miterLimit" : 10,
                     "width" : 1,
                     "color" : {
-                      "type" : "CIMHSVColor",
+                      "type" : "CIMRGBColor",
                       "values" : [
-                        279.64999999999998,
-                        100,
-                        45.100000000000001,
+                        76,
+                        0,
+                        115,
                         100
                       ]
                     }
@@ -763,11 +770,11 @@
                     "miterLimit" : 10,
                     "width" : 1,
                     "color" : {
-                      "type" : "CIMHSVColor",
+                      "type" : "CIMRGBColor",
                       "values" : [
-                        284.08999999999997,
-                        100,
-                        90.200000000000003,
+                        169,
+                        0,
+                        230,
                         100
                       ]
                     }
@@ -829,7 +836,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        255,
+                        168,
                         0,
                         0,
                         100
@@ -862,7 +869,7 @@
                       "type" : "CIMRGBColor",
                       "values" : [
                         255,
-                        85,
+                        0,
                         0,
                         100
                       ]
@@ -894,7 +901,7 @@
                       "type" : "CIMRGBColor",
                       "values" : [
                         255,
-                        170,
+                        85,
                         0,
                         100
                       ]
@@ -907,7 +914,103 @@
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "5,000 - 7,500",
+            "label" : "5,000 - 10,000",
+            "patch" : "Default",
+            "symbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMLineSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 1,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        255,
+                        170,
+                        0,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "upperBound" : 10000
+          },
+          {
+            "type" : "CIMClassBreak",
+            "label" : "10,000 - 25,000",
+            "patch" : "Default",
+            "symbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMLineSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 1,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        38,
+                        74,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "upperBound" : 25000
+          },
+          {
+            "type" : "CIMClassBreak",
+            "label" : "25,000 - 50,000",
+            "patch" : "Default",
+            "symbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMLineSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 1,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        38,
+                        115,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "upperBound" : 50000
+          },
+          {
+            "type" : "CIMClassBreak",
+            "label" : "50,000 - 100,000",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -935,11 +1038,11 @@
                 ]
               }
             },
-            "upperBound" : 7500
+            "upperBound" : 100000
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "7,500 - 15,000",
+            "label" : "100,000 - 250,000",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -967,11 +1070,11 @@
                 ]
               }
             },
-            "upperBound" : 15000
+            "upperBound" : 250000
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "15,000 - 30,000",
+            "label" : "250,000 - 500,000",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -987,11 +1090,11 @@
                     "miterLimit" : 10,
                     "width" : 1,
                     "color" : {
-                      "type" : "CIMHSVColor",
+                      "type" : "CIMRGBColor",
                       "values" : [
-                        213.65000000000001,
-                        100,
-                        100,
+                        0,
+                        112,
+                        255,
                         100
                       ]
                     }
@@ -999,11 +1102,11 @@
                 ]
               }
             },
-            "upperBound" : 30000
+            "upperBound" : 500000
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "30,000 - 60,000",
+            "label" : "500,000 - 1,000,000",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -1019,11 +1122,11 @@
                     "miterLimit" : 10,
                     "width" : 1,
                     "color" : {
-                      "type" : "CIMHSVColor",
+                      "type" : "CIMRGBColor",
                       "values" : [
-                        213,
-                        54.899999999999999,
-                        100,
+                        115,
+                        178,
+                        255,
                         100
                       ]
                     }
@@ -1031,11 +1134,11 @@
                 ]
               }
             },
-            "upperBound" : 60000
+            "upperBound" : 1000000
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "> 60,000",
+            "label" : "> 1,000,000",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -1051,11 +1154,11 @@
                     "miterLimit" : 10,
                     "width" : 1,
                     "color" : {
-                      "type" : "CIMHSVColor",
+                      "type" : "CIMRGBColor",
                       "values" : [
-                        221.53999999999999,
-                        25.489999999999998,
-                        100,
+                        190,
+                        210,
+                        255,
                         100
                       ]
                     }
@@ -1063,40 +1166,88 @@
                 ]
               }
             },
-            "upperBound" : 9999999999
+            "upperBound" : 99999999
           }
         ],
         "classBreakType" : "GraduatedColor",
         "classificationMethod" : "Manual",
         "colorRamp" : {
-          "type" : "CIMPolarContinuousColorRamp",
+          "type" : "CIMFixedColorRamp",
           "colorSpace" : {
             "type" : "CIMICCColorSpace",
             "url" : "Default RGB"
           },
-          "fromColor" : {
-            "type" : "CIMHSVColor",
-            "values" : [
-              60,
-              100,
-              96,
-              100
-            ]
-          },
-          "toColor" : {
-            "type" : "CIMHSVColor",
-            "values" : [
-              0,
-              100,
-              96,
-              100
-            ]
-          },
-          "interpolationSpace" : "HSV",
-          "polarDirection" : "Auto"
+          "colors" : [
+            {
+              "type" : "CIMRGBColor",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "values" : [
+                230,
+                238,
+                207,
+                100
+              ]
+            },
+            {
+              "type" : "CIMRGBColor",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "values" : [
+                155,
+                196,
+                193,
+                100
+              ]
+            },
+            {
+              "type" : "CIMRGBColor",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "values" : [
+                105,
+                168,
+                183,
+                100
+              ]
+            },
+            {
+              "type" : "CIMRGBColor",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "values" : [
+                75,
+                126,
+                152,
+                100
+              ]
+            },
+            {
+              "type" : "CIMRGBColor",
+              "colorSpace" : {
+                "type" : "CIMICCColorSpace",
+                "url" : "Default RGB"
+              },
+              "values" : [
+                46,
+                85,
+                122,
+                100
+              ]
+            }
+          ],
+          "arrangement" : "Default"
         },
         "field" : "streamflow",
-        "minimumBreak" : 0.35000000000000003,
+        "minimumBreak" : 0.70999999999999996,
         "numberFormat" : {
           "type" : "CIMNumericFormat",
           "alignmentOption" : "esriAlignLeft",
@@ -1106,7 +1257,7 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : false,
-        "heading" : "Discharge (cfs)",
+        "heading" : "streamflow",
         "sampleSize" : 10000,
         "defaultSymbolPatch" : "Default",
         "defaultSymbol" : {

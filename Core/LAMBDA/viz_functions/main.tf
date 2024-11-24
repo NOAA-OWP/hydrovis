@@ -77,10 +77,6 @@ variable "db_lambda_security_groups" {
   type        = list(any)
 }
 
-variable "nat_sg_group" {
-  type = string
-}
-
 variable "db_lambda_subnets" {
   description = "Subnets to use for the db-pipeline lambdas."
   type        = list(any)
@@ -92,6 +88,10 @@ variable "db_lambda_subnets" {
 # }
 
 variable "nws_shared_account_nwm_sns" {
+  type = string
+}
+
+variable "wrds_db_dump_sns" {
   type = string
 }
 
@@ -124,8 +124,23 @@ variable "viz_db_user_secret_string" {
   type        = string
 }
 
+variable "viz_db_suser_secret_string" {
+  description = "The secret string of the viz_processing data base superuser to write/read data as."
+  type        = string
+}
+
 variable "egis_db_user_secret_string" {
   description = "The secret string for the egis rds database."
+  type        = string
+}
+
+variable "wrds_db_host" {
+  description = "Hostname of the viz processing RDS instance."
+  type        = string
+}
+
+variable "wrds_db_user_secret_string" {
+  description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
 
@@ -174,11 +189,11 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
-variable "dataservices_host" {
+variable "viz_pipeline_step_function_arn" {
   type = string
 }
 
-variable "viz_pipeline_step_function_arn" {
+variable "sync_wrds_db_step_function_arn" {
   type = string
 }
 
@@ -211,9 +226,6 @@ locals {
     "rnr_wrf_hydro_output"
   ])
 }
-
-########################################################################################################################################
-########################################################################################################################################
 
 ##################################
 ## EGIS Health Checker Function ##
@@ -454,7 +466,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN            = var.viz_pipeline_step_function_arn
+      SF_ARN__VIZ_PIPELINE         = var.viz_pipeline_step_function_arn
+      SF_ARN__SYNC_WRDS_DB         = var.sync_wrds_db_step_function_arn
+      SNS_TOPIC__WRDS_DB_DUMP      = var.wrds_db_dump_sns
       DATA_BUCKET_UPLOAD           = var.fim_output_bucket
       PYTHON_PREPROCESSING_BUCKET  = var.python_preprocessing_bucket
       RNR_DATA_BUCKET              = var.rnr_data_bucket
@@ -498,6 +512,20 @@ resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.nws_shared_account_nwm_sns
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_wrds_db_dump" {
+  provider = aws.sns
+  topic_arn = var.wrds_db_dump_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_wrds_db_dump" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.wrds_db_dump_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {
@@ -845,6 +873,72 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
     }
   }
 }
+
+
+######################
+## VIZ TEST WRDS DB ##
+######################
+data "archive_file" "viz_test_wrds_db_zip" {
+  type = "zip"
+  output_path = "${path.module}/temp/test_sql_${var.environment}_${var.region}.zip"
+
+  source {
+    content  = file("${path.module}/viz_test_wrds_db/lambda_function.py")
+    filename = "lambda_function.py"
+  }
+
+  dynamic "source" {
+    for_each = fileset("${path.module}", "**/*.sql")
+    content {
+      content  = file("${path.module}/${source.key}")
+      filename = basename(source.key)
+    }
+  }
+}
+
+resource "aws_s3_object" "viz_test_wrds_db_upload" {
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
+  source      = data.archive_file.viz_test_wrds_db_zip.output_path
+  source_hash = filemd5(data.archive_file.viz_test_wrds_db_zip.output_path)
+}
+
+resource "aws_lambda_function" "viz_test_wrds_db" {
+  function_name = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  description   = "Lambda function to test the wrds_location3_ondeck db before it is swapped for the live version"
+  timeout       = 900
+  memory_size   = 5000
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      WRDS_DB_HOST      = var.wrds_db_host
+      WRDS_DB_USERNAME  = jsondecode(var.wrds_db_user_secret_string)["username"]
+      WRDS_DB_PASSWORD  = jsondecode(var.wrds_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE   = var.viz_db_name
+      VIZ_DB_HOST       = var.viz_db_host
+      VIZ_DB_USERNAME   = jsondecode(var.viz_db_suser_secret_string)["username"]
+      VIZ_DB_PASSWORD   = jsondecode(var.viz_db_suser_secret_string)["password"]
+    }
+  }
+  s3_bucket        = aws_s3_object.viz_test_wrds_db_upload.bucket
+  s3_key           = aws_s3_object.viz_test_wrds_db_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.viz_test_wrds_db_zip.output_path)
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  }
+}
+
+
 
 #########################
 ## Image Based Lambdas ##
