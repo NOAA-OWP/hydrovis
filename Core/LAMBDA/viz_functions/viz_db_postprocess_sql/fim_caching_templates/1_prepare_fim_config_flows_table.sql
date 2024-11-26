@@ -15,7 +15,11 @@ FROM {max_flows_table} max_forecast
 JOIN derived.recurrence_flows_{domain} rf ON rf.feature_id=max_forecast.feature_id
 JOIN derived.fim4_featureid_crosswalk AS crosswalk ON max_forecast.feature_id = crosswalk.feature_id
 WHERE 
-    max_forecast.discharge_cfs >= rf.high_water_threshold AND 
+    (max_forecast.discharge_cfs >= rf.high_water_threshold AND 
     rf.high_water_threshold > 0::double precision AND
     crosswalk.huc8 IS NOT NULL AND 
-    crosswalk.lake_id = -999;
+    crosswalk.lake_id = -999)
+    AND (
+        ('{max_flows_table}' LIKE '%ak%' AND crosswalk.branch_id != 0) 
+        OR '{max_flows_table}' NOT LIKE '%ak%'
+    );
