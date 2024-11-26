@@ -1008,6 +1008,10 @@ output "egis_health_checker" {
   value = aws_lambda_function.egis_health_checker
 }
 
+output "test_wrds_db" {
+  value = aws_lambda_function.viz_test_wrds_db
+}
+
 output "hand_fim_processing" {
   value = module.image-based-lambdas.hand_fim_processing
 }

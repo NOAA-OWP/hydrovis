@@ -62,6 +62,7 @@ resource "aws_cloudwatch_event_target" "trigger_pipeline_test_run" {
       "Records": [
         {
           "Sns": {
+            "TopicArn": "N/A",
             "Message": "{\"Records\": [{\"s3\": {\"bucket\": {\"name\": \"<s3_bucket>\"}, \"object\": {\"key\": \"<s3_key>\"}}}]}"
           }
         }
