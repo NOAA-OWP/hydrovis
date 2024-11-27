@@ -106,10 +106,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
         hand_fim_processing_step_function_arn = aws_sfn_state_machine.hand_fim_processing_step_function.arn
         viz_processing_pipeline_log_group = var.viz_processing_pipeline_log_group
     })
-
-    tags = {
-      "noaa:monitoring" : "true"
-    }
 }
 
 ###############################################
