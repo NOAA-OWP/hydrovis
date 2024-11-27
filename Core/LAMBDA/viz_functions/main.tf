@@ -212,11 +212,14 @@ variable "five_minute_trigger" {
   })
 }
 
+variable "egis_host" {
+  type = string
+}
+
 ########################################################################################################################################
 ########################################################################################################################################
 
 locals {
-  egis_host                = var.environment == "prod" ? "https://maps.water.noaa.gov/portal" : var.environment == "uat" ? "https://maps-staging.water.noaa.gov/portal" : var.environment == "ti" ? "https://maps-testing.water.noaa.gov/portal" : "https://hydrovis-dev.nwc.nws.noaa.gov/portal"
   service_suffix           = var.environment == "prod" ? "" : var.environment == "uat" ? "_beta" : var.environment == "ti" ? "_alpha" : "_gamma"
   raster_output_prefix     = "processing_outputs"
   ecr_repository_image_tag = "latest"
@@ -835,7 +838,7 @@ resource "aws_lambda_function" "viz_publish_service" {
   environment {
     variables = {
       GIS_PASSWORD        = var.egis_portal_password
-      GIS_HOST            = local.egis_host
+      GIS_HOST            = var.egis_host
       GIS_USERNAME        = "hydrovis.proc"
       PUBLISH_FLAG_BUCKET = var.python_preprocessing_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
