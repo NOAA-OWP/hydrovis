@@ -37,9 +37,6 @@ resource "aws_sfn_state_machine" "replace_route_step_function" {
         rnr_domain_generator_arn = var.rnr_domain_generator_arn
         rnr_ec2_instance = var.rnr_ec2_instance
     })
-
-    tags = {
-    }
 }
 
 resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
