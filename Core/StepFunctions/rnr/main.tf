@@ -39,7 +39,6 @@ resource "aws_sfn_state_machine" "replace_route_step_function" {
     })
 
     tags = {
-      "noaa:monitoring" : "true"
     }
 }
 

@@ -108,7 +108,6 @@ resource "aws_sfn_state_machine" "viz_pipeline_step_function" {
     })
 
     tags = {
-      "noaa:monitoring" : "true"
     }
 }
 
