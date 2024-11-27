@@ -492,7 +492,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
 
             if np.max(inundation_window) != 0:
                 results = []
-                for s, v in shapes(inundation_window, mask=None, transform=rasterio.windows.transform(window, hand_dataset.transform)):
+                for s, v in shapes(inundation_window, mask=None, transform=riowindows.transform(window, hand_dataset.transform)):
                     if int(v):
                         results.append((int(v), shape(s)))
                     
