@@ -32,27 +32,30 @@ def lambda_handler(event, context):
 	feature_service = service_metadata['feature_service']
 	publish_flag_bucket = os.getenv('PUBLISH_FLAG_BUCKET')
 	publish_flag_key = f"published_flags/{server}/{folder}/{service_name}/{service_name}"
+	gis_host = os.getenv('GIS_HOST')
 
 	print("Attempting to Initialize the ArcGIS GIS class with the EGIS Portal.")
 	try:
-		gis = GIS(os.getenv('GIS_HOST'), os.getenv('GIS_USERNAME'), os.getenv('GIS_PASSWORD'), verify_cert=False)
+		gis = GIS(gis_host, os.getenv('GIS_USERNAME'), os.getenv('GIS_PASSWORD'), verify_cert=False)
 	except Exception as e:
 		print("Failed to connect to the GIS.")
 		raise e
-	
-	gis_servers = gis.admin.servers.list()
-	publish_server = None
-	for gis_server in gis_servers:
-		if server == "server":
-			if "server" in gis_server.url or "egis-gis" in gis_server.url:
-				publish_server = gis_server
-				break
-		elif server == "image":
-			if "image" in gis_server.url or "egis-img" in gis_server.url:
-				publish_server = gis_server
-				break
-	if not publish_server:
-		raise Exception(f"Could not find appropriate GIS server for {server}")
+	if "eks" in gis_host:
+		publish_server = gis.admin
+	else:
+		gis_servers = gis.admin.servers.list()
+		publish_server = None
+		for gis_server in gis_servers:
+			if server == "server":
+				if "server" in gis_server.url or "egis-gis" in gis_server.url:
+					publish_server = gis_server
+					break
+			elif server == "image":
+				if "image" in gis_server.url or "egis-img" in gis_server.url:
+					publish_server = gis_server
+					break
+		if not publish_server:
+			raise Exception(f"Could not find appropriate GIS server for {server}")
 
 	counter = itertools.count(start=1)
 	while True:
@@ -98,7 +101,11 @@ def lambda_handler(event, context):
 				s3.download_file(s3_bucket, sd_s3_path, local_sd_file)
 				print(f"---> Downloaded {sd_s3_path}")
 				# Publish the service
-				success = publish_server.services.publish_sd(sd_file=local_sd_file, folder=folder) # arcgis.gis.GIS publish_sd method
+				if "eks" in gis_host:
+					publish_obj = publish_server.services_catalog
+				else:
+					publish_obj = publish_server.services
+				success = publish_obj.publish_sd(sd_file=local_sd_file, folder=folder) # arcgis.gis.GIS publish_sd method
 				print(f"Publish success: {success}")
 				print(f"---> Published {sd_s3_path}")
 
