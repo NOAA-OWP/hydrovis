@@ -6,7 +6,7 @@ from viz_classes import database
 
 
 THIS_DIR = Path(__file__).parent
-FILES_DIR = THIS_DIR / 'files'
+FILES_DIR = THIS_DIR / 'sql_files'
 IGNORE_FILES = ['dba_stuff.sql']
 IGNORE_TABLES = ['building_footprints_fema']
 
@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         ALTER SERVER test_wrds_location OPTIONS (fetch_size '150000');
     '''
     
-    db.execute_sql(connection, sql)
+    db.execute_sql(sql)
     
     for fname in FILES_DIR.iterdir():
         if fname.name in IGNORE_FILES: continue
@@ -65,13 +65,13 @@ def lambda_handler(event, context):
                 sql = re.sub(f'DROP TABLE IF EXISTS {table}\\b;?', '', sql, flags=re.IGNORECASE)
 
             print(f"Executing {fname.name} in test environment...")
-            db.execute_sql(connection, sql)
+            db.execute_sql(sql)
     
     sql = f'''
         DROP SERVER IF EXISTS test_wrds_location CASCADE;
         DROP SCHEMA IF EXISTS automated_test CASCADE;
         DROP SCHEMA IF EXISTS test_external CASCADE;
     '''
-    db.execute_sql(connection, sql)
+    db.execute_sql(sql)
     
     connection.close()

@@ -891,7 +891,7 @@ data "archive_file" "viz_test_wrds_db_zip" {
     for_each = fileset("${path.module}", "**/*.sql")
     content {
       content  = file("${path.module}/${source.key}")
-      filename = basename(source.key)
+      filename = "sql_files/${basename(source.key)}"
     }
   }
 }

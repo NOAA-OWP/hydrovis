@@ -34,6 +34,56 @@ SNS_TOPIC__WRDS_DB_DUMP = os.environ["SNS_TOPIC__WRDS_DB_DUMP"]
 
 SF_CLIENT = boto3.client('stepfunctions')
 
+# PIPELINE_INIT_FILES = [] #Swap out this for the following list to pause all pipelines.
+PIPELINE_INIT_FILES = [
+    ## ANA ##
+    "analysis_assim.channel_rt.tm00.conus.nc",
+    "analysis_assim.forcing.tm00.conus.nc",
+    "analysis_assim.channel_rt.tm0000.hawaii.nc",
+    "analysis_assim.forcing.tm00.hawaii.nc",
+    "analysis_assim.channel_rt.tm00.puertorico.nc",
+    "analysis_assim.forcing.tm00.puertorico.nc",
+    "analysis_assim.channel_rt.tm00.alaska.nc",
+    "analysis_assim.forcing.tm00.alaska.nc",
+    
+    ## SRF ##
+    "short_range.channel_rt.f018.conus.nc",
+    "short_range.forcing.f018.conus.nc",
+    "short_range.channel_rt.f04800.hawaii.nc",
+    "short_range.forcing.f048.hawaii.nc",
+    "short_range.channel_rt.f048.puertorico.nc",
+    "short_range.forcing.f048.puertorico.nc",
+    "short_range.forcing.f015.alaska.nc",
+    "short_range.channel_rt.f015.alaska.nc",
+    
+    ## MRF GFS ##
+    "medium_range.channel_rt_1.f240.conus.nc",
+    "medium_range.forcing.f240.conus.nc",
+    "medium_range.channel_rt.f119.conus.nc",
+    "medium_range.channel_rt_1.f240.alaska.nc",
+    "medium_range.forcing.f240.alaska.nc",
+    
+    ## MRF NBM ##
+    "medium_range_blend.channel_rt.f240.conus.nc",
+    "medium_range_blend.forcing.f240.conus.nc",
+    "medium_range_blend.channel_rt.f240.alaska.nc",
+    "medium_range_blend.forcing.f240.alaska.nc",
+    
+    ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
+    # "medium_range.channel_rt_6.f240.conus.nc",
+
+    # NOTE: https://github.com/NOAA-OWP/hydrovis/issues/982
+    ## Coastal ##
+    # "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+    # "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+    # "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+    # "medium_range_coastal.total_water.f240.atlgulf.nc",
+    # "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
+    # "short_range_coastal.total_water.f018.atlgulf.nc",
+    # "short_range_coastal.total_water.f048.puertorico.nc",
+    # "short_range_coastal.total_water.f048.hawaii.nc"
+]
+
 ###################################################################################################################################################
 class DuplicatePipelineException(Exception):
     """ my custom exception class """
@@ -45,70 +95,23 @@ def lambda_handler(event, context):
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
         sns_event = event.get('Records')[0].get('Sns')
-        s3_event = json.loads(sns_event.get('Message'))
+        s3_message = json.loads(sns_event.get('Message'))
+        s3_event = s3_message.get('Records')[0].get('s3')
+        s3_key = s3_event.get('object').get('key')
 
-        if sns_event["TopicArn"] == SNS_TOPIC__WRDS_DB_DUMP:
+        if any(suffix in s3_key for suffix in PIPELINE_INIT_FILES):
+            print(f"Continuing pipeline initialization with Shared Bucket S3 key: {s3_key}")
+        elif sns_event["TopicArn"] == SNS_TOPIC__WRDS_DB_DUMP:
+            print("Starting WRDS DB Sync Step Function...")
             SF_CLIENT.start_execution(
                 stateMachineArn=SF_ARN__SYNC_WRDS_DB,
-                name=s3_event.get('object').get('key').split('/')[-1].split('.')[0],
+                name=s3_key.split('/')[-1].split('.')[0],
                 input=json.dumps(s3_event)
                 )
-        # pipeline_iniitializing_files = [] #Swap out this for the following list to pause all pipelines.
-        pipeline_iniitializing_files = [
-                                        ## ANA ##
-                                        "analysis_assim.channel_rt.tm00.conus.nc",
-                                        "analysis_assim.forcing.tm00.conus.nc",
-                                        "analysis_assim.channel_rt.tm0000.hawaii.nc",
-                                        "analysis_assim.forcing.tm00.hawaii.nc",
-                                        "analysis_assim.channel_rt.tm00.puertorico.nc",
-                                        "analysis_assim.forcing.tm00.puertorico.nc",
-                                        "analysis_assim.channel_rt.tm00.alaska.nc",
-                                        "analysis_assim.forcing.tm00.alaska.nc",
-                                        
-                                        ## SRF ##
-                                        "short_range.channel_rt.f018.conus.nc",
-                                        "short_range.forcing.f018.conus.nc",
-                                        "short_range.channel_rt.f04800.hawaii.nc",
-                                        "short_range.forcing.f048.hawaii.nc",
-                                        "short_range.channel_rt.f048.puertorico.nc",
-                                        "short_range.forcing.f048.puertorico.nc",
-                                        "short_range.forcing.f015.alaska.nc",
-                                        "short_range.channel_rt.f015.alaska.nc",
-                                        
-                                        ## MRF GFS ##
-                                        "medium_range.channel_rt_1.f240.conus.nc",
-                                        "medium_range.forcing.f240.conus.nc",
-                                        "medium_range.channel_rt.f119.conus.nc",
-                                        "medium_range.channel_rt_1.f240.alaska.nc",
-                                        "medium_range.forcing.f240.alaska.nc",
-                                        
-                                        ## MRF NBM ##
-                                        "medium_range_blend.channel_rt.f240.conus.nc",
-                                        "medium_range_blend.forcing.f240.conus.nc",
-                                        "medium_range_blend.channel_rt.f240.alaska.nc",
-                                        "medium_range_blend.forcing.f240.alaska.nc",
-                                        
-                                        ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
-                                        # "medium_range.channel_rt_6.f240.conus.nc",
+            return
+        else:
+            return
 
-                                        # NOTE: https://github.com/NOAA-OWP/hydrovis/issues/982
-                                        ## Coastal ##
-                                        # "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
-                                        # "analysis_assim_coastal.total_water.tm00.hawaii.nc",
-                                        # "analysis_assim_coastal.total_water.tm00.puertorico.nc",
-                                        # "medium_range_coastal.total_water.f240.atlgulf.nc",
-                                        # "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
-                                        # "short_range_coastal.total_water.f018.atlgulf.nc",
-                                        # "short_range_coastal.total_water.f048.puertorico.nc",
-                                        # "short_range_coastal.total_water.f048.hawaii.nc"
-                                        ]
-        if s3_event.get('Records')[0].get('s3').get('object').get('key'):
-            s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
-            if any(suffix in s3_key for suffix in pipeline_iniitializing_files) == False:
-                return
-            else:
-                print(f"Continuing pipeline initialization with Shared Bucket S3 key: {s3_key}")
-    
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:
@@ -667,5 +670,3 @@ class configuration:
             "db_ingest_groups": self.db_ingest_groups,
             "python_preprocessing": self.lambda_input_sets
         }
-        
-        return
