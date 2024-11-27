@@ -406,7 +406,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         print("--> Setting up windows")
 
         # Get the list of windows according to the raster metadata so they can be looped through
-        windows = [window for ij, window in hand_dataset.block_windows()]
+        windows = subdivide(riowindows.Window(0, 0, width=hand_dataset.width, height=hand_dataset.height), 1024, 1024)
 
         # This function will be run for each raster window.
         def process(window):
@@ -491,11 +491,10 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
                 return 
 
             if np.max(inundation_window) != 0:
-                from rasterio.features import shapes
                 results = []
                 for s, v in shapes(inundation_window, mask=None, transform=rasterio.windows.transform(window, hand_dataset.transform)):
                     if int(v):
-                        results.append({'hydro_id': int(v), 'geom': s})
+                        results.append((int(v), shape(s)))
                     
                 return results
 
@@ -516,11 +515,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
             catchment_dataset.close()
 
     print("Generating polygons")
-    from shapely.geometry import shape
-    geom = [shape(i['geom']) for i in geoms]
-    hydro_ids = [i['hydro_id'] for i in geoms]
     crs = 'EPSG:3338' if str(huc8).startswith('19') else 'EPSG:5070'
-    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs=crs, geometry="geom")
+    df_final = gpd.GeoDataFrame(geoms, columns=['hydro_id', 'geom'], crs=crs, geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
     df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
