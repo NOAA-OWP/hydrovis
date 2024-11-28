@@ -47,15 +47,16 @@ class Settings(BaseSettings):
     """
 
     api_v1_str: str = "/api/v1"
+    hydrofabric_version: str = "v2.2"
 
     base_url: str = "https://api.water.noaa.gov/nwps/v1"
     base_subset_url: str = "http://localhost:8008/api/v1"
 
     # download_dir: Path = Path.cwd().parents[1] / "data"
     output_file: str = "{}_output.gpkg"
-    csv_forcing_path: Path = Path("/app/data/rfc_channel_forcings/")
-    domain_path: str = "/app/data/rfc_geopackage_data/{}/subset.gpkg"
-    downstream_domain_path: str = "/app/data/rfc_geopackage_data/{}/downstream.gpkg"
+    csv_forcing_path: Path = Path("/app/data/rfc_channel_forcings/{}")
+    domain_path: str = "/app/data/rfc_geopackage_data/{}/{}/subset.gpkg"
+    downstream_domain_path: str = "/app/data/rfc_geopackage_data/{}/{}/downstream.gpkg"
     plot_path: str = "/app/data/plots/{}"
     troute_output_path: str = "/app/data/troute_output/"
     rnr_output_path: str = "/app/data/replace_and_route/{}"
@@ -103,7 +104,7 @@ class Settings(BaseSettings):
         if os.getenv("RABBITMQ_HOST") is not None:
             self.rabbitmq_default_host = os.getenv("RABBITMQ_HOST")
         if os.getenv("DB_HOST") is not None:
-            self.db_host = os.getenv("DB_HOST")
+            self.db_host = os.getenv("DB_HOST")        
 
         try:
             config = read_config("config.ini")

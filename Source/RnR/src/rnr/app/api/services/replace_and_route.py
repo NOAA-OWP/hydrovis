@@ -206,9 +206,9 @@ class ReplaceAndRoute:
         json_data = self.read_message(message.body)
         lid = json_data["lid"]
         feature_id = json_data["feature_id"]
-        output_forcing_path = settings.csv_forcing_path
-        subset_gpkg_file = Path(settings.domain_path.format(feature_id))
-        downstream_gpkg_file = Path(settings.downstream_domain_path.format(feature_id))
+        output_forcing_path = Path(str(settings.csv_forcing_path).format(settings.hydrofabric_version))
+        subset_gpkg_file = Path(settings.domain_path.format(settings.hydrofabric_version, feature_id))
+        downstream_gpkg_file = Path(settings.downstream_domain_path.format(settings.hydrofabric_version, feature_id))
         if is_flooding:
             # Meets assimilation criteria. Routing from upstream catchment from RFC
             try:
@@ -280,6 +280,7 @@ class ReplaceAndRoute:
                 mapped_feature_id=mapped_feature_id,
                 feature_id=feature_id,
                 initial_start=initial_start,
+                hydrofabric_version=settings.hydrofabric_version, 
                 json_data=json_data,
             )  # Using feature_id to reference the gpkg file
         except Exception as e:
@@ -391,6 +392,7 @@ class ReplaceAndRoute:
         mapped_feature_id: str,
         feature_id: str,
         initial_start: float,
+        hydrofabric_version: str,
         json_data: Dict[str, Any],
     ):
         unique_dates = set()
@@ -409,6 +411,7 @@ class ReplaceAndRoute:
             initial_start=initial_start,
             start_time=json_data["times"][0],
             num_forecast_days=num_forecast_days,
+            hydrofabric_version=hydrofabric_version,
             base_url=settings.base_troute_url,
         )
         return response

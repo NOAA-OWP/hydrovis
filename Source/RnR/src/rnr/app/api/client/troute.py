@@ -44,6 +44,7 @@ def run_troute(
     start_time: str,
     initial_start: float,
     num_forecast_days: int,
+    hydrofabric_version: str,
     base_url: str,
 ) -> Dict[str, Any]:
     endpoint = f"{base_url}/flow_routing/v4/"
@@ -54,5 +55,6 @@ def run_troute(
         "initial_start": initial_start,
         "start_time": start_time,
         "num_forecast_days": num_forecast_days,
+        "hydrofabric_version": hydrofabric_version,
     }
     return _get(endpoint, params)

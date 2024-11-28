@@ -58,8 +58,12 @@ iniconfig==2.0.0
     # via pytest
 isort==4.3.21
     # via rnr (pyproject.toml)
+jinja2==3.1.4
+    # via rnr (pyproject.toml)
 kiwisolver==1.4.5
     # via matplotlib
+markupsafe==3.0.2
+    # via jinja2
 matplotlib==3.9.0
     # via rnr (pyproject.toml)
 multidict==6.0.5

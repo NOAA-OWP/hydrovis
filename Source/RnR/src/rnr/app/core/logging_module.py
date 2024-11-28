@@ -6,9 +6,15 @@ from src.rnr.app.core.cache import get_settings
 
 settings = get_settings()
 
-
 def setup_logger(name: str, log_file: str, level=logging.INFO):
     """Function to setup as many loggers as you want"""
+    
+    # Get logger - if it exists already, return it
+    logger = logging.getLogger(name)
+    
+    # If this logger already has handlers, return it as is
+    if logger.hasHandlers():
+        return logger
 
     # Create logs directory if it doesn't exist
     log_dir = Path(settings.log_path)
@@ -32,8 +38,7 @@ def setup_logger(name: str, log_file: str, level=logging.INFO):
     )
     file_handler.setFormatter(formatter)
 
-    # Create logger and set level
-    logger = logging.getLogger(name)
+    # Set level
     logger.setLevel(level)
 
     # Add handlers to logger

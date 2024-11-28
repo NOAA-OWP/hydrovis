@@ -4,7 +4,6 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.app
-    # image: ghcr.io/taddyb33/hydrovis/rnr:0.0.1
     ports:
       - "8000:8000"
     environment:
@@ -13,7 +12,6 @@ services:
       - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
       - REDIS_URL=redis
       - DB_HOST=mock_db
-      - SUBSET_URL=http://hfsubset:8000/api/v1
       - TROUTE_URL=http://troute:8000/api/v1
     volumes:
       - type: bind
@@ -22,8 +20,6 @@ services:
     depends_on:
       redis:
         condition: service_started
-      hfsubset:
-        condition: service_healthy
       troute:
         condition: service_healthy
       rabbitmq:
@@ -53,7 +49,6 @@ services:
       - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
       - DB_HOST=mock_db
       - REDIS_URL=redis
-      - SUBSET_URL=http://hfsubset:8000/api/v1
       - TROUTE_URL=http://troute:8000/api/v1
     command: sh -c ". /app/.venv/bin/activate && python src/rnr/app/consumer_manager.py"
     depends_on:
@@ -108,7 +103,6 @@ services:
       - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
       - DB_HOST=mock_db
       - REDIS_URL=redis
-      - SUBSET_URL=http://hfsubset:8000/api/v1
       - TROUTE_URL=http://troute:8000/api/v1
     ports:
       - "8888:8888"
@@ -128,29 +122,13 @@ services:
     ports:
       - "5432:5432"
 
-  hfsubset:
-    image: ghcr.io/taddyb33/hfsubset-legacy:0.0.4
-    ports:
-      - "8008:8000"
-    volumes:
-      - type: bind
-        source: ./data/rfc_geopackage_data
-        target: /app/data
-    command: sh -c ". /app/.venv/bin/activate && uvicorn src.hfsubset.app.main:app --host 0.0.0.0 --port 8000"
-    healthcheck:
-      test: curl --fail -I http://localhost:8000/health || exit 1
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
-
   redis:
     image: redis:7.2.5
     ports:
       - "6379:6379"
 
   troute:
-    image: ghcr.io/taddyb33/t-route-dev:0.0.2
+    image: ghcr.io/taddyb/t-route/t-route-api:0.1.0
     ports:
       - "8004:8000"
     volumes:
