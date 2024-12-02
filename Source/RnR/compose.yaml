@@ -114,7 +114,7 @@ services:
         condition: service_healthy
 
   mock_db:
-    image: ghcr.io/taddyb33/hydrovis/mock_database:0.0.1
+    image: ghcr.io/taddyb/hydrovis/mock_database:0.0.1
     environment:
       - POSTGRES_PASSWORD=pass123
       - POSTGRES_USER=postgres
