@@ -95,6 +95,7 @@ locals {
 ###############
 
 resource "aws_s3_object" "replace_route" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/owp-viz-replace-route.tgz"
   source = "${path.module}/../../../Source/RnR/owp-viz-replace-route.tgz"

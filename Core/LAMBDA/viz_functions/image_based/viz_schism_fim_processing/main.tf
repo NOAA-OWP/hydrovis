@@ -87,6 +87,7 @@ data "archive_file" "schism_processing_zip" {
 }
 
 resource "aws_s3_object" "schism_processing_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_schism_fim_processing.zip"
   source      = data.archive_file.schism_processing_zip.output_path

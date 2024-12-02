@@ -239,6 +239,7 @@ data "archive_file" "egis_health_checker_zip" {
 }
 
 resource "aws_s3_object" "egis_health_checker_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/egis_health_checker.zip"
   source      = data.archive_file.egis_health_checker_zip.output_path
@@ -329,6 +330,7 @@ data "archive_file" "python_preprocessing_zip" {
 }
 
 resource "aws_s3_object" "python_preprocessing_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_python_preprocessing.zip"
   source      = data.archive_file.python_preprocessing_zip.output_path
@@ -449,6 +451,7 @@ data "archive_file" "initialize_pipeline_zip" {
 }
 
 resource "aws_s3_object" "initialize_pipeline_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_initialize_pipeline.zip"
   source      = data.archive_file.initialize_pipeline_zip.output_path
@@ -550,6 +553,7 @@ data "archive_file" "db_postprocess_sql_zip" {
 }
 
 resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_db_postprocess_sql.zip"
   source      = data.archive_file.db_postprocess_sql_zip.output_path
@@ -612,6 +616,7 @@ data "archive_file" "db_ingest_zip" {
 }
 
 resource "aws_s3_object" "db_ingest_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_db_ingest.zip"
   source      = data.archive_file.db_ingest_zip.output_path
@@ -674,6 +679,7 @@ data "archive_file" "fim_data_prep_zip" {
 }
 
 resource "aws_s3_object" "fim_data_prep_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_fim_data_prep.zip"
   source      = data.archive_file.fim_data_prep_zip.output_path
@@ -743,6 +749,7 @@ data "archive_file" "update_egis_data_zip" {
 }
 
 resource "aws_s3_object" "update_egis_data_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
   source      = data.archive_file.update_egis_data_zip.output_path
@@ -809,6 +816,7 @@ data "archive_file" "publish_service_zip" {
 }
 
 resource "aws_s3_object" "publish_service_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_publish_service.zip"
   source      = data.archive_file.publish_service_zip.output_path
@@ -816,6 +824,7 @@ resource "aws_s3_object" "publish_service_zip_upload" {
 }
 
 resource "aws_s3_object" "viz_publish_mapx_files" {
+  tags = {}
   for_each    = fileset("${path.module}/viz_publish_service/services", "**/*.mapx")
   bucket      = var.deployment_bucket
   key         = "viz_mapx/${reverse(split("/",each.key))[0]}"
@@ -897,6 +906,7 @@ data "archive_file" "viz_test_wrds_db_zip" {
 }
 
 resource "aws_s3_object" "viz_test_wrds_db_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
   source      = data.archive_file.viz_test_wrds_db_zip.output_path

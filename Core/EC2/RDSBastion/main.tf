@@ -220,6 +220,7 @@ resource "aws_instance" "rds-bastion" {
 ###############
 
 resource "aws_s3_object" "postgis_setup" {
+  tags = {}
   bucket = var.data_deployment_bucket
   key    = "terraform_artifacts/${path.module}/postgis_setup.sql"
   source = "${path.module}/data/postgis_setup.sql"
@@ -227,6 +228,7 @@ resource "aws_s3_object" "postgis_setup" {
 }
 
 resource "aws_s3_object" "ingest_rfcfcst_base" {
+  tags = {}
   bucket = var.data_deployment_bucket
   key    = "terraform_artifacts/${path.module}/ingest/rfcfcst_base.sql.gz"
   source = "${path.module}/data/ingest/rfcfcst_base.sql.gz"
@@ -234,6 +236,7 @@ resource "aws_s3_object" "ingest_rfcfcst_base" {
 }
 
 resource "aws_s3_object" "ingest_ingest_users" {
+  tags = {}
   bucket  = var.data_deployment_bucket
   key     = "terraform_artifacts/${path.module}/ingest/ingest_users.sql"
   content = templatefile("${path.module}/data/ingest/ingest_users.sql.tftpl", {

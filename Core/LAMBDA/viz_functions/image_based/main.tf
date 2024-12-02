@@ -129,6 +129,7 @@ data "archive_file" "raster_processing_zip" {
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_raster_processing.zip"
   source      = data.archive_file.raster_processing_zip.output_path
@@ -253,6 +254,7 @@ data "archive_file" "optimize_rasters_zip" {
 }
 
 resource "aws_s3_object" "optimize_rasters_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_optimize_rasters.zip"
   source      = data.archive_file.optimize_rasters_zip.output_path
@@ -396,6 +398,7 @@ data "archive_file" "hand_fim_processing_zip" {
 }
 
 resource "aws_s3_object" "hand_fim_processing_zip_upload" {
+  tags = {}
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_hand_fim_processing.zip"
   source      = data.archive_file.hand_fim_processing_zip.output_path
