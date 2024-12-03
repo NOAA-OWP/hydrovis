@@ -44,6 +44,13 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias = "no_tags"
+  region = local.env.region
+  profile = local.env.environment
+  shared_credentials_files = ["/cloud/aws/credentials"]
+}
+
 ###################### STAGE 1 ######################
 
 # IAM Roles

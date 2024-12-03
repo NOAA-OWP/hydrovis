@@ -171,7 +171,8 @@ data "aws_ami" "windows" {
 ################
 
 resource "aws_s3_object" "setup_upload" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket      = var.deployment_data_bucket
   key         = "terraform_artifacts/${path.module}/scripts/viz_ec2_setup.ps1"
   source      = "${path.module}/scripts/viz_ec2_setup.ps1"

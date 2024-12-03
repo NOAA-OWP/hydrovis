@@ -23,7 +23,8 @@ variable "deployment_bucket" {
 ######################
 
 resource "aws_s3_object" "es_logging" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/es_logging.zip"
   source = "${path.module}/es_logging.zip"
@@ -53,7 +54,8 @@ data "archive_file" "viz_lambda_shared_funcs_zip" {
 }
 
 resource "aws_s3_object" "viz_lambda_shared_funcs_zip_upload" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_lambda_shared_funcs.zip"
   source      = data.archive_file.viz_lambda_shared_funcs_zip.output_path
@@ -77,7 +79,8 @@ resource "aws_lambda_layer_version" "viz_lambda_shared_funcs" {
 #############################
 
 resource "aws_s3_object" "arcgis_python_api" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/arcgis_python_api.zip"
   source = "${path.module}/arcgis_python_api.zip"
@@ -101,7 +104,8 @@ resource "aws_lambda_layer_version" "arcgis_python_api" {
 ##################
 
 resource "aws_s3_object" "pandas" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/pandas.zip"
   source = "${path.module}/pandas.zip"
@@ -126,7 +130,8 @@ resource "aws_lambda_layer_version" "pandas" {
 
 
 resource "aws_s3_object" "geopandas" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/geopandas.zip"
   source = "${path.module}/geopandas.zip"
@@ -150,7 +155,8 @@ resource "aws_lambda_layer_version" "geopandas" {
 ##################################
 
 resource "aws_s3_object" "psycopg2_sqlalchemy" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/psycopg2_sqlalchemy.zip"
   source = "${path.module}/psycopg2_sqlalchemy.zip"
@@ -174,7 +180,8 @@ resource "aws_lambda_layer_version" "psycopg2_sqlalchemy" {
 ##########################
 
 resource "aws_s3_object" "huc_proc_combo" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/huc_proc_combo.zip"
   source = "${path.module}/huc_proc_combo.zip"
@@ -198,7 +205,8 @@ resource "aws_lambda_layer_version" "huc_proc_combo" {
 ##################
 
 resource "aws_s3_object" "xarray" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/xarray.zip"
   source = "${path.module}/xarray.zip"
@@ -222,7 +230,8 @@ resource "aws_lambda_layer_version" "xarray" {
 ################
 
 resource "aws_s3_object" "pika" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/pika.zip"
   source = "${path.module}/pika.zip"
@@ -246,7 +255,8 @@ resource "aws_lambda_layer_version" "pika" {
 ####################
 
 resource "aws_s3_object" "requests" {
-  tags = {}
+  provider = aws.no_tags
+  
   bucket = var.deployment_bucket
   key    = "terraform_artifacts/${path.module}/requests.zip"
   source = "${path.module}/requests.zip"
