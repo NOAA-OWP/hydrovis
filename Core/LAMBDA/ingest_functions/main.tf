@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      configuration_aliases = [ aws.sns ]
+      configuration_aliases = [ aws.sns, aws.no_tags]
     }
   }
 }
