@@ -508,7 +508,11 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 
 module "schism-fim" {
   source = "./viz_schism_fim_processing"
-  
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region

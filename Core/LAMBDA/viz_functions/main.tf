@@ -956,7 +956,11 @@ resource "aws_lambda_function" "viz_test_wrds_db" {
 
 module "image-based-lambdas" {
   source = "./image_based"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region
