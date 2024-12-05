@@ -54,3 +54,7 @@ terraform.rc
 .ipynb_checkpoints
 
 Dev/env.yaml
+
+# Ignore pycachefiles
+**/__pycache__/*
+**/__pycache__
