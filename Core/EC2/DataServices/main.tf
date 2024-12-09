@@ -180,7 +180,6 @@ data "cloudinit_config" "startup" {
       forecast_api_2_0_commit  = var.data_services_versions["forecast_api_2_0_commit"]
       ssh_key_filename         = local.ssh_key_filename
       logging_application_name = "data_services"
-      instance                 = count.index
     })
   }
 }
@@ -210,7 +209,7 @@ resource "aws_instance" "data_services" {
   }
 
   # This runs the cloud-init config, copying the SSH key to the EC2 and running the startup.sh script.
-  user_data                   = data.cloudinit_config.startup[count.index].rendered
+  user_data                   = data.cloudinit_config.startup.rendered
   user_data_replace_on_change = true
 }
 
@@ -219,7 +218,7 @@ resource "aws_route53_record" "hydrovis" {
   name    = "data-services.${var.private_route_53_zone.name}"
   type    = "A"
   ttl     = 300
-  records = [aws_instance.data_services[0].private_ip]
+  records = [aws_instance.data_services.private_ip]
 }
 
 data "aws_ami" "linux" {

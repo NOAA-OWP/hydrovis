@@ -19,6 +19,10 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
         self._engine = None
         self._connection = None
     
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self._connection:
+            self._connection.close()
+    
     @property
     def engine(self):
         if not self._engine:
@@ -91,18 +95,6 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
 
     ###################################
     def execute_sql(self, sql):
-        if sql.endswith(".sql"):
-            sql = open(sql, 'r').read()
-        with self.connection:
-            try:
-                with self.connection.cursor() as cur:
-                    cur.execute(sql)
-            except Exception as e:
-                raise e
-        self.connection.close()
-
-    ###################################
-    def execute_sql(self, sql):
         if sql.endswith('.sql') and os.path.exists(sql):
             sql = open(sql, 'r').read()
         with self.connection:
@@ -112,7 +104,6 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                     cur.execute(sql)
             except Exception as e:
                 raise e
-        self.connection.close()
                 
     ###################################                
     def sql_to_dataframe(self, sql, return_geodataframe=False):
@@ -148,7 +139,6 @@ class database: #TODO: Should we be creating a connection/engine upon initializa
                     rows = cur.fetchone()[0]
             except Exception as e:
                 raise e
-        self.connection.close()
 
         return rows
     

@@ -92,7 +92,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
-        "FunctionName": "${initialize_pipeline_arn}",
+        "FunctionName": "initialize_pipeline_arn",
         "Payload": {
           "data_bucket.$": "$.data_bucket",
           "data_key.$": "$.data_key",

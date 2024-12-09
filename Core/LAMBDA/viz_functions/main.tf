@@ -891,7 +891,7 @@ data "archive_file" "viz_test_wrds_db_zip" {
     for_each = fileset("${path.module}", "**/*.sql")
     content {
       content  = file("${path.module}/${source.key}")
-      filename = basename(source.key)
+      filename = "sql_files/${basename(source.key)}"
     }
   }
 }
@@ -1006,6 +1006,10 @@ output "publish_service" {
 
 output "egis_health_checker" {
   value = aws_lambda_function.egis_health_checker
+}
+
+output "test_wrds_db" {
+  value = aws_lambda_function.viz_test_wrds_db
 }
 
 output "hand_fim_processing" {

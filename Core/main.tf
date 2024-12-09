@@ -619,18 +619,29 @@ module "viz-lambda-functions" {
   egis_db_name                   = local.env.egis_db_name
   egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
-  viz_pipeline_step_function_arn = module.step-functions.viz_pipeline_step_function.arn
-  sync_wrds_db_step_function_arn = module.step-functions.sync_wrds_location_db_step_function.arn
+  viz_pipeline_step_function_arn = module.viz-step-functions.viz_pipeline_step_function.arn
+  sync_wrds_db_step_function_arn = module.util-step-functions.sync_wrds_location_db_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
   five_minute_trigger            = module.eventbridge.five_minute_eventbridge
 }
 
-module "step-functions" {
-  source = "./StepFunctions"
+module "util-step-functions" {
+  source = "./StepFunctions/utils"
+
+  environment                       = local.env.environment
+  region                            = local.env.region
+  rds_bastion_id                    = module.rds-bastion.instance-id
+  test_wrds_db_lambda_arn           = module.viz-lambda-functions.test_wrds_db.arn
+  sync_wrds_db_role                 = module.iam-roles.role_sync_wrds_location_db.arn
+  aws_instances_to_reboot           = [module.rnr.ec2.id]
+  email_sns_topics                  = module.sns.email_sns_topics
+}
+
+module "viz-step-functions" {
+  source = "./StepFunctions/viz"
 
   viz_lambda_role                   = module.iam-roles.role_viz_pipeline.arn
-  rnr_lambda_role                   = module.iam-roles.role_sync_wrds_location_db.arn
   environment                       = local.env.environment
   optimize_rasters_arn              = module.viz-lambda-functions.optimize_rasters.arn
   update_egis_data_arn              = module.viz-lambda-functions.update_egis_data.arn
@@ -645,14 +656,19 @@ module "step-functions" {
   schism_fim_job_definition_arn     = module.viz-lambda-functions.schism_fim.job_definition.arn
   schism_fim_job_queue_arn          = module.viz-lambda-functions.schism_fim.job_queue.arn
   schism_fim_datasets_bucket        = module.s3.buckets["deployment"].bucket
+  email_sns_topics                  = module.sns.email_sns_topics
+  viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
+}
+
+module "rnr-step-functions" {
+  source = "./StepFunctions/rnr"
+
+  rnr_lambda_role                   = module.iam-roles.role_sync_wrds_location_db.arn
+  environment                       = local.env.environment
   initialize_pipeline_arn           = module.viz-lambda-functions.initialize_pipeline.arn
   rnr_domain_generator_arn          = module.rnr-lambda-functions.rnr_domain_generator.arn
-  email_sns_topics                  = module.sns.email_sns_topics
-  aws_instances_to_reboot           = [module.rnr.ec2.id]
+  rnr_ec2_instance                  = module.rnr.ec2.id
   fifteen_minute_trigger            = module.eventbridge.fifteen_minute_eventbridge
-  viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
-  rds_bastion_id                    = module.rds-bastion.instance-id
-  test_wrds_db_lambda_arn           = module.viz-lambda-functions.test_wrds_db.arn
 }
 
 # Event Bridge
@@ -704,5 +720,5 @@ module "testing" {
   environment                 = local.env.environment
   s3_module                   = module.s3
   lambda_module               = module.viz-lambda-functions
-  step_function_module        = module.step-functions
+  step_function_module        = module.viz-step-functions
 }
