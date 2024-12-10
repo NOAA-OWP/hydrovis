@@ -688,7 +688,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%nws_flood_categorical_hand_fim_sites_1_2_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_stream_order,nws_preferred_name,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latlon_datum_name,usgs_preferred_state,assigned_crs,huc8,name,states,mapped,status,geom from hydrovis.reference.stage_based_catfim_sites_public",
+          "sqlQuery" : "select oid,wrds_timestamp,nrldb_timestamp,nwis_timestamp,metadata_sources,ahps_lid,usgs_gage,nwm_seg,identifiers_goes_id,identifiers_env_can_gage_id,nws_data_name,nws_data_wfo,nws_data_rfc,nws_data_geo_rfc,nws_data_latitude,nws_data_longitude,nws_data_map_link,nws_data_horizontal_datum_name,nws_data_state,nws_data_county,nws_data_county_code,nws_data_huc,nws_data_hsa,nws_data_zero_datum,nws_data_vertical_datum_name,nws_data_rfc_forecast_point,nws_data_rfc_defined_fcst_point,nws_data_riverpoint,usgs_data_name,usgs_data_geo_rfc,usgs_data_map_link,usgs_data_coord_accuracy_code,usgs_data_latlon_datum_name,usgs_data_coord_method_code,usgs_data_state,usgs_data_huc,usgs_data_site_type,usgs_data_altitude,usgs_data_alt_accuracy_code,usgs_data_alt_datum_code,usgs_data_alt_method_code,usgs_data_drainage_area,usgs_data_drainage_area_units,usgs_data_contrib_drainage_area,usgs_data_active,usgs_data_gages_ii_reference,nwm_feature_data_stream_order,nws_preferred_name,nws_preferred_latlon_datum_name,nws_preferred_state,nws_preferred_huc,usgs_preferred_name,usgs_preferred_latlon_datum_name,usgs_preferred_state,assigned_crs,huc8,name,states,mapped,status,geom from hydrovis.reference.stage_based_catfim_sites_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1876,7 +1876,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -2619,7 +2619,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -3318,7 +3318,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4061,7 +4061,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -4760,7 +4760,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -5503,7 +5503,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6193,7 +6193,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,huc8,interval_stage,name,wfo,rfc,state,county,stage,stage_uni,s_src,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -6936,7 +6936,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -7789,7 +7789,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.reference.%stage_based_catfim",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_public",
+          "sqlQuery" : "select oid,ahps_lid,magnitude,fim_version,model_version,huc8,interval_stage,name,wfo,rfc,state,county,q,q_uni,q_src,stage,stage_uni,s_src,wrds_time,nrldb_time,nwis_time,lat,lon,dtm_adj_ft,dadj_w_ft,dadj_w_m,lid_alt_ft,lid_alt_m,viz,geom,fim_version,model_version from hydrovis.reference.stage_based_catfim_fim_30",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,

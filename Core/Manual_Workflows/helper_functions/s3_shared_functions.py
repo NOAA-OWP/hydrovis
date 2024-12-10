@@ -100,44 +100,37 @@ import pandas as pd
 # *****************************
 # CAUTION:  TODO: Aug 2024: This needs to be re-thought. I can easily overpower the notebook server depending on teh size of the notebooks
 # *****************************
-def download_S3_csv_files_to_df_from_list(bucket_name, list_file_paths, is_verbose=False):
+def load_S3_csv_to_df(bucket_name, s3_file_path, is_verbose=False):
     '''
     Overview:
-        - Send a list of file paths (fully qualified, except for the "s3://" and bucket name"
+        - bucket: ie hydrovis-ti-deployment-us-east-1
+        - s3+file_path: ie) fim/hand_4_5_11_1/qa_datasets/fim_performance_catchments.csv
     Returns:
-        - A dataframe with the 
+        - A dataframe with the csv data loaded
     '''
 
-    if len(list_file_paths) == 0:
-        raise Exception("No files requested for download")
-        
-    rtn_df = None
-    
+    if s3_file_path is None or s3_file_path == '' or len(s3_file_path) < 5:
+        raise Exception("s3_file_path is invalid - not set, empty or too short")
+
+    if s3_file_path.endswith(".csv") is False:
+        raise Exception(f"File name is not valid (not a csv): {s3_file}")
+
     s3_client = boto3.client('s3')
-    for s3_file in list_file_paths:    
-        if s3_file.endswith(".csv") is False:
-            raise Exception(f"File name is not valid (not a csv): {s3_file}")
-        
-        # Manage the direction of the slashes just cases
-        s3_file = s3_file.replace("\\", "/")
 
-        if s3_file.startswith("/"): # remove it
-            s3_file = s3_file.lstrip("/")
-        
-        full_file_url = f"s3://{bucket_name}/{s3_file}"
-        if is_verbose:
-            print(f".. Downloading: {full_file_url}")
+    # Manage the direction of the slashes just cases
+    s3_file_path = s3_file_path.replace("\\", "/")
 
-        if rtn_df is None:
-            rtn_df = pd.read_csv(full_file_url)
-            continue
+    if s3_file_path.startswith("/"):  # remove it
+        s3_file_path = s3_file.lstrip("/")
 
-        file_df = pd.read_csv(full_file_url)
-        rtn_df = pd.concat([r2f_df, file_df])
+    full_file_url = f"s3://{bucket_name}/{s3_file_path}"
+    if is_verbose:
+        print(f".. Downloading: {full_file_url}")
 
-    print("")
-    print(f".. {len(list_file_paths)} files downloaded and loaded into the dataframe")
-        
+    rtn_df = pd.read_csv(full_file_url)
+
+    print(".. Downloading complete")
+
     return rtn_df
 
 
