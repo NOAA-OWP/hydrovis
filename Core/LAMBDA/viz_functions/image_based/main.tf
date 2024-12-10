@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 variable "environment" {
   type = string
 }
@@ -129,6 +138,7 @@ data "archive_file" "raster_processing_zip" {
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_raster_processing.zip"
   source      = data.archive_file.raster_processing_zip.output_path
@@ -253,6 +263,7 @@ data "archive_file" "optimize_rasters_zip" {
 }
 
 resource "aws_s3_object" "optimize_rasters_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_optimize_rasters.zip"
   source      = data.archive_file.optimize_rasters_zip.output_path
@@ -396,6 +407,7 @@ data "archive_file" "hand_fim_processing_zip" {
 }
 
 resource "aws_s3_object" "hand_fim_processing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_hand_fim_processing.zip"
   source      = data.archive_file.hand_fim_processing_zip.output_path
@@ -496,7 +508,11 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 
 module "schism-fim" {
   source = "./viz_schism_fim_processing"
-  
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region

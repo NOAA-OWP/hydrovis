@@ -44,6 +44,13 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias = "no_tags"
+  region = local.env.region
+  profile = local.env.environment
+  shared_credentials_files = ["/cloud/aws/credentials"]
+}
+
 ###################### STAGE 1 ######################
 
 # IAM Roles
@@ -294,7 +301,11 @@ module "sagemaker" {
 # Lambda Layers
 module "lambda-layers" {
   source = "./LAMBDA/layers"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment       = local.env.environment
   region            = local.env.region
   viz_environment   = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
@@ -362,7 +373,11 @@ module "rds-egis" {
 
 module "rds-bastion" {
   source = "./EC2/RDSBastion"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   region                         = local.env.region
   account_id                     = local.env.account_id
@@ -437,8 +452,8 @@ module "ingest-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                 = local.env.environment
   region                      = local.env.region
   deployment_bucket           = module.s3.buckets["deployment"].bucket
@@ -463,7 +478,11 @@ module "ingest-lambda-functions" {
 # Data Ingest
 module "data-ingest-ec2" {
   source = "./EC2/Ingest"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment            = local.env.environment
   region                 = local.env.region
   account_id             = local.env.account_id
@@ -488,7 +507,11 @@ module "data-ingest-ec2" {
 
 module "rnr" {
   source = "./EC2/rnr"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   region                         = local.env.region
   account_id                     = local.env.account_id
@@ -511,8 +534,8 @@ module "rnr-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                   = local.env.environment
   region                        = local.env.region
   rnr_data_bucket               = module.s3.buckets["rnr"].bucket
@@ -578,8 +601,8 @@ module "viz-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                    = local.env.environment
   account_id                     = local.env.account_id
   region                         = local.env.region
@@ -678,7 +701,11 @@ module "eventbridge" {
 
 module "viz-ec2" {
   source = "./EC2/viz"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   account_id                     = local.env.account_id
   region                         = local.env.region
@@ -716,7 +743,11 @@ module "viz-ec2" {
 module "testing" {
   count = local.env.environment == "ti" ? 1 : 0
   source = "./Testing"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = local.env.environment
   s3_module                   = module.s3
   lambda_module               = module.viz-lambda-functions

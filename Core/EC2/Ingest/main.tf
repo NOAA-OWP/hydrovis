@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 ###############
 ## VARIABLES ##
 ###############
@@ -84,6 +93,7 @@ locals {
 ###############
 
 resource "aws_s3_object" "hml_ingester" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/owp-hml-ingester.tar.gz"
   source      = "${path.module}/../../../Source/Ingest/owp-hml-ingester.tar.gz"

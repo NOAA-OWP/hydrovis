@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 variable "environment" {
   type = string
 }
@@ -87,6 +96,7 @@ data "archive_file" "schism_processing_zip" {
 }
 
 resource "aws_s3_object" "schism_processing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_schism_fim_processing.zip"
   source      = data.archive_file.schism_processing_zip.output_path

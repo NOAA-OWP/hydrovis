@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 variable "environment" {
   type = string
 }
@@ -82,6 +91,7 @@ data "aws_s3_objects" "test_nwm_outputs" {
 }
 
 resource "aws_s3_object_copy" "test" {
+  provider = aws.no_tags
   depends_on  = [var.s3_module, var.lambda_module, var.step_function_module, aws_cloudwatch_event_target.trigger_pipeline_test_run]
   count       = length(data.aws_s3_objects.test_nwm_outputs.keys)
   bucket      = local.test_bucket
