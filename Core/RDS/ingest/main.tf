@@ -65,7 +65,6 @@ resource "aws_db_instance" "hydrovis" {
 
   tags = {
     "hv-vpp-${var.environment}-data-ingest-rdsdbtag" : "hv-vpp-${var.environment}-data-ingest-rdsdbtag"
-    "noaa:monitoring"                                : "true"
   }
 }
 

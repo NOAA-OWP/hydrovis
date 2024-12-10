@@ -44,6 +44,13 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias = "no_tags"
+  region = local.env.region
+  profile = local.env.environment
+  shared_credentials_files = ["/cloud/aws/credentials"]
+}
+
 ###################### STAGE 1 ######################
 
 # IAM Roles
@@ -294,7 +301,11 @@ module "sagemaker" {
 # Lambda Layers
 module "lambda-layers" {
   source = "./LAMBDA/layers"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment       = local.env.environment
   region            = local.env.region
   viz_environment   = local.env.environment == "prod" ? "production" : local.env.environment == "uat" ? "staging" : local.env.environment == "ti" ? "staging" : "development"
@@ -362,7 +373,11 @@ module "rds-egis" {
 
 module "rds-bastion" {
   source = "./EC2/RDSBastion"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   region                         = local.env.region
   account_id                     = local.env.account_id
@@ -437,8 +452,8 @@ module "ingest-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                 = local.env.environment
   region                      = local.env.region
   deployment_bucket           = module.s3.buckets["deployment"].bucket
@@ -463,7 +478,11 @@ module "ingest-lambda-functions" {
 # Data Ingest
 module "data-ingest-ec2" {
   source = "./EC2/Ingest"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment            = local.env.environment
   region                 = local.env.region
   account_id             = local.env.account_id
@@ -488,7 +507,11 @@ module "data-ingest-ec2" {
 
 module "rnr" {
   source = "./EC2/rnr"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   region                         = local.env.region
   account_id                     = local.env.account_id
@@ -511,8 +534,8 @@ module "rnr-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                   = local.env.environment
   region                        = local.env.region
   rnr_data_bucket               = module.s3.buckets["rnr"].bucket
@@ -578,8 +601,8 @@ module "viz-lambda-functions" {
   providers = {
     aws     = aws
     aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
   }
-
   environment                    = local.env.environment
   account_id                     = local.env.account_id
   region                         = local.env.region
@@ -620,20 +643,30 @@ module "viz-lambda-functions" {
   egis_db_user_secret_string     = module.secrets-manager.secret_strings["egis-pg-rds-secret"]
   egis_portal_password           = local.env.viz_ec2_hydrovis_egis_pass
   viz_pipeline_step_function_arn = module.viz-step-functions.viz_pipeline_step_function.arn
-  sync_wrds_db_step_function_arn = module.viz-step-functions.sync_wrds_location_db_step_function.arn
+  sync_wrds_db_step_function_arn = module.util-step-functions.sync_wrds_location_db_step_function.arn
   default_tags                   = local.env.tags
   nwm_dataflow_version           = local.env.nwm_dataflow_version
   five_minute_trigger            = module.eventbridge.five_minute_eventbridge
   egis_host                      = local.env.egis_host
 }
 
+module "util-step-functions" {
+  source = "./StepFunctions/utils"
+
+  environment                       = local.env.environment
+  region                            = local.env.region
+  rds_bastion_id                    = module.rds-bastion.instance-id
+  test_wrds_db_lambda_arn           = module.viz-lambda-functions.test_wrds_db.arn
+  sync_wrds_db_role                 = module.iam-roles.role_sync_wrds_location_db.arn
+  aws_instances_to_reboot           = [module.rnr.ec2.id]
+  email_sns_topics                  = module.sns.email_sns_topics
+}
+
 module "viz-step-functions" {
   source = "./StepFunctions/viz"
 
   viz_lambda_role                   = module.iam-roles.role_viz_pipeline.arn
-  sync_wrds_db_role                 = module.iam-roles.role_sync_wrds_location_db.arn
   environment                       = local.env.environment
-  region                            = local.env.region
   optimize_rasters_arn              = module.viz-lambda-functions.optimize_rasters.arn
   update_egis_data_arn              = module.viz-lambda-functions.update_egis_data.arn
   fim_data_prep_arn                 = module.viz-lambda-functions.fim_data_prep.arn
@@ -648,10 +681,7 @@ module "viz-step-functions" {
   schism_fim_job_queue_arn          = module.viz-lambda-functions.schism_fim.job_queue.arn
   schism_fim_datasets_bucket        = module.s3.buckets["deployment"].bucket
   email_sns_topics                  = module.sns.email_sns_topics
-  aws_instances_to_reboot           = [module.rnr.ec2.id]
   viz_processing_pipeline_log_group = module.cloudwatch.viz_processing_pipeline_log_group.name
-  rds_bastion_id                    = module.rds-bastion.instance-id
-  test_wrds_db_lambda_arn           = module.viz-lambda-functions.test_wrds_db.arn
 }
 
 module "rnr-step-functions" {
@@ -672,7 +702,11 @@ module "eventbridge" {
 
 module "viz-ec2" {
   source = "./EC2/viz"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                    = local.env.environment
   account_id                     = local.env.account_id
   region                         = local.env.region
@@ -710,7 +744,11 @@ module "viz-ec2" {
 module "testing" {
   count = local.env.environment == "ti" ? 1 : 0
   source = "./Testing"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = local.env.environment
   s3_module                   = module.s3
   lambda_module               = module.viz-lambda-functions
