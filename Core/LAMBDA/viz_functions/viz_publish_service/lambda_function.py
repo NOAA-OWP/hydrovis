@@ -208,9 +208,13 @@ def get_service_metadata(folder, service_name):
 def mapx_to_sd(service_name, summary, description, public_service, tags, credits, feature_service, sd_files, gis, egis_db_host, egis_db_username, egis_db_password, egis_db_database, s3_bucket, environment, folder, egis_db_password_secret_name):
 	service_suffix = ''
 	subdomain = 'maps'
+	request_url = f"https://{subdomain}.water.noaa.gov/gp/rest/services/Utilities/MapxToSD/GPServer/MapxToSD/execute"
+	
 	if environment == 'ti':
 		service_suffix = '_alpha'
 		subdomain += '-testing'
+		subdomain = 'eks-' + subdomain
+		request_url = "https://eks-maps-testing.water.noaa.gov/server/rest/services/Utilities/MapxToSD/GPServer/MapxToSD/execute"
 	elif environment == 'uat':
 		service_suffix = '_beta'
 		subdomain += '-staging'
@@ -242,5 +246,4 @@ def mapx_to_sd(service_name, summary, description, public_service, tags, credits
 		'f': 'pjson'
 	}
 
-	request_url = f"https://{subdomain}.water.noaa.gov/gp/rest/services/Utilities/MapxToSD/GPServer/MapxToSD/execute"
 	gis._con._session.post(request_url, data=payload, timeout=30)
