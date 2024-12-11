@@ -911,7 +911,7 @@ data "archive_file" "viz_test_wrds_db_zip" {
 resource "aws_s3_object" "viz_test_wrds_db_upload" {
   provider = aws.no_tags  
   bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
+  key         = "terraform_artifacts/${path.module}/viz_test_wrds_db.zip"
   source      = data.archive_file.viz_test_wrds_db_zip.output_path
   source_hash = filemd5(data.archive_file.viz_test_wrds_db_zip.output_path)
 }
