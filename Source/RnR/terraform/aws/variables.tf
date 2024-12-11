@@ -46,13 +46,13 @@ variable "extra_policy_arn" {
 variable "git_repo_url" {
   description = "The Git repository URL for Replace and Route to clone."
   type        = string
-  default     = "https://github.com/taddyb33/hydrovis.git"
+  default     = "https://github.com/taddyb/hydrovis.git"
 }
 
 variable "git_branch" {
   description = "The branch of the Git repository to clone."
   type        = string
-  default     = "main"
+  default     = "hydro_versioning"
 }
 
 variable "rocky_linux_ami_id" {
