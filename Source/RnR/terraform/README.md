@@ -108,7 +108,7 @@ We've only been working with AWS thus far, so we'll focus on that configuration.
     - Purpose: Adds an additional IAM policy to the instance role.
     - Details: (Optional) This specific policy is necessary for enabling AWS Systems Manager (SSM) session manager logging in the NGWPC environments, allowing for secure remote access and session logging.  You could use this to attach any policy required in your account in addition to the one created by this terraform for S3 access. If you leave this variable out of your config or blank, nothing will be added.
     
-    git_repo_url = "https://github.com/taddyb33/hydrovis.git"
+    git_repo_url = "https://github.com/taddyb/hydrovis.git"
     - Purpose: Indicates the Git Repo that should be used when cloning the application repository.
     - Details: (Optional) This value defaults to: https://github.com/taddyb33/hydrovis.git, but you might need to change it should you be running this from a Fork of that repo or if this repo has been merged or moved in your environment.
 

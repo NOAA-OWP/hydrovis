@@ -114,7 +114,7 @@ resource "aws_instance" "replace_n_route" {
 
               # Install AWS CLI v2
               curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-              unzip awscliv2.zip
+              unzip -q awscliv2.zip
               ./aws/install --update
 
               # Verify AWS CLI installation
@@ -140,7 +140,7 @@ resource "aws_instance" "replace_n_route" {
               git clone -b ${var.git_branch} ${var.git_repo_url} hydrovis
 
               # Sync Hydrofabric Geo Package data version 20.1 from S3 
-              aws s3 sync s3://${var.rnr_s3_bucket}/rfc_geopackage_data/ /app/hydrovis/Source/RnR/data/rfc_geopackage_data
+              aws s3 sync s3://${var.rnr_s3_bucket}/replace-and-route/rfc-geopackages/ /app/hydrovis/Source/RnR/data/rfc_geopackage_data
               aws s3 cp s3://${var.rnr_s3_bucket}/config.ini /app/hydrovis/Source/RnR/src/rnr/app/core/
 
               # Determine the Docker Compose file to use based on the variable
