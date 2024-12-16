@@ -1,6 +1,8 @@
 import boto3
 from botocore.exceptions import ResponseStreamingError
 import rasterio
+from rasterio import windows as riowindows
+from rasterio.features import shapes
 import numpy as np
 import pandas as pd
 import awswrangler as wr
@@ -10,6 +12,8 @@ import time
 import datetime
 import re
 from math import floor, ceil
+from shapely.geometry import shape
+
 
 from viz_classes import s3_file, database
 
@@ -20,6 +24,55 @@ HAND_PREFIX = f"fim/hand_{HAND_VERSION.replace('.', '_')}/hand_datasets"
 
 CACHE_FIM_RESOLUTION_FT = 0.25
 CACHE_FIM_RESOLUTION_ROUNDING = 'up'
+
+
+# Vendor subdivide from Rasterio 1.4
+# REMOVE when rasterio is upgraded!
+def subdivide(window, height, width):
+    """Divide a window into smaller windows.
+
+    Windows have no overlap and will be at most the desired
+    height and width. Smaller windows will be generated where
+    the height and width do not evenly divide the window dimensions.
+
+    Parameters
+    ----------
+    window : Window
+        Source window to subdivide.
+    height : int
+        Subwindow height.
+    width : int
+        Subwindow width.
+
+    Returns
+    -------
+    list of Windows
+    """
+    subwindows = []
+
+    irow = window.row_off + window.height
+    icol = window.col_off + window.width
+
+    row_off = window.row_off
+    col_off = window.col_off
+    while row_off < irow:
+        if row_off + height > irow:
+            _height = irow - row_off
+        else:
+            _height = height
+
+        while col_off < icol:
+            if col_off + width > icol:
+                _width = icol - col_off
+            else:
+                _width = width
+
+            subwindows.append(riowindows.Window(col_off, row_off, _width, _height))
+            col_off += width
+
+        row_off += height
+        col_off = window.col_off
+    return subwindows
 
 class HANDDatasetReadError(Exception):
     """ my custom exception class """
@@ -216,7 +269,7 @@ def create_inundation_catchment_boundary(huc8, branch):
         print("--> Setting up windows")
 
         # Get the list of windows according to the raster metadata so they can be looped through
-        windows = [window for ij, window in catchment_dataset.block_windows()]
+        windows = subdivide(riowindows.Window(0, 0, width=catchment_dataset.width, height=catchment_dataset.height), 1024, 1024)
 
         # This function will be run for each raster window.
         def process(window):
@@ -253,20 +306,17 @@ def create_inundation_catchment_boundary(huc8, branch):
             if not catchment_open_success:
                 raise HANDDatasetReadError("Failed to open Catchment dataset window")
             
-            from rasterio.features import shapes
             results = []
-            for s, v in shapes(catchment_window, mask=None, transform=rasterio.windows.transform(window, catchment_dataset.transform)):
+            for s, v in shapes(catchment_window, mask=None, transform=riowindows.transform(window, catchment_dataset.transform)):
                 if int(v):
-                    results.append({'hydro_id': int(v), 'geom': s})
+                    results.append((int(v), shape(s)))
 
             return results
 
         # Use threading to parallelize the processing of the inundation windows
         geoms = []
         for window in windows:
-            catchment_windows = process(window)
-            if catchment_windows:
-                geoms.extend(catchment_windows)
+            geoms.extend(process(window))
                         
     except Exception as e:
         raise e
@@ -275,11 +325,8 @@ def create_inundation_catchment_boundary(huc8, branch):
             catchment_dataset.close()
 
     print("Generating polygons")
-    from shapely.geometry import shape
-    geom = [shape(i['geom']) for i in geoms]
-    hydro_ids = [i['hydro_id'] for i in geoms]
     crs = 'EPSG:3338' if str(huc8).startswith('19') else 'EPSG:5070'
-    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs=crs, geometry="geom")
+    df_final = gpd.GeoDataFrame(geoms, columns=['hydro_id', 'geom'], crs=crs, geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
     df_final = df_final.to_crs(3857)
     df_final = df_final.set_crs('epsg:3857')
@@ -359,7 +406,7 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
         print("--> Setting up windows")
 
         # Get the list of windows according to the raster metadata so they can be looped through
-        windows = [window for ij, window in hand_dataset.block_windows()]
+        windows = subdivide(riowindows.Window(0, 0, width=hand_dataset.width, height=hand_dataset.height), 1024, 1024)
 
         # This function will be run for each raster window.
         def process(window):
@@ -444,11 +491,10 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
                 return 
 
             if np.max(inundation_window) != 0:
-                from rasterio.features import shapes
                 results = []
-                for s, v in shapes(inundation_window, mask=None, transform=rasterio.windows.transform(window, hand_dataset.transform)):
+                for s, v in shapes(inundation_window, mask=None, transform=riowindows.transform(window, hand_dataset.transform)):
                     if int(v):
-                        results.append({'hydro_id': int(v), 'geom': s})
+                        results.append((int(v), shape(s)))
                     
                 return results
 
@@ -469,11 +515,8 @@ def create_inundation_output(huc8, branch, stage_lookup, reference_time, input_v
             catchment_dataset.close()
 
     print("Generating polygons")
-    from shapely.geometry import shape
-    geom = [shape(i['geom']) for i in geoms]
-    hydro_ids = [i['hydro_id'] for i in geoms]
     crs = 'EPSG:3338' if str(huc8).startswith('19') else 'EPSG:5070'
-    df_final = gpd.GeoDataFrame({'geom':geom, 'hydro_id': hydro_ids}, crs=crs, geometry="geom")
+    df_final = gpd.GeoDataFrame(geoms, columns=['hydro_id', 'geom'], crs=crs, geometry="geom")
     df_final = df_final.dissolve(by="hydro_id")
     df_final['geom'] = df_final['geom'].simplify(5) #Simplifying polygons to ~5m to clean up problematic geometries
     df_final = df_final.to_crs(3857)
