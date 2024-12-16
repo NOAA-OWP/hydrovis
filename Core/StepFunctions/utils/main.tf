@@ -28,6 +28,10 @@ variable "email_sns_topics" {
   type        = map(any)
 }
 
+variable "deployment_bucket" {
+  type        = string
+}
+
 ####################################################
 ##     Ensure EC2 Ready For Use Step Function     ##
 ####################################################
@@ -51,6 +55,23 @@ resource "aws_sfn_state_machine" "restore_db_from_s3_dump_step_function" {
     ensure_ec2_ready_step_function_arn  = aws_sfn_state_machine.ensure_ec2_ready_for_use_step_function.arn
     rds_bastion_id = var.rds_bastion_id
     region = var.region
+  })
+}
+
+
+##########################################
+##     DB Dumps to S3 Step Function     ##
+##########################################
+
+resource "aws_sfn_state_machine" "db_dumps_to_s3_step_function" {
+  name     = "hv-vpp-${var.environment}-db-dumps-to-s3"
+  role_arn = var.sync_wrds_db_role
+
+  definition = templatefile("${path.module}/db_dumps_to_s3.json.tftpl", {
+    ensure_ec2_ready_step_function_arn  = aws_sfn_state_machine.ensure_ec2_ready_for_use_step_function.arn
+    rds_bastion_id = var.rds_bastion_id
+    region = var.region
+    deployment_bucket = var.deployment_bucket
   })
 }
 

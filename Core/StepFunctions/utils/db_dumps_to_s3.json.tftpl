@@ -1,0 +1,218 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Fire Up Bastion EC2",
+  "States": {
+    "Fire Up Bastion EC2": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution.sync:2",
+      "Parameters": {
+        "StateMachineArn": "${ensure_ec2_ready_step_function_arn}",
+        "Input": {
+          "InstanceId": "${rds_bastion_id}"
+        }
+      },
+      "Next": "Split VIZ and EGIS",
+      "ResultPath": null
+    },
+    "Split VIZ and EGIS": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Split VIZ into tables and schemas",
+          "States": {
+            "Split VIZ into tables and schemas": {
+              "Type": "Parallel",
+              "End": true,
+              "Branches": [
+                {
+                  "StartAt": "Process VIZ Tables",
+                  "States": {
+                    "Process VIZ Tables": {
+                      "Type": "Map",
+                      "ItemProcessor": {
+                        "ProcessorConfig": {
+                          "Mode": "INLINE"
+                        },
+                        "StartAt": "Dump VIZ Table to S3",
+                        "States": {
+                          "Dump VIZ Table to S3": {
+                            "Type": "Task",
+                            "Parameters": {
+                              "DocumentName": "AWS-RunShellScript",
+                              "InstanceIds": [
+                                "${rds_bastion_id}"
+                              ],
+                              "Parameters": {
+                                "commands.$": "States.Array(States.Format('. /deploy_files/dump_to_s3.sh {} {} {} {} ${deployment_bucket} {} ${region}', $.db_alias, $.table_or_schema, $.table_or_schema_name, $.version_tag, $$.Task.Token))"
+                              },
+                              "CloudWatchOutputConfig": {
+                                "CloudWatchLogGroupName": "/aws/systemsmanager/sendcommand",
+                                "CloudWatchOutputEnabled": true
+                              }
+                            },
+                            "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+                            "End": true
+                          }
+                        }
+                      },
+                      "End": true,
+                      "ItemsPath": "$.viz.tables",
+                      "ItemSelector": {
+                        "db_alias": "viz",
+                        "table_or_schema": "table",
+                        "table_or_schema_name.$": "$$.Map.Item.Value",
+                        "version_tag.$": "$.version_tag"
+                      },
+                      "MaxConcurrency": 2
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Process VIZ Schemas",
+                  "States": {
+                    "Process VIZ Schemas": {
+                      "Type": "Map",
+                      "ItemProcessor": {
+                        "ProcessorConfig": {
+                          "Mode": "INLINE"
+                        },
+                        "StartAt": "Dump VIZ Schema to S3",
+                        "States": {
+                          "Dump VIZ Schema to S3": {
+                            "Type": "Task",
+                            "Parameters": {
+                              "DocumentName": "AWS-RunShellScript",
+                              "InstanceIds": [
+                                "${rds_bastion_id}"
+                              ],
+                              "Parameters": {
+                                "commands.$": "States.Array(States.Format('. /deploy_files/dump_to_s3.sh {} {} {} {} hydrovis-ti-deployment-us-east-1 {} us-east-1', $.db_alias, $.table_or_schema, $.table_or_schema_name, $.version_tag, $$.Task.Token))"
+                              },
+                              "CloudWatchOutputConfig": {
+                                "CloudWatchLogGroupName": "/aws/systemsmanager/sendcommand",
+                                "CloudWatchOutputEnabled": true
+                              }
+                            },
+                            "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+                            "End": true
+                          }
+                        }
+                      },
+                      "End": true,
+                      "ItemsPath": "$.viz.schemas",
+                      "ItemSelector": {
+                        "db_alias": "viz",
+                        "table_or_schema": "schema",
+                        "table_or_schema_name.$": "$$.Map.Item.Value",
+                        "version_tag.$": "$.version_tag"
+                      },
+                      "MaxConcurrency": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "StartAt": "Split EGIS into tables and schemas",
+          "States": {
+            "Split EGIS into tables and schemas": {
+              "Type": "Parallel",
+              "End": true,
+              "Branches": [
+                {
+                  "StartAt": "Process EGIS Tables",
+                  "States": {
+                    "Process EGIS Tables": {
+                      "Type": "Map",
+                      "ItemProcessor": {
+                        "ProcessorConfig": {
+                          "Mode": "INLINE"
+                        },
+                        "StartAt": "Dump EGIS Table to S3",
+                        "States": {
+                          "Dump EGIS Table to S3": {
+                            "Type": "Task",
+                            "Parameters": {
+                              "DocumentName": "AWS-RunShellScript",
+                              "InstanceIds": [
+                                "${rds_bastion_id}"
+                              ],
+                              "Parameters": {
+                                "commands.$": "States.Array(States.Format('. /deploy_files/dump_to_s3.sh {} {} {} {} hydrovis-ti-deployment-us-east-1 {} us-east-1', $.db_alias, $.table_or_schema, $.table_or_schema_name, $.version_tag, $$.Task.Token))"
+                              },
+                              "CloudWatchOutputConfig": {
+                                "CloudWatchLogGroupName": "/aws/systemsmanager/sendcommand",
+                                "CloudWatchOutputEnabled": true
+                              }
+                            },
+                            "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+                            "End": true
+                          }
+                        }
+                      },
+                      "End": true,
+                      "ItemsPath": "$.egis.tables",
+                      "ItemSelector": {
+                        "db_alias": "egis",
+                        "table_or_schema": "table",
+                        "table_or_schema_name.$": "$$.Map.Item.Value",
+                        "version_tag.$": "$.version_tag"
+                      },
+                      "MaxConcurrency": 2
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Process EGIS Schemas",
+                  "States": {
+                    "Process EGIS Schemas": {
+                      "Type": "Map",
+                      "ItemProcessor": {
+                        "ProcessorConfig": {
+                          "Mode": "INLINE"
+                        },
+                        "StartAt": "Dump EGIS Schema to S3",
+                        "States": {
+                          "Dump EGIS Schema to S3": {
+                            "Type": "Task",
+                            "Parameters": {
+                              "DocumentName": "AWS-RunShellScript",
+                              "InstanceIds": [
+                                "${rds_bastion_id}"
+                              ],
+                              "Parameters": {
+                                "commands.$": "States.Array(States.Format('. /deploy_files/dump_to_s3.sh {} {} {} {} hydrovis-ti-deployment-us-east-1 {} us-east-1', $.db_alias, $.table_or_schema, $.table_or_schema_name, $.version_tag, $$.Task.Token))"
+                              },
+                              "CloudWatchOutputConfig": {
+                                "CloudWatchLogGroupName": "/aws/systemsmanager/sendcommand",
+                                "CloudWatchOutputEnabled": true
+                              }
+                            },
+                            "Resource": "arn:aws:states:::aws-sdk:ssm:sendCommand.waitForTaskToken",
+                            "End": true
+                          }
+                        }
+                      },
+                      "End": true,
+                      "ItemsPath": "$.egis.schemas",
+                      "ItemSelector": {
+                        "db_alias": "egis",
+                        "table_or_schema": "schema",
+                        "table_or_schema_name.$": "$$.Map.Item.Value",
+                        "version_tag.$": "$.version_tag"
+                      },
+                      "MaxConcurrency": 1
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "End": true
+    }
+  }
+}

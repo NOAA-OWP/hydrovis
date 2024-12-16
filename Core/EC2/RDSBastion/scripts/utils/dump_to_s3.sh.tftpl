@@ -1,0 +1,42 @@
+#!/bin/bash
+
+db_alias=$1
+table_or_schema=$2
+table_or_schema_name=$3
+version_tag=$4
+dest_bucket=$5
+task_token=$6
+task_region=$7
+date=$(date '+%Y%m%dT%H%M')
+fname="$${db_alias}DB_$${date}_$${table_or_schema}_$${table_or_schema_name}_$${version_tag}.dump"
+s3_uri="s3://$${dest_bucket}/$${db_alias}_db_dumps/$${fname}"
+
+if [ "$db_alias" == "egis" ]; then
+  export PGUSER="${egis_db_username}"
+  export PGPASSWORD="${egis_db_password}"
+  export PGHOST="${egis_db_host}"
+  export PGPORT="${egis_db_port}"
+  access_db="hydrovis"
+elif [ "$db_alias" == "viz" ]; then
+  export PGUSER="${viz_db_username}"
+  export PGPASSWORD="${viz_db_password}"
+  export PGHOST="${viz_db_host}"
+  export PGPORT="${viz_db_port}"
+  access_db="vizprocessing"
+fi
+
+pg_dump --file /tmp/$${fname} --format=c --blobs --$${table_or_schema} "$${table_or_schema_name}" "$${access_db}" && \
+aws s3 cp /tmp/$${fname} $${s3_uri} && \
+rm /tmp/$${fname};
+
+status=$?
+
+if [ -n "$task_token" ]; then
+  if [ $status -eq 0 ]; then
+    aws stepfunctions send-task-success --region $task_region --task-token "$task_token" --task-output '{"success": true}'
+  else
+    aws stepfunctions send-task-failure --region $task_region --task-token "$task_token"
+  fi
+else
+  return $status
+fi
