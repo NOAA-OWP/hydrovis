@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -38,23 +38,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -94,10 +94,10 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -19965968.7550500482,
-      "ymin" : 2372656.96527121775,
-      "xmax" : -9845636.01438456774,
-      "ymax" : 9497817.69996768609,
+      "xmin" : -19965968.75505005,
+      "ymin" : 2372656.9652712177,
+      "xmax" : -9845636.014384568,
+      "ymax" : 9497817.699967686,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -439,10 +439,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -13352620.0324000008,
-            "ymin" : 3217419.52760000154,
-            "xmax" : -8067993.81760000065,
-            "ymax" : 6066709.27570000291,
+            "xmin" : -13352620.0324,
+            "ymin" : 3217419.5276000015,
+            "xmax" : -8067993.817600001,
+            "ymax" : 6066709.275700003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -807,7 +807,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -1025,7 +1025,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -1244,10 +1244,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -13352620.0324000008,
-            "ymin" : 3217419.52760000154,
-            "xmax" : -8067993.81760000065,
-            "ymax" : 6066709.27570000291,
+            "xmin" : -13352620.0324,
+            "ymin" : 3217419.5276000015,
+            "xmax" : -8067993.817600001,
+            "ymax" : 6066709.275700003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -1612,7 +1612,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -1830,7 +1830,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -2039,10 +2039,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -13352620.0324000008,
-            "ymin" : 3217419.52760000154,
-            "xmax" : -8067993.81760000065,
-            "ymax" : 6066709.27570000291,
+            "xmin" : -13352620.0324,
+            "ymin" : 3217419.5276000015,
+            "xmax" : -8067993.817600001,
+            "ymax" : 6066709.275700003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2407,7 +2407,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -2626,7 +2626,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -2852,9 +2852,9 @@
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -13818864.713,
-            "ymin" : 3121719.93569999933,
-            "xmax" : -7462564.42760000005,
-            "ymax" : 6510846.0829000026,
+            "ymin" : 3121719.9356999993,
+            "xmax" : -7462564.4276,
+            "ymax" : 6510846.082900003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2884,7 +2884,7 @@
             },
             {
               "name" : "rapid_onset_reach_cnt",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "rapid_onset_reach_cnt"
             },
             {
@@ -3177,7 +3177,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3196,7 +3196,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -3222,7 +3222,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3267,7 +3267,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3312,7 +3312,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3397,7 +3397,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -3440,7 +3440,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [

@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -32,9 +32,9 @@
     "mapType" : "Map",
     "defaultExtent" : {
       "xmin" : -18895192.616139695,
-      "ymin" : 7390190.43515288923,
-      "xmax" : -14212018.5000585355,
-      "ymax" : 9676078.46707452089,
+      "ymin" : 7390190.435152889,
+      "xmax" : -14212018.500058535,
+      "ymax" : 9676078.46707452,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -479,7 +479,7 @@
             },
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             }
           ],
@@ -746,7 +746,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,

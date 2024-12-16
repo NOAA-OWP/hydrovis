@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -36,23 +36,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -92,10 +92,10 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -19368717.2755714618,
-      "ymin" : -3442849.02798249759,
-      "xmax" : 390432.836294349283,
-      "ymax" : 13691546.8182263244,
+      "xmin" : -19368717.27557146,
+      "ymin" : -3442849.0279824976,
+      "xmax" : 390432.8362943493,
+      "ymax" : 13691546.818226324,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -420,9 +420,9 @@
           "geometryType" : "esriGeometryPoint",
           "extent" : {
             "xmin" : -13667986.8586,
-            "ymin" : 2976131.97670000046,
-            "xmax" : -7545985.2053999994,
-            "ymax" : 6264345.28670000285,
+            "ymin" : 2976131.9767000005,
+            "xmax" : -7545985.205399999,
+            "ymax" : 6264345.286700003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -1176,26 +1176,26 @@
             }
           ],
           "weights" : [
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694
           ]
         },
         "radius" : 30,
         "rendererQuality" : 2,
         "minLabel" : "Sparse",
         "maxLabel" : "Dense",
-        "maxPixelIntensity" : 3.1277004890260432e-07,
+        "maxPixelIntensity" : 3.127700489026043e-07,
         "pixelIntensityStops" : [
           0.0011764705882353343,
           1
@@ -1533,10 +1533,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
-            "xmin" : -13714908.1246999986,
-            "ymin" : 2892633.59189999849,
-            "xmax" : -7445653.49290000089,
-            "ymax" : 6274987.50299999863,
+            "xmin" : -13714908.124699999,
+            "ymin" : 2892633.5918999985,
+            "xmax" : -7445653.492900001,
+            "ymax" : 6274987.502999999,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -1578,7 +1578,7 @@
             },
             {
               "name" : "max_fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "max_fim_stage_ft"
             },
             {
@@ -1911,7 +1911,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -1956,7 +1956,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -2001,7 +2001,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -2046,7 +2046,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -2091,7 +2091,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -2212,7 +2212,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -2255,7 +2255,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -2494,9 +2494,9 @@
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -13578523.488499999,
-            "ymin" : 3096599.32990000024,
-            "xmax" : -7616764.76359999925,
-            "ymax" : 6208676.23160000145,
+            "ymin" : 3096599.3299000002,
+            "xmax" : -7616764.763599999,
+            "ymax" : 6208676.231600001,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2855,7 +2855,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -2906,7 +2906,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -2959,7 +2959,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3012,7 +3012,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3065,7 +3065,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3118,7 +3118,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3171,7 +3171,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3224,7 +3224,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3277,7 +3277,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -3991,7 +3991,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
