@@ -440,6 +440,12 @@ data "cloudinit_config" "startup" {
   }
 
   part {
+    content_type = "text/x-shellscript"
+    filename     = "7_install_psql15.sh"
+    content      = file("${path.module}/scripts/utils/install_psql15.sh")
+  }
+
+  part {
     content_type = "text/cloud-config"
     filename     = "cloud-config.yaml"
     content = <<-END
@@ -478,6 +484,21 @@ data "cloudinit_config" "startup" {
               location_db_port     = local.dbs["location"]["db_port"]
               location_db_username = local.dbs["location"]["db_username"]
               location_db_password = local.dbs["location"]["db_password"]
+              viz_db_host          = local.dbs["viz"]["db_host"]
+              viz_db_port          = local.dbs["viz"]["db_port"]
+              viz_db_username      = local.dbs["viz"]["db_username"]
+              viz_db_password      = local.dbs["viz"]["db_password"]
+            })
+          },
+          {
+            path        = "/deploy_files/dump_to_s3.sh"
+            permissions = "0700"
+            owner       = "ec2-user:ec2-user"
+            content     = templatefile("${path.module}/scripts/utils/dump_to_s3.sh.tftpl", {
+              egis_db_host         = local.dbs["egis"]["db_host"]
+              egis_db_port         = local.dbs["egis"]["db_port"]
+              egis_db_username     = local.dbs["egis"]["db_username"]
+              egis_db_password     = local.dbs["egis"]["db_password"]
               viz_db_host          = local.dbs["viz"]["db_host"]
               viz_db_port          = local.dbs["viz"]["db_port"]
               viz_db_username      = local.dbs["viz"]["db_username"]

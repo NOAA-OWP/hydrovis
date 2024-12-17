@@ -659,6 +659,7 @@ module "util-step-functions" {
   sync_wrds_db_role                 = module.iam-roles.role_sync_wrds_location_db.arn
   aws_instances_to_reboot           = [module.rnr.ec2.id]
   email_sns_topics                  = module.sns.email_sns_topics
+  deployment_bucket                 = module.s3.buckets["deployment"].bucket
 }
 
 module "viz-step-functions" {
