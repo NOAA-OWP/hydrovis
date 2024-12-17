@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 #######################
 ## DYNAMIC VARIABLES ##
 #######################
@@ -171,6 +180,7 @@ data "aws_ami" "windows" {
 ################
 
 resource "aws_s3_object" "setup_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_data_bucket
   key         = "terraform_artifacts/${path.module}/scripts/viz_ec2_setup.ps1"
   source      = "${path.module}/scripts/viz_ec2_setup.ps1"
@@ -193,6 +203,8 @@ resource "aws_ssm_parameter" "latest_deployed_github_repo_commit" {
   name  = "latest_deployed_github_repo_commit"
   type  = "String"
   value = data.external.github_repo_commit.result.output
+
+  depends_on = [aws_instance.viz_pipeline]
 }
 
 data "cloudinit_config" "pipeline_setup" {

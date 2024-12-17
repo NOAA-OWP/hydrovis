@@ -50,7 +50,6 @@ terraform.rc
 **/buildplan
 **/destroyplan
 
-Dev/env.yaml
 
 ###################
 # Replace and Route
@@ -73,3 +72,9 @@ __pycache__/
 *.py[cod]
 .env
 .python-version
+
+
+# Ignore all jupyter checkpoint folders
+.ipynb_checkpoints
+
+Dev/env.yaml

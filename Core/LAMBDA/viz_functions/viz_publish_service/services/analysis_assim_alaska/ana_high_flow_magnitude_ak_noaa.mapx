@@ -242,22 +242,23 @@
         "fieldDescriptions" : [
           {
             "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
+            "alias" : "oid",
+            "fieldName" : "oid",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 0
             },
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -442,21 +443,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -465,13 +451,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.publish.%ana_high_flow_magnitude_ak",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select feature_id::bigint,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,valid_time,max_flow,recur_cat,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.ana_high_flow_magnitude_ak",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,valid_time,max_flow,recur_cat,high_water_threshold,flow_2yr,flow_5yr,flow_10yr,flow_25yr,flow_50yr,update_time,geom from vizprocessing.publish.ana_high_flow_magnitude_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17195302.6908,
@@ -485,15 +471,15 @@
           },
           "queryFields" : [
             {
-              "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
+              "name" : "oid",
+              "type" : "esriFieldTypeInteger",
+              "alias" : "oid"
             },
             {
-              "name" : "feature_id_str",
+              "name" : "feature_id",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -610,13 +596,7 @@
       "displayFilters" : [
         {
           "type" : "CIMDisplayFilter",
-          "name" : "All Streams",
-          "whereClause" : "strm_order >= 1",
-          "minScale" : 500000
-        },
-        {
-          "type" : "CIMDisplayFilter",
-          "name" : "Lg Streams",
+          "name" : "Large Streams",
           "whereClause" : "strm_order >= 4",
           "maxScale" : 5000000
         },
@@ -633,6 +613,12 @@
           "whereClause" : "strm_order >= 2",
           "minScale" : 2500000,
           "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
         }
       ],
       "displayFiltersType" : "ByScale",
@@ -640,7 +626,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -1025,11 +1011,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            244.69999999999999,
-                            100,
-                            100,
+                            20,
+                            0,
+                            255,
                             100
                           ]
                         }
@@ -1065,11 +1051,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            196.36000000000001,
-                            81.959999999999994,
-                            100,
+                            46,
+                            198,
+                            255,
                             100
                           ]
                         }
@@ -1106,11 +1092,11 @@
                         "miterLimit" : 10,
                         "width" : 1,
                         "color" : {
-                          "type" : "CIMHSVColor",
+                          "type" : "CIMRGBColor",
                           "values" : [
-                            169.59999999999999,
-                            29.41,
-                            100,
+                            57,
+                            239,
+                            255,
                             100
                           ]
                         }

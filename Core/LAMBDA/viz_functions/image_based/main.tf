@@ -1,3 +1,12 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [ aws.sns, aws.no_tags]
+    }
+  }
+}
+
 variable "environment" {
   type = string
 }
@@ -35,6 +44,10 @@ variable "ecr_repository_image_tag" {
 }
 
 variable "fim_version" {
+  type = string
+}
+
+variable "hand_version" {
   type = string
 }
 
@@ -125,6 +138,7 @@ data "archive_file" "raster_processing_zip" {
 }
 
 resource "aws_s3_object" "raster_processing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_raster_processing.zip"
   source      = data.archive_file.raster_processing_zip.output_path
@@ -249,6 +263,7 @@ data "archive_file" "optimize_rasters_zip" {
 }
 
 resource "aws_s3_object" "optimize_rasters_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_optimize_rasters.zip"
   source      = data.archive_file.optimize_rasters_zip.output_path
@@ -372,8 +387,9 @@ data "archive_file" "hand_fim_processing_zip" {
       IMAGE_REPO_NAME    = aws_ecr_repository.viz_hand_fim_processing_image.name
       IMAGE_TAG          = var.ecr_repository_image_tag
       LAMBDA_ROLE_ARN    = var.lambda_role
-      FIM_BUCKET         = var.fim_data_bucket
-      FIM_PREFIX         = "fim/fim_${replace(var.fim_version, ".", "_")}/hand_datasets"
+      FIM_VERSION        = var.fim_version
+      HAND_BUCKET        = var.fim_data_bucket
+      HAND_VERSION       = var.hand_version
       VIZ_DB_DATABASE    = var.viz_db_name
       VIZ_DB_HOST        = var.viz_db_host
       VIZ_DB_USERNAME    = jsondecode(var.viz_db_user_secret_string)["username"]
@@ -391,6 +407,7 @@ data "archive_file" "hand_fim_processing_zip" {
 }
 
 resource "aws_s3_object" "hand_fim_processing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_hand_fim_processing.zip"
   source      = data.archive_file.hand_fim_processing_zip.output_path
@@ -456,6 +473,7 @@ resource "null_resource" "viz_hand_fim_processing_cluster" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     source_hash = data.archive_file.hand_fim_processing_zip.output_md5
+    hand_version = var.hand_version
     fim_version = var.fim_version
   }
 
@@ -490,7 +508,11 @@ data "aws_lambda_function" "viz_hand_fim_processing" {
 
 module "schism-fim" {
   source = "./viz_schism_fim_processing"
-  
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region

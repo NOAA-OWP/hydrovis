@@ -1,8 +1,6 @@
 import boto3
 import os
 import datetime
-import time
-import re
 import numpy as np
 import pandas as pd
 
@@ -10,6 +8,8 @@ from viz_classes import database
 
 PROCESSED_OUTPUT_BUCKET = os.environ['PROCESSED_OUTPUT_BUCKET']
 PROCESSED_OUTPUT_PREFIX = os.environ['PROCESSED_OUTPUT_PREFIX']
+FIM_VERSION = os.environ['FIM_VERSION']
+
 hand_processing_parallel_groups = 20
 
 S3 = boto3.client('s3')
@@ -42,7 +42,6 @@ def setup_huc_inundation(event):
     reference_date = datetime.datetime.strptime(reference_time, "%Y-%m-%d %H:%M:%S")
     date = reference_date.strftime("%Y%m%d")
     hour = reference_date.strftime("%H")
-    sql_replace = event['args']['sql_rename_dict']
     one_off = event['args'].get("hucs")
     process_by = fim_config.get('process_by', ['huc'])
     
@@ -50,13 +49,16 @@ def setup_huc_inundation(event):
     # Initilize the database class for relevant databases
     viz_db = database(db_type="viz") # we always need the vizprocessing database to get flows data.
 
-    # If a reference configuration, check to see if any preprocessing sql is needed (this currently does manual things, like reploading ras2fim data, which is copied to egis at the bottom of this function)
+    # If a reference configuration, check to see if any preprocessing sql is needed (this currently does manual things, like loading ras2fim data, which is copied to egis at the bottom of this function)
     if configuration == 'reference':
         preprocess_sql_file = os.path.join("reference_preprocessing_sql", fim_config_name + '.sql')
         if os.path.exists(preprocess_sql_file):
             print(f"Running {preprocess_sql_file} preprocess sql file.")
-            viz_db.run_sql_file_in_db(preprocess_sql_file)
-    
+            preprocess_sql = open(preprocess_sql_file, 'r').read()
+            preprocess_sql = preprocess_sql.replace('{fim_version}', FIM_VERSION)
+            preprocess_sql = preprocess_sql.replace('1900-01-01 00:00:00', reference_time)
+            viz_db.execute_sql(preprocess_sql)
+
     print("Determing features to be processed by HAND")
     # Query flows data from the vizprocessing database, using the SQL defined above.
     hand_features_sql_file = os.path.join("hand_features_sql", fim_config_name + '.sql')
@@ -69,7 +71,7 @@ def setup_huc_inundation(event):
         hand_sql = hand_sql.replace("{db_fim_table}", target_table)
     
     # Using the sql defined above, pull features for running hand into a dataframe
-    df_streamflows = viz_db.run_sql_in_db(hand_sql)
+    df_streamflows = viz_db.sql_to_dataframe(hand_sql)
     
     # Split reaches with flows into processing groups, and write two sets of csv files to S3 (we need to write to csvs to not exceed the limit of what can be passed in the step function):
     # This first loop splits up the number of huc8_branch combinations into X even 'hucs_to_process' groups, in order to parallel process groups in a step function map, and writes those to csv files on S3.

@@ -21,7 +21,7 @@ max_flows_station_xwalk AS (
 			ELSE FALSE
 		END AS is_waterbody
 	FROM cache.max_flows_rnr mf
-	LEFT JOIN external.nwm_routelink rl
+	LEFT JOIN external.nwm_routelink_3_0_conus rl
 		ON rl.nwm_feature_id = mf.feature_id
 	LEFT JOIN rnr.nwm_crosswalk xwalk
 		ON xwalk.nwm_feature_id = mf.feature_id

@@ -28,6 +28,62 @@ from viz_classes import s3_file, database # We use some common custom classes in
 from viz_lambda_shared_funcs import get_file_tokens, get_formatted_files, gen_dict_extract
 import yaml
 
+SF_ARN__VIZ_PIPELINE = os.environ["SF_ARN__VIZ_PIPELINE"]
+SF_ARN__SYNC_WRDS_DB = os.environ["SF_ARN__SYNC_WRDS_DB"]
+SNS_TOPIC__WRDS_DB_DUMP = os.environ["SNS_TOPIC__WRDS_DB_DUMP"]
+
+SF_CLIENT = boto3.client('stepfunctions')
+
+# PIPELINE_INIT_FILES = [] #Swap out this for the following list to pause all pipelines.
+PIPELINE_INIT_FILES = [
+    ## ANA ##
+    "analysis_assim.channel_rt.tm00.conus.nc",
+    "analysis_assim.forcing.tm00.conus.nc",
+    "analysis_assim.channel_rt.tm0000.hawaii.nc",
+    "analysis_assim.forcing.tm00.hawaii.nc",
+    "analysis_assim.channel_rt.tm00.puertorico.nc",
+    "analysis_assim.forcing.tm00.puertorico.nc",
+    "analysis_assim.channel_rt.tm00.alaska.nc",
+    "analysis_assim.forcing.tm00.alaska.nc",
+    
+    ## SRF ##
+    "short_range.channel_rt.f018.conus.nc",
+    "short_range.forcing.f018.conus.nc",
+    "short_range.channel_rt.f04800.hawaii.nc",
+    "short_range.forcing.f048.hawaii.nc",
+    "short_range.channel_rt.f048.puertorico.nc",
+    "short_range.forcing.f048.puertorico.nc",
+    "short_range.forcing.f015.alaska.nc",
+    "short_range.channel_rt.f015.alaska.nc",
+    
+    ## MRF GFS ##
+    "medium_range.channel_rt_1.f240.conus.nc",
+    "medium_range.forcing.f240.conus.nc",
+    "medium_range.channel_rt.f119.conus.nc",
+    "medium_range.channel_rt_1.f240.alaska.nc",
+    "medium_range.forcing.f240.alaska.nc",
+    
+    ## MRF NBM ##
+    "medium_range_blend.channel_rt.f240.conus.nc",
+    "medium_range_blend.forcing.f240.conus.nc",
+    "medium_range_blend.channel_rt.f240.alaska.nc",
+    "medium_range_blend.forcing.f240.alaska.nc",
+    
+    ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
+    # "medium_range.channel_rt_6.f240.conus.nc",
+
+    # NOTE: https://github.com/NOAA-OWP/hydrovis/issues/982
+    ## Coastal ##
+    # "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
+    # "analysis_assim_coastal.total_water.tm00.hawaii.nc",
+    # "analysis_assim_coastal.total_water.tm00.puertorico.nc",
+    # "medium_range_coastal.total_water.f240.atlgulf.nc",
+    # "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
+    # "short_range_coastal.total_water.f018.atlgulf.nc",
+    # "short_range_coastal.total_water.f048.puertorico.nc",
+    # "short_range_coastal.total_water.f048.hawaii.nc"
+]
+
 ###################################################################################################################################################
 class DuplicatePipelineException(Exception):
     """ my custom exception class """
@@ -38,62 +94,24 @@ def lambda_handler(event, context):
     # (lots of false starts, but it only amounts to about $1 a month)
     # Initializing the pipeline class below also does some start-up logic like this based on the event, but I'm keeping this seperate at the very top to keep the timing of those false starts as low as possible.
     if "Records" in event:
-        # pipeline_iniitializing_files = [] #Swap out this for the following list to pause all pipelines.
-        pipeline_iniitializing_files = [
-                                        ## ANA ##
-                                        "analysis_assim.channel_rt.tm00.conus.nc",
-                                        "analysis_assim.forcing.tm00.conus.nc",
-                                        "analysis_assim.channel_rt.tm0000.hawaii.nc",
-                                        "analysis_assim.forcing.tm00.hawaii.nc",
-                                        "analysis_assim.channel_rt.tm00.puertorico.nc",
-                                        "analysis_assim.forcing.tm00.puertorico.nc",
-                                        "analysis_assim.channel_rt.tm00.alaska.nc",
-                                        "analysis_assim.forcing.tm00.alaska.nc",
-                                        
-                                        ## SRF ##
-                                        "short_range.channel_rt.f018.conus.nc",
-                                        "short_range.forcing.f018.conus.nc",
-                                        "short_range.channel_rt.f04800.hawaii.nc",
-                                        "short_range.forcing.f048.hawaii.nc",
-                                        "short_range.channel_rt.f048.puertorico.nc",
-                                        "short_range.forcing.f048.puertorico.nc",
-                                        "short_range.forcing.f015.alaska.nc",
-                                        "short_range.channel_rt.f015.alaska.nc",
-                                        
-                                        ## MRF GFS ##
-                                        "medium_range.channel_rt_1.f240.conus.nc",
-                                        "medium_range.forcing.f240.conus.nc",
-                                        "medium_range.channel_rt.f119.conus.nc",
-                                        "medium_range.channel_rt_1.f240.alaska.nc",
-                                        "medium_range.forcing.f240.alaska.nc",
-                                        
-                                        ## MRF NBM ##
-                                        "medium_range_blend.channel_rt.f240.conus.nc",
-                                        "medium_range_blend.forcing.f240.conus.nc",
-                                        "medium_range_blend.channel_rt.f240.alaska.nc",
-                                        "medium_range_blend.forcing.f240.alaska.nc",
-                                        
-                                        ## MRF Ensemble - Currently CONUS only - Ensemble member 6 kicks off other ensemble member ingests##
-                                        # "medium_range.channel_rt_6.f240.conus.nc",
+        sns_event = event.get('Records')[0].get('Sns')
+        s3_message = json.loads(sns_event.get('Message'))
+        s3_event = s3_message.get('Records')[0].get('s3')
+        s3_key = s3_event.get('object').get('key')
 
-                                        ## Coastal ##
-                                        "analysis_assim_coastal.total_water.tm00.atlgulf.nc",
-                                        "analysis_assim_coastal.total_water.tm00.hawaii.nc",
-                                        "analysis_assim_coastal.total_water.tm00.puertorico.nc",
-                                        "medium_range_coastal.total_water.f240.atlgulf.nc",
-                                        "medium_range_blend_coastal.total_water.f240.atlgulf.nc",
-                                        "short_range_coastal.total_water.f018.atlgulf.nc",
-                                        "short_range_coastal.total_water.f048.puertorico.nc",
-                                        "short_range_coastal.total_water.f048.hawaii.nc"
-                                        ]
-        s3_event = json.loads(event.get('Records')[0].get('Sns').get('Message'))
-        if s3_event.get('Records')[0].get('s3').get('object').get('key'):
-            s3_key = s3_event.get('Records')[0].get('s3').get('object').get('key')
-            if any(suffix in s3_key for suffix in pipeline_iniitializing_files) == False:
-                return
-            else:
-                print(f"Continuing pipeline initialization with Shared Bucket S3 key: {s3_key}")
-    
+        if any(suffix in s3_key for suffix in PIPELINE_INIT_FILES):
+            print(f"Continuing pipeline initialization with Shared Bucket S3 key: {s3_key}")
+        elif sns_event["TopicArn"] == SNS_TOPIC__WRDS_DB_DUMP:
+            print("Starting WRDS DB Sync Step Function...")
+            SF_CLIENT.start_execution(
+                stateMachineArn=SF_ARN__SYNC_WRDS_DB,
+                name=s3_key.split('/')[-1].split('.')[0],
+                input=json.dumps(s3_event)
+                )
+            return
+        else:
+            return
+
     ###### Initialize the pipeline class & configuration classes ######
     #Initialize the pipeline object - This will parse the lambda event, initialize a configuration, and pull service metadata for that configuration from the viz processing database.
     try:
@@ -114,12 +132,9 @@ def lambda_handler(event, context):
         
     pipeline_runs = pipeline.get_pipeline_runs()
     
-    # Invoke the step function with the dictionary we've not created.
-    step_function_arn = os.environ["STEP_FUNCTION_ARN"]
     if invoke_step_function is True:
         try:
             #Invoke the step function.
-            client = boto3.client('stepfunctions')
             for pipeline_run in pipeline_runs:
                 ref_time_short = pipeline.configuration.reference_time.strftime("%Y%m%dT%H%M")
                 short_config = pipeline_run['configuration'].replace("puertorico", "prvi").replace("hawaii", "hi")
@@ -128,12 +143,12 @@ def lambda_handler(event, context):
                 pipeline_name = f"{short_invoke}_{short_config}_{ref_time_short}_{datetime.datetime.now().strftime('%d%H%M')}"
                 pipeline_run['logging_info'] = {'Timestamp': int(time.time())*1000}
             
-                client.start_execution(
-                    stateMachineArn = step_function_arn,
+                SF_CLIENT.start_execution(
+                    stateMachineArn = SF_ARN__VIZ_PIPELINE,
                     name = pipeline_name,
                     input= json.dumps(pipeline_run)
                 )
-            print(f"Invoked: {step_function_arn}")
+            print(f"Invoked: {SF_ARN__VIZ_PIPELINE}")
         except Exception as e:
             print(f"Couldn't invoke - update later. ({e})")
             
@@ -168,7 +183,7 @@ class viz_lambda_pipeline:
             self.configuration = configuration(config, reference_time=self.reference_time, input_bucket=bucket)
         elif "Records" in self.start_event: # Records in the start_event denotes a SNS trigger of the lambda function.
             self.invocation_type = "sns" 
-        elif "invocation_type" in self.start_event: # Currently the max_flows and wrds_api_handler lambda functions manually invoke this lambda function and specify a "invocation_type" key in the payload. This is how we identify that.
+        elif "invocation_type" in self.start_event: # The max_flows lambda function manually invokes this lambda function and includes the "invocation_type" key in the payload.
             self.invocation_type = "lambda" #TODO: Clean this up to actually pull the value from the payload
         else: 
             self.invocation_type = "manual"
@@ -197,7 +212,7 @@ class viz_lambda_pipeline:
                 self.reference_time = datetime.datetime.strptime(self.start_event.get('reference_time'), '%Y-%m-%d %H:%M:%S')
                 self.configuration = configuration(start_event.get('configuration'), reference_time=self.reference_time, input_bucket=start_event.get('bucket'))
             elif self.start_event.get('configuration') and self.start_event.get('configuration') == 'rfc':
-                self.configuration = configuration('rfc', reference_time=datetime.datetime.utcnow().replace(second=0, microsecond=0))
+                self.configuration = configuration('rfc', reference_time=datetime.datetime.now(datetime.UTC).replace(second=0, microsecond=0))
             # If no reference time was specified, we get the most recent file available on S3 for the specified configruation, and use that.
             else:
                 most_recent_file = s3_file.get_most_recent_from_configuration(configuration_name=start_event.get('configuration'), bucket=start_event.get('bucket'))
@@ -655,5 +670,3 @@ class configuration:
             "db_ingest_groups": self.db_ingest_groups,
             "python_preprocessing": self.lambda_input_sets
         }
-        
-        return

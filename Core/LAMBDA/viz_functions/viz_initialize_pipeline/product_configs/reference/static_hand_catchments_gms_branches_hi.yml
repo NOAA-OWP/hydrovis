@@ -5,8 +5,8 @@ run: true
 
 # UNCOMMENT THE LINES BELOW TO RECREATE DATA
 # fim_configs:
-#   - name: branch_gms_catchments_hi
-#     target_table: fim_catchments.branch_gms_catchments_hi
+#   - name: catchments_gms_branches_hi
+#     target_table: fim_catchments.catchments_gms_branches_hi
 #     fim_type: hand
 
 services:

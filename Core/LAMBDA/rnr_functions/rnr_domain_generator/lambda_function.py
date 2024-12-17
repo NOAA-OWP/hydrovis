@@ -57,7 +57,7 @@ def lambda_handler(event, context):
         sql_reftime = reference_time.strftime('%Y-%m-%dT%H:%M:%SZ')
         sql = sql.replace('CURRENT_DATE', f"'{sql_reftime}'")
         print(f'Executing {step}.sql...')
-        df = viz_db.run_sql_in_db(sql)
+        df = viz_db.sql_to_dataframe(sql)
         func_name = f'create_{step}'
         func = getattr(sys.modules[__name__], func_name)
         

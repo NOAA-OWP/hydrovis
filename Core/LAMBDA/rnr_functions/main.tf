@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      configuration_aliases = [ aws.sns ]
+      configuration_aliases = [ aws.sns, aws.no_tags]
     }
   }
 }
@@ -80,6 +80,7 @@ data "archive_file" "rnr_domain_generator_zip" {
 }
 
 resource "aws_s3_object" "rnr_domain_generator_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/rnr_domain_generator.zip"
   source      = data.archive_file.rnr_domain_generator_zip.output_path

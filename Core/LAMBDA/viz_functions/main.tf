@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      configuration_aliases = [ aws.sns ]
+      configuration_aliases = [ aws.sns, aws.no_tags]
     }
   }
 }
@@ -58,7 +58,12 @@ variable "viz_cache_bucket" {
 }
 
 variable "fim_version" {
-  description = "FIM version to run"
+  description = "Version of the FIM Package"
+  type        = string
+}
+
+variable "hand_version" {
+  description = "Version of HAND FIM"
   type        = string
 }
 
@@ -72,10 +77,6 @@ variable "db_lambda_security_groups" {
   type        = list(any)
 }
 
-variable "nat_sg_group" {
-  type = string
-}
-
 variable "db_lambda_subnets" {
   description = "Subnets to use for the db-pipeline lambdas."
   type        = list(any)
@@ -87,6 +88,10 @@ variable "db_lambda_subnets" {
 # }
 
 variable "nws_shared_account_nwm_sns" {
+  type = string
+}
+
+variable "wrds_db_dump_sns" {
   type = string
 }
 
@@ -119,8 +124,23 @@ variable "viz_db_user_secret_string" {
   type        = string
 }
 
+variable "viz_db_suser_secret_string" {
+  description = "The secret string of the viz_processing data base superuser to write/read data as."
+  type        = string
+}
+
 variable "egis_db_user_secret_string" {
   description = "The secret string for the egis rds database."
+  type        = string
+}
+
+variable "wrds_db_host" {
+  description = "Hostname of the viz processing RDS instance."
+  type        = string
+}
+
+variable "wrds_db_user_secret_string" {
+  description = "The secret string of the viz_processing data base user to write/read data as."
   type        = string
 }
 
@@ -169,11 +189,11 @@ variable "viz_lambda_shared_funcs_layer" {
   type = string
 }
 
-variable "dataservices_host" {
+variable "viz_pipeline_step_function_arn" {
   type = string
 }
 
-variable "viz_pipeline_step_function_arn" {
+variable "sync_wrds_db_step_function_arn" {
   type = string
 }
 
@@ -207,85 +227,6 @@ locals {
   ])
 }
 
-########################################################################################################################################
-########################################################################################################################################
-
-###############################
-## WRDS API Handler Function ##
-###############################
-data "archive_file" "wrds_api_handler_zip" {
-  type = "zip"
-
-  source_file = "${path.module}/viz_wrds_api_handler/lambda_function.py"
-
-  output_path = "${path.module}/temp/viz_wrds_api_handler_${var.environment}_${var.region}.zip"
-}
-
-resource "aws_s3_object" "wrds_api_handler_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_wrds_api_handler.zip"
-  source      = data.archive_file.wrds_api_handler_zip.output_path
-  source_hash = filemd5(data.archive_file.wrds_api_handler_zip.output_path)
-}
-
-resource "aws_lambda_function" "viz_wrds_api_handler" {
-  function_name = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  description   = "Lambda function to ping WRDS API and format outputs for processing."
-  memory_size   = 512
-  timeout       = 900
-  vpc_config {
-    security_group_ids = [var.nat_sg_group]
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      DATASERVICES_HOST            = var.dataservices_host
-      PYTHON_PREPROCESSING_BUCKET              = var.python_preprocessing_bucket
-      PROCESSED_OUTPUT_PREFIX      = "max_stage/ahps"
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-    }
-  }
-  s3_bucket        = aws_s3_object.wrds_api_handler_zip_upload.bucket
-  s3_key           = aws_s3_object.wrds_api_handler_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.wrds_api_handler_zip.output_path)
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.arcgis_python_api_layer,
-    var.es_logging_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-wrds-api-handler"
-  }
-}
-
-resource "aws_cloudwatch_event_target" "check_lambda_every_five_minutes" {
-  rule      = var.five_minute_trigger.name
-  target_id = aws_lambda_function.viz_initialize_pipeline.function_name
-  arn       = aws_lambda_function.viz_initialize_pipeline.arn
-  input     = "{\"configuration\":\"rfc\"}"
-}
-
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_check_lambda" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.viz_wrds_api_handler.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = var.five_minute_trigger.arn
-}
-
-resource "aws_lambda_function_event_invoke_config" "viz_wrds_api_handler" {
-  function_name          = resource.aws_lambda_function.viz_wrds_api_handler.function_name
-  maximum_retry_attempts = 0
-  destination_config {
-    on_failure {
-      destination = var.email_sns_topics["viz_lambda_errors"].arn
-    }
-  }
-}
-
 ##################################
 ## EGIS Health Checker Function ##
 ##################################
@@ -298,6 +239,7 @@ data "archive_file" "egis_health_checker_zip" {
 }
 
 resource "aws_s3_object" "egis_health_checker_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/egis_health_checker.zip"
   source      = data.archive_file.egis_health_checker_zip.output_path
@@ -388,6 +330,7 @@ data "archive_file" "python_preprocessing_zip" {
 }
 
 resource "aws_s3_object" "python_preprocessing_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_python_preprocessing.zip"
   source      = data.archive_file.python_preprocessing_zip.output_path
@@ -508,6 +451,7 @@ data "archive_file" "initialize_pipeline_zip" {
 }
 
 resource "aws_s3_object" "initialize_pipeline_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_initialize_pipeline.zip"
   source      = data.archive_file.initialize_pipeline_zip.output_path
@@ -525,7 +469,9 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
   environment {
     variables = {
-      STEP_FUNCTION_ARN            = var.viz_pipeline_step_function_arn
+      SF_ARN__VIZ_PIPELINE         = var.viz_pipeline_step_function_arn
+      SF_ARN__SYNC_WRDS_DB         = var.sync_wrds_db_step_function_arn
+      SNS_TOPIC__WRDS_DB_DUMP      = var.wrds_db_dump_sns
       DATA_BUCKET_UPLOAD           = var.fim_output_bucket
       PYTHON_PREPROCESSING_BUCKET  = var.python_preprocessing_bucket
       RNR_DATA_BUCKET              = var.rnr_data_bucket
@@ -555,22 +501,8 @@ resource "aws_lambda_function" "viz_initialize_pipeline" {
   }
 }
 
-# resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscriptions" {
-#   for_each  = local.initialize_pipeline_subscriptions
-#   topic_arn = var.sns_topics["${each.value}"].arn
-#   protocol  = "lambda"
-#   endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
-# }
-
-# resource "aws_lambda_permission" "viz_initialize_pipeline_permissions" {
-#   for_each      = local.initialize_pipeline_subscriptions
-#   action        = "lambda:InvokeFunction"
-#   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
-#   principal     = "sns.amazonaws.com"
-#   source_arn    = var.sns_topics["${each.value}"].arn
-# }
-
 resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shared_nwm" {
+  count     = var.environment == "ti" ? 0 : 1
   provider = aws.sns
   topic_arn = var.nws_shared_account_nwm_sns
   protocol  = "lambda"
@@ -578,10 +510,25 @@ resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_shar
 }
 
 resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_shared_nwm" {
+  count     = var.environment == "ti" ? 0 : 1
   action        = "lambda:InvokeFunction"
   function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = var.nws_shared_account_nwm_sns
+}
+
+resource "aws_sns_topic_subscription" "viz_initialize_pipeline_subscription_wrds_db_dump" {
+  provider = aws.sns
+  topic_arn = var.wrds_db_dump_sns
+  protocol  = "lambda"
+  endpoint  = resource.aws_lambda_function.viz_initialize_pipeline.arn
+}
+
+resource "aws_lambda_permission" "viz_initialize_pipeline_permissions_wrds_db_dump" {
+  action        = "lambda:InvokeFunction"
+  function_name = resource.aws_lambda_function.viz_initialize_pipeline.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.wrds_db_dump_sns
 }
 
 resource "aws_lambda_function_event_invoke_config" "viz_initialize_pipeline_destinations" {
@@ -606,6 +553,7 @@ data "archive_file" "db_postprocess_sql_zip" {
 }
 
 resource "aws_s3_object" "db_postprocess_sql_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_db_postprocess_sql.zip"
   source      = data.archive_file.db_postprocess_sql_zip.output_path
@@ -627,6 +575,8 @@ resource "aws_lambda_function" "viz_db_postprocess_sql" {
       VIZ_DB_HOST           = var.viz_db_host
       VIZ_DB_USERNAME       = jsondecode(var.viz_db_user_secret_string)["username"]
       VIZ_DB_PASSWORD       = jsondecode(var.viz_db_user_secret_string)["password"]
+      FIM_VERSION           = var.fim_version
+      HAND_VERSION          = var.hand_version
     }
   }
   s3_bucket        = aws_s3_object.db_postprocess_sql_zip_upload.bucket
@@ -666,6 +616,7 @@ data "archive_file" "db_ingest_zip" {
 }
 
 resource "aws_s3_object" "db_ingest_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_db_ingest.zip"
   source      = data.archive_file.db_ingest_zip.output_path
@@ -717,60 +668,6 @@ resource "aws_lambda_function_event_invoke_config" "viz_db_ingest_destinations" 
 }
 
 #############################
-##   Stage-Based CatFIM    ##
-#############################
-data "archive_file" "viz_stage_based_catfim_zip" {
-  type = "zip"
-
-  source_dir = "${path.module}/viz_stage_based_catfim"
-
-  output_path = "${path.module}/temp/viz_stage_based_catfim_${var.environment}_${var.region}.zip"
-}
-
-resource "aws_s3_object" "viz_stage_based_catfim_zip_upload" {
-  bucket      = var.deployment_bucket
-  key         = "terraform_artifacts/${path.module}/viz_stage_based_catfim.zip"
-  source      = data.archive_file.viz_stage_based_catfim_zip.output_path
-  source_hash = filemd5(data.archive_file.viz_stage_based_catfim_zip.output_path)
-}
-
-resource "aws_lambda_function" "viz_stage_based_catfim" {
-  function_name = "hv-vpp-${var.environment}-viz-stage-based-catfim"
-  description   = "Lambda function to ingest individual files into the viz processing postgresql database."
-  memory_size   = 1280
-  timeout       = 900
-  vpc_config {
-    security_group_ids = var.db_lambda_security_groups
-    subnet_ids         = var.db_lambda_subnets
-  }
-  environment {
-    variables = {
-      VIZ_DB_DATABASE = var.viz_db_name
-      VIZ_DB_HOST = var.viz_db_host
-      VIZ_DB_USERNAME = jsondecode(var.viz_db_user_secret_string)["username"]
-      VIZ_DB_PASSWORD = jsondecode(var.viz_db_user_secret_string)["password"]
-      INITIALIZE_PIPELINE_FUNCTION = aws_lambda_function.viz_initialize_pipeline.arn
-      PYTHONWARNINGS = "ignore:Unverified HTTPS request"
-    }
-  }
-  s3_bucket        = aws_s3_object.viz_stage_based_catfim_zip_upload.bucket
-  s3_key           = aws_s3_object.viz_stage_based_catfim_zip_upload.key
-  source_code_hash = filebase64sha256(data.archive_file.viz_stage_based_catfim_zip.output_path)
-  runtime          = "python3.9"
-  handler          = "lambda_function.lambda_handler"
-  role             = var.lambda_role
-  layers = [
-    var.psycopg2_sqlalchemy_layer,
-    var.geopandas_layer,
-    var.requests_layer,
-    var.viz_lambda_shared_funcs_layer
-  ]
-  tags = {
-    "Name" = "hv-vpp-${var.environment}-viz-stage-based-catfim"
-  }
-}
-
-#############################
 ##      FIM Data Prep      ##
 #############################
 data "archive_file" "fim_data_prep_zip" {
@@ -782,6 +679,7 @@ data "archive_file" "fim_data_prep_zip" {
 }
 
 resource "aws_s3_object" "fim_data_prep_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_fim_data_prep.zip"
   source      = data.archive_file.fim_data_prep_zip.output_path
@@ -791,7 +689,7 @@ resource "aws_s3_object" "fim_data_prep_zip_upload" {
 resource "aws_lambda_function" "viz_fim_data_prep" {
   function_name = "hv-vpp-${var.environment}-viz-fim-data-prep"
   description   = "Lambda function to setup a fim run by retriving max flows from the database, prepare an ingest database table, and creating a dictionary for huc-based worker lambdas to use."
-  memory_size   = 2048
+  memory_size   = var.environment == "ti" ? 4096 : 2048 # Larger for apocalyptic testing
   timeout       = 900
   vpc_config {
     security_group_ids = var.db_lambda_security_groups
@@ -803,10 +701,9 @@ resource "aws_lambda_function" "viz_fim_data_prep" {
       EGIS_DB_HOST            = var.egis_db_host
       EGIS_DB_USERNAME        = jsondecode(var.egis_db_user_secret_string)["username"]
       EGIS_DB_PASSWORD        = jsondecode(var.egis_db_user_secret_string)["password"]
-      FIM_DATA_BUCKET         = var.fim_data_bucket
-      FIM_VERSION             = var.fim_version
       PROCESSED_OUTPUT_BUCKET = var.fim_output_bucket
       PROCESSED_OUTPUT_PREFIX = "processing_outputs"
+      FIM_VERSION             = var.fim_version
       VIZ_DB_DATABASE         = var.viz_db_name
       VIZ_DB_HOST             = var.viz_db_host
       VIZ_DB_USERNAME         = jsondecode(var.viz_db_user_secret_string)["username"]
@@ -852,6 +749,7 @@ data "archive_file" "update_egis_data_zip" {
 }
 
 resource "aws_s3_object" "update_egis_data_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_update_egis_data.zip"
   source      = data.archive_file.update_egis_data_zip.output_path
@@ -918,10 +816,20 @@ data "archive_file" "publish_service_zip" {
 }
 
 resource "aws_s3_object" "publish_service_zip_upload" {
+  provider = aws.no_tags  
   bucket      = var.deployment_bucket
   key         = "terraform_artifacts/${path.module}/viz_publish_service.zip"
   source      = data.archive_file.publish_service_zip.output_path
   source_hash = filemd5(data.archive_file.publish_service_zip.output_path)
+}
+
+resource "aws_s3_object" "viz_publish_mapx_files" {
+  provider = aws.no_tags  
+  for_each    = fileset("${path.module}/viz_publish_service/services", "**/*.mapx")
+  bucket      = var.deployment_bucket
+  key         = "viz_mapx/${reverse(split("/",each.key))[0]}"
+  source      = "${path.module}/viz_publish_service/services/${each.key}"
+  source_hash = filemd5("${path.module}/viz_publish_service/services/${each.key}")
 }
 
 resource "aws_lambda_function" "viz_publish_service" {
@@ -940,8 +848,13 @@ resource "aws_lambda_function" "viz_publish_service" {
       GIS_USERNAME        = "hydrovis.proc"
       PUBLISH_FLAG_BUCKET = var.python_preprocessing_bucket
       S3_BUCKET           = var.viz_authoritative_bucket
-      SD_S3_PATH          = "viz_sd_files/"
+      SD_S3_PATH          = "viz_sd_files"
       SERVICE_TAG         = local.service_suffix
+      EGIS_DB_HOST        = var.egis_db_host
+      EGIS_DB_DATABASE    = var.egis_db_name
+      EGIS_DB_USERNAME    = jsondecode(var.egis_db_user_secret_string)["username"]
+      EGIS_DB_PASSWORD    = jsondecode(var.egis_db_user_secret_string)["password"]
+      ENVIRONMENT         = var.environment
     }
   }
   s3_bucket        = aws_s3_object.publish_service_zip_upload.bucket
@@ -970,13 +883,84 @@ resource "aws_lambda_function_event_invoke_config" "viz_publish_service_destinat
   }
 }
 
+
+######################
+## VIZ TEST WRDS DB ##
+######################
+data "archive_file" "viz_test_wrds_db_zip" {
+  type = "zip"
+  output_path = "${path.module}/temp/test_sql_${var.environment}_${var.region}.zip"
+
+  source {
+    content  = file("${path.module}/viz_test_wrds_db/lambda_function.py")
+    filename = "lambda_function.py"
+  }
+
+  dynamic "source" {
+    for_each = fileset("${path.module}", "**/*.sql")
+    content {
+      content  = file("${path.module}/${source.key}")
+      filename = "sql_files/${basename(source.key)}"
+    }
+  }
+}
+
+resource "aws_s3_object" "viz_test_wrds_db_upload" {
+  provider = aws.no_tags  
+  bucket      = var.deployment_bucket
+  key         = "terraform_artifacts/${path.module}/viz_test_wrds_db.zip"
+  source      = data.archive_file.viz_test_wrds_db_zip.output_path
+  source_hash = filemd5(data.archive_file.viz_test_wrds_db_zip.output_path)
+}
+
+resource "aws_lambda_function" "viz_test_wrds_db" {
+  function_name = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  description   = "Lambda function to test the wrds_location3_ondeck db before it is swapped for the live version"
+  timeout       = 900
+  memory_size   = 5000
+  vpc_config {
+    security_group_ids = var.db_lambda_security_groups
+    subnet_ids         = var.db_lambda_subnets
+  }
+  environment {
+    variables = {
+      WRDS_DB_HOST      = var.wrds_db_host
+      WRDS_DB_USERNAME  = jsondecode(var.wrds_db_user_secret_string)["username"]
+      WRDS_DB_PASSWORD  = jsondecode(var.wrds_db_user_secret_string)["password"]
+      VIZ_DB_DATABASE   = var.viz_db_name
+      VIZ_DB_HOST       = var.viz_db_host
+      VIZ_DB_USERNAME   = jsondecode(var.viz_db_suser_secret_string)["username"]
+      VIZ_DB_PASSWORD   = jsondecode(var.viz_db_suser_secret_string)["password"]
+    }
+  }
+  s3_bucket        = aws_s3_object.viz_test_wrds_db_upload.bucket
+  s3_key           = aws_s3_object.viz_test_wrds_db_upload.key
+  source_code_hash = filebase64sha256(data.archive_file.viz_test_wrds_db_zip.output_path)
+  runtime          = "python3.9"
+  handler          = "lambda_function.lambda_handler"
+  role             = var.lambda_role
+  layers = [
+    var.psycopg2_sqlalchemy_layer,
+    var.viz_lambda_shared_funcs_layer
+  ]
+  tags = {
+    "Name" = "hv-vpp-${var.environment}-viz-test-wrds-db"
+  }
+}
+
+
+
 #########################
 ## Image Based Lambdas ##
 #########################
 
 module "image-based-lambdas" {
   source = "./image_based"
-
+  providers = {
+    aws     = aws
+    aws.sns = aws.sns
+    aws.no_tags = aws.no_tags
+  }
   environment                 = var.environment
   account_id                  = var.account_id
   region                      = var.region
@@ -987,6 +971,7 @@ module "image-based-lambdas" {
   hand_fim_processing_subnets = var.db_lambda_subnets
   ecr_repository_image_tag    = local.ecr_repository_image_tag
   fim_version                 = var.fim_version
+  hand_version                = var.hand_version
   fim_data_bucket             = var.fim_data_bucket
   viz_db_name                 = var.viz_db_name
   viz_db_host                 = var.viz_db_host
@@ -1021,10 +1006,6 @@ output "db_ingest" {
   value = aws_lambda_function.viz_db_ingest
 }
 
-output "viz_stage_based_catfim" {
-  value = aws_lambda_function.viz_stage_based_catfim
-}
-
 output "fim_data_prep" {
   value = aws_lambda_function.viz_fim_data_prep
 }
@@ -1037,12 +1018,12 @@ output "publish_service" {
   value = aws_lambda_function.viz_publish_service
 }
 
-output "wrds_api_handler" {
-  value = aws_lambda_function.viz_wrds_api_handler
-}
-
 output "egis_health_checker" {
   value = aws_lambda_function.egis_health_checker
+}
+
+output "test_wrds_db" {
+  value = aws_lambda_function.viz_test_wrds_db
 }
 
 output "hand_fim_processing" {

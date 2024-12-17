@@ -28,9 +28,7 @@
     "layers" : [
       "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/10_day_gfs_rapid_onset_flood_arrival_time.xml",
       "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/_admin_rw_user_10_day_gfs_rapid_onset_flood_arrival_time.xml",
-      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/iz_proc_admin_rw_user_10_day_gfs_waterway_length_flooded.xml",
-      "CIMPATH=e0f5c39ad8fa4f0fb24a050bc9018d49.xml",
-      "CIMPATH=aff6ed460e58483f8686196f28c72128.xml"
+      "CIMPATH=nwm_medium_range_rapid_onset_flooding_forecast___alaska/iz_proc_admin_rw_user_10_day_gfs_waterway_length_flooded.xml"
     ],
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
@@ -66,9 +64,9 @@
     ],
     "defaultExtent" : {
       "xmin" : -17232694.29745945,
-      "ymin" : 8009685.14297582768,
+      "ymin" : 7971158.72858675383,
       "xmax" : -15311815.4557017647,
-      "ymax" : 9367000.35760625638,
+      "ymax" : 9405526.77199533023,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -255,7 +253,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -337,22 +336,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -409,7 +394,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -460,21 +445,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -483,13 +453,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.viz_proc_admin_rw_user.%10-Day GFS Rapid Onset Flood Arrival Time",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_gfs_10day_rapid_onset_flooding_alaska",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_gfs_10day_rapid_onset_flooding_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17220896.2613000013,
@@ -504,19 +474,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -629,12 +594,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -9899,7 +9893,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -9981,22 +9976,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "feature_id",
-            "fieldName" : "feature_id",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "NWM Feature ID",
-            "fieldName" : "feature_id_str",
+            "fieldName" : "feature_id",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -10053,7 +10034,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -10104,21 +10085,6 @@
             "fieldName" : "geom",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "ESRI_OID",
-            "fieldName" : "ESRI_OID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -10127,13 +10093,13 @@
           "workspaceFactory" : "SDE",
           "dataset" : "vizprocessing.viz_proc_admin_rw_user.%10-Day GFS Rapid Onset Flood Arrival Time",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select oid,feature_id,feature_id_str,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_gfs_10day_rapid_onset_flooding_alaska",
+          "sqlQuery" : "select oid,feature_id_str as feature_id,strm_order,name,huc6,state,nwm_vers,reference_time,flood_start_hour,flood_start_time,flood_end_hour,flood_end_time,flood_length,flood_flow,flood_percent_increase,high_water_threshold,reach_length_miles,update_time,geom from vizprocessing.publish.mrf_gfs_10day_rapid_onset_flooding_alaska",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "feature_id_str",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
             "xmin" : -17220896.2613000013,
@@ -10148,19 +10114,14 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
               "name" : "feature_id",
-              "type" : "esriFieldTypeDouble",
-              "alias" : "feature_id"
-            },
-            {
-              "name" : "feature_id_str",
               "type" : "esriFieldTypeString",
-              "alias" : "feature_id_str",
-              "length" : 60000
+              "alias" : "feature_id",
+              "length" : 12
             },
             {
               "name" : "strm_order",
@@ -10273,12 +10234,41 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.Name",
+          "expression" : "$feature.feature_id",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -19545,7 +19535,8 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
-            "visible" : true,
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -19695,7 +19686,7 @@
             "wkid" : 102100,
             "latestWkid" : 3857
           },
-          "oIDFields" : "huc10",
+          "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -17349104.870099999,
@@ -19710,7 +19701,7 @@
           "queryFields" : [
             {
               "name" : "oid",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "oid"
             },
             {
@@ -19796,6 +19787,35 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "enableDisplayFilters" : true,
+      "displayFilters" : [
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Large Streams",
+          "whereClause" : "strm_order >= 4",
+          "maxScale" : 5000000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Medium Streams",
+          "whereClause" : "strm_order >= 3",
+          "minScale" : 5000000,
+          "maxScale" : 2500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "Small Streams",
+          "whereClause" : "strm_order >= 2",
+          "minScale" : 2500000,
+          "maxScale" : 500000
+        },
+        {
+          "type" : "CIMDisplayFilter",
+          "name" : "All Streams",
+          "whereClause" : "strm_order >= 1",
+          "minScale" : 500000
+        }
+      ],
       "displayFiltersType" : "ByScale",
       "featureBlendingMode" : "Alpha",
       "labelClasses" : [
@@ -20788,89 +20808,6 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    },
-    {
-      "type" : "CIMVectorTileLayer",
-      "name" : "World Topographic Map",
-      "uRI" : "CIMPATH=e0f5c39ad8fa4f0fb24a050bc9018d49.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/625740129436790ce50fb6d6c3130cc2.xml",
-      "useSourceMetadata" : true,
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{5772F712-BC82-4B4C-A077-A4B644E970CF}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : false,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "dataConnection" : {
-        "type" : "CIMVectorTileDataConnection",
-        "uRI" : "https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json"
-      }
-    },
-    {
-      "type" : "CIMTiledServiceLayer",
-      "name" : "World Hillshade",
-      "uRI" : "CIMPATH=aff6ed460e58483f8686196f28c72128.xml",
-      "sourceModifiedTime" : {
-        "type" : "TimeInstant"
-      },
-      "metadataURI" : "CIMPATH=Metadata/f786bde0b0b9d4a15677a4d6b0d258b0.xml",
-      "useSourceMetadata" : true,
-      "description" : "Elevation/World_Hillshade",
-      "layerElevation" : {
-        "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{5772F712-BC82-4B4C-A077-A4B644E970CF}"
-      },
-      "layerType" : "BasemapBackground",
-      "showLegends" : true,
-      "visibility" : false,
-      "displayCacheType" : "Permanent",
-      "maxDisplayCacheAge" : 5,
-      "showPopups" : true,
-      "serviceLayerID" : -1,
-      "refreshRate" : -1,
-      "refreshRateUnit" : "esriTimeUnitsSeconds",
-      "blendingMode" : "Alpha",
-      "serviceConnection" : {
-        "type" : "CIMAGSServiceConnection",
-        "objectName" : "Elevation/World_Hillshade",
-        "objectType" : "MapServer",
-        "url" : "https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer",
-        "serverConnection" : {
-          "type" : "CIMInternetServerConnection",
-          "anonymous" : true,
-          "hideUserProperty" : true,
-          "url" : "https://services.arcgisonline.com/arcgis/services"
-        }
-      },
-      "transparentColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      },
-      "backgroundColor" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          254,
-          254,
-          254,
-          100
-        ]
-      }
     }
   ],
   "binaryReferences" : [
@@ -20881,18 +20818,8 @@
     },
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/625740129436790ce50fb6d6c3130cc2.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240807</CreaDate><CreaTime>18484500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Topographic Map</resTitle></idCitation><idAbs></idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/a8b2cb979af3640f3468f2a5a3a284bd.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240809</CreaDate><CreaTime>21373600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>10-Day GFS Rapid Onset Flood Arrival Time</resTitle></idCitation><idAbs>vizprocessing.viz_proc_admin_rw_user.10-Day GFS Rapid Onset Flood Arrival Time</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    },
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/f786bde0b0b9d4a15677a4d6b0d258b0.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20240807</CreaDate><CreaTime>18484500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>World Hillshade</resTitle></idCitation><idAbs>Elevation/World_Hillshade</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ]
 }

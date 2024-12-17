@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS cache.rfc_categorical_flows;
 -- Create temporary routelink tables (dropped at end)
 SELECT *
 INTO ingest.nwm_routelink
-FROM external.nwm_routelink;
+FROM external.nwm_routelink_3_0_conus;
 
 SELECT 
 	main.nwm_feature_id, 

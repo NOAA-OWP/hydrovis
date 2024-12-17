@@ -1,8 +1,8 @@
 import boto3
 import os
-from viz_classes import database, s3_file
+from viz_classes import database
 from viz_lambda_shared_funcs import gen_dict_extract
-from datetime import datetime, timedelta
+from datetime import datetime
 
 ###################################
 def lambda_handler(event, context):
@@ -17,11 +17,12 @@ def lambda_handler(event, context):
     if event['args']['product']['configuration'] == "reference":
         return
     
+    if job_type == 'past_event' and 'cache' not in step:
+        return
+
     ################### Unstage EGIS Tables ###################
     if "unstage" in step:
-        if job_type == "past_event":
-            return
-        elif step == "unstage_db_tables":
+        if step == "unstage_db_tables":
             print(f"Unstaging tables for {event['args']['product']['product']}")
             target_tables = list(gen_dict_extract("target_table", event['args']))
             all_single_tables = [table for table in target_tables if type(table) is not list]
@@ -96,9 +97,9 @@ def lambda_handler(event, context):
         return True
     
     ################### Stage EGIS Tables ###################
-    elif step == "update_summary_data":
+    elif "summary_data" in step:
         tables =  event['args']['postprocess_summary']['target_table']
-    elif step == "update_fim_config_data":
+    elif "fim_config_data" in step:
         if not event['args']['fim_config'].get('postprocess'):
             return
         
@@ -130,19 +131,16 @@ def lambda_handler(event, context):
         connection.close()
 
         columns = ', '.join(column_names)
-            
-        if job_type == 'auto':
-            # Copy data to EGIS - THIS CURRENTLY DOES NOT WORK IN DEV DUE TO REVERSE PEERING NOT FUNCTIONING - it will copy the viz TI table.
+
+        if 'cache' in step:
+            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
+        else:
+            # Copy data to EGIS
             try: # Try copying the data
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
             except Exception as e: # If it doesn't work initially, try refreshing the foreign schema and try again.
                 refresh_fdw_schema(egis_db, local_schema="vizprc_publish", remote_server="vizprc_db", remote_schema=viz_schema) #Update the foreign data schema - we really don't need to run this all the time, but it's fast, so I'm trying it.
                 stage_db_table(egis_db, origin_table=f"vizprc_publish.{table}", dest_table=f"services.{staged_table}", columns=columns, add_oid=True, add_geom_index=True, update_srid=3857) #Copy the publish table from the vizprc db to the egis db, using fdw
-            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
-
-        elif job_type == 'past_event':
-            viz_schema = 'archive'
-            cache_data_on_s3(viz_db, viz_schema, table, reference_time, cache_bucket, columns)
     
     return True
 
