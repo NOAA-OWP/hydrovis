@@ -1,0 +1,151 @@
+services:
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "8000:8000"
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - REDIS_URL=redis
+      - DB_HOST=mock_db
+      - TROUTE_URL=http://troute:8000/api/v1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    depends_on:
+      redis:
+        condition: service_started
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mock_db:
+        condition: service_started
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 90s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    restart: always
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - DB_HOST=mock_db
+      - REDIS_URL=redis
+      - TROUTE_URL=http://troute:8000/api/v1
+    command: sh -c ". /app/.venv/bin/activate && python src/rnr/app/consumer_manager.py"
+    depends_on:
+      redis:
+        condition: service_started
+      troute:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: bind
+        source: ./static
+        target: /app/static
+        read_only: true
+    ports:
+      - "8001:8000"
+    command: sh -c ". /app/.venv/bin/activate && uvicorn src.rnr.frontend.main:app --host 0.0.0.0 --port 8000"
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile.notebook
+    volumes:
+      - type: bind
+        source: ./notebooks
+        target: /app/notebooks
+      - type: bind
+        source: ./data
+        target: /app/data
+    environment:
+      - PIKA_URL=rabbitmq
+      - RABBITMQ_HOST=rabbitmq
+      - SQLALCHEMY_DATABASE_URL=postgresql://{}:{}@{}/{}
+      - DB_HOST=mock_db
+      - REDIS_URL=redis
+      - TROUTE_URL=http://troute:8000/api/v1
+    ports:
+      - "8888:8888"
+    command: jupyter-lab --NotebookApp.token=''
+    depends_on:
+      redis:
+        condition: service_started
+      troute:
+        condition: service_healthy
+
+  mock_db:
+    image: ghcr.io/taddyb/hydrovis/mock_database:0.0.1
+    environment:
+      - POSTGRES_PASSWORD=pass123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=vizprocessing
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.2.5
+    ports:
+      - "6379:6379"
+
+  troute:
+    image: ghcr.io/taddyb/t-route/t-route-api:0.1.0
+    ports:
+      - "8004:8000"
+    volumes:
+      - type: bind
+        source: ./data/troute_output
+        target: /t-route/output
+        bind:
+          selinux: z
+      - type: bind
+        source: ./data
+        target: /t-route/data
+        bind:
+          selinux: z
+    command: sh -c ". /t-route/.venv/bin/activate && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    healthcheck:
+      test: curl --fail -I http://localhost:8000/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s

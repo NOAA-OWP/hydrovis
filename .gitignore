@@ -50,6 +50,30 @@ terraform.rc
 **/buildplan
 **/destroyplan
 
+
+###################
+# Replace and Route
+###################
+Source/RnR/.venv
+Source/RnR/src/rnr/app/core/config.ini
+Source/RnR/mock_db/rnr_schema_dump_20240612.dump
+Source/RnR/data
+Source/RnR/output
+Source/RnR/dist
+Source/RnR/notebooks/historical_flood_event
+Source/RnR/.Trash*
+
+*.ruff_cache
+*.pytest_cache
+
+*.pyc
+*.egg-info/
+__pycache__/
+*.py[cod]
+.env
+.python-version
+
+
 # Ignore all jupyter checkpoint folders
 .ipynb_checkpoints
 
