@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -39,14 +39,14 @@
           ],
           [
             -13589833.4802,
-            6270464.96760000288
+            6270464.967600003
           ],
           [
-            -7497492.26109999977,
-            6270464.96760000288
+            -7497492.2611,
+            6270464.967600003
           ],
           [
-            -7497492.26109999977,
+            -7497492.2611,
             2899208.2322999984
           ],
           [
@@ -61,10 +61,10 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -16569743.1832300052,
-      "ymin" : 1286330.39455244644,
-      "xmax" : -4571685.37351884041,
-      "ymax" : 7576221.30691617727,
+      "xmin" : -16569743.183230005,
+      "ymin" : 1286330.3945524464,
+      "xmax" : -4571685.37351884,
+      "ymax" : 7576221.306916177,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -486,8 +486,9 @@
             },
             {
               "name" : "below_bank_return_hour",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "below_bank_return_hour"
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_hour",
+              "length" : 100
             },
             {
               "name" : "below_bank_return_time",
@@ -801,7 +802,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        244.80000000000001,
+                        244.8,
                         200,
                         224,
                         100
@@ -833,7 +834,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        244.80000000000001,
+                        244.8,
                         152,
                         182,
                         100
@@ -1118,7 +1119,7 @@
               "heading" : "strm_order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,

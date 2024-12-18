@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -34,23 +34,23 @@
       "rings" : [
         [
           [
-            -7520251.28685751371,
+            -7520251.286857514,
             1948152.645134964
           ],
           [
-            -7520251.28685751371,
-            2152754.51918246225
+            -7520251.286857514,
+            2152754.5191824622
           ],
           [
-            -7155919.3081935551,
-            2152754.51918246225
+            -7155919.308193555,
+            2152754.5191824622
           ],
           [
-            -7155919.3081935551,
+            -7155919.308193555,
             1948152.645134964
           ],
           [
-            -7520251.28685751371,
+            -7520251.286857514,
             1948152.645134964
           ]
         ]
@@ -61,10 +61,10 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -7520251.28685751371,
+      "xmin" : -7520251.286857514,
       "ymin" : 1948152.645134964,
-      "xmax" : -7155919.3081935551,
-      "ymax" : 2152754.51918246225,
+      "xmax" : -7155919.308193555,
+      "ymax" : 2152754.5191824622,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -439,7 +439,7 @@
             },
             {
               "name" : "strm_order",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "strm_order"
             },
             {
@@ -771,7 +771,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,

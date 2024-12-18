@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -40,23 +40,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -67,9 +67,9 @@
     },
     "defaultExtent" : {
       "xmin" : -15154624.89571771,
-      "ymin" : 2044165.65447787009,
-      "xmax" : -5948278.72887589037,
-      "ymax" : 6622184.78662325628,
+      "ymin" : 2044165.65447787,
+      "xmax" : -5948278.72887589,
+      "ymax" : 6622184.786623256,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -414,9 +414,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -443,7 +442,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -711,7 +710,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -928,9 +927,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -957,7 +955,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -1225,7 +1223,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -1442,9 +1440,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -1471,7 +1468,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -1739,7 +1736,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -1940,8 +1937,8 @@
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -13885002.75564052,
-            "ymin" : 2886391.81298921024,
-            "xmax" : -7453873.99262493849,
+            "ymin" : 2886391.8129892102,
+            "xmax" : -7453873.9926249385,
             "ymax" : 6553821.043907322,
             "spatialReference" : {
               "wkid" : 102100,
@@ -1966,9 +1963,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -1995,7 +1991,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -2263,7 +2259,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -2464,8 +2460,8 @@
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -13885002.75564052,
-            "ymin" : 2886391.81298921024,
-            "xmax" : -7453873.99262493849,
+            "ymin" : 2886391.8129892102,
+            "xmax" : -7453873.9926249385,
             "ymax" : 6553821.043907322,
             "spatialReference" : {
               "wkid" : 102100,
@@ -2490,9 +2486,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -2519,7 +2514,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -2787,7 +2782,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -3004,9 +2999,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -3033,7 +3027,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -3301,7 +3295,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [

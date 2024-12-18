@@ -14,8 +14,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -37,9 +37,9 @@
     "mapType" : "Map",
     "defaultExtent" : {
       "xmin" : -18001744.74190234,
-      "ymin" : 7597136.70710205659,
-      "xmax" : -15120426.4792658128,
-      "ymax" : 9633109.52904770151,
+      "ymin" : 7597136.707102057,
+      "xmax" : -15120426.479265813,
+      "ymax" : 9633109.529047702,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -416,10 +416,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -17223267.2712000012,
-            "ymin" : 8098950.33820000291,
+            "xmin" : -17223267.2712,
+            "ymin" : 8098950.338200003,
             "xmax" : -15603961.933600001,
-            "ymax" : 9255673.98250000179,
+            "ymax" : 9255673.982500002,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -477,7 +477,7 @@
             },
             {
               "name" : "forecast_hour",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "forecast_hour"
             },
             {
@@ -798,9 +798,9 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.01999999999998,
-                        67.209999999999994,
-                        71.760000000000005,
+                        359.02,
+                        67.21,
+                        71.76,
                         100
                       ]
                     }
@@ -830,8 +830,8 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.36000000000001,
-                        75.810000000000002,
+                        359.36,
+                        75.81,
                         97.25,
                         100
                       ]
@@ -1364,10 +1364,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -17223267.2712000012,
-            "ymin" : 8098950.33820000291,
+            "xmin" : -17223267.2712,
+            "ymin" : 8098950.338200003,
             "xmax" : -15603961.933600001,
-            "ymax" : 9255673.98250000179,
+            "ymax" : 9255673.982500002,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -1425,7 +1425,7 @@
             },
             {
               "name" : "forecast_hour",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "forecast_hour"
             },
             {
@@ -1746,9 +1746,9 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.01999999999998,
-                        67.209999999999994,
-                        71.760000000000005,
+                        359.02,
+                        67.21,
+                        71.76,
                         100
                       ]
                     }
@@ -1778,8 +1778,8 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.36000000000001,
-                        75.810000000000002,
+                        359.36,
+                        75.81,
                         97.25,
                         100
                       ]
@@ -2312,10 +2312,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -17223267.2712000012,
-            "ymin" : 8098950.33820000291,
+            "xmin" : -17223267.2712,
+            "ymin" : 8098950.338200003,
             "xmax" : -15603961.933600001,
-            "ymax" : 9255673.98250000179,
+            "ymax" : 9255673.982500002,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2373,7 +2373,7 @@
             },
             {
               "name" : "forecast_hour",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "forecast_hour"
             },
             {
@@ -2694,9 +2694,9 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.01999999999998,
-                        67.209999999999994,
-                        71.760000000000005,
+                        359.02,
+                        67.21,
+                        71.76,
                         100
                       ]
                     }
@@ -2726,8 +2726,8 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.36000000000001,
-                        75.810000000000002,
+                        359.36,
+                        75.81,
                         97.25,
                         100
                       ]
@@ -3260,10 +3260,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -17223267.2712000012,
-            "ymin" : 8098950.33820000291,
+            "xmin" : -17223267.2712,
+            "ymin" : 8098950.338200003,
             "xmax" : -15603961.933600001,
-            "ymax" : 9255673.98250000179,
+            "ymax" : 9255673.982500002,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -3321,7 +3321,7 @@
             },
             {
               "name" : "forecast_hour",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "forecast_hour"
             },
             {
@@ -3642,9 +3642,9 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.01999999999998,
-                        67.209999999999994,
-                        71.760000000000005,
+                        359.02,
+                        67.21,
+                        71.76,
                         100
                       ]
                     }
@@ -3674,8 +3674,8 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.36000000000001,
-                        75.810000000000002,
+                        359.36,
+                        75.81,
                         97.25,
                         100
                       ]
@@ -4208,10 +4208,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolyline",
           "extent" : {
-            "xmin" : -17223267.2712000012,
-            "ymin" : 8098950.33820000291,
+            "xmin" : -17223267.2712,
+            "ymin" : 8098950.338200003,
             "xmax" : -15603961.933600001,
-            "ymax" : 9255673.98250000179,
+            "ymax" : 9255673.982500002,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -4269,7 +4269,7 @@
             },
             {
               "name" : "forecast_hour",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "forecast_hour"
             },
             {
@@ -4590,9 +4590,9 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.01999999999998,
-                        67.209999999999994,
-                        71.760000000000005,
+                        359.02,
+                        67.21,
+                        71.76,
                         100
                       ]
                     }
@@ -4622,8 +4622,8 @@
                     "color" : {
                       "type" : "CIMHSVColor",
                       "values" : [
-                        359.36000000000001,
-                        75.810000000000002,
+                        359.36,
+                        75.81,
                         97.25,
                         100
                       ]

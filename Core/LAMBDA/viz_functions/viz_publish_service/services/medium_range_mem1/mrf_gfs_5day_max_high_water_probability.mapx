@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -40,23 +40,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -96,10 +96,10 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -12660686.6178266443,
+      "xmin" : -12660686.617826644,
       "ymin" : 3435113.32638676,
-      "xmax" : -8589285.58023687825,
-      "ymax" : 6301559.27748396527,
+      "xmax" : -8589285.580236878,
+      "ymax" : 6301559.277483965,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -461,7 +461,7 @@
             },
             {
               "name" : "hours_3_to_24",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "hours_3_to_24"
             },
             {
@@ -770,7 +770,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -988,7 +988,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -1222,7 +1222,7 @@
             },
             {
               "name" : "hours_27_to_48",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "hours_27_to_48"
             },
             {
@@ -1531,7 +1531,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -1749,7 +1749,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -1983,7 +1983,7 @@
             },
             {
               "name" : "hours_51_to_72",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "hours_51_to_72"
             },
             {
@@ -2292,7 +2292,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -2510,7 +2510,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -2744,7 +2744,7 @@
             },
             {
               "name" : "hours_75_to_120",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "hours_75_to_120"
             },
             {
@@ -3053,7 +3053,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -3271,7 +3271,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -3495,7 +3495,7 @@
             },
             {
               "name" : "hours_3_to_120",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "hours_3_to_120"
             },
             {
@@ -3804,7 +3804,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -4022,7 +4022,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -4193,8 +4193,8 @@
           "extent" : {
             "xmin" : -13904051.523,
             "ymin" : 2801656.1603000015,
-            "xmax" : -7349173.16860000044,
-            "ymax" : 6556933.02220000327,
+            "xmax" : -7349173.1686,
+            "ymax" : 6556933.022200003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -4497,7 +4497,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4516,7 +4516,7 @@
                       "values" : [
                         33,
                         68,
-                        167.99000000000001,
+                        167.99,
                         100
                       ]
                     }
@@ -4542,7 +4542,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4587,7 +4587,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4632,7 +4632,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4717,7 +4717,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -4760,7 +4760,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [

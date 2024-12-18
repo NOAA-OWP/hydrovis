@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -36,23 +36,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -62,9 +62,9 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -12741191.8027382921,
-      "ymin" : 3449911.10343416082,
-      "xmax" : -8595903.51216171123,
+      "xmin" : -12741191.802738292,
+      "ymin" : 3449911.103434161,
+      "xmax" : -8595903.512161711,
       "ymax" : 6368376.940365836,
       "spatialReference" : {
         "wkid" : 102100,
@@ -505,39 +505,33 @@
             },
             {
               "name" : "prcntle_5",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_5",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_5"
             },
             {
               "name" : "prcntle_10",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_10",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_10"
             },
             {
               "name" : "prcntle_25",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_25",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_25"
             },
             {
               "name" : "prcntle_75",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_75",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_75"
             },
             {
               "name" : "prcntle_90",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_90",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_90"
             },
             {
               "name" : "prcntle_95",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_95",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_95"
             },
             {
               "name" : "anom_cat_7day",
@@ -837,7 +831,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,
@@ -1458,39 +1452,33 @@
             },
             {
               "name" : "prcntle_5",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_5",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_5"
             },
             {
               "name" : "prcntle_10",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_10",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_10"
             },
             {
               "name" : "prcntle_25",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_25",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_25"
             },
             {
               "name" : "prcntle_75",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_75",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_75"
             },
             {
               "name" : "prcntle_90",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_90",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_90"
             },
             {
               "name" : "prcntle_95",
-              "type" : "esriFieldTypeString",
-              "alias" : "prcntle_95",
-              "length" : 15
+              "type" : "esriFieldTypeDouble",
+              "alias" : "prcntle_95"
             },
             {
               "name" : "average_flow_14day",
@@ -1795,7 +1783,7 @@
               "heading" : "Stream Order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,

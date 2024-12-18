@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -31,10 +31,10 @@
     "defaultViewingMode" : "Map",
     "mapType" : "Map",
     "defaultExtent" : {
-      "xmin" : -17717863.5166896209,
-      "ymin" : 7453255.69833482616,
-      "xmax" : -15161629.9254895523,
-      "ymax" : 9606536.21111912094,
+      "xmin" : -17717863.51668962,
+      "ymin" : 7453255.698334826,
+      "xmax" : -15161629.925489552,
+      "ymax" : 9606536.211119121,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -447,8 +447,9 @@
             },
             {
               "name" : "below_bank_return_hour",
-              "type" : "esriFieldTypeInteger",
-              "alias" : "below_bank_return_hour"
+              "type" : "esriFieldTypeString",
+              "alias" : "below_bank_return_hour",
+              "length" : 100
             },
             {
               "name" : "below_bank_return_time",
@@ -785,7 +786,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        244.80000000000001,
+                        244.8,
                         200,
                         224,
                         100
@@ -817,7 +818,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        244.80000000000001,
+                        244.8,
                         152,
                         182,
                         100
@@ -1102,7 +1103,7 @@
               "heading" : "strm_order"
             },
             "randomMax" : 1,
-            "minSize" : 0.33000000000000002,
+            "minSize" : 0.33,
             "maxSize" : 2,
             "minValue" : 1,
             "maxValue" : 10,

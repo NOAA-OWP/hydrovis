@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -36,23 +36,23 @@
         [
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ],
           [
             -15224159.214216806,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
+            -6228307.888008264,
             7211496.010788572
           ],
           [
-            -6228307.88800826389,
-            2159597.88073609583
+            -6228307.888008264,
+            2159597.880736096
           ],
           [
             -15224159.214216806,
-            2159597.88073609583
+            2159597.880736096
           ]
         ]
       ],
@@ -92,8 +92,8 @@
       }
     ],
     "defaultExtent" : {
-      "xmin" : -16791651.2146173716,
-      "ymin" : 1474107.38979748264,
+      "xmin" : -16791651.21461737,
+      "ymin" : 1474107.3897974826,
       "xmax" : -4310232.918508362,
       "ymax" : 8534243.619137926,
       "spatialReference" : {
@@ -423,10 +423,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPoint",
           "extent" : {
-            "xmin" : -124.283380999999963,
-            "ymin" : 27.2208824500000333,
-            "xmax" : -67.9352777799999785,
-            "ymax" : 48.9991666700000792,
+            "xmin" : -124.28338099999996,
+            "ymin" : 27.220882450000033,
+            "xmax" : -67.93527777999998,
+            "ymax" : 48.99916667000008,
             "spatialReference" : {
               "wkid" : 4326,
               "latestWkid" : 4326
@@ -805,9 +805,9 @@
                               "color" : {
                                 "type" : "CIMHSVColor",
                                 "values" : [
-                                  32.770000000000003,
-                                  92.859999999999999,
-                                  54.899999999999999,
+                                  32.77,
+                                  92.86,
+                                  54.9,
                                   100
                                 ]
                               }
@@ -902,9 +902,9 @@
                               "color" : {
                                 "type" : "CIMHSVColor",
                                 "values" : [
-                                  40.700000000000003,
-                                  53.240000000000002,
-                                  84.709999999999994,
+                                  40.7,
+                                  53.24,
+                                  84.71,
                                   100
                                 ]
                               }
@@ -962,7 +962,7 @@
                                     2
                                   ],
                                   [
-                                    3.7403412051009278e-15,
+                                    3.740341205100928e-15,
                                     0
                                   ],
                                   0,
@@ -999,9 +999,9 @@
                               "color" : {
                                 "type" : "CIMHSVColor",
                                 "values" : [
-                                  43.530000000000001,
+                                  43.53,
                                   20.73,
-                                  96.469999999999999,
+                                  96.47,
                                   100
                                 ]
                               }
@@ -1059,7 +1059,7 @@
                                     2
                                   ],
                                   [
-                                    3.7403412051009278e-15,
+                                    3.740341205100928e-15,
                                     0
                                   ],
                                   0,
@@ -1098,7 +1098,7 @@
                                 "values" : [
                                   0,
                                   0,
-                                  96.079999999999998,
+                                  96.08,
                                   100
                                 ]
                               }
@@ -1156,7 +1156,7 @@
                                     2
                                   ],
                                   [
-                                    3.7403412051009278e-15,
+                                    3.740341205100928e-15,
                                     0
                                   ],
                                   0,
@@ -1193,9 +1193,9 @@
                               "color" : {
                                 "type" : "CIMHSVColor",
                                 "values" : [
-                                  171.43000000000001,
-                                  14.960000000000001,
-                                  91.760000000000005,
+                                  171.43,
+                                  14.96,
+                                  91.76,
                                   100
                                 ]
                               }
@@ -1253,7 +1253,7 @@
                                     2
                                   ],
                                   [
-                                    3.5684357045137959e-15,
+                                    3.568435704513796e-15,
                                     0
                                   ],
                                   0,
@@ -1290,9 +1290,9 @@
                               "color" : {
                                 "type" : "CIMHSVColor",
                                 "values" : [
-                                  174.66999999999999,
+                                  174.67,
                                   50,
-                                  70.590000000000003,
+                                  70.59,
                                   100
                                 ]
                               }
@@ -1350,7 +1350,7 @@
                                     2
                                   ],
                                   [
-                                    3.5684357045137959e-15,
+                                    3.568435704513796e-15,
                                     0
                                   ],
                                   0,
@@ -1388,7 +1388,7 @@
                                 "type" : "CIMHSVColor",
                                 "values" : [
                                   175.25,
-                                  99.019999999999996,
+                                  99.02,
                                   40,
                                   100
                                 ]
@@ -1487,7 +1487,7 @@
                                 2
                               ],
                               [
-                                3.2962519952507539e-15,
+                                3.296251995250754e-15,
                                 0
                               ],
                               0,
@@ -1507,7 +1507,7 @@
                           "joinStyle" : "Round",
                           "lineStyle3D" : "Strip",
                           "miterLimit" : 10,
-                          "width" : 0.69999999999999996,
+                          "width" : 0.7,
                           "color" : {
                             "type" : "CIMRGBColor",
                             "values" : [
@@ -1582,7 +1582,7 @@
                                 2
                               ],
                               [
-                                3.2962519952507539e-15,
+                                3.296251995250754e-15,
                                 0
                               ],
                               0,
@@ -1602,7 +1602,7 @@
                           "joinStyle" : "Round",
                           "lineStyle3D" : "Strip",
                           "miterLimit" : 10,
-                          "width" : 0.69999999999999996,
+                          "width" : 0.7,
                           "color" : {
                             "type" : "CIMRGBColor",
                             "values" : [
@@ -1817,9 +1817,9 @@
           "geometryType" : "esriGeometryPoint",
           "extent" : {
             "xmin" : -13667986.8586,
-            "ymin" : 2976131.97670000046,
-            "xmax" : -7545985.2053999994,
-            "ymax" : 6264345.28670000285,
+            "ymin" : 2976131.9767000005,
+            "xmax" : -7545985.205399999,
+            "ymax" : 6264345.286700003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2573,26 +2573,26 @@
             }
           ],
           "weights" : [
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941,
-            0.076923076923076941
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694,
+            0.07692307692307694
           ]
         },
         "radius" : 30,
         "rendererQuality" : 2,
         "minLabel" : "Sparse",
         "maxLabel" : "Dense",
-        "maxPixelIntensity" : 3.1277004890260432e-07,
+        "maxPixelIntensity" : 3.127700489026043e-07,
         "pixelIntensityStops" : [
           0.0011764705882353343,
           1
@@ -2931,8 +2931,8 @@
           "extent" : {
             "xmin" : -13702752.5208,
             "ymin" : 2900684.3673,
-            "xmax" : -7456492.42270000093,
-            "ymax" : 6265558.83030000329,
+            "xmax" : -7456492.422700001,
+            "ymax" : 6265558.830300003,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -2946,7 +2946,7 @@
             },
             {
               "name" : "huc10",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "huc10"
             },
             {
@@ -2967,7 +2967,7 @@
             },
             {
               "name" : "max_fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "max_fim_stage_ft"
             },
             {
@@ -3300,7 +3300,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3345,7 +3345,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3390,7 +3390,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3435,7 +3435,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3480,7 +3480,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -3601,7 +3601,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -3644,7 +3644,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -4004,10 +4004,10 @@
           "oIDFields" : "oid",
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
-            "xmin" : -13714908.1246999986,
-            "ymin" : 2892633.59189999849,
-            "xmax" : -7445653.49290000089,
-            "ymax" : 6274987.50299999863,
+            "xmin" : -13714908.124699999,
+            "ymin" : 2892633.5918999985,
+            "xmax" : -7445653.492900001,
+            "ymax" : 6274987.502999999,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -4049,7 +4049,7 @@
             },
             {
               "name" : "max_fim_stage_ft",
-              "type" : "esriFieldTypeDouble",
+              "type" : "esriFieldTypeInteger",
               "alias" : "max_fim_stage_ft"
             },
             {
@@ -4382,7 +4382,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4427,7 +4427,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4472,7 +4472,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4517,7 +4517,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4562,7 +4562,7 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 0.69999999999999996,
+                    "width" : 0.7,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -4683,7 +4683,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -4726,7 +4726,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -4965,9 +4965,9 @@
           "geometryType" : "esriGeometryPolygon",
           "extent" : {
             "xmin" : -13578523.488499999,
-            "ymin" : 3096599.32990000024,
-            "xmax" : -7616764.76359999925,
-            "ymax" : 6208676.23160000145,
+            "ymin" : 3096599.3299000002,
+            "xmax" : -7616764.763599999,
+            "ymax" : 6208676.231600001,
             "spatialReference" : {
               "wkid" : 102100,
               "latestWkid" : 3857
@@ -5326,7 +5326,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -5377,7 +5377,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5430,7 +5430,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5483,7 +5483,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5536,7 +5536,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5589,7 +5589,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5642,7 +5642,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5695,7 +5695,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5748,7 +5748,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 0.7,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -5929,7 +5929,7 @@
             "visible" : true,
             "searchMode" : "Exact"
           },
-         {
+          {
             "type" : "CIMFieldDescription",
             "alias" : "USGS HUC8",
             "fieldName" : "huc8",
@@ -6471,7 +6471,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [

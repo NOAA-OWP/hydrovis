@@ -15,8 +15,8 @@
     "illumination" : {
       "type" : "CIMIlluminationProperties",
       "ambientLight" : 75,
-      "sunPositionX" : -0.61237243569579003,
-      "sunPositionY" : 0.61237243569579003,
+      "sunPositionX" : -0.61237243569579,
+      "sunPositionY" : 0.61237243569579,
       "sunPositionZ" : 0.5,
       "illuminationSource" : "AbsoluteSunPosition",
       "sunAzimuth" : 315,
@@ -35,24 +35,24 @@
       "rings" : [
         [
           [
-            -20037507.8427882455,
-            -30240971.4583861493
+            -20037507.842788246,
+            -30240971.45838615
           ],
           [
-            -20037507.8427882455,
-            30240971.4583861493
+            -20037507.842788246,
+            30240971.45838615
           ],
           [
-            20037507.8427882455,
-            30240971.4583861493
+            20037507.842788246,
+            30240971.45838615
           ],
           [
-            20037507.8427882455,
-            -30240971.4583861493
+            20037507.842788246,
+            -30240971.45838615
           ],
           [
-            -20037507.8427882455,
-            -30240971.4583861493
+            -20037507.842788246,
+            -30240971.45838615
           ]
         ]
       ],
@@ -62,9 +62,9 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -18249902.2411025725,
-      "ymin" : 7657922.42028567009,
-      "xmax" : -15368583.9784660451,
+      "xmin" : -18249902.241102573,
+      "ymin" : 7657922.42028567,
+      "xmax" : -15368583.978466045,
       "ymax" : 9693895.242231315,
       "spatialReference" : {
         "wkid" : 102100,
@@ -345,7 +345,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_ak_1_1_1_1",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.mrf_nbm_max_inundation_5day_ak\n\n",
+          "sqlQuery" : "select hydro_id_str as hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str as feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.mrf_nbm_max_inundation_5day_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -697,7 +697,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -924,7 +924,7 @@
           "workspaceFactory" : "SDE",
           "dataset" : "hydrovis.services.%ana_inundation_ak_1_1_1_1_2",
           "datasetType" : "esriDTFeatureClass",
-          "sqlQuery" : "select hydro_id_str AS hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str AS feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.mrf_nbm_max_inundation_10day_ak\n\n",
+          "sqlQuery" : "select hydro_id_str as hydro_id,streamflow_cfs,fim_stage_ft,feature_id_str as feature_id,fim_version,reference_time,update_time,branch,max_rc_stage_ft,max_rc_discharge_cfs,geom,huc8,strm_order,name,state,oid from hydrovis.services.mrf_nbm_max_inundation_10day_ak",
           "srid" : "3857",
           "spatialReference" : {
             "wkid" : 102100,
@@ -1276,7 +1276,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.69999999999999996,
+                "width" : 0.7,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
