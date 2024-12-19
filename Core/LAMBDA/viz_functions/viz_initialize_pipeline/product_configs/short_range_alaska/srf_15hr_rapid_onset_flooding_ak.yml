@@ -22,4 +22,4 @@ postprocess_sql:
     target_table: publish.srf_15hr_rapid_onset_flooding_ak
   
 services:
-  - srf_15hr_rapid_onset_flooding_alaska_noaa
+  - srf_15hr_rapid_onset_flooding_ak_noaa
