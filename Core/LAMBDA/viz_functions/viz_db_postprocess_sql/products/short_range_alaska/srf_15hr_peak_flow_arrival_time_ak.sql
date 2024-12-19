@@ -34,4 +34,5 @@ JOIN derived.recurrence_flows_ak AS rf ON forecasts.feature_id = rf.feature_id
 -- Join in high water arrival time for return time (the yaml config file ensures that arrival time finishes first for this, but we'll join on reference_time as well to ensure)
 JOIN publish.srf_15hr_high_water_arrival_time_alaska AS arrival_time ON forecasts.feature_id = arrival_time.feature_id and forecasts.reference_time = arrival_time.reference_time
 
+WHERE round((forecasts.streamflow*35.315)::numeric, 2) >= rf.high_water_threshold
 GROUP BY forecasts.feature_id, forecasts.reference_time, forecasts.nwm_vers, arrival_time.below_bank_return_hour, arrival_time.below_bank_return_time, max_flows.discharge_cfs, channels.geom, channels.strm_order, channels.name, channels.huc6, rf.high_water_threshold;

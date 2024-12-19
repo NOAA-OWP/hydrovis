@@ -19,8 +19,8 @@ db_max_flows:
     max_flows_sql_file: mrf_nbm_10day_max_flows_ak
 
 postprocess_sql:
-  - sql_file: mrf_nbm_10day_peak_flow_arrival_time_alaska
+  - sql_file: mrf_nbm_10day_peak_flow_arrival_time_ak
     target_table: publish.mrf_nbm_10day_peak_flow_arrival_time_alaska
 
 services:
-  - mrf_nbm_10day_peak_flow_arrival_time_alaska_noaa
+  - mrf_nbm_10day_peak_flow_arrival_time_ak_noaa
