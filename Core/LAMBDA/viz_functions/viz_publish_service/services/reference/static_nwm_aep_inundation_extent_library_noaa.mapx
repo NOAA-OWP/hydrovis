@@ -66,10 +66,10 @@
       }
     },
     "defaultExtent" : {
-      "xmin" : -15154624.89571771,
-      "ymin" : 2044165.65447787009,
-      "xmax" : -5948278.72887589037,
-      "ymax" : 6622184.78662325628,
+      "xmin" : -10487608.0709250346,
+      "ymin" : 3541610.59763742238,
+      "xmax" : -10383320.52749401,
+      "ymax" : 3605621.86964837089,
       "spatialReference" : {
         "wkid" : 102100,
         "latestWkid" : 3857
@@ -414,9 +414,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -443,7 +442,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -728,9 +727,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    114,
-                    175,
-                    233,
+                    180,
+                    255,
+                    242,
                     100
                   ]
                 }
@@ -744,12 +743,13 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "50% AEP",
+      "name" : "50% NRP",
       "uRI" : "CIMPATH=nwm_high_flow_magnitude_analysis/hydrovis_hydrovis_50_aep.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/9b44c9b0ce9d0741e82b5bcc92bc231f.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.50 AEP",
       "layerElevation" : {
@@ -928,9 +928,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -957,7 +956,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -1242,9 +1241,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
+                    57,
+                    239,
                     255,
-                    255,
-                    0,
                     100
                   ]
                 }
@@ -1258,12 +1257,13 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "20% AEP",
+      "name" : "20% NRP",
       "uRI" : "CIMPATH=nwm_high_flow_magnitude_analysis/hydrovis_hydrovis_20_aep.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/d172eb7e1be923d5025f7767cbc00297.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.20 AEP",
       "layerElevation" : {
@@ -1410,6 +1410,7 @@
             "searchMode" : "Exact"
           }
         ],
+        "selectionSetURI" : "CIMPATH=SelectionSet/4866266faf6f2fd4bb75b87656588c81.dat",
         "dataConnection" : {
           "type" : "CIMSqlQueryDataConnection",
           "workspaceConnectionString" : "SERVER=rds-egis.hydrovis.internal;INSTANCE=sde:postgresql:rds-egis.hydrovis.internal;DBCLIENT=postgresql;DB_CONNECTION_PROPERTIES=rds-egis.hydrovis.internal;DATABASE=hydrovis;USER=hydrovis;AUTHENTICATION_MODE=DBMS",
@@ -1442,9 +1443,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -1471,7 +1471,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -1756,9 +1756,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
+                    45,
+                    159,
                     255,
-                    153,
-                    0,
                     100
                   ]
                 }
@@ -1772,12 +1772,13 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "10% AEP",
+      "name" : "10% NRP",
       "uRI" : "CIMPATH=nwm_high_flow_magnitude_analysis/hydrovis_hydrovis_10_aep.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/596936fb254e46b457140abd8f16abaa.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.10 AEP",
       "layerElevation" : {
@@ -1966,9 +1967,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -1995,7 +1995,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -2280,9 +2280,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
+                    20,
+                    0,
                     255,
-                    0,
-                    0,
                     100
                   ]
                 }
@@ -2296,12 +2296,13 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "4% AEP",
+      "name" : "4% NRP",
       "uRI" : "CIMPATH=nwm_high_flow_magnitude_analysis/hydrovis_hydrovis_4_aep.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/12f957fdf488b66792c1247855a9ee2e.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.4 AEP",
       "layerElevation" : {
@@ -2490,9 +2491,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -2519,7 +2519,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -2804,9 +2804,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    230,
+                    158,
                     0,
-                    169,
+                    255,
                     100
                   ]
                 }
@@ -2820,12 +2820,13 @@
     },
     {
       "type" : "CIMFeatureLayer",
-      "name" : "2% AEP",
+      "name" : "2% NRP",
       "uRI" : "CIMPATH=nwm_high_flow_magnitude_analysis/hydrovis_hydrovis_2_aep.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/3d7f087f98737f8c63e8179093ee8195.xml",
       "useSourceMetadata" : true,
       "description" : "hydrovis.hydrovis.2 AEP",
       "layerElevation" : {
@@ -3004,9 +3005,8 @@
             },
             {
               "name" : "branch",
-              "type" : "esriFieldTypeString",
-              "alias" : "branch",
-              "length" : 12
+              "type" : "esriFieldTypeInteger",
+              "alias" : "branch"
             },
             {
               "name" : "fim_version",
@@ -3033,7 +3033,7 @@
             },
             {
               "name" : "max_rc_stage_ft",
-              "type" : "esriFieldTypeInteger",
+              "type" : "esriFieldTypeDouble",
               "alias" : "max_rc_stage_ft"
             },
             {
@@ -3318,9 +3318,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    204,
-                    51,
                     255,
+                    0,
+                    229,
                     100
                   ]
                 }
@@ -3336,8 +3336,38 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/12f957fdf488b66792c1247855a9ee2e.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20241219</CreaDate><CreaTime>16313500</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/3d7f087f98737f8c63e8179093ee8195.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20241219</CreaDate><CreaTime>16314400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/596936fb254e46b457140abd8f16abaa.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20241219</CreaDate><CreaTime>16312900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/7ba4bd30be7a13d31d7129121cc9508c.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20180518</CreaDate><CreaTime>09141800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCACFAMgDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\n/9k=</Data></Thumbnail></Binary></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/9b44c9b0ce9d0741e82b5bcc92bc231f.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20241219</CreaDate><CreaTime>16251800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/d172eb7e1be923d5025f7767cbc00297.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20241219</CreaDate><CreaTime>16312200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=SelectionSet/4866266faf6f2fd4bb75b87656588c81.dat",
+      "data" : "CgMxLjAQARoDCgEy"
     }
   ]
 }
