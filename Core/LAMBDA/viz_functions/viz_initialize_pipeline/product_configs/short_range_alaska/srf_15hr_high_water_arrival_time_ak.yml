@@ -1,4 +1,4 @@
-product: srf_15hr_high_water_arrival_time_alaska
+product: srf_15hr_high_water_arrival_time_ak
 configuration: short_range_alaska
 product_type: "vector"
 run: true
@@ -11,8 +11,8 @@ ingest_files:
       target_keys: (feature_id, streamflow)
 
 postprocess_sql:
-  - sql_file: srf_15hr_high_water_arrival_time_alaska
+  - sql_file: srf_15hr_high_water_arrival_time_ak
     target_table: publish.srf_15hr_high_water_arrival_time_alaska
 
 services:
-  - srf_15hr_high_water_arrival_time_alaska_noaa
+  - srf_15hr_high_water_arrival_time_ak_noaa

@@ -1,4 +1,4 @@
-product: srf_15hr_max_high_flow_magnitude_alaska
+product: srf_15hr_max_high_flow_magnitude_ak
 configuration: short_range_alaska
 product_type: "vector"
 run: true
@@ -22,4 +22,4 @@ postprocess_sql:
     target_table: publish.srf_15hr_max_high_flow_magnitude_ak
 
 services:
-  - srf_15hr_max_high_flow_magnitude_alaska_noaa
+  - srf_15hr_max_high_flow_magnitude_ak_noaa
